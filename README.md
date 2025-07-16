@@ -9,7 +9,7 @@ TrainLoop = λθ. λD. λn.
     if n = 0 then θ else
     let θ' = Fold (TrainStep θ) D in
     TrainLoop θ' D (n - 1)
-
+```
 
 # Minimalist ML Core Code Checklist
 
