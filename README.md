@@ -1,3 +1,16 @@
+## Null Hypothesis (H₀)
+
+The training procedure does **not** improve the model parameters \(\theta\); that is, after training iterations, the expected loss remains unchanged or does **not decrease** compared to initial parameters.
+
+Formally:
+
+```latex
+H_0: \quad
+\mathbb{E}_{(x,y) \sim D} \big[ L(M_{\theta_n}(x), y) \big]
+\geq
+\mathbb{E}_{(x,y) \sim D} \big[ L(M_{\theta_0}(x), y) \big]
+```
+
 # Abstract ML Training Design
 
 ```text
