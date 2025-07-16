@@ -1,3 +1,16 @@
+# Abstract ML Training Design in Lambda Calculus
+
+```text
+M = λθ. λx. forward(θ, x)
+L = λy_pred. λy_true. loss(y_pred, y_true)
+U = λθ. λx. λy_true. θ'  // parameter update (black box)
+TrainStep = λθ. λ(x,y_true). U θ x y_true
+TrainLoop = λθ. λD. λn.
+    if n = 0 then θ else
+    let θ' = Fold (TrainStep θ) D in
+    TrainLoop θ' D (n - 1)
+
+
 # Minimalist ML Core Code Checklist
 
 **Scope:**  
