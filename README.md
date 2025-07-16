@@ -4,11 +4,11 @@ The training procedure does **not** improve the model parameters \(\theta\); tha
 
 Formally:
 
-```latex
-H_0: \quad
-\mathbb{E}_{(x,y) \sim D} \big[ L(M_{\theta_n}(x), y) \big]
-\geq
-\mathbb{E}_{(x,y) \sim D} \big[ L(M_{\theta_0}(x), y) \big]
+```text
+H₀:  
+E₍ₓ,ᵧ₎ ~ D [ L( M_{θₙ}(x), y ) ] ≥ E₍ₓ,ᵧ₎ ~ D [ L( M_{θ₀}(x), y ) ]
+
+where θ₀ are initial parameters, and θₙ are parameters after n training iterations.
 ```
 
 # Abstract ML Training Design
