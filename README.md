@@ -2,8 +2,6 @@
 
 The training procedure does **not** improve the model parameters \(\theta\); that is, after training iterations, the expected loss remains unchanged or does **not decrease** compared to initial parameters.
 
-Formally:
-
 ```text
 H₀:  
 E₍ₓ,ᵧ₎ ~ D [ L( M_{θₙ}(x), y ) ] ≥ E₍ₓ,ᵧ₎ ~ D [ L( M_{θ₀}(x), y ) ]
