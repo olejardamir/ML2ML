@@ -13,43 +13,43 @@ This checklist focuses **strictly on functional code components** required to bu
 
 ## 1. Define Inputs
 
-- ✅ **Input format specification**  
+- **Input format specification**  
   - Raw data: vectors, matrices, images, text, etc.
   - Preprocessing code (normalization, tokenization, encoding)
 
 ## 2. Define Outputs
 
-- ✅ **Output format specification**  
+- **Output format specification**  
   - Class labels, regression values, probabilities, control signals
   - Postprocessing (e.g., softmax, argmax)
 
 ## 3. Model Definition
 
-- ✅ **Model structure**  
+- **Model structure**  
   - Neural network layers, regression equations, tree structures, etc.
-- ✅ **Parameter initialization**  
+- **Parameter initialization**  
   - Weights, biases, stored examples (for k-NN), etc.
 
 ## 4. Forward Pass (Inference)
 
-- ✅ **Transformation from input to output**  
+- **Transformation from input to output**  
   - Feedforward computation
   - Output generation (without gradient)
 
 ## 5. Performance Objective
 
-- ✅ **Loss function / objective function**  
+- **Loss function / objective function**  
   - Mean squared error, cross-entropy, etc.
   - Custom domain-specific losses (if applicable)
 
 ## 6. Learning Process
 
-- ✅ **Gradient calculation**  
+- **Gradient calculation**  
   - Analytical gradients or autodiff (e.g., PyTorch, TensorFlow)
-- ✅ **Parameter updates**  
+- **Parameter updates**  
   - Optimizer: SGD, Adam, etc.
   - Update rule: `θ = θ - α∇L`
-- ✅ **Training loop**  
+- **Training loop**  
   - Batch iteration over data
   - Epoch control
 
