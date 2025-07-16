@@ -1,6 +1,6 @@
 ## Null Hypothesis (H₀)
 
-The training procedure does **not** improve the model parameters \(\theta\); that is, after training iterations, the expected loss remains unchanged or does **not decrease** compared to initial parameters.
+The training procedure does **not** improve the model parameters θ; that is, after training iterations, the expected loss remains unchanged or does **not decrease** compared to initial parameters.
 
 ```text
 H₀:  
