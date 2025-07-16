@@ -1,4 +1,4 @@
-# Abstract ML Training Design in Lambda Calculus
+# Abstract ML Training Design
 
 ```text
 M = λθ. λx. forward(θ, x)
