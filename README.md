@@ -3,18 +3,11 @@
 **Scope:**  
 This checklist focuses **strictly on functional code components** required to build an ML algorithm.
 
-✅ **Included:**  
 - Model definition  
 - Forward pass (inference)  
 - Loss calculation  
 - Gradient updates (learning process)  
 - Input/output handling (directly relevant to the algorithm)
-
-❌ **Excluded:**  
-- Version control, CI/CD  
-- Deployment, monitoring, ethics  
-- Experiment tracking, documentation  
-- Infrastructure or MLOps tooling  
 
 ---
 
