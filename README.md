@@ -1,8 +1,8 @@
-# Universal Machine Learning Operating System (UML_OS) v3.10-OS
+# Universal Machine Learning Operating System (UML_OS) v3.12-OS
 
 **Algorithm:** Deterministic training OS kernel with operator contracts and namespace isolation.  
 **Purpose (1 sentence):** Execute machine-learning training and lifecycle operations under formal reproducibility, namespace isolation, and deterministic runtime contracts.  
-**Spec Version:** UML_OS-v3.11-OS | 2026-02-17 | Authors: Olejar Damir  
+**Spec Version:** UML_OS-v3.12-OS | 2026-02-17 | Authors: Olejar Damir  
 **Domain / Problem Class:** Reproducible training with optional online symbolic prototype augmentation (default workload).
 
 ---
@@ -147,7 +147,7 @@ Active operators:
   - User (manifests only)
 - UML_OS_ROOT filesystem (enforced by daemon and `Bootstrap_v1`):
   - `/datasets/<id-version-hash>/` (immutable, validated)
-  - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/` (isolated: checkpoints, tapes, latent_buffer shards, rng_states, loss_hist; child namespaces inherit parent resource defaults and data access unless overridden)
+- `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/` (isolated: checkpoints, tapes, rng_states, loss_hist; child namespaces inherit parent resource defaults and data access unless overridden)
   - `/jobs/queue/` (shared atomic queue files for cross-host visibility when shared FS used; each daemon polls/claims via file locks).
 - Namespace path: `/org/unit/project/experiment/job_id` where `job_id = replay_token[0:8]`.
 - Daemon scheduler: simple FIFO submission queue (atomic file locks); no weighted fair-share CPU/GPU slicing.
@@ -178,6 +178,8 @@ Active operators:
 - `model_encode_op`, `forward_op`, `decode_op`, `augment_op` (fully-qualified operator names; default to listed `UML_OS.*_v#`)
 - `datasets` array: each entry `{id, version, hash, split: train|val}`
 - `custom_operators: array of {name, module_path, contract}` (optional)
+- `model: {architecture: array of layer definitions; each layer = {id: string, type: "linear"|"conv1d"|"conv2d"|"relu"|"gelu"|"layer_norm"|"dropout"|"embedding", params: dict of numeric values, input_from: string (layer id or "input") }}`
+- `inference: {enabled: bool (default false), batch_size: int (default 1)}`
 - all other values previously in I.C (`probe_interval`, `sil_thresh`, etc.)
 
 ### 0.Q.1 Manifest Resource and Inheritance Schema
@@ -186,20 +188,25 @@ mode: "standard"
 workload: "pure_nn"
 enable_symbolic: false
 resources:
-  requested_cpus: 4          # integer
-  requested_gpus: 1          # integer
+  requested_cpus: 4 # integer
+  requested_gpus: 1 # integer
   allow_preempt: false
 inheritance:
-  parent_namespace: null     # or path string; inherits defaults
+  parent_namespace: null # or path string; inherits defaults
 optimizer: {type: "AdamW", lr: 1e-3, weight_decay: 1e-2}
 grad_clip_norm: 1.0
+model:
+  architecture:
+    - {id: "input", type: "input"}
+    - {id: "fc1", type: "linear", params: {in_features: 784, out_features: 256}, input_from: "input"}
+    - {id: "relu1", type: "relu", input_from: "fc1"}
+    - {id: "fc2", type: "linear", params: {in_features: 256, out_features: 10}, input_from: "relu1"}
 ```
 
 ### 0.R Distributed and Multi-tenancy Policy
 - Communication: PyTorch distributed (`gloo` CPU / `nccl` CUDA), ranks sorted ascending by `(hostname hash, rank)`.
 - Data sharding: global permutation, then each rank processes slice `rank::world_size`.
 - Global operations (clustering, fingerprint aggregation): rank 0 computes, others receive via `Broadcast`; RNG draws only on rank 0 where declared.
-- Daemon enforces isolation, quotas, and schedules jobs across namespaces with fair-share priority based on manifest-declared resources.
 - Checkpoint/restore restores exact global `data_cursor`, sharded `latent_buffer`, and synchronized RNG master state.
 - In `simple` mode multi-node is forbidden; collectives use default PyTorch ordering.
 
@@ -237,6 +244,7 @@ grad_clip_norm: 1.0
   - `uml_os train <config_manifest.yaml>` -> runs Bootstrap + VI kernel.
   - `uml_os replay <replay_token>` -> restores exact checkpoint and re-runs.
   - `uml_os export <checkpoint_dir>` -> produces uml_export/ (see VIII.C).
+  - `uml_os infer <export_dir> --input <tensor_or_file> [--batch]` -> loads `inference_manifest.yaml` and `theta.pt`, runs Forward_v2 in inference mode with exact numeric contract (same binary64, same clamping, same order), outputs predictions + functional_fp for verification.
   - `uml_os daemon start [--root UML_OS_ROOT]` (for shared-root or strict mode).
 - All CLI commands auto-validate manifest against operator contracts before launch.
 
@@ -244,6 +252,7 @@ grad_clip_norm: 1.0
 - In `standard` and `strict` modes every completed run produces a cryptographically signed `provenance.cbor` file (see UML_OS.IO.WriteProvenance_v1).
 - The file contains the complete ordered execution trace required for external verification of: replay_token match, all operator contracts passed, exact RNG consumption, and functional_fp curve.
 - Signature uses ed25519 with key derived from namespace path + job_id.
+- Provenance record includes BLAKE3 hash of the exact `model.architecture` array (serialized in canonical order).
 
 ---
 
@@ -350,9 +359,10 @@ All operators must declare exactly:
 ### UML_OS.Model.Forward_v2
 - Purity: PURE
 - RNG consumption: exactly 0 draws from stream `none`
-- Computes neural-network forward pass using parameters in `theta` and latent `z` from Encode_v1.
-- When `workload=pure_nn`: returns `logits = nn_forward(z)` (standard dense/conv layers declared in manifest model definition).
-- When `workload=hybrid_symbolic`: `logits = nn_forward(z) + beta * sym_pred` where `sym_pred` is computed exactly as previously defined in prior spec version (proto_features -> softmax -> DifferentiableEval).
+- Executes the exact layer sequence declared in manifest `model.architecture` in registration order.
+- Each layer is instantiated deterministically from its type and params (binary64 weights/biases where applicable).
+- Input flows strictly according to `input_from` links.
+- When `workload=hybrid_symbolic`: final logits = nn_output + beta * sym_pred (sym_pred as previously defined).
 - All operations in binary64, deterministic ascending-index order for any reductions.
 
 ### UML_OS.Model.Decode_v1
@@ -493,8 +503,8 @@ Internal-only fields (not required in minimal public trace):
 ### VIII.C Post-termination Export
 On normal termination the kernel writes deterministic `uml_export/` directory in namespace root containing:
 - `theta.pt` (PyTorch state_dict, deterministic serialization)
-- `inference_manifest.yaml` (minimal manifest + preprocess_stats.bin hash)
-- `provenance.cbor` (signed CBOR record; mandatory in standard and strict modes)
+- `inference_manifest.yaml` (minimal manifest + model.architecture + preprocess_stats.bin hash)
+- `provenance.cbor` (signed CBOR record; mandatory in standard and strict modes; includes full model architecture hash and lineage chain from dataset hashes)
 All paths and filenames fixed.
 
 ---
@@ -545,5 +555,7 @@ The following are normative compatibility boundaries for UML_OS-v3.10-OS:
 - Logging-only or seed-only reproducibility approaches are insufficient for C0/C1 conformance.
 
 6. Provenance contract. In standard and strict modes every completed training run must produce a valid signed provenance.cbor file containing the full verifiable execution trace. Implementations that cannot emit this signed record or that allow external code paths that bypass operator contracts are non-conformant.
+
+7. Declarative model contract. All training and inference use only the manifest-declared `model.architecture`; no external nn.Module, custom forward code, or imperative model construction is permitted in the VI path or inference runtime. Any bypass causes `Contract.Validate_v1` failure and abort.
 
 This boundary defines UML_OS as a self-contained training operating system kernel with declarative user input and contract-enforced execution.
