@@ -1,13 +1,20 @@
-# Universal Machine Learning Operating System (UML_OS) v3.13-OS
+# Universal Machine Learning Operating System (UML_OS) v3.20-OS
+**EQC Compliance:** This specification follows the merged single-file format of EquationCode (EQC) v1.1 (Option A) with the required 10 top-level sections and all mandatory invariants (global semantics first, control-flow-only procedure, versioned operators, purity/RNG contracts, total state updates, trace schema, equivalence levels, lint rules, checkpoint replay guarantees).
 
-**Algorithm:** Deterministic training OS kernel with operator contracts and namespace isolation.  
-**Purpose (1 sentence):** Execute machine-learning training and lifecycle operations under formal reproducibility, namespace isolation, and deterministic runtime contracts.  
-**Spec Version:** UML_OS-v3.13-OS | 2026-02-17 | Authors: Olejar Damir  
-**Domain / Problem Class:** Reproducible training with optional online symbolic prototype augmentation (default workload).
+**Algorithm:** Deterministic training OS kernel with operator contracts, namespace isolation, and hardware attestation.  
+**Purpose (1 sentence):** Execute declarative machine learning training, evaluation, inference, and confidential operations under contract-enforced determinism, namespace isolation, hardware-rooted attestation, and verifiable provenance.  
+**Spec Version:** UML_OS-v3.20-OS | 2026-02-17 | Authors: Olejar Damir  
+**Domain / Problem Class:** Reproducible neural-network training, evaluation, inference, and confidential lifecycle management.
 
 ---
 
-## 0 · Header, Provenance, and Global Semantics
+## 1) Header & Global Semantics
+
+#### 0.0 Identity
+- **Algorithm:** Deterministic training OS kernel with operator contracts, namespace isolation, and hardware attestation
+- **Purpose (1 sentence):** Execute declarative machine learning training, evaluation, inference, and confidential operations under contract-enforced determinism, namespace isolation, hardware-rooted attestation, and verifiable provenance.
+- **Spec Version:** UML_OS-v3.20-OS | 2026-02-17 | Authors: Olejar Damir
+- **Domain / Problem Class:** Reproducible neural-network training, evaluation, inference, and confidential lifecycle management.
 
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -20,58 +27,39 @@
 - Default reproducibility class: `R1 (statistical)`
 - `R0` only for reference single-process CPU golden traces
 - PRNG family: Philox4x32-10
-- Single master stream with fixed sub-stream offsets:
-  - `init`
-  - `cluster`
-  - `misc`
-- Replay token:
-  - `replay_token = SHA-256(spec_version || policy_hash || env_manifest_hash || seed)`
+- Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
+- Replay token: `replay_token = SHA-256(spec_version || policy_hash || env_manifest_hash || seed)`
 
 ### 0.C Numeric Policy
-- Core arithmetic for loss/metric/termination: IEEE-754 binary64
-- Parameters may be binary32; all loss reductions remain binary64
+- Core arithmetic for loss/metric/termination/fingerprint: IEEE-754 binary64
+- Parameters/intermediates/optimizer state: manifest `compute_dtype` (`float32` default)
+- Critical reductions and fingerprints: binary64, deterministic ascending-index order
 - Rounding mode: round-to-nearest ties-to-even
 - Fast-math: forbidden
-- Constants:
-  - `EPS_EQ = 1e-10`
-  - `EPS_DENOM = 1e-12`
-  - `EPS_PROB = 1e-15`
-- Clamps:
-  - `exp` argument to `[-80, 80]`
-  - denominator `max(den, EPS_DENOM)`
-  - probabilities clamped to `[EPS_PROB, 1]`, then renormalized
-- All reductions: deterministic ascending-index order
+- Constants: `EPS_EQ = 1e-10`, `EPS_DENOM = 1e-12`, `EPS_PROB = 1e-15`
+- Clamps: `exp` argument `[-80, 80]`; denominator `max(den, EPS_DENOM)`; probabilities `[EPS_PROB, 1]` then renormalize
 
 ### 0.D Ordering and Tie-Break Policy
 - Index base: `0-based`
 - Stable sort required
 - Ties: lowest index wins
-- Fixed action order: `["optimize", "probe", "switch", "augment"]`
+- Fixed action order: `["optimize", "probe", "switch"]`
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Parallel reductions: fixed 256-element chunks, performed in ascending global index order (ranks sorted 0..world_size-1).
-- Rank aggregation: ascending rank order.
-- When world_size > 1, every reduction uses deterministic collective primitives (see 0.R).
+- Parallel reductions: fixed 256-element chunks in ascending global index
+- Rank aggregation: ascending rank order
+- `world_size > 1` requires deterministic collectives and fixed ordering
 
 ### 0.F Environment and Dependency Policy
-- Pinned runtime:
-  - Python 3.12
-  - NumPy 2.1
-  - PyTorch 2.4 (CPU reference build; CUDA 12.1 build permitted when hardware present)
-- At startup: `torch.use_deterministic_algorithms(True)`, `torch.backends.cudnn.deterministic = True`, `torch.backends.cudnn.benchmark = False`, `torch.set_float32_matmul_precision('highest')`.
-- If `distributed_mode != none`, world_size may be any positive integer; no power-of-2 restriction.
+- Pinned runtime: Python 3.12, NumPy 2.1, PyTorch 2.4
+- Startup flags:
+  - `torch.use_deterministic_algorithms(True)`
+  - `torch.backends.cudnn.deterministic = True`
+  - `torch.backends.cudnn.benchmark = False`
+  - `torch.set_float32_matmul_precision('highest')`
 
 ### 0.G Operator Manifest
-- Removed from manifest surface:
-  - `UML_OS.Random.InitializeParameters_v1`
-  - `UML_OS.Init.LoadPolicy_v1`
-  - `UML_OS.Init.InitializeBuffers_v1`
-  - all `UML_OS.Serving.*`
-  - `UML_OS.Model.MultiHeadAttention_v1`
-- Added:
-  - `UML_OS.Data.ValidateManifest_v1`
-
-Active operators:
+Active operators (exact list):
 - `UML_OS.OS.Bootstrap_v1`
 - `UML_OS.OS.ResolvePath_v1`
 - `UML_OS.OS.NamespaceEnter_v1`
@@ -79,470 +67,741 @@ Active operators:
 - `UML_OS.Data.Manifest_v1`
 - `UML_OS.Data.ValidateManifest_v1`
 - `UML_OS.Data.NextBatch_v1`
-- `UML_OS.Data.StreamingLoader_v1`
+- `UML_OS.Data.RegisterDataset_v1`
+- `UML_OS.Data.ImportAndRegister_v1`
 - `UML_OS.Buffer.ShardedDiskRing_v1`
-- `UML_OS.Model.Encode_v1`
 - `UML_OS.Model.Forward_v2`
-- `UML_OS.Model.Decode_v1`
+- `UML_OS.Model.ExpandPreset_v1`
+- `UML_OS.Model.ApplyFineTune_v1`
 - `UML_OS.Objective.TotalLoss_v1`
 - `UML_OS.Update_v1`
-- `UML_OS.Symbolic.DifferentiableEval_v1`
 - `UML_OS.Module.RegisterCustom_v1`
 - `UML_OS.Policy.Evaluate_v1`
 - `UML_OS.Transition.SwitchState_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.IO.WriteTape_v1`
+- `UML_OS.IO.SaveCheckpoint_v1`
 - `UML_OS.IO.WriteTrainingCertificate_v1`
 - `UML_OS.Logging.LogIteration_v1`
 - `UML_OS.Termination.Check_v1`
 - `UML_OS.StateFingerprint_v1`
 - `UML_OS.Fingerprint.Functional_v1`
 - `UML_OS.Error.Emit_v1`
-- Symbolic operators are loaded only when `enable_symbolic=true` and `workload=hybrid_symbolic`.
+- `UML_OS.Distributed.Setup_v1`
+- `UML_OS.Evaluation.Run_v1`
+- `UML_OS.Security.AttestTEE_v1`
+- `UML_OS.Verifiable.CommitFunctional_v1`
+- `UML_OS.DifferentialPrivacy.Apply_v1`
+- `UML_OS.Compliance.GenerateReport_v1`
+- `UML_OS.Governance.SignCertificate_v1`
 
 ### 0.H Namespacing and Packaging
 - Fully-qualified names: `UML_OS.<Category>.<Name>_v#`
 - Sidecar mapping required: operator -> module/function
 
 ### 0.I Outputs and Metric Schema
-- Outputs:
-  - `theta_final`
-  - `trace`
-  - `checkpoint`
-  - `tape_digest`
-- Minimum metric schema:
-  - `loss_total`
-  - `grad_norm`
-  - `functional_fp`
+- Declared outputs: `theta_final`, `trace`, `checkpoint`, `tape_digest`, `training_certificate`
+- Minimum metric schema: `loss_total`, `grad_norm`, `functional_fp`
 
-### 0.J Spec Lifecycle Governance
-- Reproducibility-breaking changes require MAJOR bump
+#### 0.J Spec Lifecycle Governance (mandatory)
+Reproducibility-breaking changes require MAJOR bump (vX.Y.Z → v(X+1).0.0).  
+Deprecations replace via manifest wiring only.  
+Equivalence target for any change: E1 (metric-equivalent) minimum, E0 (trace-equivalent) for kernel or attestation changes.  
+Migration: update manifest operator versions and replay_token.
 
 ### 0.K Failure and Error Semantics
 - Global error model: abort-only
-- Final failure record includes:
-  - `t`
-  - `failure_code`
-  - `failure_operator`
-  - `replay_token`
-  - `rng_fingerprint_t`
-  - `state_fp_t`
+- Final failure record includes: `t`, `failure_code`, `failure_operator`, `replay_token`, `rng_fingerprint_t`, `state_fp_t`
 
 ### 0.L Input/Data Provenance
-- Dataset id/version/hashes required
-- Parsing strictness required
+- Dataset id/version/hash mandatory
+- Strict parsing and immutable dataset registration mandatory
 
 ### 0.M Declarative Configuration
-- YAML config loading allowed
-- Canonicalized into manifest before hashing
+- YAML config mandatory input path
+- Canonical JSON serialization before hashing
 
 ### 0.N Layered Operating-System Architecture
 - Layer ordering:
   - Kernel (VI procedure + operator dispatch + contracts)
-  - Driver (device collectives, I/O, deterministic primitives)
-  - Runtime (pinned Python/NumPy/PyTorch)
-  - Module (verified operator packages loaded from manifest)
-  - Daemon (optional in `simple` mode for single-node only; mandatory in `standard` and `strict` modes or when UML_OS_ROOT is shared or world_size > 1; single process per host): owns UML_OS_ROOT filesystem hierarchy; uses simple FIFO submission queue (atomic file locks); launches each job as isolated process; enforces per-namespace isolation of RNG state, data_cursor, checkpoints, and tapes; maintains an append-only audit log at `/audit/<namespace_path>/` (every operator call, contract validation result, RNG delta, and quota event is appended in ascending-t order); performs basic quota enforcement on storage and concurrent jobs.
+  - Driver (deterministic device primitives)
+  - Runtime (pinned dependencies)
+  - Module (verified operator packages)
+  - Daemon (mandatory in `managed` or `confidential` mode or when `UML_OS_ROOT` is shared or `world_size > 1`; optional in `local` mode; one instance per host or as K8s operator): owns `UML_OS_ROOT` filesystem hierarchy; uses priority queue (manifest `job_priority` then FIFO); launches isolated process/Pod; in `confidential` mode launches inside hardware TEE and collects remote quote; enforces namespace isolation for RNG, data_cursor, checkpoints, tapes; appends audit log at `/audit/<namespace_path>/`; enforces quotas with cgroups/K8s limits; RBAC via namespace ACL.
   - Management (CLI entrypoints)
   - User (manifests only)
-- UML_OS_ROOT filesystem (enforced by daemon and `Bootstrap_v1`):
-  - `/datasets/<id-version-hash>/` (immutable, validated)
-  - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/` (isolated: checkpoints, tapes, rng_states, loss_hist; child namespaces inherit parent resource defaults and data access unless overridden)
-  - `/jobs/queue/` (shared atomic queue files for cross-host visibility when shared FS used; each daemon polls/claims via file locks).
-- Namespace path: `/org/unit/project/experiment/job_id` where `job_id = replay_token[0:8]`.
-- Daemon scheduler: simple FIFO submission queue (atomic file locks); no weighted fair-share CPU/GPU slicing.
+- Filesystem roots:
+  - `/datasets/<id-version-hash>/`
+  - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/`
+  - `/jobs/queue/`
+- Namespace path: `/org/unit/project/experiment/job_id`, `job_id = replay_token[0:8]`
 
 ### 0.P Bootstrap
 - Single entrypoint: `UML_OS.OS.Bootstrap_v1`
-- Performs:
-  - PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws)
-  - parameter init
-  - data manifest load + `UML_OS.Data.ValidateManifest_v1`
-  - policy load
-  - namespace enter
+- Performs deterministic initialization, manifest/data validation, module wiring, distributed setup, and namespace entry
 
 ### 0.Q Global Manifest Additions
-- `env_manifest_hash` must include:
-  - `daemon_concurrency_max=16`
-- `task_type` (`multiclass | binary | regression`)
-- `alpha`, `lambda_rec`, `lambda_KL`, `lambda_OT`, `lambda_covz` (defaults in III.C when absent)
+- `env_manifest_hash` includes `daemon_concurrency_max=16`
+- `task_type`: `multiclass | binary | regression`
+- `alpha` (default `1.0`)
 - `beta` (default `1.0`)
-- `mode: "standard"`
-- `workload: "pure_nn"` (default; only other value `"hybrid_symbolic"` when `enable_symbolic=true`)
-- `enable_symbolic: false`
-- `fingerprint_frequency: int` (overridden by mode unless explicitly set)
-- `optimizer: {type: "AdamW" | "SGD" | "RMSprop", lr: float, betas: [float, float] (optional), weight_decay: float (default 0), momentum: float (default 0)}`
-- `grad_clip_norm: float (default 1.0)`
-- `policy.rules` (array of `{\"cond\": \"...\", \"action\": \"...\", \"priority\": int}`; evaluated in declared order)
-- `model_encode_op`, `forward_op`, `decode_op`, `augment_op` (fully-qualified operator names; default to listed `UML_OS.*_v#`)
-- `datasets` array: each entry `{id, version, hash, split: train|val}`
-- `custom_operators: array of {name, module_path, contract}` (optional)
-- `model: {architecture: array of layer definitions; each layer = {id: string, type: "linear"|"conv1d"|"conv2d"|"relu"|"gelu"|"layer_norm"|"dropout"|"embedding", params: dict of numeric values, input_from: string (layer id or "input") }}`
-- `inference: {enabled: bool (default false), batch_size: int (default 1)}`
-- all other values previously in I.C (`probe_interval`, `sil_thresh`, etc.)
+- `execution_mode: "local" | "managed" | "confidential" | "regulated"` (default `managed`)
+- `global_batch_size` (default `256`)
+- `fingerprint_frequency`
+- `optimizer` config
+- `grad_clip_norm`
+- `checkpoint_frequency`
+- `job_priority` (1..10)
+- `policy.rules`
+- `model_encode_op`, `forward_op`, `decode_op`
+- `datasets[]`
+- `custom_operators[]`
+- `parallelism: {strategy: "none" | "ddp" | "fsdp", world_size_override?}`
+- `fine_tune` config (`full` or `lora`)
+- `evaluation` config
+- `security: {attestation_required: bool, zk_commitment: bool, differential_privacy: {enabled: bool (default false), target_epsilon: float (default 0.0)}}`
+- `model` (`preset`/`preset_params`/`architecture`)
+- `compute_dtype: "float32" | "float64"`
+- `model.architecture` supports `type: "custom"`
 
-### 0.Q.1 Manifest Resource and Inheritance Schema
-```yaml
-mode: "standard"
-workload: "pure_nn"
-enable_symbolic: false
-resources:
-  requested_cpus: 4 # integer
-  requested_gpus: 1 # integer
-  allow_preempt: false
-inheritance:
-  parent_namespace: null # or path string; inherits defaults
-optimizer: {type: "AdamW", lr: 1e-3, weight_decay: 1e-2}
-grad_clip_norm: 1.0
-model:
-  architecture:
-    - {id: "input", type: "input"}
-    - {id: "fc1", type: "linear", params: {in_features: 784, out_features: 256}, input_from: "input"}
-    - {id: "relu1", type: "relu", input_from: "fc1"}
-    - {id: "fc2", type: "linear", params: {in_features: 256, out_features: 10}, input_from: "relu1"}
-```
+Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18`, `resnet50`, `vit_tiny`, `bert_tiny`, `gpt2_small`. LoRA insertion is deterministic from checkpoint hash.
 
 ### 0.R Distributed and Multi-tenancy Policy
-- Communication: PyTorch distributed (`gloo` CPU / `nccl` CUDA), ranks sorted ascending by `(hostname hash, rank)`.
-- Data sharding: global permutation, then each rank processes slice `rank::world_size`.
-- Global operations (clustering, fingerprint aggregation): rank 0 computes, others receive via `Broadcast`; RNG draws only on rank 0 where declared.
-- In `simple` mode multi-node is forbidden; collectives use default PyTorch ordering.
+- Deterministic rank ordering and deterministic collective primitives
+- `global_batch_size % world_size == 0` required for distributed runs
+- Global batch sequence and update sequence independent of world size
 
 ### 0.S RNG Consumption Contract
-- Every operator declaration in IV must contain exactly one line: `RNG consumption: exactly K draws from stream S`.
-- `K` is fixed non-negative integer; `S` is one of `init`, `cluster`, `misc`, or `none`.
-- Kernel records pre-call offset per sub-stream.
-- After operator return, kernel computes delta-offset for every used stream.
-- If any delta differs from declared `K`, emit failure record:
-  - `failure_code = RNG_CONSUMPTION_VIOLATION`
-  - include expected/actual deltas and `replay_token`
-  - abort (0.K).
-- Philox4x32-10 calls are strictly sequential within each sub-stream; no skipping or reseeding.
-- All operators not explicitly listed with non-zero `K` must declare `RNG consumption: exactly 0 draws from stream none`.
+- Every operator declares exact RNG draws and stream ownership
+- Kernel checks declared-vs-actual offsets every call
+- Violations abort with `RNG_CONSUMPTION_VIOLATION`
 
 ### 0.T Execution Model
-- The kernel (VI procedure) is the sole allowed execution path for C0/C1 conformance.
-- Standard usage supplies only data manifest and configuration manifest; no external training-loop code is executed or required.
+- VI kernel procedure is the only conformant execution path
 
 ### 0.U Execution Contract
-- The VI kernel procedure is the only permitted execution engine.
-- All training occurs inside declared operators.
-- External imperative training loops or ad-hoc calls outside VI steps are forbidden and cause `Contract.Validate_v1` failure with full counterexample.
+- No external loop logic or imperative bypass
+- Violations fail `Contract.Validate_v1`
 
 ### 0.V Operation Modes
-- Manifest field: `mode: "simple" | "standard" | "strict"` (default: "standard").
-- `simple`: daemon optional (single-process only; multi-node forbidden); RNG consumption auditing disabled (warnings logged only); `StateFingerprint_v1` and `Functional_v1` computed only at termination and every checkpoint; `Contract.Validate_v1` relaxed (warnings only, no abort on KL/covariance/probability edge cases); no latent_buffer allocation; workload forced to `pure_nn`; fingerprint_frequency fixed at 200.
-- `standard`: daemon mandatory for any shared-root or world_size > 1 (optional for pure single-node); full RNG auditing; fingerprints every 50 steps or on any `action` change; full `Contract.Validate_v1`; fingerprint_frequency = 50; workload = `pure_nn` by default; produces signed provenance record on termination.
-- `strict`: daemon mandatory for any shared-root or world_size > 1; full enforcement of all contracts, barriers, and collectives; fingerprint_frequency = 10; enables all optional features.
-- All later sections reference these exact definitions for conditional behavior.
+- `local`: daemon optional, relaxed warnings mode
+- `managed`: full enforcement, signed certificate required
+- `confidential`: TEE launch + quote mandatory, full enforcement, signed certificate includes quote
+- `regulated`: daemon mandatory; enforces exact differential-privacy accounting, immutable audit trail, model-approval workflow, and electronic signatures (21 CFR Part 11 / EU AI Act / GxP compatible); launches in TEE if hardware present; full RNG auditing; produces signed provenance record containing attestation quote, cumulative privacy budget (epsilon), and electronic signatures on termination. In `regulated` mode `attestation_required` and `differential_privacy.enabled` are forced true; `security.target_epsilon` must be declared and non-zero.
 
 ### 0.W CLI and Usability Requirements
-- Required entrypoints (implemented in Management layer):
-  - `uml_os init <project_path>` -> creates skeleton `data_manifest.yaml` and `config_manifest.yaml` with mode=standard, workload=pure_nn.
-  - `uml_os train <config_manifest.yaml>` -> runs Bootstrap + VI kernel.
-  - `uml_os replay <replay_token>` -> restores exact checkpoint and re-runs.
-- `uml_os export <checkpoint_dir>` -> produces uml_export/ (see VIII.C).
-  - `uml_os infer <export_dir> --input <tensor_or_file> [--batch]` -> loads `inference_manifest.yaml` and `theta.pt`, runs Forward_v2 in inference mode with exact numeric contract (same binary64, same clamping, same order), outputs predictions + functional_fp for verification.
-  - `uml_os verify <training_certificate.cbor>` -> loads the certificate, validates the ed25519 signature, verifies the complete lineage chain (dataset_hash -> model_architecture_hash -> theta_hash), re-executes the canonical probe set to confirm functional_fp match, and checks every recorded contract/RNG delta. Returns PASS/FAIL with deterministic report.
-  - `uml_os daemon start [--root UML_OS_ROOT]` (for shared-root or strict mode).
-- All CLI commands auto-validate manifest against operator contracts before launch.
+- Required commands: `init`, `job submit`, `replay`, `export`, `infer`, `verify`, `namespace init`, `daemon start`, `dataset register`, `import dataset`, `import model`, `audit export`, `ps/logs/kill/queue`
+- All CLI paths perform contract/manifest validation before run
 
 ### 0.X Training Certificate Contract
-- In `standard` and `strict` modes every completed run produces a cryptographically signed `training_certificate.cbor` (see UML_OS.IO.WriteTrainingCertificate_v1).
-- The certificate contains: replay_token, full ordered execution trace (t, operator, contract_result, rng_delta), lineage chain (BLAKE3 hashes: dataset -> preprocess_stats (if any) -> model_architecture -> final_theta), final state_fp, functional_fp curve, all manifest hashes.
-- Signature uses ed25519 with key derived from namespace path + job_id.
-- This certificate is the canonical, externally verifiable proof of exact training execution.
+- Certificate contains: replay_token, Merkle-chained trace root, lineage hashes, final `state_fp`, functional_fp curve (+ zk commitment when enabled), **exact cumulative differential-privacy budget (epsilon in binary64 if regulated)**, manifest hashes, backend fingerprint, daemon public key, operator contract hashes, electronic signatures (daemon ed25519 + optional HSM/company PKI), and (in `confidential`/`regulated` mode) the full remote attestation quote.
+- Daemon signs certificate using namespace ed25519 private key; `regulated` mode additionally applies declared electronic signatures.
 
 ---
 
-## I · System Model
+## 2) System Model
 
-### I.A Persistent State
+### A) Persistent State
 - `theta`
-- `state in {S_P}`
+- `state ∈ {S_INIT, S_TRAINING, S_EVALUATING, S_TERMINATED}`
 - `t`
-- `loss_hist` (single history, tagged with state)
-- `data_cursor = (epoch, index, permutation)`
-- `rng_master_state` + sub-stream offsets
+- `loss_hist`
+- `data_cursor = (epoch, global_index)`
+- `rng_master_state` + offsets
 - `tape_state`
 
-### I.B Declared Dimensions and Defaults
-- Declared dimensions and defaults (overridable in manifest, used when absent):
-  - `batch_size B = 64`
+### B) Declared Dimensions and Defaults
+- `global_batch_size = 256` (overridable by manifest)
 
-### I.C Hyperparameters
-- All tunable values are taken exclusively from the manifest (see 0.Q).
-- No hard-coded defaults except loss lambdas in III.C.
+### C) Hyperparameters
+- All tunable values are manifest-defined only
 
-### I.D Constraint Regime
-- Unconstrained core optimization with runtime contracts
+### D) Constraint Regime
+- Unconstrained optimization + explicit runtime contracts
 
-### I.E Invariants
-- Finite tensors after each update
-- Probability vectors sum to 1 within tolerance
-- Gradient clipping bounds honored exactly
-- Tape symbol validation enforced
-
-### I.F Transient Variables
-- Iteration-local only unless promoted to persistent state
+### E) Invariants
+- Finite tensors
+- Deterministic ordering
+- Contract checks mandatory
 
 ---
 
-## II · Initialization
+## 3) Initialization
 
 1. `t <- 0`
 2. `UML_OS.OS.Bootstrap_v1(...)`
-3. Initialize `theta` deterministically from manifest-hash-derived bytes (no RNG draws)
-4. Initialize `state <- S_P`
-5. Initialize `loss_hist`, `data_cursor`
-6. Initialize tape and fingerprints
+3. Initialize `theta` deterministically
+4. Initialize `state <- S_TRAINING`
+5. Initialize `loss_hist`, `data_cursor`, tape, fingerprints
 
 ---
 
-## III · Mathematical Components (default: pure_nn workload)
+## 4) Math Placement
 
-### III.A Supervised Loss
-- `logits <- UML_OS.Model.Forward_v2(...)` (pure neural-net forward pass in binary64; see Forward_v2 definition).
-- `task_type` from manifest (default: multiclass).
-- multiclass: `L_sup = CrossEntropyLoss(logits, y)` (integer labels `0..C-1`, reduction in binary64, ascending-index order)
-- binary: `L_sup = BCEWithLogitsLoss(logits, y)`
-- regression: `L_sup = MSELoss(logits, y)`
-
-### III.C Total Loss
-- `L_tot = alpha * L_sup + L_aux` (binary64, fixed term order; alpha, lambdas from manifest; defaults `alpha=1.0`, `lambda_rec=1.0`, `lambda_KL=0.001`, `lambda_OT=0.01`, `lambda_covz=0.001`).
+All mathematical definitions are operator-owned in section 5 (no standalone math block). Supervised loss and total loss are normatively defined in `UML_OS.Model.Forward_v2` and `UML_OS.Objective.TotalLoss_v1`.
 
 ---
 
-## IV · Operator Library
+## 5) Operator Library
 
-All operators must declare exactly:
-- purity
-- rng streams used
-- deterministic order guarantee
+All operators follow the EQC template:  
+**Operator:** `UML_OS.<Category>.<Name>_v#`  
+**Category:** Init / Data / Model / Objective / Update / IO / Security / Evaluation / Logging / Termination / Contract / Policy / Distributed / Fingerprint / Error  
+**Signature:** (inputs → outputs) with shapes/types  
+**Purity class:** PURE / STATEFUL / IO  
+**Determinism:** deterministic (with explicit RNG consumption contract)  
+**Definition:** (existing text + any math)  
+**Preconditions / Postconditions:** (manifest/state requirements and guaranteed outputs)  
+**Edge cases:** NaN/Inf, zero batch, world_size=1  
+**Numerical considerations:** binary64 critical reductions, EPS guards, deterministic reductions  
+**Ordering/tie handling:** ascending index, lowest index wins  
+**Failure behavior:** abort per 0.K with failure record  
+**Dependencies:** required manifest fields/operators
 
-### UML_OS.OS.Bootstrap_v1
-- Purity: STATEFUL
-- RNG consumption: exactly 0 draws from stream `none`
-- Performs:
-  - PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws)
-  - parameter init
-  - buffer allocation
-  - data manifest load + `UML_OS.Data.ValidateManifest_v1`
-  - policy load
-  - namespace enter
+**Operator:** `UML_OS.OS.Bootstrap_v1`  
+**Category:** Init  
+**Signature:** `(manifest -> persistent_state)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws); parameter init; buffer allocation; data manifest load + ValidateManifest_v1 + ImportAndRegister_v1 if needed; ApplyFineTune_v1 if declared; ExpandPreset_v1 if preset set; Distributed.Setup_v1; policy load; namespace enter; Security.AttestTEE_v1 (confidential mode only).  
+**Preconditions / Postconditions:** manifest canonicalized; TEE quote valid in confidential mode.  
+**Edge cases:** missing dataset hash, invalid URI, TEE unavailable.  
+**Numerical considerations:** manifest-hash-derived bytes for theta init (no RNG).  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** `CONTRACT_VIOLATION` or `ATTESTATION_FAILURE` -> abort with record.  
+**Dependencies:** 0.Q manifest fields.
 
-### UML_OS.Policy.Evaluate_v1 (rule engine only)
-- Purity: PURE
-- RNG consumption: exactly 0 draws from stream `none`
-- Loads `policy.rules` from manifest.
-- Evaluates conditions in array order.
-- Selects highest-priority matching rule; ties broken by lowest array index.
-- Supported conditions: `sil_mean`, `loss_delta`, `grad_norm`, `resource_util`, `(t mod X)`, `state`.
+**Operator:** `UML_OS.Data.Manifest_v1`  
+**Category:** Data  
+**Signature:** `(manifest -> canonical_manifest)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** canonicalize manifest JSON/YAML; compute hash inputs.  
+**Preconditions / Postconditions:** valid schema -> canonical bytes.  
+**Edge cases:** malformed keys/order.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** sorted keys.  
+**Failure behavior:** abort on schema mismatch.  
+**Dependencies:** 0.Q schema.
 
-### UML_OS.Model.Encode_v1
-- Purity: STATEFUL
-- RNG consumption: exactly 2 draws from stream `init`
-- Two linear layers + reparameterization (`eps` from Box-Muller)
+**Operator:** `UML_OS.Data.ValidateManifest_v1`  
+**Category:** Data  
+**Signature:** `(manifest -> ok)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** validates required fields, hashes, operator contracts, dataset refs.  
+**Preconditions / Postconditions:** all mandatory fields present.  
+**Edge cases:** missing `global_batch_size`, invalid `execution_mode`.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic field walk.  
+**Failure behavior:** abort with `CONTRACT_VIOLATION`.  
+**Dependencies:** 0.Q.
 
-### UML_OS.Model.Forward_v2
-- Purity: PURE
-- RNG consumption: exactly 0 draws from stream `none`
-- Executes the exact layer sequence declared in manifest `model.architecture` in registration order.
-- Each layer is instantiated deterministically from its type and params (binary64 weights/biases where applicable).
-- Input flows strictly according to `input_from` links.
-- All operations in binary64, deterministic ascending-index order for any reductions.
+**Operator:** `UML_OS.Data.RegisterDataset_v1`  
+**Category:** Data  
+**Signature:** `(path,id,version -> dataset_id_hash)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** computes BLAKE3, validates schema, stores immutable dataset under canonical path.  
+**Preconditions / Postconditions:** data readable; hash persisted.  
+**Edge cases:** duplicate id/version mismatch.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** lexicographic file traversal.  
+**Failure behavior:** abort on hash mismatch.  
+**Dependencies:** OS path resolver.
 
-### UML_OS.Model.Decode_v1
-- Purity: PURE
-- RNG consumption: exactly 0 draws from stream `none`
-- Returns reconstructed `x` from `z` using decoder parameters in `theta`; output clamped to match preprocessing range.
+**Operator:** `UML_OS.Data.ImportAndRegister_v1`  
+**Category:** Data  
+**Signature:** `(uri,id,version -> dataset_id_hash)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** imports from local/s3/hf URI then delegates to RegisterDataset_v1.  
+**Preconditions / Postconditions:** imported bytes immutable after registration.  
+**Edge cases:** URI unavailable/auth failure.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic chunk/file order.  
+**Failure behavior:** abort.  
+**Dependencies:** RegisterDataset_v1.
 
-### UML_OS.Module.RegisterCustom_v1
-- Purity: STATEFUL
-- RNG consumption: exactly 0 draws from stream `none`
-- Loads user-declared modules from manifest `custom_operators` array (each entry: fully-qualified name, module path, contract declaration `{purity, rng_consumption}`).
-- Kernel verifies: (a) purity by double execution on fixed test input (must match exactly), (b) exact declared RNG delta, (c) contract hash.
-- Registers only if all pass; otherwise aborts with `CONTRACT_VIOLATION`.
+**Operator:** `UML_OS.Data.NextBatch_v1`  
+**Category:** Data  
+**Signature:** `(data_cursor, world_size, rank -> batch, data_cursor')`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic with declared RNG  
+**Definition:** exactly 1 RNG draw from `misc`; deterministic global permutation from manifest_hash+epoch; construct global batch; split contiguous shards rank-ordered.  
+**Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
+**Edge cases:** world_size=1, final batch boundary.  
+**Numerical considerations:** preprocessing stable in binary64 for reductions.  
+**Ordering/tie handling:** ascending global index.  
+**Failure behavior:** abort on invalid shard/batch.  
+**Dependencies:** 0.R.
 
-### UML_OS.Data.NextBatch_v1
-- Purity: STATEFUL
-- RNG consumption: exactly 1 draw from stream `misc`
-- Global deterministic permutation from `manifest_hash + epoch`.
-- Local shard: `indices[rank::world_size]`.
-- Preprocess batch with stored normalization stats.
+**Operator:** `UML_OS.Model.ExpandPreset_v1`  
+**Category:** Model  
+**Signature:** `(model.preset, preset_params, fine_tune -> expanded_architecture)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** expands known preset table; inserts LoRA adapters deterministically when configured.  
+**Preconditions / Postconditions:** preset exists.  
+**Edge cases:** unknown preset/target module.  
+**Numerical considerations:** no RNG.  
+**Ordering/tie handling:** registration order of layers.  
+**Failure behavior:** abort.  
+**Dependencies:** 0.Q model fields.
 
-### UML_OS.IO.WriteTape_v1
-- Purity: IO
-- RNG consumption: exactly 0 draws from stream `none`
-- `BLOCK_SIZE = 512`
-- `max_events = 500_000`
+**Operator:** `UML_OS.Model.ApplyFineTune_v1`  
+**Category:** Model  
+**Signature:** `(theta, fine_tune_cfg -> theta')`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** applies full or LoRA fine-tune wiring/checkpoint loading.  
+**Preconditions / Postconditions:** checkpoint hash must match manifest.  
+**Edge cases:** missing checkpoint, incompatible layer shapes.  
+**Numerical considerations:** deterministic load/merge order.  
+**Ordering/tie handling:** parameter registration order.  
+**Failure behavior:** abort.  
+**Dependencies:** checkpoint manifest.
 
-### UML_OS.IO.WriteTrainingCertificate_v1
-- Purity: IO
-- RNG consumption: exactly 0 draws from stream `none`
-- On termination: assembles training certificate containing replay_token, full ordered execution trace (t, operator, contract_result, rng_delta), lineage chain (BLAKE3 hashes of dataset, model.architecture, final_theta), final state_fp, functional_fp curve, all manifest hashes. Serializes as CBOR, signs with ed25519 (key derived deterministically from namespace path + job_id via BLAKE3), writes to uml_export/training_certificate.cbor.
+**Operator:** `UML_OS.Model.Forward_v2`  
+**Category:** Model  
+**Signature:** `(theta, batch, expanded_architecture -> logits)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** executes manifest-declared expanded architecture, including custom layers through registered contracts.  
+**Preconditions / Postconditions:** architecture validated.  
+**Edge cases:** empty batch, invalid custom ref.  
+**Numerical considerations:** critical reductions in binary64; deterministic reduction order.  
+**Ordering/tie handling:** layer order fixed by architecture list.  
+**Failure behavior:** abort.  
+**Dependencies:** RegisterCustom_v1.
 
-### UML_OS.Contract.Validate_v1
-- Purity: PURE
-- RNG consumption: exactly 0 draws from stream `none`
-- Runtime checks:
-  - KL >= 0 within tolerance
-  - covariance PSD checks
-  - probability sums
-  - gradient clipping bound
-- On violation:
-  - deterministic failure
-  - minimal counterexample snapshot
+**Operator:** `UML_OS.Objective.TotalLoss_v1`  
+**Category:** Objective  
+**Signature:** `(logits, labels, alpha, task_type -> L_tot)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** computes supervised loss by task type with `reduction='mean'` in binary64; `L_tot = alpha * L_sup`.  
+**Preconditions / Postconditions:** labels valid for task type.  
+**Edge cases:** invalid class ids, NaN logits.  
+**Numerical considerations:** stable CE/BCE/MSE paths; EPS clamps as needed.  
+**Ordering/tie handling:** ascending index accumulation.  
+**Failure behavior:** invalid objective policy from 0.A/0.K.  
+**Dependencies:** 0.A, 0.C.
 
-### UML_OS.Update_v1
-- Purity: STATEFUL
-- RNG consumption: exactly 0 draws from stream `none`
-- Computes gradients; clips by manifest `grad_clip_norm` using L2 norm in binary64; applies optimizer step using manifest `optimizer` config (AdamW/SGD/RMSprop with declared lr/betas/weight_decay/momentum); applies weight decay if declared.
+**Operator:** `UML_OS.Update_v1`  
+**Category:** Update  
+**Signature:** `(theta, grads, optimizer_cfg -> theta')`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** computes gradients, clips by `grad_clip_norm`, applies optimizer step (AdamW/SGD/RMSprop) deterministically.  
+**Preconditions / Postconditions:** optimizer config valid.  
+**Edge cases:** zero/NaN gradients.  
+**Numerical considerations:** clip norm in binary64.  
+**Ordering/tie handling:** parameter registration order.  
+**Failure behavior:** abort on non-finite gradients.  
+**Dependencies:** 0.Q optimizer.
 
-### UML_OS.StateFingerprint_v1
-- Purity: PURE
-- RNG consumption: exactly 0 draws from stream `none`
-- Lightweight incremental fingerprint: maintain running BLAKE3 hash (128-bit) across run.
-- At each call: update with `SHA-256( t || state || data_cursor_hash || rng_offsets || np.protos_hash || equations_hash || loss_hist_last256_hash || theta_incremental_hash || opt_state_hash )`.
-- `theta_incremental_hash` updated after every `Update_v1` as `BLAKE3(prev || serialized_param_deltas in registration order)`.
-- Result stored as 32-byte `state_fp` (for trace and equivalence only).
+**Operator:** `UML_OS.Module.RegisterCustom_v1`  
+**Category:** Module  
+**Signature:** `(custom_operators[] -> registry')`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** loads user-declared custom operators from manifest and verifies declared purity, RNG consumption, and contract hash before registration.  
+**Preconditions / Postconditions:** contract declaration present per operator.  
+**Edge cases:** missing module path, contract mismatch.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** registration in declared manifest order.  
+**Failure behavior:** abort with `CONTRACT_VIOLATION`.  
+**Dependencies:** `custom_operators` manifest field.
 
-### UML_OS.StateFingerprint_v1 and UML_OS.Fingerprint.Functional_v1
-- Called only every `fingerprint_frequency` steps (per 0.V) or when action in {"augment","switch"} or at termination/checkpoint.
+**Operator:** `UML_OS.Policy.Evaluate_v1`  
+**Category:** Policy  
+**Signature:** `(state, metrics, rules -> action)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** evaluates `policy.rules` in declared order; highest priority wins; ties by lowest index.  
+**Preconditions / Postconditions:** rules schema valid.  
+**Edge cases:** no matching rule -> fallback `optimize`.  
+**Numerical considerations:** comparisons in binary64.  
+**Ordering/tie handling:** deterministic rule order.  
+**Failure behavior:** abort on malformed rule expression.  
+**Dependencies:** 0.Q.
 
-## V · Observability and Trace
+**Operator:** `UML_OS.Evaluation.Run_v1`  
+**Category:** Evaluation  
+**Signature:** `(theta, val_data, metrics -> eval_result)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** computes declared metrics at configured frequency.  
+**Preconditions / Postconditions:** val split exists if configured.  
+**Edge cases:** empty val split.  
+**Numerical considerations:** binary64 reductions for metrics.  
+**Ordering/tie handling:** ascending index over val data.  
+**Failure behavior:** abort on missing eval split.  
+**Dependencies:** `evaluation` manifest.
 
-### V.A Logging Rule
-- one run_header
-- one iter record per loop iteration
-- one run_end
+**Operator:** `UML_OS.Distributed.Setup_v1`  
+**Category:** Distributed  
+**Signature:** `(parallelism, world_size, backend -> dist_state)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** initializes deterministic collectives and rank order.  
+**Preconditions / Postconditions:** valid backend and world size.  
+**Edge cases:** world_size=1.  
+**Numerical considerations:** deterministic reduction primitives only.  
+**Ordering/tie handling:** ascending rank.  
+**Failure behavior:** abort on unsupported backend.  
+**Dependencies:** 0.R.
 
-### V.B Minimal Trace Schema
-- `run_header`: metadata, hashes, replay token, `task_type`, `world_size`, `backend_hash`
-- `iter`: `t, state, action, loss_total, grad_norm, state_fp (only when computed), functional_fp (only when computed)`
-- `run_end`: completion status, final hashes, functional fingerprint, `task_type`, `world_size`, `backend_hash`
+**Operator:** `UML_OS.Contract.Validate_v1`  
+**Category:** Contract  
+**Signature:** `(runtime_state -> ok)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** checks declared invariants, objective finiteness, RNG delta contracts, ordering contracts.  
+**Preconditions / Postconditions:** all required telemetry present.  
+**Edge cases:** local relaxed mode emits warnings.  
+**Numerical considerations:** EPS_EQ thresholding.  
+**Ordering/tie handling:** deterministic check order.  
+**Failure behavior:** abort/warn per execution mode.  
+**Dependencies:** 0.V.
 
-Internal-only fields (not required in minimal public trace):
-- policy entropy
-- aux-loss breakdown
+**Operator:** `UML_OS.StateFingerprint_v1`  
+**Category:** Fingerprint  
+**Signature:** `(state -> state_fp)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** incremental BLAKE3 update with SHA-256 tuple over deterministic state domain.  
+**Preconditions / Postconditions:** persistent state serializable.  
+**Edge cases:** empty history.  
+**Numerical considerations:** binary64 serialization for critical tensors/metrics.  
+**Ordering/tie handling:** deterministic serialization order.  
+**Failure behavior:** abort on serialization mismatch.  
+**Dependencies:** persistent state schema.
 
-### V.C Functional Fingerprint Definition
-**UML_OS.Fingerprint.Functional_v1**
-- Purity: PURE
-- RNG consumption: exactly 0 draws from stream `none`
-- Canonical probe set:
-  - first 1024 samples from dataset declared in manifest (validation split if present, otherwise training split)
-  - strict ascending original-index order, no shuffle/permutation
-  - if dataset size < 1024, cyclic repeat from start
-- Dtype: binary64 for all forward-pass and loss computations
-- Execution: inference mode (no gradients), current `theta`, current `np.protos`, current equation trees
-- Output:
-  - `functional_fp = SHA-256(probe_loss_bytes || probe_metric_bytes || task_type || spec_version)`
-  - `probe_loss` and `probe_metric` are binary64 scalars (mean over probe set)
-- Called only as required by VI; stored in trace and checkpoints
+**Operator:** `UML_OS.Fingerprint.Functional_v1`  
+**Category:** Fingerprint  
+**Signature:** `(theta, probe_set -> functional_fp)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** runs canonical probe set (first 1024 items deterministic), computes probe loss/metric, hashes bytes into functional fingerprint.  
+**Preconditions / Postconditions:** probe set available.  
+**Edge cases:** dataset size < 1024 uses cyclic repeat.  
+**Numerical considerations:** binary64 path.  
+**Ordering/tie handling:** ascending original index.  
+**Failure behavior:** abort on non-finite probe outputs.  
+**Dependencies:** dataset manifest.
+
+**Operator:** `UML_OS.Verifiable.CommitFunctional_v1`  
+**Category:** Fingerprint  
+**Signature:** `(probe_outputs_bytes, functional_fp, security.zk_commitment -> commitment?)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** if enabled, compute `zk_commitment = SHA-256(probe_outputs_bytes || functional_fp)` and attach to trace/certificate.  
+**Preconditions / Postconditions:** functional_fp available.  
+**Edge cases:** disabled path returns no commitment.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** canonical byte order.  
+**Failure behavior:** abort on digest mismatch.  
+**Dependencies:** `security.zk_commitment`.
+
+**Operator:** `UML_OS.Security.AttestTEE_v1`  
+**Category:** Security  
+**Signature:** `(execution_mode, manifest_hash, replay_token -> quote)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic protocol path  
+**Definition:** in confidential mode, collect hardware quote covering kernel measurement + manifest hash + replay token; store for certificate.  
+**Preconditions / Postconditions:** TEE available and quote valid.  
+**Edge cases:** unavailable TEE, invalid quote, mismatch measurement.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** `ATTESTATION_FAILURE` abort.  
+**Dependencies:** confidential execution mode.
+
+**Operator:** `UML_OS.IO.WriteTape_v1`  
+**Category:** IO  
+**Signature:** `(event -> tape_state')`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** append event in deterministic order with fixed block/chaining rules.  
+**Preconditions / Postconditions:** tape open and writable.  
+**Edge cases:** block rollover.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** ascending t.  
+**Failure behavior:** abort on write/hash mismatch.  
+**Dependencies:** tape state.
+
+**Operator:** `UML_OS.IO.SaveCheckpoint_v1`  
+**Category:** IO  
+**Signature:** `(state -> checkpoint)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** writes full checkpoint at frequency or termination using deterministic serialization.  
+**Preconditions / Postconditions:** checkpoint path resolved in namespace.  
+**Edge cases:** checkpoint_frequency=0 disables periodic writes.  
+**Numerical considerations:** binary64 for critical values.  
+**Ordering/tie handling:** fixed field order.  
+**Failure behavior:** abort on write/serialize failure.  
+**Dependencies:** section 10 schema.
+
+**Operator:** `UML_OS.IO.WriteTrainingCertificate_v1`  
+**Category:** IO  
+**Signature:** `(run_state -> training_certificate.cbor)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** emits signed CBOR certificate with Merkle trace root, lineage chain, fingerprints, manifest hashes, operator contract hashes, and confidential quote if present.  
+**Preconditions / Postconditions:** daemon signing key available.  
+**Edge cases:** missing quote in confidential mode.  
+**Numerical considerations:** deterministic digest encoding.  
+**Ordering/tie handling:** ascending t in trace chain.  
+**Failure behavior:** abort on signing failure.  
+**Dependencies:** daemon key + 0.X contract.
+
+**Operator:** `UML_OS.Logging.LogIteration_v1`  
+**Category:** Logging  
+**Signature:** `(iter_state -> log_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** writes iteration metrics per schema.  
+**Preconditions / Postconditions:** log sink available.  
+**Edge cases:** skipped fields if fingerprint not due.  
+**Numerical considerations:** binary64 serialization for metrics.  
+**Ordering/tie handling:** ascending t.  
+**Failure behavior:** abort on logging I/O failure.  
+**Dependencies:** observability schema.
+
+**Operator:** `UML_OS.Termination.Check_v1`  
+**Category:** Termination  
+**Signature:** `(state, limits -> bool)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** evaluates manifest termination criteria.  
+**Preconditions / Postconditions:** criteria declared.  
+**Edge cases:** max_steps=0.  
+**Numerical considerations:** EPS_EQ comparisons.  
+**Ordering/tie handling:** deterministic criterion order.  
+**Failure behavior:** abort on invalid criteria.  
+**Dependencies:** manifest limits.
+
+**Operator:** `UML_OS.Transition.SwitchState_v1`  
+**Category:** Transition  
+**Signature:** `(state, action -> state')`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** transitions among declared lifecycle states for evaluate/train/terminate paths.  
+**Preconditions / Postconditions:** valid action-state pair.  
+**Edge cases:** invalid transition.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** abort on invalid transition.  
+**Dependencies:** state model.
+
+**Operator:** `UML_OS.OS.ResolvePath_v1`  
+**Category:** OS  
+**Signature:** `(logical_path, namespace -> absolute_path)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** resolves canonical namespace-bound path under `UML_OS_ROOT`.  
+**Preconditions / Postconditions:** namespace exists and caller authorized.  
+**Edge cases:** invalid traversal (`..`) or missing namespace path.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** lexicographic canonicalization.  
+**Failure behavior:** abort.  
+**Dependencies:** daemon ACL/namespace state.
+
+**Operator:** `UML_OS.OS.NamespaceEnter_v1`  
+**Category:** OS  
+**Signature:** `(namespace_path -> active_namespace)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** enters namespace and binds filesystem, RNG, and state scopes.  
+**Preconditions / Postconditions:** ACL allows access.  
+**Edge cases:** non-existent namespace.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** abort.  
+**Dependencies:** daemon namespace registry.
+
+**Operator:** `UML_OS.OS.QuotaEnforce_v1`  
+**Category:** OS  
+**Signature:** `(resource_usage, limits -> ok)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** enforces CPU/GPU/storage/concurrency limits before step execution.  
+**Preconditions / Postconditions:** limits resolved from manifest + namespace policy.  
+**Edge cases:** exceeded quota.  
+**Numerical considerations:** binary64 comparisons for resource accounting where applicable.  
+**Ordering/tie handling:** deterministic check order.  
+**Failure behavior:** abort with quota violation code.  
+**Dependencies:** daemon scheduler/quota state.
+
+**Operator:** `UML_OS.Buffer.ShardedDiskRing_v1`  
+**Category:** Buffer  
+**Signature:** `(buffer_state, item -> buffer_state')`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** writes/reads deterministic sharded ring-buffer blocks on disk.  
+**Preconditions / Postconditions:** namespace storage writable.  
+**Edge cases:** empty buffer read, shard rollover.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic shard and index order.  
+**Failure behavior:** abort on integrity mismatch.  
+**Dependencies:** OS path and quota operators.
+
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> failure_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** emits final structured failure record to trace and audit log.  
+**Preconditions / Postconditions:** failure record persisted before abort.  
+**Edge cases:** nested failure during emit.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic failure field order.  
+**Failure behavior:** terminal abort-only model.  
+**Dependencies:** 0.K failure semantics.
+
+**Operator:** `UML_OS.DifferentialPrivacy.Apply_v1`  
+**Category:** Security  
+**Signature:** `(gradients, security.differential_privacy -> noisy_gradients, updated_budget)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** If enabled, adds calibrated Gaussian/Laplace noise in binary64; tracks exact cumulative epsilon in persistent state and certificate; aborts if budget would be exceeded.  
+**Preconditions / Postconditions:** `target_epsilon` declared and remaining budget sufficient.  
+**Edge cases:** epsilon=0, zero gradients.  
+**Numerical considerations:** noise scale computed exactly in binary64.  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** abort with `PRIVACY_BUDGET_EXCEEDED`.  
+**Dependencies:** regulated mode, 0.Q security fields.
+
+**Operator:** `UML_OS.Compliance.GenerateReport_v1`  
+**Category:** Compliance  
+**Signature:** `(trace, certificate, manifest -> compliance_report)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** In regulated mode assembles EU AI Act / GxP / NIST-compatible report (risk assessment, data governance, technical docs, logging summary, human-oversight confirmation) from trace + certificate; writes immutable PDF/JSON to namespace.  
+**Preconditions / Postconditions:** regulated mode active.  
+**Edge cases:** missing fields in trace.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** fixed section order.  
+**Failure behavior:** abort on generation failure.  
+**Dependencies:** regulated mode.
+
+**Operator:** `UML_OS.Governance.SignCertificate_v1`  
+**Category:** Governance  
+**Signature:** `(certificate -> signed_certificate)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** In regulated mode applies electronic signatures (daemon key + optional HSM/company PKI) and enforces approval workflow (manifest-declared approvers must sign before export).  
+**Preconditions / Postconditions:** regulated mode, approvers declared.  
+**Edge cases:** missing HSM.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** abort on signing/approval failure.  
+**Dependencies:** regulated mode, 0.X.
 
 ---
 
-## VI · Algorithm Procedure
+## 6) Procedure
 
 1. `UML_OS.OS.Bootstrap_v1(...)`
-2. `UML_OS.Module.LoadDeclaredModules_v1(...)` (verifies contract hashes and registers operators from manifest)
-3. `UML_OS.OS.NamespaceEnter_v1(job_id)`
-4. loop until termination:
-   - `UML_OS.Termination.Check_v1(...)`
-   - `t += 1`
-   - `UML_OS.OS.QuotaEnforce_v1(...)`
-   - `batch <- UML_OS.Data.NextBatch_v1(...)`
-   - `logits <- UML_OS.Model.Forward_v2(...)`
-   - `L_tot <- UML_OS.Objective.TotalLoss_v1(...)`
-   - `UML_OS.Contract.Validate_v1(...)` (strictness per mode 0.V)
-   - `action <- UML_OS.Policy.Evaluate_v1(...)`
-   - dispatch using manifest-declared operator names
-   - `current_state_fp <- UML_OS.StateFingerprint_v1(...)` only if required by mode/frequency or action in {"augment","switch"}
-   - `current_functional_fp <- UML_OS.Fingerprint.Functional_v1(...)` only if required by mode/frequency or action in {"augment","switch"}
-   - if world_size > 1: deterministic barrier
-   - `UML_OS.IO.WriteTape_v1(...)`
-   - `UML_OS.Logging.LogIteration_v1(...)`
-   - if termination: `UML_OS.IO.WriteTrainingCertificate_v1(...)`
+2. `UML_OS.OS.NamespaceEnter_v1(job_id)`
+3. Loop until termination:
+- `UML_OS.Termination.Check_v1(...)`
+- `t <- t + 1`
+- `UML_OS.OS.QuotaEnforce_v1(...)`
+- `batch <- UML_OS.Data.NextBatch_v1(...)`
+- `logits <- UML_OS.Model.Forward_v2(...)`
+- `L_tot <- UML_OS.Objective.TotalLoss_v1(...)`
+- `UML_OS.Contract.Validate_v1(...)`
+- `action <- UML_OS.Policy.Evaluate_v1(...)`
+- Dispatch action (`optimize -> Update_v1`, `eval -> Evaluation.Run_v1`, `switch -> Transition.SwitchState_v1`)
+- If checkpoint due: `UML_OS.IO.SaveCheckpoint_v1(...)`
+- Fingerprints when due: `StateFingerprint_v1`, `Fingerprint.Functional_v1`, and `Verifiable.CommitFunctional_v1` if enabled
+- If `execution_mode == "regulated"`: `UML_OS.DifferentialPrivacy.Apply_v1(...)`
+- If world_size > 1: deterministic barrier
+- `UML_OS.IO.WriteTape_v1(...)`
+- `UML_OS.Logging.LogIteration_v1(...)`
+- On termination: `UML_OS.IO.WriteTrainingCertificate_v1(...)`; if `execution_mode == "regulated"`: `UML_OS.Compliance.GenerateReport_v1(...)`; `UML_OS.Governance.SignCertificate_v1(...)`
 
 ---
 
-## VIII · Checkpoint and Restore
+## 7) Observability
 
-### VIII.A Checkpoint Contents
-- include:
-  - full manifest copy (canonicalized)
-  - loaded module contract hashes
-  - `theta`
-  - optimizer state
-  - single `loss_hist`
-  - `latent_buffer`
-  - `data_cursor`
-  - RNG master + offsets
-  - hashes (`policy_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`)
-  - `functional_fp`
+### Trace schema
+- `run_header`: metadata, hashes, replay token, task_type, world_size, backend hash
+- `iter`: `t, state, action, loss_total, grad_norm, state_fp (when computed), functional_fp (when computed), zk_commitment (when enabled)`
+- `run_end`: status, final hashes, final fingerprints
 
-### VIII.B Serialization
-- protobuf with `deterministic=True`
-
-### VIII.C Post-termination Export
-On normal termination the kernel writes deterministic `uml_export/` directory in namespace root containing:
-- `theta.pt` (PyTorch state_dict, deterministic serialization)
-- `inference_manifest.yaml` (minimal manifest + model.architecture + any preprocess_stats hash)
-- `training_certificate.cbor` (signed CBOR record; mandatory in standard and strict modes; contains full lineage chain)
-All paths and filenames fixed.
+### Certificate schema
+- Signed `training_certificate.cbor` with Merkle root, lineage, fingerprints, manifest/contract hashes, and confidential quote when applicable
 
 ---
 
-## IX · Conformance and Change Control
+## 8) Validation
+#### VII.A Lint rules (mandatory)
+Spec passes: symbol completeness, no hidden globals, total state updates per iteration, stochastic explicitness (RNG only inside operators), edge-case totality, ordering/tie adherence, trace compliance, manifest completeness, purity class for all operators, failure semantics traceable, data provenance declared, global batch independence.
 
-### IX.A Conformance Levels
-- `C0`: spec-complete implementation
-- `C1`: R1 statistical replay conformance
+#### VII.B Operator test vectors (mandatory)
+Every operator has deterministic test vectors (input → output within EPS_EQ) and stochastic replay-token verification (seed → exact sequence).
 
-### IX.B C1 Requirements
-- identical:
-  - `policy_hash`
-  - `env_manifest_hash`
-  - `replay_token`
-  - `functional_fp`
-- loss curve must match declared tolerance envelope over 10 seeds
-
-### IX.C Change Control
-- any reproducibility-breaking change requires MAJOR bump
-- Required equivalence target: **E1 (metric-equivalent)**
-- Required golden trace dataset: any manifest-declared dataset that matches declared `task_type`, dimension constraints, and produces metric-equivalent trace within tolerance envelope over 10 seeds.
-- E1 requires matching:
-  - `replay_token`
-  - `state_fp` sequence
-  - `functional_fp` curve
-  within the declared tolerance envelope over 10 seeds.
+#### VII.C Golden traces (mandatory)
+At least one golden run trace per execution_mode for reference seed + any manifest-declared dataset. Regression criteria: exact replay_token, state_fp sequence, functional_fp curve within declared tolerance envelope over 10 seeds (E1).
 
 ---
 
-## X · Compatibility Boundary
+## 9) Refactor & Equivalence
+#### VIII.A Equivalence levels
+- **E0 Trace-equivalent** (bitwise identical trace and certificate)
+- **E1 Metric-equivalent** (identical loss/functional_fp curves within tolerance)
+- **E2 Distribution-equivalent** (statistical replay over seeds)
+- **E3 Invariant-equivalent** (same contracts and state_fp sequence)
 
-The following are normative compatibility boundaries for UML_OS-v3.13-OS:
-1. Declarative manifests only. Sole entrypoints are the required CLI commands (0.W). The VI kernel procedure is the sole execution path. No external training-loop code, user callbacks, imperative mutations, or Python control flow outside declared operators is executed or permitted. Any attempt causes `Contract.Validate_v1` failure (severity per mode) with full counterexample and abort.
+Required level for any change: E1 minimum; E0 for kernel, attestation, or RNG contract changes.
 
-2. Daemon is optional in simple/standard modes for single-node; mandatory in strict mode or shared-root/multi-node. All job submission and isolation routes exclusively through CLI + daemon when present.
+#### VIII.B Allowed refactor categories
+- algebraic simplification of loss or fingerprint
+- numerical stabilization (clamps, ordering)
+- vectorization/batching (preserve reduction order)
+- parallelization (re-declare 0.R sharding)
+- operator replacement via version bump + manifest update
+- driver certification (new hardware TEE backend)
+- declarative-only entrypoint preservation, kernel-only execution, manifest-driven dispatch, dataset registration immutability, signed certificate portability
+- regulated-mode additions (differential-privacy accounting, compliance report generation, electronic signatures)
 
-3. Deterministic distributed collectives and declared RNG locality.
-- Collective ordering, rank ordering, and rank-0-only RNG behavior for declared operators are mandatory.
-- Implementations that use flexible or user-defined distributed graphs without these fixed contracts are non-conformant.
+Breaking observables require trace schema update + MAJOR version bump.
 
-4. Manifest-driven operator registry and policy dispatch.
-- Operator selection, module loading, and policy rules must come from the manifest and verified contract hashes.
-- User callbacks or ad-hoc Python control flow for core dispatch are non-conformant.
+#### VIII.C Equivalence test procedure (mandatory)
+- 10 seeds per golden dataset
+- metrics: replay_token, state_fp sequence, functional_fp curve, final theta (binary64)
+- thresholds: EPS_EQ for scalars, exact Merkle root for certificate
+- statistical test for E2: Kolmogorov-Smirnov on loss curves (α=0.01, Bonferroni-corrected).
+- regulated-mode artefacts: exact cumulative epsilon, signed compliance report, electronic signature validation.
 
-5. Operator-level reproducibility auditing.
-- Per-operator RNG consumption accounting, `StateFingerprint_v1`, functional fingerprint generation, and canonical manifest-bound checkpoint restore are required.
-- Logging-only or seed-only reproducibility approaches are insufficient for C0/C1 conformance.
+---
 
-6. Training Certificate contract. In standard and strict modes every completed training run must produce a valid signed training_certificate.cbor containing the full verifiable lineage chain and execution trace. Implementations that cannot emit this signed record or that allow external code paths that bypass operator contracts are non-conformant.
+## 10) Checkpoint/Restore
 
-7. Declarative model contract. All training and inference use only the manifest-declared `model.architecture`; no external nn.Module, custom forward code, or imperative model construction is permitted in the VI path or inference runtime. Any bypass causes `Contract.Validate_v1` failure and abort.
+### Checkpoint contents
+- canonicalized full manifest
+- operator contract hashes
+- `theta`, optimizer state
+- `loss_hist`, `data_cursor`
+- RNG master state + offsets
+- `policy_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`
+- latest `state_fp`, `functional_fp`, optional `zk_commitment`
 
-8. Independent verification contract. The `uml_os verify` CLI must be able to independently validate any training_certificate.cbor (signature, lineage, functional_fp) without access to the original training environment.
+### Serialization
+- deterministic protobuf/CBOR encoding with fixed field order
 
-This boundary defines UML_OS as a self-contained training operating system kernel with declarative user input and contract-enforced execution.
+### Restore semantics
+- restore produces identical subsequent control flow under same manifest/seed/replay token contract
+- in confidential mode, attestation must be re-validated before resuming
+
+### Post-termination export
+- `theta.pt`
+- `inference_manifest.yaml`
+- `training_certificate.cbor`
+- (in `regulated` mode) `compliance_report.pdf/json` + fully signed certificate with electronic signatures and privacy budget.
+- `model.onnx`
+- `model_card.json`
