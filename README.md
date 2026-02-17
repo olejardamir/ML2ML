@@ -2,7 +2,7 @@
 
 **Algorithm:** Deterministic training OS kernel with operator contracts and namespace isolation.  
 **Purpose (1 sentence):** Execute machine-learning training and lifecycle operations under formal reproducibility, namespace isolation, and deterministic runtime contracts.  
-**Spec Version:** UML_OS-v3.10-OS | 2026-02-17 | Authors: Olejar Damir  
+**Spec Version:** UML_OS-v3.11-OS | 2026-02-17 | Authors: Olejar Damir  
 **Domain / Problem Class:** Reproducible training with optional online symbolic prototype augmentation (default workload).
 
 ---
@@ -92,6 +92,7 @@ Active operators:
 - `UML_OS.Transition.SwitchState_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.IO.WriteTape_v1`
+- `UML_OS.IO.WriteProvenance_v1`
 - `UML_OS.Logging.LogIteration_v1`
 - `UML_OS.Termination.Check_v1`
 - `UML_OS.StateFingerprint_v1`
@@ -141,7 +142,7 @@ Active operators:
   - Driver (device collectives, I/O, deterministic primitives)
   - Runtime (pinned Python/NumPy/PyTorch)
   - Module (verified operator packages loaded from manifest)
-  - Daemon (optional in `simple` and `standard` modes for single-node execution; mandatory in `strict` mode or when UML_OS_ROOT is shared or world_size > 1; single process per host): owns UML_OS_ROOT filesystem hierarchy; uses simple FIFO submission queue (atomic file locks); launches each job as isolated process; enforces per-namespace isolation of RNG state, data_cursor, checkpoints, and tapes; performs basic quota checks on storage and concurrent jobs only (no weighted fair-share CPU/GPU slicing).
+  - Daemon (optional in `simple` mode for single-node only; mandatory in `standard` and `strict` modes or when UML_OS_ROOT is shared or world_size > 1; single process per host): owns UML_OS_ROOT filesystem hierarchy; uses simple FIFO submission queue (atomic file locks); launches each job as isolated process; enforces per-namespace isolation of RNG state, data_cursor, checkpoints, and tapes; maintains an append-only audit log at `/audit/<namespace_path>/` (every operator call, contract validation result, RNG delta, and quota event is appended in ascending-t order); performs basic quota enforcement on storage and concurrent jobs.
   - Management (CLI entrypoints)
   - User (manifests only)
 - UML_OS_ROOT filesystem (enforced by daemon and `Bootstrap_v1`):
@@ -198,7 +199,6 @@ grad_clip_norm: 1.0
 - Communication: PyTorch distributed (`gloo` CPU / `nccl` CUDA), ranks sorted ascending by `(hostname hash, rank)`.
 - Data sharding: global permutation, then each rank processes slice `rank::world_size`.
 - Global operations (clustering, fingerprint aggregation): rank 0 computes, others receive via `Broadcast`; RNG draws only on rank 0 where declared.
-- `latent_buffer`: sharded by `sample_index % world_size`; `AllGather` only when required by operator (e.g., augment).
 - Daemon enforces isolation, quotas, and schedules jobs across namespaces with fair-share priority based on manifest-declared resources.
 - Checkpoint/restore restores exact global `data_cursor`, sharded `latent_buffer`, and synchronized RNG master state.
 - In `simple` mode multi-node is forbidden; collectives use default PyTorch ordering.
@@ -227,7 +227,7 @@ grad_clip_norm: 1.0
 ### 0.V Operation Modes
 - Manifest field: `mode: "simple" | "standard" | "strict"` (default: "standard").
 - `simple`: daemon optional (single-process only; multi-node forbidden); RNG consumption auditing disabled (warnings logged only); `StateFingerprint_v1` and `Functional_v1` computed only at termination and every checkpoint; `Contract.Validate_v1` relaxed (warnings only, no abort on KL/covariance/probability edge cases); no latent_buffer allocation; workload forced to `pure_nn`; fingerprint_frequency fixed at 200.
-- `standard`: daemon optional for single-node (mandatory if UML_OS_ROOT shared or world_size > 1); full RNG auditing; fingerprints every 50 steps or on any `action` change; full `Contract.Validate_v1`; fingerprint_frequency = 50; workload = `pure_nn` by default.
+- `standard`: daemon mandatory for any shared-root or world_size > 1 (optional for pure single-node); full RNG auditing; fingerprints every 50 steps or on any `action` change; full `Contract.Validate_v1`; fingerprint_frequency = 50; workload = `pure_nn` by default; produces signed provenance record on termination.
 - `strict`: daemon mandatory for any shared-root or world_size > 1; full enforcement of all contracts, barriers, and collectives; fingerprint_frequency = 10; enables all optional features.
 - All later sections reference these exact definitions for conditional behavior.
 
@@ -239,6 +239,11 @@ grad_clip_norm: 1.0
   - `uml_os export <checkpoint_dir>` -> produces uml_export/ (see VIII.C).
   - `uml_os daemon start [--root UML_OS_ROOT]` (for shared-root or strict mode).
 - All CLI commands auto-validate manifest against operator contracts before launch.
+
+### 0.X Provenance Contract
+- In `standard` and `strict` modes every completed run produces a cryptographically signed `provenance.cbor` file (see UML_OS.IO.WriteProvenance_v1).
+- The file contains the complete ordered execution trace required for external verification of: replay_token match, all operator contracts passed, exact RNG consumption, and functional_fp curve.
+- Signature uses ed25519 with key derived from namespace path + job_id.
 
 ---
 
@@ -283,7 +288,7 @@ grad_clip_norm: 1.0
 2. `UML_OS.OS.Bootstrap_v1(...)`
 3. Initialize `theta` deterministically from manifest-hash-derived bytes (no RNG draws)
 4. Initialize `state <- S_P`
-5. Initialize `loss_hist`, `latent_buffer`, `data_cursor`
+5. Initialize `loss_hist`, `data_cursor`
 6. Initialize tape and fingerprints
 
 ---
@@ -291,7 +296,7 @@ grad_clip_norm: 1.0
 ## III · Mathematical Components (default: pure_nn workload)
 
 ### III.A Supervised Loss
-- `logits = nn_logits + beta * sym_pred` (beta from manifest)
+- `logits <- UML_OS.Model.Forward_v2(...)` (pure neural-net forward pass in binary64; see Forward_v2 definition).
 - `task_type` from manifest (default: multiclass).
 - multiclass: `L_sup = CrossEntropyLoss(logits, y)` (integer labels `0..C-1`, reduction in binary64, ascending-index order)
 - binary: `L_sup = BCEWithLogitsLoss(logits, y)`
@@ -345,10 +350,10 @@ All operators must declare exactly:
 ### UML_OS.Model.Forward_v2
 - Purity: PURE
 - RNG consumption: exactly 0 draws from stream `none`
-- `proto_features = cosine_similarity(z, np.protos)`
-- `weights = softmax(proto_features / 0.05)` (fixed temperature for routing stability)
-- `sym_pred = sum(weights_i * DifferentiableEval_v1(np.protos_equation[i], z))`
-- `logits = nn_logits + beta * sym_pred`
+- Computes neural-network forward pass using parameters in `theta` and latent `z` from Encode_v1.
+- When `workload=pure_nn`: returns `logits = nn_forward(z)` (standard dense/conv layers declared in manifest model definition).
+- When `workload=hybrid_symbolic`: `logits = nn_forward(z) + beta * sym_pred` where `sym_pred` is computed exactly as previously defined in prior spec version (proto_features -> softmax -> DifferentiableEval).
+- All operations in binary64, deterministic ascending-index order for any reductions.
 
 ### UML_OS.Model.Decode_v1
 - Purity: PURE
@@ -374,6 +379,11 @@ All operators must declare exactly:
 - RNG consumption: exactly 0 draws from stream `none`
 - `BLOCK_SIZE = 512`
 - `max_events = 500_000`
+
+### UML_OS.IO.WriteProvenance_v1
+- Purity: IO
+- RNG consumption: exactly 0 draws from stream `none`
+- On termination: assembles provenance record containing replay_token, full ordered list of (t, operator, contract_result, rng_delta), final state_fp hash (BLAKE3), final functional_fp, all manifest hashes, and dataset hashes. Serializes as CBOR, signs with ed25519 (key derived deterministically from namespace path + job_id via BLAKE3), writes to uml_export/provenance.cbor.
 
 ### UML_OS.Contract.Validate_v1
 - Purity: PURE
@@ -448,7 +458,7 @@ Internal-only fields (not required in minimal public trace):
    - `batch <- UML_OS.Data.NextBatch_v1(...)`
    - `z <- UML_OS.Model.Encode_v1(...)`
    - `recon <- UML_OS.Model.Decode_v1(...)`
-   - `(logits, sym) <- UML_OS.Model.Forward_v2(...)`
+   - `logits <- UML_OS.Model.Forward_v2(...)`
    - `L_tot <- UML_OS.Objective.TotalLoss_v1(...)`
    - `UML_OS.Contract.Validate_v1(...)` (strictness per mode 0.V)
    - `action <- UML_OS.Policy.Evaluate_v1(...)`
@@ -458,6 +468,7 @@ Internal-only fields (not required in minimal public trace):
    - if world_size > 1: deterministic barrier
    - `UML_OS.IO.WriteTape_v1(...)`
    - `UML_OS.Logging.LogIteration_v1(...)`
+   - if termination: `UML_OS.IO.WriteProvenance_v1(...)`
 
 ---
 
@@ -480,12 +491,11 @@ Internal-only fields (not required in minimal public trace):
 - protobuf with `deterministic=True`
 
 ### VIII.C Post-termination Export
-On normal termination: kernel writes deterministic `uml_export/` directory in namespace root containing:
+On normal termination the kernel writes deterministic `uml_export/` directory in namespace root containing:
 - `theta.pt` (PyTorch state_dict, deterministic serialization)
-- `protos.npy` (centroids, binary64)
-- `equations.json` (array of ASTs, one per prototype; canonical string + node list)
-- `inference_manifest.yaml` (minimal manifest + preprocess_stats.bin hash for inference replay)
-All paths and filenames fixed; content order by ascending prototype index.
+- `inference_manifest.yaml` (minimal manifest + preprocess_stats.bin hash)
+- `provenance.cbor` (signed CBOR record; mandatory in standard and strict modes)
+All paths and filenames fixed.
 
 ---
 
@@ -533,5 +543,7 @@ The following are normative compatibility boundaries for UML_OS-v3.10-OS:
 5. Operator-level reproducibility auditing.
 - Per-operator RNG consumption accounting, `StateFingerprint_v1`, functional fingerprint generation, and canonical manifest-bound checkpoint restore are required.
 - Logging-only or seed-only reproducibility approaches are insufficient for C0/C1 conformance.
+
+6. Provenance contract. In standard and strict modes every completed training run must produce a valid signed provenance.cbor file containing the full verifiable execution trace. Implementations that cannot emit this signed record or that allow external code paths that bypass operator contracts are non-conformant.
 
 This boundary defines UML_OS as a self-contained training operating system kernel with declarative user input and contract-enforced execution.
