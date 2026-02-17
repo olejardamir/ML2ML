@@ -1,8 +1,8 @@
-# EquationCode (EQC) v3.6-OS
+# Universal Machine Learning Operating System (UML_OS) v3.8-OS
 
-**Algorithm:** Deterministic ML Training OS kernel with symbolic prototype augmentation.  
+**Algorithm:** Deterministic ML training OS kernel with integrated symbolic prototype augmentation.  
 **Purpose (1 sentence):** Execute machine-learning training and lifecycle operations under formal reproducibility, namespace isolation, and deterministic runtime contracts.  
-**Spec Version:** EQC-v3.6-OS | 2026-02-17 | Authors: Olejar Damir  
+**Spec Version:** UML_OS-v3.8-OS | 2026-02-17 | Authors: Olejar Damir  
 **Domain / Problem Class:** Reproducible hybrid training with symbolic prototypes.
 
 ---
@@ -54,56 +54,58 @@
 - Fixed action order: `["optimize", "probe", "switch", "augment"]`
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Parallel reductions: fixed 256-element chunks
-- Rank aggregation: ascending rank order
+- Parallel reductions: fixed 256-element chunks, performed in ascending global index order (ranks sorted 0..world_size-1).
+- Rank aggregation: ascending rank order.
+- When world_size > 1, every reduction uses deterministic collective primitives (see 0.R).
 
 ### 0.F Environment and Dependency Policy
 - Pinned runtime:
   - Python 3.12
   - NumPy 2.1
-  - PyTorch 2.4 CPU reference build
-- If `distributed_mode != none`, then `world_size` must be power-of-2
+  - PyTorch 2.4 (CPU reference build; CUDA 12.1 build permitted when hardware present)
+- At startup: `torch.use_deterministic_algorithms(True)`, `torch.backends.cudnn.deterministic = True`, `torch.backends.cudnn.benchmark = False`, `torch.set_float32_matmul_precision('highest')`.
+- If `distributed_mode != none`, world_size may be any positive integer; no power-of-2 restriction.
 
 ### 0.G Operator Manifest
 - Removed from manifest surface:
-  - `ULF.Random.InitializeParameters_v1`
-  - `ULF.Init.LoadPolicy_v1`
-  - `ULF.Init.InitializeBuffers_v1`
-  - all `ULF.Serving.*`
-  - `ULF.Model.MultiHeadAttention_v1`
+  - `UML_OS.Random.InitializeParameters_v1`
+  - `UML_OS.Init.LoadPolicy_v1`
+  - `UML_OS.Init.InitializeBuffers_v1`
+  - all `UML_OS.Serving.*`
+  - `UML_OS.Model.MultiHeadAttention_v1`
 - Added:
-  - `ULF.Data.ValidateManifest_v1`
+  - `UML_OS.Data.ValidateManifest_v1`
 
 Active operators:
-- `ULF.OS.Bootstrap_v1`
-- `ULF.OS.ResolvePath_v1`
-- `ULF.OS.NamespaceEnter_v1`
-- `ULF.OS.QuotaEnforce_v1`
-- `ULF.Data.Manifest_v1`
-- `ULF.Data.ValidateManifest_v1`
-- `ULF.Data.NextBatch_v1`
-- `ULF.Data.StreamingLoader_v1`
-- `ULF.Buffer.ShardedDiskRing_v1`
-- `ULF.Model.Encode_v1`
-- `ULF.Model.Forward_v2`
-- `ULF.Objective.TotalLoss_v1`
-- `ULF.Update_v1`
-- `ULF.Cluster.SphericalKMeans_v1`
-- `ULF.Module.ActivateNonParamModule_v1`
-- `ULF.Symbolic.DifferentiableEval_v1`
-- `ULF.Symbolic.EquationUpdate_v2`
-- `ULF.Policy.Evaluate_v1`
-- `ULF.Transition.SwitchState_v1`
-- `ULF.Contract.Validate_v1`
-- `ULF.IO.WriteTape_v1`
-- `ULF.Logging.LogIteration_v1`
-- `ULF.Termination.Check_v1`
-- `ULF.StateFingerprint_v1`
-- `ULF.Fingerprint.Functional_v1`
-- `ULF.Error.Emit_v1`
+- `UML_OS.OS.Bootstrap_v1`
+- `UML_OS.OS.ResolvePath_v1`
+- `UML_OS.OS.NamespaceEnter_v1`
+- `UML_OS.OS.QuotaEnforce_v1`
+- `UML_OS.Data.Manifest_v1`
+- `UML_OS.Data.ValidateManifest_v1`
+- `UML_OS.Data.NextBatch_v1`
+- `UML_OS.Data.StreamingLoader_v1`
+- `UML_OS.Buffer.ShardedDiskRing_v1`
+- `UML_OS.Model.Encode_v1`
+- `UML_OS.Model.Forward_v2`
+- `UML_OS.Model.Decode_v1`
+- `UML_OS.Objective.TotalLoss_v1`
+- `UML_OS.Update_v1`
+- `UML_OS.Module.ActivateNonParamModule_v1`
+- `UML_OS.Symbolic.DifferentiableEval_v1`
+- `UML_OS.Symbolic.EquationUpdate_v2`
+- `UML_OS.Policy.Evaluate_v1`
+- `UML_OS.Transition.SwitchState_v1`
+- `UML_OS.Contract.Validate_v1`
+- `UML_OS.IO.WriteTape_v1`
+- `UML_OS.Logging.LogIteration_v1`
+- `UML_OS.Termination.Check_v1`
+- `UML_OS.StateFingerprint_v1`
+- `UML_OS.Fingerprint.Functional_v1`
+- `UML_OS.Error.Emit_v1`
 
 ### 0.H Namespacing and Packaging
-- Fully-qualified names: `ULF.<Category>.<Name>_v#`
+- Fully-qualified names: `UML_OS.<Category>.<Name>_v#`
 - Sidecar mapping required: operator -> module/function
 
 ### 0.I Outputs and Metric Schema
@@ -137,21 +139,26 @@ Active operators:
 - Parsing strictness required
 
 ### 0.M Declarative Configuration
-- Optional YAML config loading allowed
+- YAML config loading allowed
 - Canonicalized into manifest before hashing
 
 ### 0.N Layered Operating-System Architecture
 - Layer ordering:
-  - `Kernel -> Driver -> Runtime -> Module -> Daemon -> Management -> User`
-- Daemon mandatory when:
-  - `world_size > 1`, or
-  - more than one job shares `EQC_ROOT`
-- Namespace path:
-  - `/org/project/experiment/job_id`
-  - `job_id = replay_token[0:8]`
+  - Kernel (VI procedure + operator dispatch + contracts)
+  - Driver (device collectives, I/O, deterministic primitives)
+  - Runtime (pinned Python/NumPy/PyTorch)
+  - Module (verified operator packages loaded from manifest)
+  - Daemon (mandatory when world_size > 1 or multiple jobs share UML_OS_ROOT; owns filesystem, enforces per-namespace isolation, quotas, and job scheduling)
+  - Management (CLI entrypoints)
+  - User (manifests only)
+- UML_OS_ROOT filesystem (enforced by daemon and `Bootstrap_v1`):
+  - `/datasets/<id-version-hash>/` (immutable, validated)
+  - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/` (isolated: checkpoints, tapes, latent_buffer shards, rng_states, loss_hist)
+  - child namespaces inherit parent defaults and data access unless overridden in manifest
+- Namespace path: `/org/unit/project/experiment/job_id` where `job_id = replay_token[0:8]`.
 
 ### 0.P Bootstrap
-- Single entrypoint: `ULF.OS.Bootstrap_v1`
+- Single entrypoint: `UML_OS.OS.Bootstrap_v1`
 - Must also perform:
   - PRNG init
   - buffer allocation
@@ -162,6 +169,42 @@ Active operators:
 ### 0.Q Global Manifest Additions
 - `env_manifest_hash` must include:
   - `daemon_concurrency_max=16`
+- `task_type` (`multiclass | binary | regression`)
+- `alpha`, `lambda_rec`, `lambda_KL`, `lambda_OT`, `lambda_covz` (defaults in III.C when absent)
+- `beta` (default `1.0`)
+- `policy.rules` (array of `{\"cond\": \"...\", \"action\": \"...\", \"priority\": int}`; evaluated in declared order)
+- `model_encode_op`, `forward_op`, `decode_op`, `augment_op` (fully-qualified operator names; default to listed `UML_OS.*_v#`)
+- `datasets` array: each entry `{id, version, hash, split: train|val}`
+- all other values previously in I.C (`probe_interval`, `sil_thresh`, etc.)
+
+### 0.R Distributed and Multi-tenancy Policy
+- Communication: PyTorch distributed (`gloo` CPU / `nccl` CUDA), ranks sorted ascending by `(hostname hash, rank)`.
+- Data sharding: global permutation, then each rank processes slice `rank::world_size`.
+- Global operations (clustering, fingerprint aggregation): rank 0 computes, others receive via `Broadcast`; RNG draws only on rank 0 where declared.
+- `latent_buffer`: sharded by `sample_index % world_size`; `AllGather` only when required by operator (e.g., augment).
+- Daemon enforces isolation, quotas, and schedules jobs across namespaces with fair-share priority based on manifest-declared resources.
+- Checkpoint/restore restores exact global `data_cursor`, sharded `latent_buffer`, and synchronized RNG master state.
+
+### 0.S RNG Consumption Contract
+- Every operator declaration in IV must contain exactly one line: `RNG consumption: exactly K draws from stream S`.
+- `K` is fixed non-negative integer; `S` is one of `init`, `cluster`, `misc`, or `none`.
+- Kernel records pre-call offset per sub-stream.
+- After operator return, kernel computes delta-offset for every used stream.
+- If any delta differs from declared `K`, emit failure record:
+  - `failure_code = RNG_CONSUMPTION_VIOLATION`
+  - include expected/actual deltas and `replay_token`
+  - abort (0.K).
+- Philox4x32-10 calls are strictly sequential within each sub-stream; no skipping or reseeding.
+- All operators not explicitly listed with non-zero `K` must declare `RNG consumption: exactly 0 draws from stream none`.
+
+### 0.T Execution Model
+- The kernel (VI procedure) is the sole allowed execution path for C0/C1 conformance.
+- Standard usage supplies only data manifest and configuration manifest; no external training-loop code is executed or required.
+
+### 0.U Execution Contract
+- The VI kernel procedure is the only permitted execution engine.
+- All training occurs inside declared operators.
+- External imperative training loops or ad-hoc calls outside VI steps are forbidden and cause `Contract.Validate_v1` failure with full counterexample.
 
 ---
 
@@ -176,22 +219,19 @@ Active operators:
 - `data_cursor = (epoch, index, permutation)`
 - `rng_master_state` + sub-stream offsets
 - `tape_state`
+- `np.protos` (centroids only; normalized)
+- `np.protos_equation` (list of canonical equation trees, one per prototype)
 
 ### I.B Declared Dimensions and Defaults
-- `p = 64`
-- `k_np = 32`
-- `B = 64`
-- `N_latent = 1_000_000`
+- Declared dimensions and defaults (overridable in manifest, used when absent):
+  - `latent_dim p = 64`
+  - `num_prototypes k_np = 32`
+  - `batch_size B = 64`
+  - `latent_buffer_capacity N_latent = 1_000_000`
 
 ### I.C Hyperparameters
-- `probe_interval = 50`
-- `sil_thresh = 0.25`
-- `sr_refresh_every = 500`
-- Removed:
-  - `lambda_policy`
-  - `hierarchical_prototypes`
-  - trainable MI estimator
-  - explicit `sr_objective` control (auto-inferred)
+- All tunable values are taken exclusively from the manifest (see 0.Q).
+- No hard-coded defaults except loss lambdas in III.C.
 
 ### I.D Constraint Regime
 - Unconstrained core optimization with runtime contracts
@@ -210,8 +250,8 @@ Active operators:
 ## II · Initialization
 
 1. `t <- 0`
-2. `ULF.OS.Bootstrap_v1(...)`
-3. Initialize `theta` from `Normal(0, 0.02)` via Box-Muller using `init` sub-stream
+2. `UML_OS.OS.Bootstrap_v1(...)`
+3. Initialize `theta` deterministically from manifest-hash-derived bytes (no RNG draws)
 4. Initialize `state <- S_P`
 5. Initialize `loss_hist`, `latent_buffer`, `data_cursor`
 6. Initialize tape and fingerprints
@@ -222,22 +262,26 @@ Active operators:
 
 ### III.A Supervised Loss
 - `logits = nn_logits + beta * sym_pred`
-- `beta` is learnable scalar
-- `L_sup = BCEWithLogitsLoss(logits, y)`
-- Reduction in binary64
+- `task_type` taken from manifest (default: multiclass).
+- multiclass: `L_sup = CrossEntropyLoss(logits, y)` (integer labels `0..C-1`)
+- binary: `L_sup = BCEWithLogitsLoss(logits, y)`
+- regression: `L_sup = MSELoss(logits, y)`
+- Reduction performed in binary64, ascending-index order.
 
 ### III.B Unsupervised Terms
-- `L_rec = MSE(x, decoder(z))`, with `decoder(z)` bounded by `tanh(.) / 2`
+- Preprocessing (applied once at bootstrap via deterministic full-pass or first 10% of training split in ascending index order; stats stored in manifest): `x` normalized to range compatible with decoder output.
+- `recon = UML_OS.Model.Decode_v1(z)` (decoder output clamped to match normalization range)
+- `L_rec = MSE(x_preprocessed, recon)`
 - `L_KL` = diagonal Gaussian KL
 - `L_OT` = sliced Wasserstein-2 with 4 fixed projections from:
-  - `SHA-256("ULF_OT" || spec_version || p)`
+  - `SHA-256("UML_OS_OT" || spec_version || p)`
 - `L_covz = ||Cov(z) - I||_F^2`
 - `L_aux = lambda_rec*L_rec + lambda_KL*L_KL + lambda_OT*L_OT + lambda_covz*L_covz`
 
 ### III.C Total Loss
-- `L_tot = alpha * L_sup + L_aux`
+- `L_tot = alpha * L_sup + L_aux` (binary64 fixed term order; alpha, lambdas taken from manifest; defaults `alpha=1.0`, `lambda_rec=1.0`, `lambda_KL=0.001`, `lambda_OT=0.01`, `lambda_covz=0.001` if absent).
 - Binary64 fixed term order
-- Weight decay applied only inside `ULF.Update_v1` on trainable params
+- Weight decay applied only inside `UML_OS.Update_v1` on trainable params
 
 ---
 
@@ -248,81 +292,76 @@ All operators must declare exactly:
 - rng streams used
 - deterministic order guarantee
 
-### ULF.OS.Bootstrap_v1
+### UML_OS.OS.Bootstrap_v1
 - Purity: STATEFUL
-- RNG streams: `init`, `cluster`, `misc`
+- RNG consumption: exactly 0 draws from stream `none`
 - Performs:
-  - PRNG init (single Philox + fixed offsets)
+  - PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws)
   - parameter init
   - buffer allocation
-  - data manifest load + `ULF.Data.ValidateManifest_v1`
+  - data manifest load + `UML_OS.Data.ValidateManifest_v1`
   - policy load
   - namespace enter
 
-### ULF.Policy.Evaluate_v1 (rule engine only)
+### UML_OS.Policy.Evaluate_v1 (rule engine only)
 - Purity: PURE
-- RNG streams used: none
-- Deterministic priority rule evaluation:
-```json
-{
-  "rules": [
-    {"cond": "sil_mean < 0.25 AND state == S_P", "action": "augment", "priority": 10},
-    {"cond": "loss_delta > 0.0", "action": "probe", "priority": 5}
-  ]
-}
-```
-- Action: highest-priority matched rule; ties by lowest index
+- RNG consumption: exactly 0 draws from stream `none`
+- Loads `policy.rules` from manifest.
+- Evaluates conditions in array order.
+- Selects highest-priority matching rule; ties broken by lowest array index.
+- Supported conditions: `sil_mean`, `loss_delta`, `grad_norm`, `resource_util`, `(t mod X)`, `state`.
 
-### ULF.Model.Encode_v1
+### UML_OS.Model.Encode_v1
 - Purity: STATEFUL
-- RNG streams: `init`
+- RNG consumption: exactly 2 draws from stream `init`
 - Two linear layers + reparameterization (`eps` from Box-Muller)
 
-### ULF.Model.Forward_v2
+### UML_OS.Model.Forward_v2
 - Purity: PURE
-- RNG streams used: none
+- RNG consumption: exactly 0 draws from stream `none`
 - `proto_features = cosine_similarity(z, np.protos)`
-- If Symbolic module is loaded:
-  - `sym_pred = routed weighted sum of DifferentiableEval_v1`
-- Else:
-  - `sym_pred = 0`
+- `weights = softmax(proto_features / 0.05)` (fixed temperature for routing stability)
+- `sym_pred = sum(weights_i * DifferentiableEval_v1(np.protos_equation[i], z))`
 - `logits = nn_logits + beta * sym_pred`
 
-### ULF.Cluster.SphericalKMeans_v1
+### UML_OS.Model.Decode_v1
+- Purity: PURE
+- RNG consumption: exactly 0 draws from stream `none`
+- Returns reconstructed `x` from `z` using decoder parameters in `theta`; output clamped to match preprocessing range.
+
+### UML_OS.Cluster.SphericalKMeans_v1
 - Purity: STATEFUL
-- RNG streams: `cluster`
-- k-means++ init (deterministic uniform first, then distance-weighted categorical)
+- RNG consumption: exactly 31 draws from stream `cluster`
+- Same RNG and logic as augment path, performed on all ranks identically for probe action; uses local buffer subset in global index order.
 - max iterations: 50
 - empty cluster policy: keep previous centroid
 
-### ULF.Module.ActivateNonParamModule_v1
+### UML_OS.Module.ActivateNonParamModule_v1
 - Purity: STATEFUL
-- RNG streams: `cluster`
-- Steps:
-  - use last 5000 latents from buffer
-  - run spherical k-means
-  - per-cluster run `EquationUpdate_v2`
-  - embed each equation tree using SHA-256 per dimension
-  - update prototypes:
-    - `np.protos = normalize(0.5*centroids + 0.5*E_eq)`
-  - store equation trees in `np.protos_equation`
-  - emit pretty-equation events
-  - set `state <- S_PROTO`
+- RNG consumption: exactly 31 draws from stream `cluster` on rank 0 only; 0 on other ranks
+- Steps (executed synchronously after barrier):
+  - `AllGather` last 5000 latents (sorted by original global index) to rank 0.
+  - rank 0: spherical k-means on gathered latents (`k = k_np` from manifest; first centroid = mean; subsequent 31 distance-weighted categorical draws).
+  - rank 0: per-cluster `EquationUpdate_v2` (deterministic greedy expression search on `(z, target_residual)`; fixed operator set `{+,*,/,sin,cos,exp,log}`; least-squares fit in ascending sample order; prune by fixed complexity penalty; outputs one canonical string tree per cluster).
+  - broadcast centroids and equation trees to all ranks.
+  - all ranks: `np.protos = normalize(centroids)`; store `np.protos_equation`; set `state <- S_PROTO`.
 
-### ULF.Data.NextBatch_v1
+### UML_OS.Data.NextBatch_v1
 - Purity: STATEFUL
-- RNG streams: `misc`
-- Deterministic epoch shuffle + weighted reservoir from latent difficulty when present
+- RNG consumption: exactly 1 draw from stream `misc`
+- Global deterministic permutation from `manifest_hash + epoch`.
+- Local shard: `indices[rank::world_size]`.
+- Preprocess batch with stored normalization stats.
 
-### ULF.IO.WriteTape_v1
+### UML_OS.IO.WriteTape_v1
 - Purity: IO
-- RNG streams used: none
+- RNG consumption: exactly 0 draws from stream `none`
 - `BLOCK_SIZE = 512`
 - `max_events = 500_000`
 
-### ULF.Contract.Validate_v1
+### UML_OS.Contract.Validate_v1
 - Purity: PURE
-- RNG streams used: none
+- RNG consumption: exactly 0 draws from stream `none`
 - Runtime checks:
   - KL >= 0 within tolerance
   - covariance PSD checks
@@ -332,16 +371,24 @@ All operators must declare exactly:
   - deterministic failure
   - minimal counterexample snapshot
 
-### ULF.Update_v1
+### UML_OS.Update_v1
 - Purity: STATEFUL
-- RNG streams used: none
+- RNG consumption: exactly 0 draws from stream `none`
 - Includes gradient, clip, optimizer step, weight decay
 
-### Optional modules only
-- `Symbolic`
-- `AdvancedPrototype`
-
----
+### UML_OS.StateFingerprint_v1
+- Purity: PURE
+- RNG consumption: exactly 0 draws from stream `none`
+- Computes SHA-256 over the following domain concatenated in exact order (all values serialized to big-endian binary64 or fixed-width integers):
+  1. `theta` (all parameters, sorted by fully-qualified operator name)
+  2. optimizer state (all buffers/moments in registration order)
+  3. `latent_buffer` (Merkle root of 256-element chunks, most recent `min(N_latent, 8192)` entries)
+  4. `data_cursor` (epoch, index, full current permutation hash)
+  5. current state enum (`S_P` = 0, `S_PROTO` = 1)
+  6. RNG master state + all sub-stream offsets (64-bit each)
+  7. `np.protos` tensor (flattened) + SHA-256 of canonical equation strings per prototype (sorted)
+  8. `loss_hist` last 256 entries (tagged with state)
+- Result stored as `state_fp`.
 
 ## V · Observability and Trace
 
@@ -351,38 +398,57 @@ All operators must declare exactly:
 - one run_end
 
 ### V.B Minimal Trace Schema
-- `run_header`: metadata, hashes, replay token
-- `iter`: `t, state, action, loss_total, grad_norm, sil_mean, resource_util`
-- `run_end`: completion status, final hashes, functional fingerprint
+- `run_header`: metadata, hashes, replay token, `task_type`, `world_size`, `backend_hash`
+- `iter`: `t, state, action, loss_total, grad_norm, sil_mean, resource_util, state_fp, functional_fp` (functional_fp included when recomputed)
+- `run_end`: completion status, final hashes, functional fingerprint, `task_type`, `world_size`, `backend_hash`
 
 Internal-only fields (not required in minimal public trace):
 - policy entropy
 - aux-loss breakdown
 
+### V.C Functional Fingerprint Definition
+**UML_OS.Fingerprint.Functional_v1**
+- Purity: PURE
+- RNG consumption: exactly 0 draws from stream `none`
+- Canonical probe set:
+  - first 1024 samples from dataset declared in manifest (validation split if present, otherwise training split)
+  - strict ascending original-index order, no shuffle/permutation
+  - if dataset size < 1024, cyclic repeat from start
+- Dtype: binary64 for all forward-pass and loss computations
+- Execution: inference mode (no gradients), current `theta`, current `np.protos`, current equation trees
+- Output:
+  - `functional_fp = SHA-256(probe_loss_bytes || probe_metric_bytes || task_type || spec_version)`
+  - `probe_loss` and `probe_metric` are binary64 scalars (mean over probe set)
+- Called only as required by VI; stored in trace and checkpoints
+
 ---
 
 ## VI · Algorithm Procedure
 
-1. `ULF.OS.Bootstrap_v1(...)`
-2. `ULF.OS.NamespaceEnter_v1(job_id)`
-3. if pipeline configured: `ULF.Pipeline.ExecuteDAG_v1(...)`; else continue
+1. `UML_OS.OS.Bootstrap_v1(...)`
+2. `UML_OS.Module.LoadDeclaredModules_v1(...)` (verifies contract hashes and registers operators from manifest)
+3. `UML_OS.OS.NamespaceEnter_v1(job_id)`
 4. loop until termination:
-   - `ULF.Termination.Check_v1(...)`
+   - `UML_OS.Termination.Check_v1(...)`
    - `t += 1`
-   - `ULF.OS.QuotaEnforce_v1(...)`
-   - `batch <- ULF.Data.NextBatch_v1(...)`
-   - `z <- ULF.Model.Encode_v1(...)`
-   - `(logits, sym) <- ULF.Model.Forward_v2(...)`
-   - `L_tot <- ULF.Objective.TotalLoss_v1(...)`
-   - `ULF.Contract.Validate_v1(...)`
-   - `action <- ULF.Policy.Evaluate_v1(...)`
-   - dispatch:
-     - `optimize -> ULF.Update_v1(...)`
-     - `augment -> ULF.Module.ActivateNonParamModule_v1(...)`
-     - `probe -> ULF.Cluster.SphericalKMeans_v1(...)` + log silhouette
-     - `switch -> ULF.Transition.SwitchState_v1(...)`
-   - `ULF.IO.WriteTape_v1(...)`
-   - `ULF.Logging.LogIteration_v1(...)`
+   - `UML_OS.OS.QuotaEnforce_v1(...)`
+   - `batch <- UML_OS.Data.NextBatch_v1(...)`
+   - `z <- UML_OS.Model.Encode_v1(...)`
+   - `recon <- UML_OS.Model.Decode_v1(...)`
+   - `(logits, sym) <- UML_OS.Model.Forward_v2(...)`
+   - `L_tot <- UML_OS.Objective.TotalLoss_v1(...)`
+   - `UML_OS.Contract.Validate_v1(...)`
+   - `action <- UML_OS.Policy.Evaluate_v1(...)`
+   - dispatch using manifest-declared operator names:
+     - `optimize -> UML_OS.Update_v1(...)`
+     - `augment -> manifest.augment_op(...)`
+     - `probe -> UML_OS.Cluster.SphericalKMeans_v1(...)` + log silhouette
+     - `switch -> UML_OS.Transition.SwitchState_v1(...)`
+   - `current_state_fp <- UML_OS.StateFingerprint_v1(...)`
+   - if (`t mod 50 == 0` or `action == "augment"`): `current_functional_fp <- UML_OS.Fingerprint.Functional_v1(...)`
+   - if world_size > 1: deterministic barrier after action dispatch (ensures all ranks see identical state before tape/log and identical fingerprints across ranks)
+   - `UML_OS.IO.WriteTape_v1(...)`
+   - `UML_OS.Logging.LogIteration_v1(...)`
    - update fingerprints
 
 ---
@@ -390,8 +456,12 @@ Internal-only fields (not required in minimal public trace):
 ## VII · Validation and Equivalence
 
 - Required equivalence target: **E1 (metric-equivalent)**
-- Required golden trace dataset: Fashion-MNIST subset
-- E0/E2/E3 are not required for baseline conformance
+- Required golden trace dataset: any manifest-declared dataset that matches declared `task_type`, dimension constraints, and produces metric-equivalent trace within tolerance envelope over 10 seeds.
+- E1 requires matching:
+  - `replay_token`
+  - `state_fp` sequence
+  - `functional_fp` curve
+  within the declared tolerance envelope over 10 seeds.
 
 ---
 
@@ -399,18 +469,16 @@ Internal-only fields (not required in minimal public trace):
 
 ### VIII.A Checkpoint Contents
 - include:
+  - full manifest copy (canonicalized)
+  - loaded module contract hashes
   - `theta`
   - optimizer state
   - single `loss_hist`
   - `latent_buffer`
   - `data_cursor`
   - RNG master + offsets
-  - hashes (`policy_hash`, `env_manifest_hash`, `replay_token`)
+  - hashes (`policy_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`)
   - `functional_fp`
-- remove:
-  - `plateau_count`
-  - separate `loss_hist_P` / `loss_hist_PROTO`
-  - `active_namespace_stack`
 
 ### VIII.B Serialization
 - protobuf with `deterministic=True`
@@ -436,4 +504,28 @@ Internal-only fields (not required in minimal public trace):
 
 ---
 
-This is the final minimal kernelized EQC-v3.6-OS specification.
+## X · Compatibility Boundary
+
+The following are normative compatibility boundaries for UML_OS-v3.8-OS:
+
+1. Single mandatory kernel path.
+- All training, state transitions, loss computation, and non-parametric augmentation must run only through the VI procedure and declared operators.
+- Any external imperative training loop or side-channel mutation is non-conformant and must fail through `Contract.Validate_v1`.
+
+2. Daemon-enforced namespace isolation.
+- When `world_size > 1` or UML_OS_ROOT is shared, daemon control is mandatory.
+- Per-namespace isolation of RNG state, `data_cursor`, latent-buffer shards, tape, and checkpoints is required under the UML_OS_ROOT hierarchy.
+
+3. Deterministic distributed collectives and declared RNG locality.
+- Collective ordering, rank ordering, and rank-0-only RNG behavior for declared operators are mandatory.
+- Implementations that use flexible or user-defined distributed graphs without these fixed contracts are non-conformant.
+
+4. Manifest-driven operator registry and policy dispatch.
+- Operator selection, module loading, and policy rules must come from the manifest and verified contract hashes.
+- User callbacks or ad-hoc Python control flow for core dispatch are non-conformant.
+
+5. Operator-level reproducibility auditing.
+- Per-operator RNG consumption accounting, `StateFingerprint_v1`, functional fingerprint generation, and canonical manifest-bound checkpoint restore are required.
+- Logging-only or seed-only reproducibility approaches are insufficient for C0/C1 conformance.
+
+This boundary defines UML_OS as a self-contained training operating system kernel with declarative user input and contract-enforced execution.
