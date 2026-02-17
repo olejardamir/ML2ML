@@ -1,8 +1,8 @@
-# Universal Machine Learning Operating System (UML_OS) v3.12-OS
+# Universal Machine Learning Operating System (UML_OS) v3.13-OS
 
 **Algorithm:** Deterministic training OS kernel with operator contracts and namespace isolation.  
 **Purpose (1 sentence):** Execute machine-learning training and lifecycle operations under formal reproducibility, namespace isolation, and deterministic runtime contracts.  
-**Spec Version:** UML_OS-v3.12-OS | 2026-02-17 | Authors: Olejar Damir  
+**Spec Version:** UML_OS-v3.13-OS | 2026-02-17 | Authors: Olejar Damir  
 **Domain / Problem Class:** Reproducible training with optional online symbolic prototype augmentation (default workload).
 
 ---
@@ -92,7 +92,7 @@ Active operators:
 - `UML_OS.Transition.SwitchState_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.IO.WriteTape_v1`
-- `UML_OS.IO.WriteProvenance_v1`
+- `UML_OS.IO.WriteTrainingCertificate_v1`
 - `UML_OS.Logging.LogIteration_v1`
 - `UML_OS.Termination.Check_v1`
 - `UML_OS.StateFingerprint_v1`
@@ -147,17 +147,17 @@ Active operators:
   - User (manifests only)
 - UML_OS_ROOT filesystem (enforced by daemon and `Bootstrap_v1`):
   - `/datasets/<id-version-hash>/` (immutable, validated)
-- `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/` (isolated: checkpoints, tapes, rng_states, loss_hist; child namespaces inherit parent resource defaults and data access unless overridden)
+  - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/` (isolated: checkpoints, tapes, rng_states, loss_hist; child namespaces inherit parent resource defaults and data access unless overridden)
   - `/jobs/queue/` (shared atomic queue files for cross-host visibility when shared FS used; each daemon polls/claims via file locks).
 - Namespace path: `/org/unit/project/experiment/job_id` where `job_id = replay_token[0:8]`.
 - Daemon scheduler: simple FIFO submission queue (atomic file locks); no weighted fair-share CPU/GPU slicing.
 
 ### 0.P Bootstrap
 - Single entrypoint: `UML_OS.OS.Bootstrap_v1`
-- Must also perform:
-  - PRNG init
-  - buffer allocation
-  - data manifest load + validation
+- Performs:
+  - PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws)
+  - parameter init
+  - data manifest load + `UML_OS.Data.ValidateManifest_v1`
   - policy load
   - namespace enter
 
@@ -173,7 +173,6 @@ Active operators:
 - `fingerprint_frequency: int` (overridden by mode unless explicitly set)
 - `optimizer: {type: "AdamW" | "SGD" | "RMSprop", lr: float, betas: [float, float] (optional), weight_decay: float (default 0), momentum: float (default 0)}`
 - `grad_clip_norm: float (default 1.0)`
-- `preprocessing: {mode: "full" | "subsample_10M", ...}` (defaults to "full")
 - `policy.rules` (array of `{\"cond\": \"...\", \"action\": \"...\", \"priority\": int}`; evaluated in declared order)
 - `model_encode_op`, `forward_op`, `decode_op`, `augment_op` (fully-qualified operator names; default to listed `UML_OS.*_v#`)
 - `datasets` array: each entry `{id, version, hash, split: train|val}`
@@ -207,7 +206,6 @@ model:
 - Communication: PyTorch distributed (`gloo` CPU / `nccl` CUDA), ranks sorted ascending by `(hostname hash, rank)`.
 - Data sharding: global permutation, then each rank processes slice `rank::world_size`.
 - Global operations (clustering, fingerprint aggregation): rank 0 computes, others receive via `Broadcast`; RNG draws only on rank 0 where declared.
-- Checkpoint/restore restores exact global `data_cursor`, sharded `latent_buffer`, and synchronized RNG master state.
 - In `simple` mode multi-node is forbidden; collectives use default PyTorch ordering.
 
 ### 0.S RNG Consumption Contract
@@ -243,16 +241,17 @@ model:
   - `uml_os init <project_path>` -> creates skeleton `data_manifest.yaml` and `config_manifest.yaml` with mode=standard, workload=pure_nn.
   - `uml_os train <config_manifest.yaml>` -> runs Bootstrap + VI kernel.
   - `uml_os replay <replay_token>` -> restores exact checkpoint and re-runs.
-  - `uml_os export <checkpoint_dir>` -> produces uml_export/ (see VIII.C).
+- `uml_os export <checkpoint_dir>` -> produces uml_export/ (see VIII.C).
   - `uml_os infer <export_dir> --input <tensor_or_file> [--batch]` -> loads `inference_manifest.yaml` and `theta.pt`, runs Forward_v2 in inference mode with exact numeric contract (same binary64, same clamping, same order), outputs predictions + functional_fp for verification.
+  - `uml_os verify <training_certificate.cbor>` -> loads the certificate, validates the ed25519 signature, verifies the complete lineage chain (dataset_hash -> model_architecture_hash -> theta_hash), re-executes the canonical probe set to confirm functional_fp match, and checks every recorded contract/RNG delta. Returns PASS/FAIL with deterministic report.
   - `uml_os daemon start [--root UML_OS_ROOT]` (for shared-root or strict mode).
 - All CLI commands auto-validate manifest against operator contracts before launch.
 
-### 0.X Provenance Contract
-- In `standard` and `strict` modes every completed run produces a cryptographically signed `provenance.cbor` file (see UML_OS.IO.WriteProvenance_v1).
-- The file contains the complete ordered execution trace required for external verification of: replay_token match, all operator contracts passed, exact RNG consumption, and functional_fp curve.
+### 0.X Training Certificate Contract
+- In `standard` and `strict` modes every completed run produces a cryptographically signed `training_certificate.cbor` (see UML_OS.IO.WriteTrainingCertificate_v1).
+- The certificate contains: replay_token, full ordered execution trace (t, operator, contract_result, rng_delta), lineage chain (BLAKE3 hashes: dataset -> preprocess_stats (if any) -> model_architecture -> final_theta), final state_fp, functional_fp curve, all manifest hashes.
 - Signature uses ed25519 with key derived from namespace path + job_id.
-- Provenance record includes BLAKE3 hash of the exact `model.architecture` array (serialized in canonical order).
+- This certificate is the canonical, externally verifiable proof of exact training execution.
 
 ---
 
@@ -260,7 +259,7 @@ model:
 
 ### I.A Persistent State
 - `theta`
-- `state in {S_P, S_PROTO}`
+- `state in {S_P}`
 - `t`
 - `loss_hist` (single history, tagged with state)
 - `data_cursor = (epoch, index, permutation)`
@@ -269,8 +268,6 @@ model:
 
 ### I.B Declared Dimensions and Defaults
 - Declared dimensions and defaults (overridable in manifest, used when absent):
-  - `latent_dim p = 64`
-  - `num_prototypes k_np = 32`
   - `batch_size B = 64`
 
 ### I.C Hyperparameters
@@ -310,15 +307,6 @@ model:
 - multiclass: `L_sup = CrossEntropyLoss(logits, y)` (integer labels `0..C-1`, reduction in binary64, ascending-index order)
 - binary: `L_sup = BCEWithLogitsLoss(logits, y)`
 - regression: `L_sup = MSELoss(logits, y)`
-
-### III.B Unsupervised Terms (applied only when `workload=hybrid_symbolic` and `enable_symbolic=true`)
-- Preprocessing (once at bootstrap): per-feature standardization to mean 0, std 1 in binary64. Each rank computes local Welford sufficient statistics on its data shard in ascending global index order. Rank 0 aggregates via AllReduce, computes exact global μ and σ, broadcasts. Stats stored as `preprocess_stats.bin` and hashed into `env_manifest_hash`.
-- `recon = UML_OS.Model.Decode_v1(z)` (clamped to preprocessing range)
-- `L_rec = MSE(x_preprocessed, recon)`
-- `L_KL` = diagonal Gaussian KL divergence
-- `L_OT` = sliced Wasserstein-2 distance using exactly 4 projections generated once via Philox4x32-10 from seed `SHA-256("UML_OS_OT" || spec_version || latent_dim)`
-- `L_covz = ||Cov(z) - I||_F^2`
-- `L_aux = lambda_rec*L_rec + lambda_KL*L_KL + lambda_OT*L_OT + lambda_covz*L_covz` (lambdas from manifest)
 
 ### III.C Total Loss
 - `L_tot = alpha * L_sup + L_aux` (binary64, fixed term order; alpha, lambdas from manifest; defaults `alpha=1.0`, `lambda_rec=1.0`, `lambda_KL=0.001`, `lambda_OT=0.01`, `lambda_covz=0.001`).
@@ -362,7 +350,6 @@ All operators must declare exactly:
 - Executes the exact layer sequence declared in manifest `model.architecture` in registration order.
 - Each layer is instantiated deterministically from its type and params (binary64 weights/biases where applicable).
 - Input flows strictly according to `input_from` links.
-- When `workload=hybrid_symbolic`: final logits = nn_output + beta * sym_pred (sym_pred as previously defined).
 - All operations in binary64, deterministic ascending-index order for any reductions.
 
 ### UML_OS.Model.Decode_v1
@@ -390,10 +377,10 @@ All operators must declare exactly:
 - `BLOCK_SIZE = 512`
 - `max_events = 500_000`
 
-### UML_OS.IO.WriteProvenance_v1
+### UML_OS.IO.WriteTrainingCertificate_v1
 - Purity: IO
 - RNG consumption: exactly 0 draws from stream `none`
-- On termination: assembles provenance record containing replay_token, full ordered list of (t, operator, contract_result, rng_delta), final state_fp hash (BLAKE3), final functional_fp, all manifest hashes, and dataset hashes. Serializes as CBOR, signs with ed25519 (key derived deterministically from namespace path + job_id via BLAKE3), writes to uml_export/provenance.cbor.
+- On termination: assembles training certificate containing replay_token, full ordered execution trace (t, operator, contract_result, rng_delta), lineage chain (BLAKE3 hashes of dataset, model.architecture, final_theta), final state_fp, functional_fp curve, all manifest hashes. Serializes as CBOR, signs with ed25519 (key derived deterministically from namespace path + job_id via BLAKE3), writes to uml_export/training_certificate.cbor.
 
 ### UML_OS.Contract.Validate_v1
 - Purity: PURE
@@ -466,8 +453,6 @@ Internal-only fields (not required in minimal public trace):
    - `t += 1`
    - `UML_OS.OS.QuotaEnforce_v1(...)`
    - `batch <- UML_OS.Data.NextBatch_v1(...)`
-   - `z <- UML_OS.Model.Encode_v1(...)`
-   - `recon <- UML_OS.Model.Decode_v1(...)`
    - `logits <- UML_OS.Model.Forward_v2(...)`
    - `L_tot <- UML_OS.Objective.TotalLoss_v1(...)`
    - `UML_OS.Contract.Validate_v1(...)` (strictness per mode 0.V)
@@ -478,7 +463,7 @@ Internal-only fields (not required in minimal public trace):
    - if world_size > 1: deterministic barrier
    - `UML_OS.IO.WriteTape_v1(...)`
    - `UML_OS.Logging.LogIteration_v1(...)`
-   - if termination: `UML_OS.IO.WriteProvenance_v1(...)`
+   - if termination: `UML_OS.IO.WriteTrainingCertificate_v1(...)`
 
 ---
 
@@ -503,8 +488,8 @@ Internal-only fields (not required in minimal public trace):
 ### VIII.C Post-termination Export
 On normal termination the kernel writes deterministic `uml_export/` directory in namespace root containing:
 - `theta.pt` (PyTorch state_dict, deterministic serialization)
-- `inference_manifest.yaml` (minimal manifest + model.architecture + preprocess_stats.bin hash)
-- `provenance.cbor` (signed CBOR record; mandatory in standard and strict modes; includes full model architecture hash and lineage chain from dataset hashes)
+- `inference_manifest.yaml` (minimal manifest + model.architecture + any preprocess_stats hash)
+- `training_certificate.cbor` (signed CBOR record; mandatory in standard and strict modes; contains full lineage chain)
 All paths and filenames fixed.
 
 ---
@@ -537,7 +522,7 @@ All paths and filenames fixed.
 
 ## X · Compatibility Boundary
 
-The following are normative compatibility boundaries for UML_OS-v3.10-OS:
+The following are normative compatibility boundaries for UML_OS-v3.13-OS:
 1. Declarative manifests only. Sole entrypoints are the required CLI commands (0.W). The VI kernel procedure is the sole execution path. No external training-loop code, user callbacks, imperative mutations, or Python control flow outside declared operators is executed or permitted. Any attempt causes `Contract.Validate_v1` failure (severity per mode) with full counterexample and abort.
 
 2. Daemon is optional in simple/standard modes for single-node; mandatory in strict mode or shared-root/multi-node. All job submission and isolation routes exclusively through CLI + daemon when present.
@@ -554,8 +539,10 @@ The following are normative compatibility boundaries for UML_OS-v3.10-OS:
 - Per-operator RNG consumption accounting, `StateFingerprint_v1`, functional fingerprint generation, and canonical manifest-bound checkpoint restore are required.
 - Logging-only or seed-only reproducibility approaches are insufficient for C0/C1 conformance.
 
-6. Provenance contract. In standard and strict modes every completed training run must produce a valid signed provenance.cbor file containing the full verifiable execution trace. Implementations that cannot emit this signed record or that allow external code paths that bypass operator contracts are non-conformant.
+6. Training Certificate contract. In standard and strict modes every completed training run must produce a valid signed training_certificate.cbor containing the full verifiable lineage chain and execution trace. Implementations that cannot emit this signed record or that allow external code paths that bypass operator contracts are non-conformant.
 
 7. Declarative model contract. All training and inference use only the manifest-declared `model.architecture`; no external nn.Module, custom forward code, or imperative model construction is permitted in the VI path or inference runtime. Any bypass causes `Contract.Validate_v1` failure and abort.
+
+8. Independent verification contract. The `uml_os verify` CLI must be able to independently validate any training_certificate.cbor (signature, lineage, functional_fp) without access to the original training environment.
 
 This boundary defines UML_OS as a self-contained training operating system kernel with declarative user input and contract-enforced execution.
