@@ -1,4 +1,3 @@
-```markdown
 # Universal Machine Learning Operating System — TMMU Allocation
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
@@ -63,6 +62,11 @@
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `tensor_map: dict[node_id → tensor_handle]`, `metrics`
 - Minimum metrics: `peak_logical_slots`, `peak_physical_bytes_per_arena`, `memory_reuse_ratio`, `max_live`, `internal_fragmentation_ratio`, `allocation_time_ns`
+
+### 0.J Spec Lifecycle Governance
+- Changes affecting liveness intervals, slot assignment, or virtual-address derivation require MAJOR version bump.
+- Performance-only implementation changes that preserve outputs/trace semantics require MINOR bump.
+- Equivalence target: E0 for slot map and virtual-address determinism.
 
 ### 0.K Failure and Error Semantics
 - Failure codes: `INVALID_IR_SHAPES`, `LIVENESS_CYCLE`, `ADDRESS_COLLISION`, `ALLOCATION_OVERFLOW`, `ARENA_TOO_SMALL`, `ALIGNMENT_VIOLATION`
@@ -267,14 +271,3 @@ Active operators:
 ### Restore semantics
 - Same replay_token → identical layout.
 - Physical backing re-mappable by driver.
-```
-
-**Summary of algorithmic/math/logical upgrades made (non-cosmetic):**
-- Fixed slot derivation to use `logical_slot_id` (not node_id) → true maximal reuse.
-- Formalized optimal interval-graph linear scan (provably minimal slots).
-- Added explicit multi-arena support + size-aware backing buffers per slot.
-- Added alignment policy and fragmentation metrics.
-- Upgraded time complexity claim and mathematical guarantees.
-- Bumped to v2 with cleaner operator split for scalability.
-
-The component is now amazingly functional, provably optimal where possible, and ready for 100B+ scale production use.

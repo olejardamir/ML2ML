@@ -73,7 +73,7 @@ Active operator wiring is declared in section `4) Operator Manifest`.
 - Declared outputs: `theta_final`, `trace`, `checkpoint`, `tape_digest`, `training_certificate`
 - Minimum metric schema: `loss_total`, `grad_norm`, `functional_fp`
 
-#### 0.J Spec Lifecycle Governance (mandatory)
+### 0.J Spec Lifecycle Governance
 Reproducibility-breaking changes require MAJOR bump (vX.Y.Z → v(X+1).0.0).  
 Deprecations replace via manifest wiring only.  
 Equivalence target for any change: E1 (metric-equivalent) minimum, E0 (trace-equivalent) for kernel or attestation changes.  
@@ -153,7 +153,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - `global_batch_size % world_size == 0` required for distributed runs
 - Global batch sequence and update sequence independent of `world_size`; sharding always contiguous rank-ordered after global deterministic permutation; collective order fixed by ascending rank.
 - In `daemon_mode=cluster`, all collectives respect manifest `distributed.timeout_seconds` (default 300); any timeout or communication error aborts deterministically with `DISTRIBUTED_COMMUNICATION_FAILURE` record (included in trace and certificate).
-- Declared parallelism.strategy is implemented by the loaded driver under Contract.Validate_v1 and the ReproducibilityTest suite (sharding of model parameters and data consistent with NextBatch_v1 and UML_Model_IR node annotations). Hybrid strategies combine via manifest-defined stage or node partitioning.
+- Declared parallelism.strategy is implemented by the loaded driver under Contract.Validate_v1 and the ReproducibilityTest suite (sharding of model parameters and data consistent with NextBatch_v2 and UML_Model_IR node annotations). Hybrid strategies combine via manifest-defined stage or node partitioning.
 
 ### 0.S RNG Consumption Contract
 - Every operator declares exact RNG draws and stream ownership
@@ -243,7 +243,7 @@ Active operators (exact wiring table):
 - `UML_OS.OS.NamespaceEnter_v1`
 - `UML_OS.Data.Manifest_v1`
 - `UML_OS.Data.ValidateManifest_v1`
-- `UML_OS.Data.NextBatch_v1`
+- `UML_OS.Data.NextBatch_v2`
 - `UML_OS.Data.RegisterDataset_v1`
 - `UML_OS.Data.ImportAndRegister_v1`
 - `UML_OS.Model.Forward_v2`
@@ -266,7 +266,7 @@ Active operators (exact wiring table):
 - `UML_OS.Evaluation.Run_v1`
 - `UML_OS.Security.AttestTEE_v1`
 - `UML_OS.Verifiable.CommitFunctional_v1`
-- `UML_OS.DifferentialPrivacy.Apply_v1`
+- `UML_OS.DifferentialPrivacy.Apply_v3`
 - `UML_OS.Backend.LoadDriver_v1`
 - `UML_OS.Pipeline.Dispatch_v1`
 - `UML_OS.Inference.RunBatch_v1`
@@ -347,7 +347,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Failure behavior:** abort.  
 **Dependencies:** RegisterDataset_v1.
 
-**Operator:** `UML_OS.Data.NextBatch_v1`  
+**Operator:** `UML_OS.Data.NextBatch_v2`  
 **Category:** Data  
 **Signature:** `(dataset_key, world_size, rank -> batch, data_cursor')`  
 **Purity class:** STATEFUL  
@@ -721,7 +721,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Failure behavior:** terminal abort-only model.  
 **Dependencies:** 0.K failure semantics.
 
-**Operator:** `UML_OS.DifferentialPrivacy.Apply_v1`  
+**Operator:** `UML_OS.DifferentialPrivacy.Apply_v3`  
 **Category:** Security  
 **Signature:** `(gradients, security.differential_privacy -> noisy_gradients, updated_budget)`  
 **Purity class:** STATEFUL  
@@ -767,13 +767,13 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 - else:
   dataset_key <- current_stage.dataset_key or default-per-type
   if current_stage.type == "train":
-    batch <- UML_OS.Data.NextBatch_v1(dataset_key, ...)
+    batch <- UML_OS.Data.NextBatch_v2(dataset_key, ...)
     logits <- UML_OS.Model.Forward_v2(...)
     L_tot <- UML_OS.Objective.TotalLoss_v1(...)
     action <- UML_OS.Policy.Evaluate_v1(...)
     if action == "optimize":
       grads = UML_OS.Model.Backward_v1(L_tot, theta)
-      if manifest.execution_mode == "regulated": noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v1(grads)
+      if manifest.execution_mode == "regulated": noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads)
       theta <- UML_OS.Update_v1(noisy_grads or grads, ...)
     else if action == "eval" or current_stage.type == "eval":
       UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)

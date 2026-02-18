@@ -1,4 +1,3 @@
-```markdown
 # Universal Machine Learning Operating System — ModelIR Executor
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
@@ -56,8 +55,10 @@
 - `UML_OS.Model.ModelIR_Executor_v1`
 - `UML_OS.Model.TopoSortNodes_v1`
 - `UML_OS.Model.DispatchPrimitive_v1`
-- `UML_OS.Model.CollectGradients_v1` **(NEW — fixes prior reference)**
-- `UML_OS.TMMU.PrepareMemory_v1` (includes static liveness + deterministic slot assignment)
+- `UML_OS.Model.CollectGradients_v1`
+- `UML_OS.TMMU.PrepareMemory_v2` (includes static liveness + deterministic slot assignment)
+- `UML_OS.StateFingerprint_v1`
+- `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.Error.Emit_v1`
 
@@ -67,6 +68,11 @@
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(outputs: tensor_map, grads?: tensor_map, execution_fp, tmmu_state')`
 - Minimum metrics: `nodes_executed`, `mode`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`
+
+### 0.J Spec Lifecycle Governance
+- Any change to execution ordering, dispatch semantics, or memory-layout determinism requires MAJOR version bump.
+- Performance-only optimizations preserving outputs/trace semantics require MINOR bump.
+- Equivalence target: E0 for critical paths and execution trace.
 
 ### 0.K Failure and Error Semantics
 - Global error model: abort-only
@@ -86,7 +92,7 @@
 ## 2) System Model
 
 ### I.A Persistent State
-- None (stateless per call; all tensor storage owned by TMMU).
+- Executor-local state is stateless per call; mutable tensor residency/state is externalized in `tmmu_context` and returned as `tmmu_state'`.
 
 ### I.B Inputs and Hyperparameters
 - `ir_dag: UML_Model_IR` (nodes with `node_id`, `instr`, `params`, `inputs`, `shape_in/out`)
@@ -118,7 +124,7 @@
 1. `Contract.Validate_v1(ir_dag, driver, mode)`
 2. `execution_order ← UML_OS.Model.TopoSortNodes_v1(ir_dag)`
 3. **if mode == "backward": execution_order ← reversed(execution_order)**  *(algorithmic guarantee of correct gradient flow)*
-4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v1(ir_dag, execution_order, mode)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
+4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
 
 ---
 
@@ -128,8 +134,10 @@ Active operators:
 - `UML_OS.Model.ModelIR_Executor_v1`
 - `UML_OS.Model.TopoSortNodes_v1`
 - `UML_OS.Model.DispatchPrimitive_v1`
-- `UML_OS.Model.CollectGradients_v1` **(NEW)**
-- `UML_OS.TMMU.PrepareMemory_v1`
+- `UML_OS.Model.CollectGradients_v1`
+- `UML_OS.TMMU.PrepareMemory_v2`
+- `UML_OS.StateFingerprint_v1`
+- `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.Error.Emit_v1`
 
@@ -158,14 +166,14 @@ Active operators:
 **Determinism:** deterministic (driver contract)  
 **Definition:** Resolves input handles, dispatches driver primitive for `node.instr` **(fwd or grad variant based on mode)**, writes output to TMMU-allocated slot, validates shapes.
 
-**Operator:** `UML_OS.Model.CollectGradients_v1` **(NEW — resolves prior undefined reference)**  
+**Operator:** `UML_OS.Model.CollectGradients_v1`  
 **Category:** Model  
 **Signature:** `(tensor_map, ir_dag, theta → grads: tensor_map)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** After backward pass, aggregates all parameter gradients (from dedicated grad slots or accumulated in-place) into a clean grads dict. Supports multi-step accumulation.
 
-**Operator:** `UML_OS.TMMU.PrepareMemory_v1`  
+**Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
 **Category:** Memory  
 **Signature:** `(ir_dag, execution_order, mode → tensor_map)`  
 **Purity class:** STATEFUL  
@@ -181,7 +189,7 @@ Active operators:
 2. execution_order ← TopoSortNodes_v1(ir_dag)
 3. if mode == "backward":
        execution_order ← reversed(execution_order)   # algorithmic improvement: correct gradient flow order
-4. tensor_map ← TMMU.PrepareMemory_v1(ir_dag, execution_order, mode)  # static liveness + zeroing + slot reuse (mode-aware)
+4. tensor_map ← TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)  # static liveness + zeroing + slot reuse (mode-aware)
 
 5. for node in execution_order:
        tensor_map ← DispatchPrimitive_v1(node, tensor_map, theta, mode, tmmu_context)
@@ -258,5 +266,3 @@ Active operators:
 ### Restore semantics
 - Identical execution sequence on restore (same replay_token → same slot assignments).
 - Mid-pass restore not supported (atomic per-batch execution).
-```
-

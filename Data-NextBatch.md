@@ -1,4 +1,3 @@
-```markdown
 # Universal Machine Learning Operating System — Data NextBatch
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
@@ -53,8 +52,8 @@
 
 ### 0.G Operator Manifest
 - `UML_OS.Data.NextBatch_v2`
-- `UML_OS.Data.SeedeBlockPermute_v1` (internal helper)
-- `UML_OS.Data.SeedeIntraBlockMap_v1` (internal helper)
+- `UML_OS.Data.SeededBlockPermute_v1` (internal helper)
+- `UML_OS.Data.SeededIntraBlockMap_v1` (internal helper)
 - `UML_OS.Error.Emit_v1`
 
 ### 0.H Namespacing and Packaging
@@ -63,6 +62,11 @@
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(batch_sample_indices: uint64[], data_cursor')`
 - Minimum metrics: `epoch`, `global_position`, `is_shuffled`, `effective_batch_size`, `blocks_materialized`
+
+### 0.J Spec Lifecycle Governance
+- Reproducibility-breaking changes to sequence formation, sharding, or cursor progression require MAJOR version bump.
+- Non-breaking performance-only changes (cache/prefetch without sequence changes) require MINOR bump.
+- Equivalence target: E0 exact index-sequence equivalence.
 
 ### 0.K Failure and Error Semantics
 - Global error model: abort-only
@@ -120,8 +124,8 @@
 
 Active operators:
 - `UML_OS.Data.NextBatch_v2`
-- `UML_OS.Data.SeedeBlockPermute_v1`
-- `UML_OS.Data.SeedeIntraBlockMap_v1`
+- `UML_OS.Data.SeededBlockPermute_v1`
+- `UML_OS.Data.SeededIntraBlockMap_v1`
 - `UML_OS.Error.Emit_v1`
 
 ---
@@ -135,14 +139,14 @@ Active operators:
 **Determinism:** deterministic (RNG only inside helpers for train shuffling)  
 **Definition:** Computes the next micro-batch of original sample indices according to global virtual order. Guarantees identical sequence across any distributed configuration.
 
-**Operator:** `UML_OS.Data.SeedeBlockPermute_v1`  
+**Operator:** `UML_OS.Data.SeededBlockPermute_v1`  
 **Category:** Data  
 **Signature:** `(num_blocks, epoch_seed -> block_order: uint64[])`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Fisher-Yates shuffle of [0 … num_blocks-1] using Philox seeded by epoch_seed. Materializes only O(num_blocks) memory.
 
-**Operator:** `UML_OS.Data.SeedeIntraBlockMap_v1`  
+**Operator:** `UML_OS.Data.SeededIntraBlockMap_v1`  
 **Category:** Data  
 **Signature:** `(block_id, local_pos, block_size, epoch_seed, N -> original_index: uint64)`  
 **Purity class:** PURE  
@@ -170,7 +174,7 @@ Active operators:
        is_shuffled = true
        block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
        num_blocks = ceil(N / block_size)
-       block_order = SeedeBlockPermute_v1(num_blocks, epoch_seed)
+       block_order = SeededBlockPermute_v1(num_blocks, epoch_seed)
 
        batch_indices = []
        for i in 0..micro_batch_size-1:
@@ -181,7 +185,7 @@ Active operators:
            block_id_global = p // block_size
            perm_block_id = block_order[block_id_global]
            local_pos = p % block_size
-           orig_idx = SeedeIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
+           orig_idx = SeededIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
            batch_indices.append(orig_idx)
 
 9. cursor.global_index += global_batch_size
@@ -197,7 +201,7 @@ Active operators:
 - Time: O(micro_batch_size) per call with O(1) intra-block mapping.
 - Exact bijection in train mode; perfect reproducibility across restarts, world_size, hardware.
 - Supports streaming/infinite datasets via modular wrap + epoch seed rotation.
-- drop_last / keep_last configurable via manifest (default keep_last=false for strict epochs).
+- drop_last behavior is configurable via manifest (`drop_last=false` default).
 
 ---
 
@@ -258,6 +262,3 @@ Golden runs for N=10^6, 10^9 with multiple world_sizes; exact index sequences ve
 ### Restore semantics
 - Identical subsequent batch sequences under same manifest/seed
 - Mid-epoch restore supported (no re-shuffle of current epoch)
-```
-
-**DONE** (upgraded to v2 with full scalable block+ O(1) intra-block math, lazy-friendly design, streaming support, complete EQC structure matching DP quality; no further algorithmic changes needed)
