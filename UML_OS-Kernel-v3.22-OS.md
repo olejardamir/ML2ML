@@ -236,6 +236,7 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 - Delivery and compliance contracts: `Backend-Adapter-Guide.md`, `Security-Compliance-Profile.md`, `Dependency-Lock-Policy.md`, `Deployment-Runbook.md`.
 - Planning and execution governance: `Implementation-Roadmap.md`, `Code-Generation-Mapping.md`, `Test-Plan.md`, `Performance-Plan.md`.
 - Lifecycle and governance extensions: `Experiment-Tracking.md`, `Model-Registry.md`, `Monitoring-Policy.md`, `Evaluation-Harness.md`, `Data-Lineage.md`, `Pipeline-Orchestrator.md`, `Execution-Certificate.md`.
+- Coding acceleration contracts: `Reference-Implementations.md`, `Test-Vectors-Catalog.md`, `Repo-Layout-and-Interfaces.md`.
 - Wiring invariant: all operator names referenced across documents must be fully qualified and versioned. Shared operators may be imported by reference from dedicated contract documents (for example `UML_OS.Error.Emit_v1` in `Error-Codes.md`).
 
 ---
