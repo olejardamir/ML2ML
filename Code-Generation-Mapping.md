@@ -83,7 +83,7 @@
 | operator | module_path | symbol_name | stub_template | ownership | side_effects | signature_digest |
 |---|---|---|---|---|---|---|
 | `UML_OS.Data.NextBatch_v2` | `src/data/next_batch.py` | `next_batch_v2` | `py_operator_stub_v1` | data team | `["ADVANCES_CURSOR"]` | `sha256:sig_nextbatch_v2` |
-| `UML_OS.Model.ModelIR_Executor_v1` | `src/model/modelir_executor.py` | `modelir_executor_v1` | `py_operator_stub_v1` | model team | `["ALLOCATES_MEMORY","MUTATES_MODEL_STATE"]` | `sha256:sig_modelir_exec_v1` |
+| `UML_OS.Model.ModelIR_Executor_v1` | `src/model/modelir_executor.py` | `modelir_executor_v1` | `py_operator_stub_v1` | model team | `["ALLOCATES_MEMORY"]` | `sha256:sig_modelir_exec_v1` |
 | `UML_OS.DifferentialPrivacy.Apply_v3` | `src/dp/apply.py` | `dp_apply_v3` | `py_operator_stub_v1` | privacy team | `["ADVANCES_RNG","MUTATES_ACCOUNTANT"]` | `sha256:sig_dp_apply_v3` |
 | `UML_OS.TMMU.PrepareMemory_v2` | `src/tmmu/prepare_memory.py` | `prepare_memory_v2` | `py_operator_stub_v1` | runtime team | `["ALLOCATES_MEMORY"]` | `sha256:sig_tmmu_prepare_v2` |
 | `UML_OS.Trace.ComputeTraceHash_v1` | `src/trace/compute_trace_hash.py` | `compute_trace_hash_v1` | `py_operator_stub_v1` | trace team | `["NONE"]` | `sha256:sig_trace_hash_v1` |
@@ -94,14 +94,14 @@
 | `UML_OS.Checkpoint.CheckpointMigrate_v1` | `src/checkpoint/migrate_checkpoint.py` | `checkpoint_migrate_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO"]` | `sha256:sig_checkpoint_migrate_v1` |
 | `UML_OS.Checkpoint.Restore_v1` | `src/checkpoint/restore.py` | `checkpoint_restore_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO","MUTATES_MODEL_STATE"]` | `sha256:sig_restore_ckpt_v1` |
 | `UML_OS.Config.ManifestMigrate_v1` | `src/config/migrate_manifest.py` | `manifest_migrate_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_manifest_migrate_v1` |
-| `UML_OS.Model.Forward_v2` | `src/model/forward.py` | `forward_v2` | `py_operator_stub_v1` | model team | `["NONE"]` | `sha256:sig_forward_v2` |
+| `UML_OS.Model.Forward_v2` | `src/model/forward.py` | `forward_v2` | `py_operator_stub_v1` | model team | `["ADVANCES_RNG"]` | `sha256:sig_forward_v2` |
 | `UML_OS.Monitor.DriftCompute_v1` | `src/monitor/drift_compute.py` | `drift_compute_v1` | `py_operator_stub_v1` | platform team | `["NONE"]` | `sha256:sig_monitor_drift_v1` |
 | `UML_OS.Monitor.Emit_v1` | `src/monitor/emit.py` | `monitor_emit_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_monitor_emit_v1` |
 | `UML_OS.Monitor.Register_v1` | `src/monitor/register.py` | `monitor_register_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_monitor_register_v1` |
 | `UML_OS.Registry.StageTransition_v1` | `src/registry/stage_transition.py` | `registry_stage_transition_v1` | `py_operator_stub_v1` | governance team | `["PERFORMS_IO"]` | `sha256:sig_registry_stage_transition_v1` |
 | `UML_OS.Registry.VersionCreate_v1` | `src/registry/version_create.py` | `registry_version_create_v1` | `py_operator_stub_v1` | governance team | `["PERFORMS_IO"]` | `sha256:sig_registry_version_create_v1` |
 | `UML_OS.Trace.TraceMigrate_v1` | `src/trace/migrate_trace.py` | `trace_migrate_v1` | `py_operator_stub_v1` | trace team | `["PERFORMS_IO"]` | `sha256:sig_trace_migrate_v1` |
-| `UML_OS.Tracking.ArtifactDelete_v1` | `src/tracking/artifact_delete.py` | `artifact_delete_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_delete_v1` |
+| `UML_OS.Tracking.ArtifactTombstone_v1` | `src/tracking/artifact_tombstone.py` | `artifact_tombstone_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_tombstone_v1` |
 | `UML_OS.Tracking.ArtifactGet_v1` | `src/tracking/artifact_get.py` | `artifact_get_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_get_v1` |
 | `UML_OS.Tracking.ArtifactList_v1` | `src/tracking/artifact_list.py` | `artifact_list_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_list_v1` |
 | `UML_OS.Tracking.ArtifactPut_v1` | `src/tracking/artifact_put.py` | `artifact_put_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_put_v1` |

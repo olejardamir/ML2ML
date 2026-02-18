@@ -54,7 +54,7 @@
 - signatures and side-effects must match `API-Interfaces.md`.
 
 ### II.F Canonical Function Signatures (Normative)
-- `next_batch_v2(dataset_key, world_size, rank, stage_type, cursor, manifest) -> (indices, cursor_next, metrics)`
+- `next_batch_v2(dataset_key, world_size, rank, stage_type) -> (indices, cursor_next, metrics)`
 - `dp_apply_v3(gradients, dp_config, t, state) -> (noisy_gradients, state_next, metrics)`
 - `prepare_memory_v2(ir_dag, execution_order, mode, arena_config) -> (tensor_map, metrics)`
 - `replay_compare_trace_v1(trace_a, trace_b, replay_mode) -> divergence_report`
@@ -78,21 +78,21 @@
 ## 5) Operator Definitions
 **Operator:** `UML_OS.Implementation.Ref.NextBatch_v2`  
 **Category:** Implementation  
-**Signature:** `(state, manifest -> indices, state_next, metrics)`  
+**Signature:** `(dataset_key, world_size, rank, stage_type -> indices, cursor_next, metrics)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** canonical sampling pseudocode consistent with `Data-NextBatch.md`.
 
 **Operator:** `UML_OS.Implementation.Ref.ApplyDP_v3`  
 **Category:** Implementation  
-**Signature:** `(gradients, dp_state, cfg -> noisy_gradients, dp_state_next, metrics)`  
+**Signature:** `(gradients, dp_config, t, state -> noisy_gradients, state_next, metrics)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic control / stochastic noise per RNG contract  
 **Definition:** canonical DP pseudocode consistent with `DifferentialPrivacy-Apply.md`.
 
 **Operator:** `UML_OS.Implementation.Ref.PrepareMemory_v2`  
 **Category:** Implementation  
-**Signature:** `(ir, order, arena_cfg -> tensor_map, tmmu_metrics)`  
+**Signature:** `(ir_dag, execution_order, mode, arena_config -> tensor_map, metrics)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** canonical injective arena-offset planner pseudocode.

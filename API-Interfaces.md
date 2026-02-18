@@ -97,13 +97,13 @@
 | name | version | method | request_schema_hash | response_schema_hash | idempotent | side_effects | allowed_error_codes | signature_digest |
 |---|---|---|---|---|---|---|---|
 | `UML_OS.Data.NextBatch_v2` | v2 | syscall | `sha256:req_nextbatch` | `sha256:resp_nextbatch` | false | `["ADVANCES_CURSOR"]` | `BATCH_SIZE_INCONSISTENT,INVALID_DATASET_KEY` | `sha256:sig_nextbatch_v2` |
-| `UML_OS.Model.Forward_v2` | v2 | syscall | `sha256:req_forward` | `sha256:resp_forward` | true | `["NONE"]` | `CONTRACT_VIOLATION,PRIMITIVE_UNSUPPORTED` | `sha256:sig_forward_v2` |
+| `UML_OS.Model.Forward_v2` | v2 | syscall | `sha256:req_forward` | `sha256:resp_forward` | false | `["ADVANCES_RNG"]` | `CONTRACT_VIOLATION,PRIMITIVE_UNSUPPORTED` | `sha256:sig_forward_v2` |
 | `UML_OS.DifferentialPrivacy.Apply_v3` | v3 | syscall | `sha256:req_dp_apply` | `sha256:resp_dp_apply` | false | `["ADVANCES_RNG","MUTATES_ACCOUNTANT"]` | `PRIVACY_BUDGET_EXCEEDED,INVALID_DP_CONFIG` | `sha256:sig_dp_apply_v3` |
 | `UML_OS.IO.SaveCheckpoint_v1` | v1 | syscall | `sha256:req_save_ckpt` | `sha256:resp_save_ckpt` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_save_ckpt_v1` |
 | `UML_OS.Checkpoint.Restore_v1` | v1 | syscall | `sha256:req_restore_ckpt` | `sha256:resp_restore_ckpt` | false | `["PERFORMS_IO","MUTATES_MODEL_STATE"]` | `CONTRACT_VIOLATION` | `sha256:sig_restore_ckpt_v1` |
 | `UML_OS.Trace.ComputeTraceHash_v1` | v1 | syscall | `sha256:req_trace_hash` | `sha256:resp_trace_hash` | true | `["NONE"]` | `CONTRACT_VIOLATION` | `sha256:sig_trace_hash_v1` |
 | `UML_OS.Backend.LoadDriver_v1` | v1 | syscall | `sha256:req_load_driver` | `sha256:resp_load_driver` | false | `["PERFORMS_IO","NETWORK_COMM"]` | `BACKEND_CONTRACT_VIOLATION` | `sha256:sig_load_driver_v1` |
-| `UML_OS.Model.ModelIR_Executor_v1` | v1 | syscall | `sha256:req_modelir_exec` | `sha256:resp_modelir_exec` | false | `["ALLOCATES_MEMORY","MUTATES_MODEL_STATE"]` | `INVALID_IR,PRIMITIVE_UNSUPPORTED` | `sha256:sig_modelir_exec_v1` |
+| `UML_OS.Model.ModelIR_Executor_v1` | v1 | syscall | `sha256:req_modelir_exec` | `sha256:resp_modelir_exec` | false | `["ALLOCATES_MEMORY"]` | `INVALID_IR,PRIMITIVE_UNSUPPORTED` | `sha256:sig_modelir_exec_v1` |
 | `UML_OS.TMMU.PrepareMemory_v2` | v2 | syscall | `sha256:req_tmmu_prepare` | `sha256:resp_tmmu_prepare` | false | `["ALLOCATES_MEMORY"]` | `TMMU_ALLOCATION_FAILURE,ALIGNMENT_VIOLATION` | `sha256:sig_tmmu_prepare_v2` |
 | `UML_OS.Tracking.RunCreate_v1` | v1 | syscall | `sha256:req_run_create` | `sha256:resp_run_create` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_run_create_v1` |
 | `UML_OS.Tracking.RunStart_v1` | v1 | syscall | `sha256:req_run_start` | `sha256:resp_run_start` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_run_start_v1` |
@@ -112,7 +112,7 @@
 | `UML_OS.Tracking.ArtifactPut_v1` | v1 | syscall | `sha256:req_artifact_put` | `sha256:resp_artifact_put` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_put_v1` |
 | `UML_OS.Tracking.ArtifactGet_v1` | v1 | syscall | `sha256:req_artifact_get` | `sha256:resp_artifact_get` | true | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_get_v1` |
 | `UML_OS.Tracking.ArtifactList_v1` | v1 | syscall | `sha256:req_artifact_list` | `sha256:resp_artifact_list` | true | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_list_v1` |
-| `UML_OS.Tracking.ArtifactDelete_v1` | v1 | syscall | `sha256:req_artifact_delete` | `sha256:resp_artifact_delete` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_delete_v1` |
+| `UML_OS.Tracking.ArtifactTombstone_v1` | v1 | syscall | `sha256:req_artifact_tombstone` | `sha256:resp_artifact_tombstone` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_tombstone_v1` |
 | `UML_OS.Registry.VersionCreate_v1` | v1 | syscall | `sha256:req_registry_version_create` | `sha256:resp_registry_version_create` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_registry_version_create_v1` |
 | `UML_OS.Registry.StageTransition_v1` | v1 | syscall | `sha256:req_registry_stage_transition` | `sha256:resp_registry_stage_transition` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_registry_stage_transition_v1` |
 | `UML_OS.Monitor.Register_v1` | v1 | syscall | `sha256:req_monitor_register` | `sha256:resp_monitor_register` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_monitor_register_v1` |

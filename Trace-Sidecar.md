@@ -20,9 +20,9 @@
 ### 0.C Numeric Policy
 - Field types are explicit; numeric fields use declared scalar kinds.
 ### 0.D Ordering and Tie-Break Policy
-- Record order: ascending `t`, then `operator_seq`.
+- Record order: canonical total order `(t, rank, operator_seq)`.
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Multi-rank traces merged deterministically by rank then `t`.
+- Multi-rank traces merged in one canonical total order: `(t, rank, operator_seq)`.
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for schema and required key set.
 ### 0.G Operator Manifest
@@ -92,6 +92,7 @@
 - Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
 - Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`.
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`.
+- `operator_seq` is a per-rank monotone counter.
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
 - Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.

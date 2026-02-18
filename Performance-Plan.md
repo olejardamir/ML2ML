@@ -89,6 +89,7 @@
 ### II.F Regression Guards (Normative)
 - `peak_memory_bytes` ceiling is mandatory per workload/profile; exceeding ceiling is a hard failure.
 - `tmmu_fragmentation_ratio` is computed deterministically as `1 - (largest_free_block_bytes / total_free_bytes)` at measurement point.
+- Division-by-zero rule: if `total_free_bytes == 0`, set `tmmu_fragmentation_ratio = 0`.
 - Fragmentation regression beyond declared threshold is a hard failure.
 - Gate verdict is computed on frozen snapshot samples only.
 

@@ -85,6 +85,10 @@
 - Registry allowlist: explicit host allowlist only; direct URL dependencies forbidden unless signed and pinned.
 - SBOM requirement: CycloneDX JSON emitted per build and hashed into trace.
 - Toolchain hash: `toolchain_hash = SHA-256(CBOR(["toolchain_v1", python_version, pip_version, installer_version]))`.
+- GPU/runtime pinning requirements:
+  - pinned versions for CUDA/runtime, cuDNN, NCCL, and driver stack,
+  - capture determinism-impacting environment variables,
+  - enforce `determinism_profile_hash` gate match at build/deploy time.
 
 ---
 ## 3) Initialization

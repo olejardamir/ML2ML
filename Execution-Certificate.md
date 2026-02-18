@@ -69,13 +69,19 @@
   - `tmmu_plan_hash:bytes32`
   - `backend_binary_hash:bytes32`
   - `determinism_profile_hash:bytes32`
-  - `t_start:uint64`
-  - `t_end:uint64`
+  - `step_start:uint64`
+  - `step_end:uint64`
   - `signature:bytes`
 - Optional fields:
   - `dp_accountant_state_hash:bytes32` (if DP enabled)
   - `attestation_quote_hash:bytes32` (required in `ATTESTED` mode)
   - `determinism_conformance_suite_id:bytes32`
+  - `wall_time_start_utc:string` (non-replay-critical metadata)
+  - `wall_time_end_utc:string` (non-replay-critical metadata)
+
+Signature scheme (normative):
+- canonical payload serialization: canonical CBOR
+- signature algorithm: Ed25519
 
 ---
 ## 3) Initialization

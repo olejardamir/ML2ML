@@ -2,7 +2,7 @@
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
 **Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`  
-**Purpose (1 sentence):** Perform static liveness analysis, optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic injective arena-offset virtual-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, maximal reuse (provably optimal number of slots = max live tensors), alignment safety, and replayability across 100B+ parameter models.  
+**Purpose (1 sentence):** Perform static liveness analysis, optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic injective arena-offset logical-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, maximal reuse (provably optimal number of slots = max live tensors), alignment safety, and replayability across 100B+ parameter models.  
 **Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)  
 **Domain / Problem Class:** Deterministic, size-aware, multi-arena tensor memory planning via interval-graph register allocation for deep learning computation graphs.
 
@@ -12,14 +12,14 @@
 
 ### 0.0 Identity
 - **Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`
-- **Purpose (1 sentence):** Statically compute optimal reusable logical slots and deterministic virtual addresses with maximal liveness-based reuse.
+- **Purpose (1 sentence):** Statically compute optimal reusable logical slots and deterministic logical addresses with maximal liveness-based reuse.
 - **Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team)
 - **Domain / Problem Class:** Scalable, reproducible, alignment-aware tensor memory planning for ML graphs.
 
 ### 0.A Objective Semantics
 - Not an optimization operator (enables extreme efficiency).
-- Primary guarantee: identical logical slots, virtual addresses, and tensor_map for identical `(ir_dag, execution_order, mode, replay_token)`.
-- Comparison rule: exact equality of virtual addresses and live ranges.
+- Primary guarantee: identical logical slots, logical addresses, and tensor_map for identical `(ir_dag, execution_order, mode, replay_token)`.
+- Comparison rule: exact equality of logical addresses and live ranges.
 
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` inherited from kernel replay context.
@@ -27,7 +27,7 @@
 - Assignment is 100% deterministic given replay_token.
 - Two-level mapping:
   - Logical slot ID (0-based, assigned by optimal greedy linear scan on interval graph).
-  - Virtual address is deterministic arena offset mapping: for each arena, slots are ordered deterministically and assigned by aligned prefix-sum offsets.
+  - Logical address is deterministic arena offset mapping: for each arena, slots are ordered deterministically and assigned by aligned prefix-sum offsets.
 - Randomness locality: no sampling in core allocation path; any pseudo-random fill/zero pattern generation is operator-owned (`ZeroTensor_v1`) and deterministic.
 - Replay guarantee: replayable given `(replay_token, ir_hash, mode, arena_config, execution_order)`.
 - Replay token size: fixed 32 bytes (SHA-256 output), inherited from kernel contract.
@@ -56,10 +56,12 @@
 - Depends on execution_order and arena_config.
 - Reference runtime: pure Python simulator for E0 verification.
 - Dependencies: replay_token and deterministic slot ordering.
-- Determinism level: `BITWISE` for slot assignments and virtual-address mapping.
+- Determinism level: `BITWISE` for slot assignments and logical-address mapping.
 
 ### 0.G Operator Manifest
 - `UML_OS.TMMU.PrepareMemory_v2`
+- `UML_OS.TMMU.PlanMemory_v2`
+- `UML_OS.TMMU.ApplyPlan_v1`
 - `UML_OS.Model.AnalyzeLiveness_v1`
 - `UML_OS.TMMU.AssignLogicalSlots_v1` (new)
 - `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)
@@ -72,14 +74,14 @@
 - Fully-qualified names: `UML_OS.TMMU.<Name>_v#`
 
 ### 0.I Outputs and Metric Schema
-- Declared outputs: `tensor_map: dict[node_id → tensor_handle]`, `metrics`
+- Declared outputs: `tensor_map: dict[tensor_id → {logical_address, arena, logical_slot, size, lifetime}]`, `metrics`
 - Minimum metrics: `peak_logical_slots`, `peak_physical_bytes_per_arena`, `memory_reuse_ratio`, `max_live`, `internal_fragmentation_ratio`, `allocation_time_ns`
 - Completion status: `success | failed` with deterministic failure codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
-- Changes affecting liveness intervals, slot assignment, or virtual-address derivation require MAJOR version bump.
+- Changes affecting liveness intervals, slot assignment, or logical-address derivation require MAJOR version bump.
 - Performance-only implementation changes that preserve outputs/trace semantics require MINOR bump.
-- Equivalence target: E0 for slot map and virtual-address determinism.
+- Equivalence target: E0 for slot map and logical-address determinism.
 
 ### 0.K Failure and Error Semantics
 - Failure codes: `INVALID_IR_SHAPES`, `LIVENESS_CYCLE`, `ADDRESS_COLLISION`, `ALLOCATION_OVERFLOW`, `ARENA_TOO_SMALL`, `ALIGNMENT_VIOLATION`
@@ -123,7 +125,7 @@
 - Dynamic shapes require either declared shape envelope or deterministic replan trigger policy.
 
 ### I.D Transient Variables
-- `live_ranges`, `active_set`, `logical_slot_map`, `virtual_address_table`, `free_intervals_per_arena` (for size-aware fallback)
+- `live_ranges`, `active_set`, `logical_slot_map`, `logical_address_table`, `free_intervals_per_arena` (for size-aware fallback)
 
 ### I.E Invariants and Assertions
 - No access before birth or after death.
@@ -187,16 +189,30 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
 **Category:** Memory  
 **Signature:** `(ir_dag, execution_order, mode, replay_token, arena_config → tensor_map, metrics)`  
-**Purity class:** PURE (given replay_token)  
+**Purity class:** STATEFUL  
 **Determinism:** Fully deterministic  
-**Definition:** Multi-arena liveness analysis → optimal logical slot assignment (linear-scan coloring) → injective virtual address mapping by deterministic aligned offsets. Guarantees optimal slot count and alignment.
+**Definition:** Compatibility wrapper orchestrating `PlanMemory_v2` (PURE) and `ApplyPlan_v1` (STATEFUL) with identical observable outputs to legacy callers.
 **Preconditions / Postconditions:** valid IR and arena config; returns deterministic tensor_map/metrics with zeroed handles.  
 **Edge cases:** tiny graphs, near-capacity arenas, mixed-role tensors.  
 **Numerical considerations:** integer-only offset/address arithmetic with overflow checks.  
 **Ordering/tie handling:** birth-time ascending, size-desc tie-break, lowest-slot-first assignment.  
 **Complexity note:** O(N log N) worst-case (N=tensors).  
 **Failure behavior:** abort with 0.K allocator codes.  
-**Dependencies:** AnalyzeLiveness_v1, AssignLogicalSlots_v1, MapToVirtualAddresses_v1, ZeroTensor_v1, CommitExecution_v1.  
+**Dependencies:** PlanMemory_v2, ApplyPlan_v1, AnalyzeLiveness_v1, AssignLogicalSlots_v1, MapToVirtualAddresses_v1, ZeroTensor_v1, CommitExecution_v1.  
+
+**Operator:** `UML_OS.TMMU.PlanMemory_v2`
+**Category:** Memory
+**Signature:** `(ir_dag, execution_order, mode, arena_config -> tmmu_plan, metrics)`
+**Purity class:** PURE
+**Determinism:** Fully deterministic
+**Definition:** Builds tensor interval set from IR outputs/inputs/persistent buffers, computes births/deaths from execution order, and emits deterministic slot/offset plan with plan hash.
+
+**Operator:** `UML_OS.TMMU.ApplyPlan_v1`
+**Category:** Memory
+**Signature:** `(tmmu_plan, runtime_arena_handles -> tensor_map, metrics, tmmu_state')`
+**Purity class:** STATEFUL
+**Determinism:** deterministic
+**Definition:** Applies logical `(arena_id, offset_bytes)` plan to runtime pointers, performs zero/fill operations, and commits allocator state.
 **Test vectors:** see VII.B chain/residual/large-model slot maps.
 
 **Operator:** `UML_OS.Model.AnalyzeLiveness_v1`  
@@ -230,9 +246,9 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 
 **Operator:** `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)  
 **Category:** Memory  
-**Signature:** `(logical_slot_assignment, arena_config, slot_size_map, slot_alignment_map -> virtual_map)`  
+**Signature:** `(logical_slot_assignment, arena_config, slot_size_map, slot_alignment_map -> logical_map)`  
 **Purity class:** PURE  
-**Definition:** For each arena independently, sort slots by `logical_slot_id` ascending and compute aligned offsets by prefix sum: `offset_0=0`, `offset_{k+1}=align_up(offset_k + slot_size_k, align_{k+1})`, where `align_k = max(slot_alignment_map[arena, slot_k], arena_config[arena].alignment_bytes)`. Set `va(slot_k)=arena_base[arena]+offset_k` with deterministic `arena_base` assignment from `arena_config`.
+**Definition:** For each arena independently, sort slots by `logical_slot_id` ascending and compute aligned offsets by prefix sum: `offset_0=0`, `offset_{k+1}=align_up(offset_k + slot_size_k, align_{k+1})`, where `align_k = max(slot_alignment_map[arena, slot_k], arena_config[arena].alignment_bytes)`. Emit logical addresses as `(arena_id, offset_bytes)`; runtime resolves to physical pointers out-of-band.
 **Preconditions / Postconditions:** logical slots assigned; output addresses unique per `(arena, slot)`.  
 **Edge cases:** large slot cardinality and arena name collisions (disallowed).  
 **Numerical considerations:** uint64 offset arithmetic with overflow checks; no hash truncation/collision path.  
@@ -240,11 +256,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Complexity note:** O(slots).  
 **Failure behavior:** abort on arena overflow or alignment violation.  
 **Dependencies:** deterministic ordering and arena config.  
-**Test vectors:** fixed arena config + slot maps -> exact virtual map.
+**Test vectors:** fixed arena config + slot maps -> exact logical map.
 
 **Operator:** `UML_OS.TMMU.ZeroTensor_v1`  
 **Category:** Memory  
-**Signature:** `(virtual_address, size_bytes -> ok)` (driver primitive)  
+**Signature:** `(logical_address, size_bytes -> ok)` (driver primitive)  
 **Purity class:** STATEFUL  
 **Definition:** Deterministic zero-fill.
 **Preconditions / Postconditions:** address is valid and writable; tensor contents are zeroed.  
@@ -258,7 +274,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 
 **Operator:** `UML_OS.TMMU.DebugFillTensor_v1`  
 **Category:** Memory  
-**Signature:** `(virtual_address, pattern_seed -> ok)`  
+**Signature:** `(logical_address, pattern_seed -> ok)`  
 **Purity class:** STATEFUL  
 **Definition:** Deterministic debug pattern fill for allocator diagnostics only.
 **Preconditions / Postconditions:** allowed only in non-confidential and non-regulated modes.  
@@ -299,24 +315,24 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
    #   - Record max_size_per_slot for backing buffer sizing
    #   - Record slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
 
-3. virtual_map ← MapToVirtualAddresses_v1(logical_slots, arena_config, slot_size_map, slot_alignment_map)
+3. logical_map ← MapToVirtualAddresses_v1(logical_slots, arena_config, slot_size_map, slot_alignment_map)
    # Per arena: deterministic slot order by logical_slot_id
    # offset_0 = 0
    # offset_{k+1} = align_up(offset_k + slot_size_k, align_{k+1})
    # va(slot_k) = arena_base[arena] + offset_k
 
 4. tensor_map ← {}
-   for tensor in execution_order:
-       (arena, slot) ← logical_slots[tensor_id]
-       va ← virtual_map[(arena, slot)]
-       size ← compute_bytes(shape, dtype)
-       tensor_map[tensor_id] ← {handle: va, arena, logical_slot: slot, size, lifetime: live_ranges[tensor_id], alignment: arena_config[arena].alignment}
+   for tensor in tensor_intervals_sorted:   # tensors, not nodes
+       (arena, slot) ← logical_slots[tensor.id]
+       logical_addr ← logical_map[(arena, slot)]  # (arena_id, offset_bytes)
+       size ← compute_bytes(tensor.shape, tensor.dtype)
+       tensor_map[tensor.id] ← {logical_address: logical_addr, arena, logical_slot: slot, size, lifetime: live_ranges[tensor.id], alignment: arena_config[arena].alignment}
 
 5. for each tensor in tensor_map:
-       ZeroTensor_v1(tensor_map[tensor_id].handle)
+       ZeroTensor_v1(tensor_map[tensor_id].logical_address, tensor_map[tensor_id].size)
        # DebugFillTensor_v1 is optional and forbidden in confidential/regulated modes.
 
-6. metrics ← ComputeMetrics(live_ranges, logical_slots, virtual_map)
+6. metrics ← ComputeMetrics(live_ranges, logical_slots, logical_map)
    # Includes per-arena peak, reuse_ratio = 1 - (slots_used / total_tensors), fragmentation
 
 7. tmmu_state' ← CommitExecution_v1()
@@ -342,7 +358,7 @@ Each allocation run emits deterministic per-tensor allocation records and one de
 
 ### Trace schema
 - `allocation_header`: ir_hash, mode, replay_token_prefix, per-arena config
-- `tensor`: tensor_id, arena, logical_slot, virtual_address, size, live_range, bytes
+- `tensor`: tensor_id, arena, logical_slot, logical_address, size, live_range, bytes
 - `summary`: peak_bytes_per_arena, total_logical_slots, reuse_ratio, fragmentation_pct
 
 ### Metric schema
@@ -359,7 +375,7 @@ Two allocation runs are comparable iff `ir_hash`, arena config, replay token con
 - All tensors aligned and slotted without live overlap.
 - #slots == max live per arena.
 - Backward lifetimes correctly extended.
-- Virtual address uniqueness & determinism.
+- Logical-address uniqueness & determinism.
 
 #### VII.B Operator test vectors (mandatory)
 - Linear chain → perfect reuse (1 slot)
@@ -374,14 +390,14 @@ Two allocation runs are comparable iff `ir_hash`, arena config, replay token con
 ## 9) Refactor & Equivalence
 
 #### VIII.A Equivalence levels
-- **E0** required for any change to liveness, slot assignment, or VA computation.
+- **E0** required for any change to liveness, slot assignment, or logical-address computation.
 - **E1** allowed for heuristics (e.g., sorting order).
 
 #### VIII.B Allowed refactor categories
 - Graph-coloring variants, ILP solver (if E0 preserved), rematerialization planner, hierarchical arenas.
 
 #### VIII.C Equivalence test procedure (mandatory)
-- Identical virtual addresses, logical slots, and live sets on golden graphs (10 seeds × all presets × 3 modes).
+- Identical logical addresses, logical slots, and live sets on golden graphs (10 seeds × all presets × 3 modes).
 
 ---
 

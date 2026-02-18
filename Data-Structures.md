@@ -86,7 +86,7 @@
 
 ### II.F Concrete Structure Layouts
 - `TraceIterRecord` (CBOR map): `{t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL), loss_total?:float64, grad_norm?:float64}`.
-- `CheckpointHeader`: `{spec_version:string, replay_token:bytes32, t:uint64, checkpoint_hash:bytes}`.
+- `CheckpointHeader`: `{spec_version:string, replay_token:bytes32, t:uint64, checkpoint_merkle_root:bytes32}`.
 - `ErrorRecord`: `{code_id:string, numeric_code:uint32, severity:enum(FATAL|ERROR|WARN), subsystem:string, t:uint64, rank:uint32, failure_operator:string, replay_token:bytes32, message:string, retryable:bool, diagnostics?:map<string,scalar|string|bytes>, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `MonitorEvent`: `{tenant_id:string, run_id:string, model_version_id:string, window_id:string, metric_name:string, metric_value:float64, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `MetricSchema`: `{metric_name:string, scalar_type:enum(float64|int64|bool|string), aggregation:enum(sum|mean|min|max|quantile), window_policy:string, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.

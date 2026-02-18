@@ -110,7 +110,6 @@
 | `core_data` | `data.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
 | `core_backend` | `backend.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
 | `core_tmmu` | `tmmu.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
-| `core_dp` | `dp.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
 | `core_trace` | `trace.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
 | `core_security` | `security.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
 
@@ -131,7 +130,7 @@ Normative checks in `MODULAR` mode:
 | `trace.schema_version` | `UML_OS.Trace.SidecarSchema_v1` |
 | `trace.max_bytes_per_step` | `1048576` |
 | `trace.sample_policy` | `HASH_GATED` |
-| `dp.accountant_granularity` | `PER_STEP` |
+| `security.differential_privacy.accountant_granularity` | `PER_STEP` |
 | `backend.determinism_profile_id` | `gpu_determinism_v1` |
 | `tracking.store_uri` | `cas://tracking/default` |
 | `tracking.retention_days` | `90` |

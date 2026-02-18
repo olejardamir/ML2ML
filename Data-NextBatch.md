@@ -109,8 +109,9 @@
 - `global_batch_size % world_size == 0`
 - `global_batch_size > 0`
 - `dataset_key` exists in manifest.datasets
-- `cardinality >= global_batch_size` (soft; wrap supported for streaming)
-- `drop_last=false` with non-multiple cardinality uses deterministic modulo wrap-around (`p % N`) for unfinished terminal ranges.
+- Train epoch policy (normative): strict bijection without replacement over `[0..N-1]` per epoch; no intra-epoch wrap in train mode.
+- If `drop_last=true`, train epoch size is `floor(N/global_batch_size) * global_batch_size`.
+- If `drop_last=false`, final train step may be partial; no repeated samples are allowed within the same epoch.
 
 ### I.D Transient Variables
 - `N`, `epoch_seed`, `block_order`, `current_block_perms` (lazy map)
@@ -128,7 +129,7 @@
 
 1. `cursor <- data_cursors.get(dataset_key, {epoch:0, global_index:0})`
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0` or wrapped): compute `epoch_seed = BLAKE3(CBOR(["nextbatch_epoch_seed_v2", manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = BLAKE3(CBOR(["nextbatch_epoch_seed_v2", manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
 
 ---
 
@@ -218,9 +219,8 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
        batch_indices = []
        for i in 0..micro_batch_size-1:
            p = global_pos + rank_start + i
-           if p >= N:  # wrap or drop_last logic per manifest.drop_last
-               if manifest.drop_last: break
-               p = p % N
+           if p >= N:  # strict no-wrap train epoch policy
+               break
            block_id_global = p // block_size
            if has_tail and block_id_global == num_full_blocks:
                perm_block_id = num_full_blocks  # keep short tail block fixed
@@ -241,11 +241,10 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Scalability & Algorithmic Guarantees (v2):**
 - Memory: O(num_blocks) worst-case (~1 MiB for 1 B samples with 1 M block_size); lazy per-batch block materialization possible in future.
 - Time: O(micro_batch_size) per call with O(1) intra-block mapping.
-- Exact bijection in train mode; perfect reproducibility across restarts, world_size, hardware.
+- Exact bijection in train mode within each epoch; perfect reproducibility across restarts, world_size, hardware.
 - Bijection proof sketch: full blocks are permuted bijectively among full blocks; each block uses affine bijection over its local domain; tail block is mapped only to itself with its own domain length, so global mapping is a permutation over `[0, N)`.
-- Supports streaming/infinite datasets via modular wrap + epoch seed rotation.
 - drop_last behavior is configurable via manifest (`drop_last=false` default).
-- For `drop_last=false`, terminal non-multiple ranges are completed by deterministic modulo wrap-around.
+- For `drop_last=false`, terminal train step may be partial and is emitted without replacement.
 
 ---
 

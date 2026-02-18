@@ -117,6 +117,9 @@
   - `revocation_evidence_hash` (or pinned-CRL bundle hash when offline policy is used),
   - `attestation_bundle_hash`.
 - Verification verdict determinism claim is scoped to identical evidence bundles and policy hash.
+- Time-policy rule:
+  - if verification time affects verdict, it must be frozen as an explicit run parameter and included in signed evidence;
+  - otherwise time fields are informational and excluded from deterministic verdict computation.
 
 ---
 ## 3) Initialization

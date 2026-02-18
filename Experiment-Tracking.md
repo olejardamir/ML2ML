@@ -33,7 +33,7 @@
 - `UML_OS.Tracking.ArtifactPut_v1`
 - `UML_OS.Tracking.ArtifactGet_v1`
 - `UML_OS.Tracking.ArtifactList_v1`
-- `UML_OS.Tracking.ArtifactDelete_v1`
+- `UML_OS.Tracking.ArtifactTombstone_v1`
 - `UML_OS.Error.Emit_v1`
 ### 0.H Namespacing and Packaging
 - `UML_OS.Tracking.*` operators.
@@ -76,7 +76,7 @@
 - `UML_OS.Tracking.ArtifactPut_v1`
 - `UML_OS.Tracking.ArtifactGet_v1`
 - `UML_OS.Tracking.ArtifactList_v1`
-- `UML_OS.Tracking.ArtifactDelete_v1`
+- `UML_OS.Tracking.ArtifactTombstone_v1`
 - `UML_OS.Error.Emit_v1`
 
 ---
@@ -104,14 +104,22 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `Error-Codes.m
 **Determinism:** deterministic  
 **Definition:** stores content-addressed artifact and updates index.
 
+**Operator:** `UML_OS.Tracking.ArtifactTombstone_v1`
+**Category:** IO
+**Signature:** `(run_id, artifact_id, reason -> tombstone_id)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** appends immutable tombstone metadata; physical deletion is deferred to retention policy.
+
 ---
 ## 6) Procedure
 ```text
 1. RunCreate_v1
 2. RunStart_v1
 3. MetricLog_v1 / ArtifactPut_v1 repeated
-4. RunEnd_v1
-5. Return tracking_report
+4. ArtifactTombstone_v1 optional
+5. RunEnd_v1
+6. Return tracking_report
 ```
 
 ---

@@ -47,14 +47,17 @@
 - job table and transition log.
 ### I.B Inputs and Hyperparameters
 - job manifest, priority, policy constraints.
+- lease policy (`lease_ttl_ticks`, `max_retries`).
 ### I.C Constraints and Feasible Set
 - allowed transitions:
   - `QUEUED -> RUNNING`
-  - `RUNNING -> SUCCEEDED|FAILED|CANCELED`
+  - `RUNNING -> SUCCEEDED|FAILED|CANCELED|RETRYING`
+  - `RETRYING -> QUEUED`
 ### I.D Transient Variables
 - scheduling diagnostics.
 ### I.E Invariants and Assertions
 - no skipped lifecycle states; transition records are append-only.
+- running jobs require valid lease and heartbeat.
 
 ---
 ## 3) Initialization
@@ -79,13 +82,22 @@
 **Determinism:** deterministic  
 **Definition:** validates transition against state machine and writes signed transition record.
 
+**Operator:** `UML_OS.Pipeline.JobHeartbeat_v1`
+**Category:** Orchestration
+**Signature:** `(job_id, lease_id, tick -> heartbeat_record)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** extends lease if `lease_id` matches active running attempt.
+
 ---
 ## 6) Procedure
 ```text
 1. JobSubmit_v1
 2. JobTransition_v1(QUEUED->RUNNING)
-3. JobTransition_v1(RUNNING->terminal)
-4. Return final job state
+3. JobHeartbeat_v1 repeated while RUNNING
+4. If lease expires: JobTransition_v1(RUNNING->RETRYING), then RETRYING->QUEUED (bounded retries)
+5. JobTransition_v1(RUNNING->terminal)
+6. Return final job state
 ```
 
 ---

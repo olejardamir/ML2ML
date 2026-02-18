@@ -69,7 +69,7 @@
 - Reference runtime class: GPU-enabled, distributed-capable
 - Compiler/flags: fast-math disabled
 - Dependencies: deterministic Philox implementation + verified accountant implementation (`pld` default; `moments`/`rdp`/`f_dp`/`gdp` fallback)
-- Determinism level: `BITWISE` for clipping/sigma/accountant outputs; `DISTRIBUTIONAL` for sampled noise tensors.
+- Determinism level: `BITWISE` for clipping/sigma/accountant outputs; sampled noise is bitwise-replayable given `(seed, rng offsets, numeric policy, determinism profile)`.
 
 ### 0.G Operator Manifest
 - `UML_OS.DifferentialPrivacy.PreValidation_v1`
@@ -147,7 +147,7 @@
   - `enabled: bool`
   - `mechanism: "gaussian"`
   - `accountant: "pld" | "moments" | "rdp" | "f_dp" | "gdp"` (default/recommended: `pld`)
-  - `subsampling: "poisson" | "fixed" | "shuffle"`
+  - `subsampling: "POISSON" | "SHUFFLE_WITHOUT_REPLACEMENT" | "NONE"`
   - `accountant_granularity: "PER_STEP" | "PER_EPOCH"` (default `PER_STEP`, recommended `PER_STEP`)
   - `clipping.strategy: "per_sample" | "ghost" | "per_layer" | "per_group" | "per_tensor" | "hybrid" | "peft_targeted" | "adaptive"`
   - `clipping.norm: float | "adaptive"`
@@ -208,6 +208,10 @@
 
 ### II.G Subsampling/Accounting Alignment (Normative)
 - `subsampling` must be one of `POISSON`, `SHUFFLE_WITHOUT_REPLACEMENT`, or `NONE`.
+- Normative mapping:
+  - sampler `SHUFFLE_WITHOUT_REPLACEMENT` -> accountant uses fixed-size without-replacement composition.
+  - sampler `POISSON` -> accountant uses Poisson-subsampled composition.
+  - sampler `NONE` -> accountant uses full-batch composition (`q=1`).
 - Accountant assumptions must match sampler behavior declared in `Data-NextBatch.md`.
 - If exact match is unavailable, run must declare deterministic approximation policy and log `accounting_approximation_policy` in trace.
 
@@ -359,13 +363,13 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 **Signature:** `(sampling_metadata -> amplification_factor)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes deterministic amplification adjustment for `subsampling="shuffle"`.
+**Definition:** computes deterministic amplification adjustment for `subsampling="SHUFFLE_WITHOUT_REPLACEMENT"`.
 
 **Operator:** `UML_OS.DifferentialPrivacy.GenerateNoise_v1`  
 **Category:** Security  
 **Signature:** `(shape, stddev_map_t, rng_dp_state, compression_cfg? -> noise, rng_dp_state')`  
 **Purity class:** STATEFUL  
-**Determinism:** stochastic (distributionally deterministic under replay contract)  
+**Determinism:** stochastic (bitwise-replayable sample stream under replay contract with fixed seed/offset/profile)  
 **Definition:** isotropic/heterogeneous Gaussian generation with exact RNG offset accounting; consumes per-group standard deviations from `stddev_map_t`; applies variance-aware compression adjustments if configured.
 
 **Operator:** `UML_OS.DifferentialPrivacy.Accountant.Update_v1`  
@@ -470,7 +474,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 9b. stddev_map <- derive_stddev_map(sigma_map, clip_norm_map, effective_batch_size)   # stddev_g = sigma_g * C_g / B_eff
 10. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
 11. If projected_epsilon > target_epsilon: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
-12. If subsampling == "shuffle": amplification_factor <- AmplificationByShuffling_v1(...)
+12. If subsampling == "SHUFFLE_WITHOUT_REPLACEMENT": amplification_factor <- AmplificationByShuffling_v1(...)
 13. (noise_step, rng_dp_state') <- GenerateNoise_v1(shape(averaged_clipped), stddev_map, rng_dp_state, noise.compression)
 14. noisy_binary64 <- averaged_clipped + noise_step
 15. (cumulative_epsilon, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, sampling_rate, t, target_delta, subsampling, amplification_factor, delta_eps)

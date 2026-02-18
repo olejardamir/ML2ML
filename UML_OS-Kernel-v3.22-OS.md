@@ -65,7 +65,7 @@
 - `world_size > 1` requires deterministic collectives and fixed ordering
 
 ### 0.F Environment and Dependency Policy
-- Each backend driver (loaded via `UML_OS.Backend.LoadDriver_v1`) must implement deterministic forward/backward passes with fixed ascending-index reduction order, deterministic collectives (all-reduce, broadcast) using ascending-rank ring topology, RNG forwarding from kernel master streams with declared offsets, exact operator contracts for all dispatched primitives, and must pass the mandatory ReproducibilityTest suite. The suite requires E0 equivalence (bit-identical critical outputs: losses, gradients, fingerprints, state_fp) against the certified CPU reference driver under binary64 for fixed test graphs, and E1 on larger workloads. Driver verification (including binary/manifest hash check) is mandatory inside `Contract.Validate_v1` before any dispatch.
+- Each backend driver (loaded via `UML_OS.Backend.LoadDriver_v1`) must implement deterministic forward/backward passes with fixed ascending-index reduction order, deterministic collectives (all-reduce, broadcast) using ascending-rank ring topology, RNG forwarding from kernel master streams with declared offsets, exact operator contracts for all dispatched primitives, and must pass the mandatory ReproducibilityTest suite. The suite requires E0 equivalence within a declared backend/hardware equivalence class (same build/profile), and E1 vs certified CPU reference on larger workloads. Driver verification (including binary/manifest hash check) is mandatory inside `Contract.Validate_v1` before any dispatch.
 - Driver interface contract (mandatory for LoadDriver_v1): Implements Forward_v2/Backward_v1/Inference.RunBatch_v1 on UML_Model_IR DAG using only deterministic primitives; no exposed user-callable loops; supports memory-zeroing hooks, TMMU allocation/liveness hints, and TEE quote collection; declares exact op-to-primitive mapping. Passes mandatory ReproducibilityTest suite (E0 on tiny graphs vs certified CPU reference in binary64; E1 on larger workloads) before dispatch. In regulated mode only drivers from the configured signed registry are accepted.
 - Determinism level: `BITWISE` for critical observables (`loss_total`, `grad_norm`, fingerprints, `state_fp`) within a declared adapter/hardware equivalence class; `TOLERANCE` for raw model parameters.
 - `state_fp` canonicalization rule: compute from quantized parameter view `q(theta)=round(theta*2^24)/2^24` in binary64 with fixed ordering, so tolerance-level parameter drift does not violate fingerprint comparability policy.
@@ -195,7 +195,7 @@ Neutral declarative ML-ISA (Instruction Set Architecture) used by all Model/* sy
 - For parallel strategies nodes include optional sharding_spec resolved by driver into device placement.
 - Execution: strict topological order (stable sort by node_id on ties).
 - All presets expand to valid ML-ISA. Custom layers via RegisterCustom_v1 declare full instruction mapping.
-- Drivers translate ML-ISA → native executable under Contract.Validate_v1 (E0 bit-identical critical paths vs CPU reference).
+- Drivers translate ML-ISA → native executable under Contract.Validate_v1 (E0 within declared backend/hardware equivalence class; CPU reference used for E1 semantic checks).
 - Canonical CBOR serialization (fixed field order) for all hashing.
 
 ### 0.Z Logging Contract (fulfills Block V.A)

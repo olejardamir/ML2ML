@@ -34,10 +34,10 @@
 - Approx-equality uses explicit threshold definitions.
 
 ### 0.D Ordering and Tie-Break Policy
-- Trace comparison order: ascending `t`, then operator sequence index.
+- Trace comparison order is canonical total order `(t, rank, operator_seq)`.
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Parallel traces merged deterministically by rank then `t`.
+- Parallel traces are merged under the same canonical total order `(t, rank, operator_seq)`.
 
 ### 0.F Environment and Dependency Policy
 - Reference runtime and dependency hash required for replay comparability.
@@ -91,7 +91,8 @@
 - `data_replay_t = SHA-256(CBOR(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
 - `modelir_replay_t = SHA-256(CBOR(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
 - `dp_replay_t = SHA-256(CBOR(["dp_apply_v3", kernel_replay_token, uint64(t), accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`.
-- Required comparator keys in traces: `t`, `operator_seq`, `rank`, `operator_id`, `status`, plus optional domain metrics.
+- Required comparator keys in traces: `t`, `rank`, `operator_seq`, `operator_id`, `status`, plus optional domain metrics.
+- Canonical compare order is `(t, rank, operator_seq)`.
 - Required environment capture in replay token context:
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
@@ -184,7 +185,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Preconditions / Postconditions:** identical schema keys/types.  
 **Edge cases:** different lengths.  
 **Numerical considerations:** exact for E0 fields, threshold for E1.  
-**Ordering/tie handling:** ascending `t`/rank order.  
+**Ordering/tie handling:** canonical `(t, rank, operator_seq)` order.  
 **Complexity note:** O(trace_size).  
 **Failure behavior:** deterministic divergence report; emits `REPLAY_DIVERGENCE` on first mismatch under selected replay mode.  
 **Dependencies:** determinism-class map.  

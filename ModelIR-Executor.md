@@ -109,6 +109,8 @@
 - `theta: dict` (parameter tensors)
 - `input_data: tensor_map` (for input nodes)
 - `mode: "forward" | "backward" | "inference"`
+- `loss_outputs: array<(node_id, output_idx)>` (required in backward mode)
+- `seed_rule: "UNIT_SCALAR" | "PROVIDED_GRADIENTS"`
 - `tmmu_context`
 - `rng_state` (kernel-provided deterministic RNG stream state)
 
@@ -130,8 +132,8 @@
 - Backward adjoint invariants:
   - each differentiable tensor has a declared `grad_slot`,
   - all grad slots are zero-initialized at backward start,
-  - terminal loss/output gradient seed is explicitly set to 1 (or declared upstream value),
-  - multi-parent gradient contributions are accumulated in deterministic `(node_id, input_index)` order.
+  - terminal loss/output gradient seed follows declared `seed_rule`,
+  - multi-parent gradient contributions are accumulated by sorting contributions on `(consumer_node_pos, edge_id)` and reducing in fixed order.
 
 ---
 
