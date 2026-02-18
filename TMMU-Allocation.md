@@ -22,16 +22,23 @@
 - Comparison rule: exact equality of virtual addresses and live ranges.
 
 ### 0.B Reproducibility Contract
+- Seed space: `seed ∈ {0..2^64-1}` inherited from kernel replay context.
+- PRNG family: Philox4x32-10 (not sampled in allocator core path; used only if deterministic zeroing pattern derivation requires counter expansion).
 - Assignment is 100% deterministic given replay_token.
 - Two-level mapping:
   - Logical slot ID (0-based, assigned by optimal greedy linear scan on interval graph).
   - Virtual address = BLAKE3(replay_token || "tmmu_slot" || arena_name || logical_slot_id || mode).
+- Randomness locality: no sampling in core allocation path; any pseudo-random fill/zero pattern generation is operator-owned (`ZeroTensor_v1`) and deterministic.
+- Replay guarantee: replayable given `(replay_token, ir_hash, mode, arena_config, execution_order)`.
 - No randomness in core path. Full replayability of layout, zeroing, and physical remapping.
 
 ### 0.C Numeric Policy
 - All sizes, offsets, alignments, and addresses in uint64.
 - No floating-point in allocation path.
 - Zeroing pattern: deterministic replay-seeded (BLAKE3-derived fill).
+- Overflow policy: abort on uint64 overflow in offset/size arithmetic.
+- Approx-equality: exact integer equality only.
+- Normalized exponentials / transcendental functions: N/A for allocator semantics.
 
 ### 0.D Ordering and Tie-Break Policy
 - Tensors ordered by first definition node_id (earliest wins on ties).
@@ -47,6 +54,7 @@
 - Depends on execution_order and arena_config.
 - Reference runtime: pure Python simulator for E0 verification.
 - Dependencies: BLAKE3, replay_token.
+- Determinism level: `BITWISE` for slot assignments and virtual-address mapping.
 
 ### 0.G Operator Manifest
 - `UML_OS.TMMU.PrepareMemory_v2`
@@ -63,6 +71,7 @@
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `tensor_map: dict[node_id → tensor_handle]`, `metrics`
 - Minimum metrics: `peak_logical_slots`, `peak_physical_bytes_per_arena`, `memory_reuse_ratio`, `max_live`, `internal_fragmentation_ratio`, `allocation_time_ns`
+- Completion status: `success | failed` with deterministic failure codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
 - Changes affecting liveness intervals, slot assignment, or virtual-address derivation require MAJOR version bump.
@@ -148,36 +157,84 @@ Active operators:
 **Purity class:** PURE (given replay_token)  
 **Determinism:** Fully deterministic  
 **Definition:** Multi-arena liveness analysis → optimal logical slot assignment (linear-scan coloring) → virtual address mapping. Guarantees optimal slot count and alignment.
+**Preconditions / Postconditions:** valid IR and arena config; returns deterministic tensor_map/metrics with zeroed handles.  
+**Edge cases:** tiny graphs, near-capacity arenas, mixed-role tensors.  
+**Numerical considerations:** integer-only offset/address arithmetic with overflow checks.  
+**Ordering/tie handling:** birth-time ascending, size-desc tie-break, lowest-slot-first assignment.  
+**Complexity note:** O(N log N) worst-case (N=tensors).  
+**Failure behavior:** abort with 0.K allocator codes.  
+**Dependencies:** AnalyzeLiveness_v1, AssignLogicalSlots_v1, MapToVirtualAddresses_v1, ZeroTensor_v1, CommitExecution_v1.  
+**Test vectors:** see VII.B chain/residual/large-model slot maps.
 
 **Operator:** `UML_OS.Model.AnalyzeLiveness_v1`  
 **Category:** Model  
 **Signature:** `(ir_dag, execution_order, mode → live_ranges)`  
 **Purity class:** PURE  
 **Definition:** Linear pass; backward extends activation lifetimes until gradient use.
+**Preconditions / Postconditions:** valid execution_order and IR references; returns complete live intervals for all tensors.  
+**Edge cases:** branched DAG fan-out/fan-in and backward retention boundaries.  
+**Numerical considerations:** N/A (graph interval computation).  
+**Ordering/tie handling:** deterministic node traversal order.  
+**Complexity note:** O(|nodes| + |edges|).  
+**Failure behavior:** abort on malformed IR references.  
+**Dependencies:** UML_Model_IR schema.  
+**Test vectors:** known DAGs with expected intervals.
 
 **Operator:** `UML_OS.TMMU.AssignLogicalSlots_v1` (new)  
 **Category:** Memory  
 **Signature:** `(live_ranges, arena_config → logical_slot_assignment: dict[tensor_id → (arena, logical_slot_id)] )`  
 **Purity class:** PURE  
 **Definition:** Optimal greedy linear-scan on interval graph per arena. Each logical slot backing sized to max tensor assigned to it.
+**Preconditions / Postconditions:** intervals are valid and non-negative; output has no overlapping intervals per slot.  
+**Edge cases:** equal birth/death times and sparse arenas.  
+**Numerical considerations:** integer interval endpoints only.  
+**Ordering/tie handling:** deterministic tie-breaks by birth then size then tensor_id.  
+**Complexity note:** O(N log N).  
+**Failure behavior:** abort on invalid interval data.  
+**Dependencies:** live-range analyzer and arena config.  
+**Test vectors:** interval-coloring optimality cases.
 
 **Operator:** `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)  
 **Category:** Memory  
 **Signature:** `(logical_slot_assignment, replay_token → virtual_map)`  
 **Purity class:** PURE  
 **Definition:** VA = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id). Enables huge sparse VA space.
+**Preconditions / Postconditions:** logical slots assigned; output addresses unique per `(arena, slot)`.  
+**Edge cases:** large slot cardinality and arena name collisions (disallowed).  
+**Numerical considerations:** integer address-space truncation policy is deterministic.  
+**Ordering/tie handling:** deterministic map key order for serialization.  
+**Complexity note:** O(slots).  
+**Failure behavior:** abort on address collision or overflow.  
+**Dependencies:** BLAKE3 and deterministic encoding.  
+**Test vectors:** fixed replay token -> exact virtual map.
 
 **Operator:** `UML_OS.TMMU.ZeroTensor_v1`  
 **Category:** Memory  
 **Signature:** `(virtual_address → )` (driver primitive)  
 **Purity class:** STATEFUL  
 **Definition:** Deterministic zero-fill.
+**Preconditions / Postconditions:** address is valid and writable; tensor contents are zeroed.  
+**Edge cases:** repeated zeroing and page boundary segments.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** called in deterministic tensor-map order.  
+**Complexity note:** O(size of tensor backing).  
+**Failure behavior:** abort on invalid address/write failure.  
+**Dependencies:** driver memory primitive.  
+**Test vectors:** zero verification across varied tensor sizes.
 
 **Operator:** `UML_OS.TMMU.CommitExecution_v1`  
 **Category:** Memory  
 **Signature:** `(() -> tmmu_state')`  
 **Purity class:** STATEFUL  
 **Definition:** Executes deterministic synchronization barriers, commits arena visibility state for downstream consumers, and seals per-batch memory metadata for replay/audit consistency.
+**Preconditions / Postconditions:** pending memory operations completed; committed state is durable for next stage.  
+**Edge cases:** no-op batch and single-arena execution.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic barrier ordering across arenas.  
+**Complexity note:** O(number of active arenas).  
+**Failure behavior:** abort on synchronization failure.  
+**Dependencies:** runtime barrier and allocator metadata state.  
+**Test vectors:** repeated commit idempotence and deterministic state hash.
 
 ---
 
@@ -226,6 +283,9 @@ Active operators:
 ---
 
 ## 7) Trace & Metrics
+
+### Logging rule
+Each allocation run emits deterministic per-tensor allocation records and one deterministic summary record.
 
 ### Trace schema
 - `allocation_header`: ir_hash, mode, replay_token_prefix, per-arena config

@@ -22,7 +22,7 @@
 - Comparison rule: exact tensor equality on binary64 critical reductions; EPS_EQ tolerance on compute_dtype paths.
 
 ### 0.B Reproducibility Contract
-- Seed space: inherited from kernel master RNG (no direct draws in core path).
+- Seed space: `seed ∈ {0..2^64-1}` inherited from kernel master RNG (no direct draws in core path).
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
 - Randomness locality: strictly inside registered custom operators.
 - Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, driver_hash)`.
@@ -34,6 +34,8 @@
 - Rounding: round-to-nearest ties-to-even.
 - Fast-math: forbidden.
 - NaN/Inf policy: inherited from kernel 0.A/0.K (rank as +Inf, abort on critical paths).
+- Normalized exponentials: stable log-sum-exp required for softmax/log-probability primitives.
+- Approx-equality: `a ≈ b` iff `|a - b| <= EPS_EQ` on non-bitwise paths.
 
 ### 0.D Ordering and Tie-Break Policy
 - Index base: 0-based.
@@ -50,6 +52,7 @@
 - Reference runtime: CPU reference driver for E0 verification.
 - Dependencies: UML_Model_IR schema (0.Y of kernel), registered custom operators, TMMU arena.
 - **Backward-mode requirement:** ir_dag contains the same nodes as forward but DispatchPrimitive_v1 uses mode="backward" to invoke gradient kernels; reverse ordering ensures downstream gradients arrive before upstream accumulation.
+- Determinism level: `BITWISE` for critical tensors/fingerprints, `TOLERANCE` for non-critical compute_dtype paths.
 
 ### 0.G Operator Manifest
 - `UML_OS.Model.ModelIR_Executor_v1`
@@ -68,6 +71,7 @@
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(outputs: tensor_map, grads?: tensor_map, execution_fp, tmmu_state')`
 - Minimum metrics: `nodes_executed`, `mode`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`
+- Completion status: `success | failed` with deterministic reason codes.
 
 ### 0.J Spec Lifecycle Governance
 - Any change to execution ordering, dispatch semantics, or memory-layout determinism requires MAJOR version bump.
@@ -151,6 +155,14 @@ Active operators:
 **Purity class:** STATEFUL (TMMU/driver)  
 **Determinism:** deterministic  
 **Definition:** Executes full pass on UML_Model_IR DAG. Guarantees identical memory layout and critical outputs across runs/hardware. **Mode-aware scheduling (reverse order for backward).**
+**Preconditions / Postconditions:** validated IR/driver contract; outputs and optional gradients returned with committed TMMU state.  
+**Edge cases:** empty DAG, single-node DAG, backward on non-differentiable nodes.  
+**Numerical considerations:** binary64 critical-path reductions with deterministic ordering.  
+**Ordering/tie handling:** strict topological order; stable node_id tie-break; backward uses reverse of this order.  
+**Complexity note:** O(|nodes| + |edges|) dispatch path after initialization.  
+**Failure behavior:** abort on 0.K failure codes.  
+**Dependencies:** TopoSortNodes_v1, DispatchPrimitive_v1, CollectGradients_v1, PrepareMemory_v2, StateFingerprint_v1, CommitExecution_v1.  
+**Test vectors:** see VII.B tiny DAG forward/backward/inference checks.
 
 **Operator:** `UML_OS.Model.TopoSortNodes_v1`  
 **Category:** Model  
@@ -158,6 +170,14 @@ Active operators:
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Topological sort (Kahn/DFS) with stable tie-break by lowest node_id. Detects cycles. (Reversal for backward performed by caller/executor.)
+**Preconditions / Postconditions:** input graph is declared DAG schema; output is deterministic topological ordering.  
+**Edge cases:** disconnected DAG components, single node.  
+**Numerical considerations:** N/A (graph-only operation).  
+**Ordering/tie handling:** stable node_id ascending tie-break.  
+**Complexity note:** O(|nodes| + |edges|).  
+**Failure behavior:** `CYCLE_DETECTED` abort on non-DAG graph.  
+**Dependencies:** IR schema validation.  
+**Test vectors:** cycle detection and deterministic ordering checks.
 
 **Operator:** `UML_OS.Model.DispatchPrimitive_v1`  
 **Category:** Model  
@@ -165,6 +185,14 @@ Active operators:
 **Purity class:** STATEFUL  
 **Determinism:** deterministic (driver contract)  
 **Definition:** Resolves input handles, dispatches driver primitive for `node.instr` **(fwd or grad variant based on mode)**, writes output to TMMU-allocated slot, validates shapes.
+**Preconditions / Postconditions:** all input handles exist; output handle written with validated shape/dtype.  
+**Edge cases:** unsupported primitive, custom op fallback, zero-size tensors.  
+**Numerical considerations:** primitive-specific binary64 critical paths enforced by driver contract.  
+**Ordering/tie handling:** follows provided execution order exactly.  
+**Complexity note:** primitive-dependent; dispatch overhead O(1) per node.  
+**Failure behavior:** `PRIMITIVE_UNSUPPORTED`/`SHAPE_MISMATCH`/`CONTRACT_VIOLATION` abort.  
+**Dependencies:** backend driver dispatch table and TMMU handles.  
+**Test vectors:** per-primitive deterministic forward/backward outputs.
 
 **Operator:** `UML_OS.Model.CollectGradients_v1`  
 **Category:** Model  
@@ -172,6 +200,14 @@ Active operators:
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** After backward pass, aggregates all parameter gradients (from dedicated grad slots or accumulated in-place) into a clean grads dict. Supports multi-step accumulation.
+**Preconditions / Postconditions:** backward artifacts present; returned grads aligned to parameter registration order.  
+**Edge cases:** sparse gradients, frozen parameters.  
+**Numerical considerations:** deterministic accumulation order for merged gradients.  
+**Ordering/tie handling:** parameter order from model registration.  
+**Complexity note:** O(|theta|).  
+**Failure behavior:** abort on missing gradient tensor or dtype mismatch.  
+**Dependencies:** IR parameter metadata and tensor map.  
+**Test vectors:** gradient extraction on known tiny models.
 
 **Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
 **Category:** Memory  
@@ -179,6 +215,14 @@ Active operators:
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** Performs static liveness analysis on IR; assigns deterministic virtual slots (BLAKE3(replay_token || node_id || allocation_seq)); zeros all tensors; prepares reuse schedule. **Mode-aware: reserves extra slots for activations only when backward is requested.**
+**Preconditions / Postconditions:** valid TMMU context and arena config; tensor handles are ready before dispatch.  
+**Edge cases:** memory pressure near arena cap.  
+**Numerical considerations:** N/A (address arithmetic in integer space).  
+**Ordering/tie handling:** deterministic slot assignment order from liveness plan.  
+**Complexity note:** O(|nodes| log |nodes|) worst-case for allocation planning.  
+**Failure behavior:** abort on allocation failure/alignment violations.  
+**Dependencies:** `UML_OS.TMMU` allocation operators and replay token context.  
+**Test vectors:** deterministic slot map across repeated runs.
 
 ---
 
@@ -213,6 +257,9 @@ Active operators:
 ---
 
 ## 7) Trace & Metrics
+
+### Logging rule
+Each invocation emits deterministic node-level trace records in execution order and a final summary record.
 
 ### Trace schema (minimum required)
 - `run_header`: `ir_hash`, `mode`, `driver_hash`, `tmmu_arena_size`

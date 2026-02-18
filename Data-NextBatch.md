@@ -33,6 +33,9 @@
 - Block arithmetic: exact integer division/modulo
 - No floating-point in core path
 - Constants: `DEFAULT_BLOCK_SIZE = 1_048_576` (2^20)
+- Overflow/underflow: abort on detected uint64 overflow in cursor or position arithmetic.
+- Approx-equality: exact integer equality only (no tolerance path).
+- Normalized exponentials / transcendental functions: N/A for this operator class.
 
 ### 0.D Ordering and Tie-Break Policy
 - Index base: 0-based
@@ -49,6 +52,7 @@
 - Reference runtime: CPU/GPU agnostic (pure index math)
 - Dependencies: manifest.datasets[dataset_key] must contain `cardinality: uint64`, `id`, `version`, `hash`
 - `manifest.data.sampler_block_size: uint64` (default 1_048_576)
+- Determinism level: `BITWISE` for all emitted indices and cursor state.
 
 ### 0.G Operator Manifest
 - `UML_OS.Data.NextBatch_v2`
@@ -62,6 +66,7 @@
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(batch_sample_indices: uint64[], data_cursor')`
 - Minimum metrics: `epoch`, `global_position`, `is_shuffled`, `effective_batch_size`, `blocks_materialized`
+- Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
 - Reproducibility-breaking changes to sequence formation, sharding, or cursor progression require MAJOR version bump.
@@ -138,6 +143,14 @@ Active operators:
 **Purity class:** STATEFUL  
 **Determinism:** deterministic (RNG only inside helpers for train shuffling)  
 **Definition:** Computes the next micro-batch of original sample indices according to global virtual order. Guarantees identical sequence across any distributed configuration.
+**Preconditions / Postconditions:** dataset exists and cardinality is known; cursor is advanced exactly once on success.  
+**Edge cases:** `N < global_batch_size`, final partial range with `drop_last=true`, `world_size=1`.  
+**Numerical considerations:** uint64-only arithmetic; explicit bounds checks before modulo/division.  
+**Ordering/tie handling:** ascending global virtual positions; contiguous rank shard order.  
+**Complexity note:** O(micro_batch_size) per call + O(num_blocks) epoch permutation materialization.  
+**Failure behavior:** emits 0.K error codes and aborts deterministically.  
+**Dependencies:** `SeededBlockPermute_v1`, `SeededIntraBlockMap_v1`, manifest data schema.  
+**Test vectors:** see VII.B (single-rank, multi-rank, large-N, restore continuity).
 
 **Operator:** `UML_OS.Data.SeededBlockPermute_v1`  
 **Category:** Data  
@@ -145,6 +158,14 @@ Active operators:
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Fisher-Yates shuffle of [0 … num_blocks-1] using Philox seeded by epoch_seed. Materializes only O(num_blocks) memory.
+**Preconditions / Postconditions:** `num_blocks > 0`; output is a bijection over block IDs.  
+**Edge cases:** `num_blocks = 1`.  
+**Numerical considerations:** integer-only index swaps.  
+**Ordering/tie handling:** deterministic swap order by ascending iteration index.  
+**Complexity note:** O(num_blocks) time and memory.  
+**Failure behavior:** abort on invalid `num_blocks` or seed derivation failure.  
+**Dependencies:** Philox implementation, deterministic seed derivation.  
+**Test vectors:** fixed seed -> exact permutation sequence.
 
 **Operator:** `UML_OS.Data.SeededIntraBlockMap_v1`  
 **Category:** Data  
@@ -152,6 +173,14 @@ Active operators:
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Computes intra-block permutation via seeded reversible mapping (Philox counter mode + modular arithmetic with good mixing). O(1) per call; no storage beyond seed.
+**Preconditions / Postconditions:** `local_pos < block_size`; output index in `[0, N-1]`.  
+**Edge cases:** short final block, `N % block_size != 0`.  
+**Numerical considerations:** integer modular arithmetic only; no float path.  
+**Ordering/tie handling:** deterministic mapping for every `(block_id, local_pos)`.  
+**Complexity note:** O(1) per lookup.  
+**Failure behavior:** abort on invalid block bounds.  
+**Dependencies:** Philox counter path and epoch seed.  
+**Test vectors:** fixed tuple -> exact mapped index.
 
 ---
 
@@ -206,6 +235,9 @@ Active operators:
 ---
 
 ## 7) Trace & Metrics
+
+### Logging rule
+Each invocation emits one deterministic trace record with cursor-before/cursor-after and replay token contribution.
 
 ### Trace schema (minimum required)
 - `run_header`: `dataset_key`, `cardinality`, `sampler_block_size`, `is_shuffled_per_stage`

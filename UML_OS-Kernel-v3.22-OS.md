@@ -72,6 +72,7 @@ Active operator wiring is declared in section `4) Operator Manifest`.
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `theta_final`, `trace`, `checkpoint`, `tape_digest`, `training_certificate`
 - Minimum metric schema: `loss_total`, `grad_norm`, `functional_fp`
+- Completion status: `success | terminated | failed` with deterministic reason codes.
 
 ### 0.J Spec Lifecycle Governance
 Reproducibility-breaking changes require MAJOR bump (vX.Y.Z → v(X+1).0.0).  

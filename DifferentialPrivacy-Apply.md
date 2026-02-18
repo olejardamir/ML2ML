@@ -45,6 +45,7 @@
 - NaN/Inf policy: abort per 0.K
 - Approx-equality: `a ~= b iff |a-b| <= EPS_EQ`
 - Accountant reproducibility: accountant path is bitwise reproducible in binary64 for identical inputs and ordering.
+- Normalized exponentials: N/A for core DP pipeline except accountant internals, which must use numerically stable log-domain operations.
 
 ### 0.D Ordering and Tie-Break Policy
 - Index base: `0-based`
@@ -104,6 +105,7 @@
 - Declared outputs: `(noisy_gradients, updated_budget, dp_metrics)`
 - Minimum metrics: `clip_fraction`, `noise_scale_sigma`, `cumulative_epsilon`, `privacy_budget_remaining`
 - Extended metrics: `norm_p50`, `norm_p95`, `norm_max`, `effective_noise_multiplier`, `effective_heterogeneous_multiplier`, `accountant_type_used`, `pld_epsilon_tight`, `gradient_snr`, `group_clip_fraction`, `effective_accumulation_factor`, `projected_final_epsilon`, `privacy_allocation_mode`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`
+- Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
 - Any accountant algorithm change or clipping strategy semantics change requires MAJOR version bump.
@@ -228,6 +230,16 @@ Active operators (exact wiring table):
 ---
 
 ## 5) Operator Definitions
+
+Template conformance note (III.A): each operator below explicitly declares `Operator/Category/Signature/Purity class/Determinism/Definition`; the following fields apply to all operators unless overridden inline:
+- Preconditions / Postconditions: all typed inputs validated by `PreValidation_v1`; outputs are schema-valid and deterministic under declared policies.
+- Edge cases: empty/degenerate tensors, tiny batches, extreme scheduler/accountant boundaries.
+- Numerical considerations: binary64 critical math, deterministic ordering, no fast-math.
+- Ordering/tie handling: deterministic traversal (index/layer/group order) and stable tie-breaks.
+- Complexity note: linear in touched tensor elements unless explicitly noted.
+- Failure behavior: abort-only under 0.K with deterministic failure records.
+- Dependencies: limited to signature inputs + declared operators in section 4.
+- Test vectors: covered by VII.B deterministic and stochastic replay tests.
 
 **Operator:** `UML_OS.DifferentialPrivacy.Apply_v3`  
 **Category:** Security  
@@ -365,6 +377,9 @@ Active operators (exact wiring table):
 ---
 
 ## 7) Trace & Metrics
+
+### Logging rule
+Each DP step emits deterministic trace fields from section 7, including replay token contribution and budget transition.
 
 ### Trace schema (minimum required)
 - `run_header`: `dp_mode`, `accountant`, `clipping_strategy`, `subsampling`, `parallelism.type`, `noise_seed_per_step`, `privacy_allocation_mode`, `fused_kernel`, `safety_budget_reserve`
