@@ -43,7 +43,7 @@
 - Index base: `0-based`
 - Stable sort required
 - Ties: lowest index wins
-- Fixed action order: `["optimize", "probe", "switch"]`
+- Fixed action order: `["optimize", "eval", "infer", "switch"]`
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Parallel reductions: fixed 256-element chunks in ascending global index
@@ -51,25 +51,18 @@
 - `world_size > 1` requires deterministic collectives and fixed ordering
 
 ### 0.F Environment and Dependency Policy
-- Pinned runtime: Python 3.12, NumPy 2.1, PyTorch 2.4
-- Startup flags:
-  - `torch.use_deterministic_algorithms(True)`
-  - `torch.backends.cudnn.deterministic = True`
-  - `torch.backends.cudnn.benchmark = False`
-  - `torch.set_float32_matmul_precision('highest')`
+- Pinned core runtime: Python 3.12, NumPy 2.1. Compute backend selected by manifest `backend`; each backend driver (loaded via `UML_OS.Backend.LoadDriver_v1`) must implement: deterministic forward/backward, collectives (all-reduce, broadcast), RNG forwarding, and exact operator contracts. Driver verification mandatory in `Contract.Validate_v1`.
 
 ### 0.G Operator Manifest
 Active operators (exact list):
 - `UML_OS.OS.Bootstrap_v1`
 - `UML_OS.OS.ResolvePath_v1`
 - `UML_OS.OS.NamespaceEnter_v1`
-- `UML_OS.OS.QuotaEnforce_v1`
 - `UML_OS.Data.Manifest_v1`
 - `UML_OS.Data.ValidateManifest_v1`
 - `UML_OS.Data.NextBatch_v1`
 - `UML_OS.Data.RegisterDataset_v1`
 - `UML_OS.Data.ImportAndRegister_v1`
-- `UML_OS.Buffer.ShardedDiskRing_v1`
 - `UML_OS.Model.Forward_v2`
 - `UML_OS.Model.ExpandPreset_v1`
 - `UML_OS.Model.ApplyFineTune_v1`
@@ -92,8 +85,9 @@ Active operators (exact list):
 - `UML_OS.Security.AttestTEE_v1`
 - `UML_OS.Verifiable.CommitFunctional_v1`
 - `UML_OS.DifferentialPrivacy.Apply_v1`
-- `UML_OS.Compliance.GenerateReport_v1`
-- `UML_OS.Governance.SignCertificate_v1`
+- `UML_OS.Backend.LoadDriver_v1`
+- `UML_OS.Pipeline.Dispatch_v1`
+- `UML_OS.Inference.RunBatch_v1`
 
 ### 0.H Namespacing and Packaging
 - Fully-qualified names: `UML_OS.<Category>.<Name>_v#`
@@ -127,7 +121,7 @@ Migration: update manifest operator versions and replay_token.
   - Driver (deterministic device primitives)
   - Runtime (pinned dependencies)
   - Module (verified operator packages)
-  - Daemon (mandatory in `managed` or `confidential` mode or when `UML_OS_ROOT` is shared or `world_size > 1`; optional in `local` mode; one instance per host or as K8s operator): owns `UML_OS_ROOT` filesystem hierarchy; uses priority queue (manifest `job_priority` then FIFO); launches isolated process/Pod; in `confidential` mode launches inside hardware TEE and collects remote quote; enforces namespace isolation for RNG, data_cursor, checkpoints, tapes; appends audit log at `/audit/<namespace_path>/`; enforces quotas with cgroups/K8s limits; RBAC via namespace ACL.
+  - Daemon (mandatory in `managed`, `confidential`, `regulated` modes or when `UML_OS_ROOT` is shared or `world_size > 1`; optional in `local` mode; deployable as single binary, K8s operator, or cluster coordinator via manifest `daemon_mode: "standalone" | "cluster"`): owns `UML_OS_ROOT` filesystem hierarchy with content-addressable storage (CAS) for all datasets/artifacts/checkpoints; uses priority queue (manifest `job_priority` then FIFO) with explicit dependency graph from `pipeline_stages`; launches isolated process/Pod; in `confidential`/`regulated` launches inside hardware TEE if hardware present and collects remote quote; enforces namespace isolation (RNG, data_cursor, checkpoints, tapes, lineage hashes) with ACL inheritance across org/unit/project/experiment; appends audit log at `/audit/<namespace_path>/`; enforces quotas (CPU/GPU/storage/concurrency) via cgroups/K8s limits or cluster-wide accounting; supports job dependency DAG for chained executions (provenance links automatic in certificate). One daemon instance coordinates entire cluster when `daemon_mode=cluster`.
   - Management (CLI entrypoints)
   - User (manifests only)
 - Filesystem roots:
@@ -157,6 +151,9 @@ Migration: update manifest operator versions and replay_token.
 - `datasets[]`
 - `custom_operators[]`
 - `parallelism: {strategy: "none" | "ddp" | "fsdp", world_size_override?}`
+- `backend: "pytorch" | "jax" | "custom"` (default `"pytorch"`)
+- `pipeline_stages: array` of objects `{step_id: string, type: "train"|"eval"|"infer", manifest_path?: string, depends_on?: array of step_id}`
+- `daemon_mode: "standalone" | "cluster"` (default `"standalone"`)
 - `fine_tune` config (`full` or `lora`)
 - `evaluation` config
 - `security: {attestation_required: bool, zk_commitment: bool, differential_privacy: {enabled: bool (default false), target_epsilon: float (default 0.0)}}`
@@ -169,7 +166,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 ### 0.R Distributed and Multi-tenancy Policy
 - Deterministic rank ordering and deterministic collective primitives
 - `global_batch_size % world_size == 0` required for distributed runs
-- Global batch sequence and update sequence independent of world size
+- Global batch sequence and update sequence independent of `world_size`; sharding always contiguous rank-ordered after global deterministic permutation; collective order fixed by ascending rank.
 
 ### 0.S RNG Consumption Contract
 - Every operator declares exact RNG draws and stream ownership
@@ -187,7 +184,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - `local`: daemon optional, relaxed warnings mode
 - `managed`: full enforcement, signed certificate required
 - `confidential`: TEE launch + quote mandatory, full enforcement, signed certificate includes quote
-- `regulated`: daemon mandatory; enforces exact differential-privacy accounting, immutable audit trail, model-approval workflow, and electronic signatures (21 CFR Part 11 / EU AI Act / GxP compatible); launches in TEE if hardware present; full RNG auditing; produces signed provenance record containing attestation quote, cumulative privacy budget (epsilon), and electronic signatures on termination. In `regulated` mode `attestation_required` and `differential_privacy.enabled` are forced true; `security.target_epsilon` must be declared and non-zero.
+- `regulated`: daemon mandatory; enforces exact differential-privacy accounting, immutable audit trail, model-approval workflow, and electronic signatures (21 CFR Part 11 / EU AI Act / GxP compatible); launches in TEE if hardware present; full RNG auditing; produces signed provenance record containing attestation quote, cumulative privacy budget (epsilon), electronic signatures, and full pipeline lineage when `pipeline_stages` present. In `regulated` mode `attestation_required` and `differential_privacy.enabled` are forced true; `security.target_epsilon` must be declared and non-zero.
 
 ### 0.W CLI and Usability Requirements
 - Required commands: `init`, `job submit`, `replay`, `export`, `infer`, `verify`, `namespace init`, `daemon start`, `dataset register`, `import dataset`, `import model`, `audit export`, `ps/logs/kill/queue`
@@ -263,7 +260,7 @@ All operators follow the EQC template:
 **Signature:** `(manifest -> persistent_state)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws); parameter init; buffer allocation; data manifest load + ValidateManifest_v1 + ImportAndRegister_v1 if needed; ApplyFineTune_v1 if declared; ExpandPreset_v1 if preset set; Distributed.Setup_v1; policy load; namespace enter; Security.AttestTEE_v1 (confidential mode only).  
+**Definition:** PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws); parameter init; buffer allocation; data manifest load + ValidateManifest_v1 + ImportAndRegister_v1 if needed; ApplyFineTune_v1 if declared; ExpandPreset_v1 if preset set; Backend.LoadDriver_v1(manifest.backend); Distributed.Setup_v1; policy load; namespace enter; Security.AttestTEE_v1 (confidential mode only).  
 **Preconditions / Postconditions:** manifest canonicalized; TEE quote valid in confidential mode.  
 **Edge cases:** missing dataset hash, invalid URI, TEE unavailable.  
 **Numerical considerations:** manifest-hash-derived bytes for theta init (no RNG).  
@@ -328,7 +325,7 @@ All operators follow the EQC template:
 **Signature:** `(data_cursor, world_size, rank -> batch, data_cursor')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic with declared RNG  
-**Definition:** exactly 1 RNG draw from `misc`; deterministic global permutation from manifest_hash+epoch; construct global batch; split contiguous shards rank-ordered.  
+**Definition:** exactly 1 RNG draw from `misc`; global permutation via Philox4x32-10 seeded by `manifest_hash || epoch` using Fisher-Yates in ascending index order; construct global batch; split into `world_size` contiguous shards ordered by rank.  
 **Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
 **Edge cases:** world_size=1, final batch boundary.  
 **Numerical considerations:** preprocessing stable in binary64 for reductions.  
@@ -367,7 +364,7 @@ All operators follow the EQC template:
 **Signature:** `(theta, batch, expanded_architecture -> logits)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** executes manifest-declared expanded architecture, including custom layers through registered contracts.  
+**Definition:** dispatches to active backend driver; executes expanded architecture (custom layers via registry); all reductions in binary64 with ascending-index order.  
 **Preconditions / Postconditions:** architecture validated.  
 **Edge cases:** empty batch, invalid custom ref.  
 **Numerical considerations:** critical reductions in binary64; deterministic reduction order.  
@@ -380,7 +377,7 @@ All operators follow the EQC template:
 **Signature:** `(logits, labels, alpha, task_type -> L_tot)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes supervised loss by task type with `reduction='mean'` in binary64; `L_tot = alpha * L_sup`.  
+**Definition:** `L_sup = mean(loss_by_type)` in binary64. Multiclass: `-log(softmax(logits)[labels])` (stable log-softmax); binary: BCE with logits; regression: MSE. `L_tot = alpha * L_sup`. Reduction: exact sum then divide by batch size (ascending index).  
 **Preconditions / Postconditions:** labels valid for task type.  
 **Edge cases:** invalid class ids, NaN logits.  
 **Numerical considerations:** stable CE/BCE/MSE paths; EPS clamps as needed.  
@@ -393,7 +390,7 @@ All operators follow the EQC template:
 **Signature:** `(theta, grads, optimizer_cfg -> theta')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** computes gradients, clips by `grad_clip_norm`, applies optimizer step (AdamW/SGD/RMSprop) deterministically.  
+**Definition:** if optimizer==\"adamw\": `m_t = beta1*m_{t-1} + (1-beta1)*g`; `v_t = beta2*v_{t-1} + (1-beta2)*g**2`; `m_hat = m_t/(1-beta1^t)`; `v_hat = v_t/(1-beta2^t)`; `theta = theta - lr*(m_hat/(sqrt(v_hat)+eps) + weight_decay*theta)`. All in binary64, parameters updated in registration order, clip norm applied before. Other optimizers follow analogous deterministic updates.  
 **Preconditions / Postconditions:** optimizer config valid.  
 **Edge cases:** zero/NaN gradients.  
 **Numerical considerations:** clip norm in binary64.  
@@ -440,6 +437,19 @@ All operators follow the EQC template:
 **Failure behavior:** abort on missing eval split.  
 **Dependencies:** `evaluation` manifest.
 
+**Operator:** `UML_OS.Inference.RunBatch_v1`  
+**Category:** Inference  
+**Signature:** `(theta, batch, backend -> outputs)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** dispatches to backend driver for inference batch execution; writes outputs and fingerprint material.  
+**Preconditions / Postconditions:** backend loaded and batch schema valid.  
+**Edge cases:** empty batch.  
+**Numerical considerations:** binary64 for critical reductions/fingerprint path.  
+**Ordering/tie handling:** ascending sample index order.  
+**Failure behavior:** abort on backend/runtime mismatch.  
+**Dependencies:** Backend.LoadDriver_v1.
+
 **Operator:** `UML_OS.Distributed.Setup_v1`  
 **Category:** Distributed  
 **Signature:** `(parallelism, world_size, backend -> dist_state)`  
@@ -453,12 +463,38 @@ All operators follow the EQC template:
 **Failure behavior:** abort on unsupported backend.  
 **Dependencies:** 0.R.
 
+**Operator:** `UML_OS.Backend.LoadDriver_v1`  
+**Category:** Backend  
+**Signature:** `(manifest.backend -> driver_handle)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** Loads and verifies backend driver contract; binds dispatch table for Forward/Update/Distributed.  
+**Preconditions / Postconditions:** driver implements all required primitives.  
+**Edge cases:** unknown backend id.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** N/A.  
+**Failure behavior:** abort `BACKEND_CONTRACT_VIOLATION`.  
+**Dependencies:** manifest `backend`.
+
+**Operator:** `UML_OS.Pipeline.Dispatch_v1`  
+**Category:** Pipeline  
+**Signature:** `(pipeline_stages, current_step -> next_manifest, action)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Resolves dependency graph; returns next stage manifest or termination.  
+**Preconditions / Postconditions:** stage ids unique and resolvable.  
+**Edge cases:** missing dependency.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic topological order with stable tie-break.  
+**Failure behavior:** abort on cycle or missing dependency.  
+**Dependencies:** manifest `pipeline_stages`.
+
 **Operator:** `UML_OS.Contract.Validate_v1`  
 **Category:** Contract  
 **Signature:** `(runtime_state -> ok)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** checks declared invariants, objective finiteness, RNG delta contracts, ordering contracts.  
+**Definition:** checks declared invariants, objective finiteness, RNG delta contracts, ordering contracts; additionally verifies backend driver contract and pipeline DAG acyclicity.  
 **Preconditions / Postconditions:** all required telemetry present.  
 **Edge cases:** local relaxed mode emits warnings.  
 **Numerical considerations:** EPS_EQ thresholding.  
@@ -549,7 +585,7 @@ All operators follow the EQC template:
 **Signature:** `(run_state -> training_certificate.cbor)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** emits signed CBOR certificate with Merkle trace root, lineage chain, fingerprints, manifest hashes, operator contract hashes, and confidential quote if present.  
+**Definition:** emits signed CBOR containing Merkle trace root, lineage chain (all pipeline stages), fingerprints, manifest hashes, operator contract hashes, cumulative epsilon (regulated), full remote attestation quote (confidential/regulated), and CAS artifact hashes.  
 **Preconditions / Postconditions:** daemon signing key available.  
 **Edge cases:** missing quote in confidential mode.  
 **Numerical considerations:** deterministic digest encoding.  
@@ -622,31 +658,6 @@ All operators follow the EQC template:
 **Failure behavior:** abort.  
 **Dependencies:** daemon namespace registry.
 
-**Operator:** `UML_OS.OS.QuotaEnforce_v1`  
-**Category:** OS  
-**Signature:** `(resource_usage, limits -> ok)`  
-**Purity class:** STATEFUL  
-**Determinism:** deterministic  
-**Definition:** enforces CPU/GPU/storage/concurrency limits before step execution.  
-**Preconditions / Postconditions:** limits resolved from manifest + namespace policy.  
-**Edge cases:** exceeded quota.  
-**Numerical considerations:** binary64 comparisons for resource accounting where applicable.  
-**Ordering/tie handling:** deterministic check order.  
-**Failure behavior:** abort with quota violation code.  
-**Dependencies:** daemon scheduler/quota state.
-
-**Operator:** `UML_OS.Buffer.ShardedDiskRing_v1`  
-**Category:** Buffer  
-**Signature:** `(buffer_state, item -> buffer_state')`  
-**Purity class:** STATEFUL  
-**Determinism:** deterministic  
-**Definition:** writes/reads deterministic sharded ring-buffer blocks on disk.  
-**Preconditions / Postconditions:** namespace storage writable.  
-**Edge cases:** empty buffer read, shard rollover.  
-**Numerical considerations:** N/A.  
-**Ordering/tie handling:** deterministic shard and index order.  
-**Failure behavior:** abort on integrity mismatch.  
-**Dependencies:** OS path and quota operators.
 
 **Operator:** `UML_OS.Error.Emit_v1`  
 **Category:** Error  
@@ -667,38 +678,13 @@ All operators follow the EQC template:
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** If enabled, adds calibrated Gaussian/Laplace noise in binary64; tracks exact cumulative epsilon in persistent state and certificate; aborts if budget would be exceeded.  
-**Preconditions / Postconditions:** `target_epsilon` declared and remaining budget sufficient.  
+**Preconditions / Postconditions:** called only on raw gradients before any optimizer step; `target_epsilon` declared and remaining budget sufficient.  
 **Edge cases:** epsilon=0, zero gradients.  
 **Numerical considerations:** noise scale computed exactly in binary64.  
 **Ordering/tie handling:** N/A.  
 **Failure behavior:** abort with `PRIVACY_BUDGET_EXCEEDED`.  
 **Dependencies:** regulated mode, 0.Q security fields.
 
-**Operator:** `UML_OS.Compliance.GenerateReport_v1`  
-**Category:** Compliance  
-**Signature:** `(trace, certificate, manifest -> compliance_report)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** In regulated mode assembles EU AI Act / GxP / NIST-compatible report (risk assessment, data governance, technical docs, logging summary, human-oversight confirmation) from trace + certificate; writes immutable PDF/JSON to namespace.  
-**Preconditions / Postconditions:** regulated mode active.  
-**Edge cases:** missing fields in trace.  
-**Numerical considerations:** N/A.  
-**Ordering/tie handling:** fixed section order.  
-**Failure behavior:** abort on generation failure.  
-**Dependencies:** regulated mode.
-
-**Operator:** `UML_OS.Governance.SignCertificate_v1`  
-**Category:** Governance  
-**Signature:** `(certificate -> signed_certificate)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** In regulated mode applies electronic signatures (daemon key + optional HSM/company PKI) and enforces approval workflow (manifest-declared approvers must sign before export).  
-**Preconditions / Postconditions:** regulated mode, approvers declared.  
-**Edge cases:** missing HSM.  
-**Numerical considerations:** N/A.  
-**Ordering/tie handling:** N/A.  
-**Failure behavior:** abort on signing/approval failure.  
-**Dependencies:** regulated mode, 0.X.
 
 ---
 
@@ -706,23 +692,29 @@ All operators follow the EQC template:
 
 1. `UML_OS.OS.Bootstrap_v1(...)`
 2. `UML_OS.OS.NamespaceEnter_v1(job_id)`
-3. Loop until termination:
+
+Loop until all pipeline stages terminated:
 - `UML_OS.Termination.Check_v1(...)`
 - `t <- t + 1`
-- `UML_OS.OS.QuotaEnforce_v1(...)`
 - `batch <- UML_OS.Data.NextBatch_v1(...)`
 - `logits <- UML_OS.Model.Forward_v2(...)`
 - `L_tot <- UML_OS.Objective.TotalLoss_v1(...)`
 - `UML_OS.Contract.Validate_v1(...)`
 - `action <- UML_OS.Policy.Evaluate_v1(...)`
-- Dispatch action (`optimize -> Update_v1`, `eval -> Evaluation.Run_v1`, `switch -> Transition.SwitchState_v1`)
-- If checkpoint due: `UML_OS.IO.SaveCheckpoint_v1(...)`
-- Fingerprints when due: `StateFingerprint_v1`, `Fingerprint.Functional_v1`, and `Verifiable.CommitFunctional_v1` if enabled
-- If `execution_mode == "regulated"`: `UML_OS.DifferentialPrivacy.Apply_v1(...)`
-- If world_size > 1: deterministic barrier
+- if action == "optimize":
+  - grads = backend_driver.backward(L_tot)  // via driver_handle from LoadDriver_v1
+  - if manifest.execution_mode == "regulated": `noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v1(grads)`
+  - `theta <- UML_OS.Update_v1(noisy_grads or grads, ...)`
+- else if action == "eval": `UML_OS.Evaluation.Run_v1(...)`
+- else if action == "infer": `UML_OS.Inference.RunBatch_v1(...)`
+- else if action == "switch": `UML_OS.Transition.SwitchState_v1(...)`
+- if checkpoint due: `UML_OS.IO.SaveCheckpoint_v1(...)`
+- if fingerprint due: `StateFingerprint_v1`, `Fingerprint.Functional_v1`, `Verifiable.CommitFunctional_v1` (if enabled)
 - `UML_OS.IO.WriteTape_v1(...)`
 - `UML_OS.Logging.LogIteration_v1(...)`
-- On termination: `UML_OS.IO.WriteTrainingCertificate_v1(...)`; if `execution_mode == "regulated"`: `UML_OS.Compliance.GenerateReport_v1(...)`; `UML_OS.Governance.SignCertificate_v1(...)`
+- `UML_OS.Pipeline.Dispatch_v1(...)`  // advance to next stage or terminate
+
+On full termination: `UML_OS.IO.WriteTrainingCertificate_v1(...)`
 
 ---
 
@@ -741,6 +733,7 @@ All operators follow the EQC template:
 ## 8) Validation
 #### VII.A Lint rules (mandatory)
 Spec passes: symbol completeness, no hidden globals, total state updates per iteration, stochastic explicitness (RNG only inside operators), edge-case totality, ordering/tie adherence, trace compliance, manifest completeness, purity class for all operators, failure semantics traceable, data provenance declared, global batch independence.
+- pipeline DAG acyclic and all stages reference valid manifests; backend driver contracts satisfied.
 
 #### VII.B Operator test vectors (mandatory)
 Every operator has deterministic test vectors (input → output within EPS_EQ) and stochastic replay-token verification (seed → exact sequence).
@@ -783,13 +776,14 @@ Breaking observables require trace schema update + MAJOR version bump.
 ## 10) Checkpoint/Restore
 
 ### Checkpoint contents
-- canonicalized full manifest
+- canonicalized full manifest (including pipeline_stages)
 - operator contract hashes
 - `theta`, optimizer state
 - `loss_hist`, `data_cursor`
 - RNG master state + offsets
 - `policy_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`
 - latest `state_fp`, `functional_fp`, optional `zk_commitment`
+- pipeline lineage state
 
 ### Serialization
 - deterministic protobuf/CBOR encoding with fixed field order
@@ -802,6 +796,5 @@ Breaking observables require trace schema update + MAJOR version bump.
 - `theta.pt`
 - `inference_manifest.yaml`
 - `training_certificate.cbor`
-- (in `regulated` mode) `compliance_report.pdf/json` + fully signed certificate with electronic signatures and privacy budget.
 - `model.onnx`
 - `model_card.json`
