@@ -1,0 +1,169 @@
+# UML_OS Backend Adapter Contract
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Backend.AdapterContract_v1`  
+**Purpose (1 sentence):** Define required backend adapter primitives, determinism guarantees, and certification checks for UML_OS driver integration.  
+**Spec Version:** `UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Domain / Problem Class:** Driver integration and compliance.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Backend.AdapterContract_v1`
+- **Purpose (1 sentence):** Deterministic backend adapter requirements.
+- **Spec Version:** `UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Domain / Problem Class:** Backend certification.
+### 0.A Objective Semantics
+- Minimize contract violations and reproducibility drift.
+### 0.B Reproducibility Contract
+- Replayable given `(driver_hash, adapter_version, test_manifest_hash)`.
+### 0.C Numeric Policy
+- Critical operations must satisfy binary64 deterministic requirements.
+### 0.D Ordering and Tie-Break Policy
+- Primitive dispatch order follows ModelIR execution order.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- Deterministic collective ordering and reductions required.
+### 0.F Environment and Dependency Policy
+- Determinism level: `BITWISE` for critical paths; `TOLERANCE` where declared.
+### 0.G Operator Manifest
+- `UML_OS.Backend.ValidatePrimitiveCoverage_v1`
+- `UML_OS.Backend.RunReproducibilitySuite_v1`
+- `UML_OS.Backend.VerifyDriverHash_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- Backend operators fully-qualified and versioned.
+### 0.I Outputs and Metric Schema
+- Outputs: `(adapter_report, certification_status)`.
+- Metrics: `covered_primitives`, `e0_pass_rate`, `e1_pass_rate`.
+- Completion status: `success | failed`.
+### 0.J Spec Lifecycle Governance
+- Primitive contract changes require MAJOR bump.
+### 0.K Failure and Error Semantics
+- Abort on coverage gap, determinism failure, hash mismatch.
+### 0.L Input/Data Provenance
+- Driver binary, manifest, and test artifacts must be hash-addressed.
+
+---
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
+
+## 2) System Model
+### I.A Persistent State
+- driver certification registry.
+### I.B Inputs and Hyperparameters
+- driver binaries, primitive tables, test manifests.
+### I.C Constraints and Feasible Set
+- Valid if coverage + reproducibility criteria pass.
+### I.D Transient Variables
+- per-test verdicts and mismatch diagnostics.
+### I.E Invariants and Assertions
+- declared primitives map 1:1 to implemented dispatch handlers.
+
+---
+## 3) Initialization
+1. Load driver metadata.
+2. Verify signatures/hashes.
+3. Build primitive coverage map.
+
+---
+## 4) Operator Manifest
+- `UML_OS.Backend.ValidatePrimitiveCoverage_v1`
+- `UML_OS.Backend.RunReproducibilitySuite_v1`
+- `UML_OS.Backend.VerifyDriverHash_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+## 5) Operator Definitions
+
+Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
+
+**Operator:** `UML_OS.Backend.ValidatePrimitiveCoverage_v1`  
+**Category:** IO  
+**Signature:** `(required_primitives, adapter_table -> report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** validates primitive coverage and signature compatibility.
+
+**Operator:** `UML_OS.Backend.RunReproducibilitySuite_v1`  
+**Category:** IO  
+**Signature:** `(driver, test_manifest -> repro_report)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic suite orchestration  
+**Definition:** runs E0/E1 reproducibility checks vs reference backend.
+
+**Operator:** `UML_OS.Backend.VerifyDriverHash_v1`  
+**Category:** IO  
+**Signature:** `(driver_binary, registry -> ok)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** verifies driver hash against trusted registry.
+
+---
+## 6) Procedure
+```text
+1. VerifyDriverHash_v1
+2. ValidatePrimitiveCoverage_v1
+3. RunReproducibilitySuite_v1
+4. Emit certification_status
+```
+
+---
+## 7) Trace & Metrics
+### Logging rule
+Certification emits deterministic per-test records.
+### Trace schema
+- `run_header`: driver_hash, adapter_version
+- `iter`: test_id, result
+- `run_end`: certification_status
+### Metric schema
+- `covered_primitives`, `e0_pass_rate`, `e1_pass_rate`
+### Comparability guarantee
+Comparable iff test manifests and reference backend version match.
+
+---
+## 8) Validation
+#### VII.A Lint rules (mandatory)
+Ensures completeness, deterministic ordering, and declared failure semantics.
+#### VII.B Operator test vectors (mandatory)
+Coverage/mismatch and hash validation fixtures.
+#### VII.C Golden traces (mandatory)
+Golden certification reports for approved drivers.
+
+---
+## 9) Refactor & Equivalence
+#### VIII.A Equivalence levels
+- E0 for certification verdict and critical test outputs.
+#### VIII.B Allowed refactor categories
+- test harness optimization preserving verdicts.
+#### VIII.C Equivalence test procedure (mandatory)
+Exact certification report comparison.
+
+---
+## 10) Checkpoint/Restore
+### Checkpoint contents
+- certification progress and per-test outputs.
+### Serialization
+- deterministic JSON/CBOR.
+### Restore semantics
+- resumed certification yields identical final verdict.
+
