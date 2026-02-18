@@ -54,6 +54,7 @@
 - `UML_OS.TMMU.AssignLogicalSlots_v1` (new)
 - `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)
 - `UML_OS.TMMU.ZeroTensor_v1`
+- `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Error.Emit_v1`
 
 ### 0.H Namespacing and Packaging
@@ -134,6 +135,7 @@ Active operators:
 - `UML_OS.TMMU.AssignLogicalSlots_v1`
 - `UML_OS.TMMU.MapToVirtualAddresses_v1`
 - `UML_OS.TMMU.ZeroTensor_v1`
+- `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Error.Emit_v1`
 
 ---
@@ -171,6 +173,12 @@ Active operators:
 **Purity class:** STATEFUL  
 **Definition:** Deterministic zero-fill.
 
+**Operator:** `UML_OS.TMMU.CommitExecution_v1`  
+**Category:** Memory  
+**Signature:** `(() -> tmmu_state')`  
+**Purity class:** STATEFUL  
+**Definition:** Executes deterministic synchronization barriers, commits arena visibility state for downstream consumers, and seals per-batch memory metadata for replay/audit consistency.
+
 ---
 
 ## 6) Procedure
@@ -202,7 +210,8 @@ Active operators:
 6. metrics ← ComputeMetrics(live_ranges, logical_slots, virtual_map)
    # Includes per-arena peak, reuse_ratio = 1 - (slots_used / total_tensors), fragmentation
 
-7. return tensor_map, metrics
+7. tmmu_state' ← CommitExecution_v1()
+8. return tensor_map, metrics
 ```
 
 **Scalability & Algorithmic Guarantees (upgraded):**
