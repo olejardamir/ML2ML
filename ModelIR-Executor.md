@@ -305,6 +305,9 @@ Each invocation emits deterministic node-level trace records in execution order 
 ### Metric schema
 - `nodes_executed`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`
 
+### Comparability guarantee
+Two executions are comparable iff `ir_hash`, determinism tier, backend/profile hashes, trace schema, and metric schema are identical.
+
 ---
 
 ## 8) Validation

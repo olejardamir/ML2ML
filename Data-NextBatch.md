@@ -262,6 +262,9 @@ Each invocation emits one deterministic trace record with cursor-before/cursor-a
 ### Metric schema
 - `epoch`, `global_position`, `effective_batch_size`, `blocks_materialized_this_epoch`
 
+### Comparability guarantee
+Two runs are comparable iff dataset snapshot/hash, sampler config, replay token definition, and emitted metric schema are identical.
+
 ---
 
 ## 8) Validation

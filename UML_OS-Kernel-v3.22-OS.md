@@ -814,6 +814,9 @@ On full termination:
 
 ## 7) Trace & Metrics
 
+### Logging rule
+Each iteration must emit one canonical trace record via `UML_OS.IO.WriteTape_v1` with required V.B fields for the active task type.
+
 ### Trace schema (minimum required)
 - `run_header`: metadata, hashes, replay_token, task_type, world_size, backend_hash
 - `iter`: `t, stage_id, operator_id, operator_seq, rank, status, loss_total?, grad_norm?, state_fp?, functional_fp?, rng_offset_before?, rng_offset_after?, state?, action?`

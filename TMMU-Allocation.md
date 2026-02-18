@@ -348,6 +348,9 @@ Each allocation run emits deterministic per-tensor allocation records and one de
 ### Metric schema
 - `peak_tmmu_usage_per_arena`, `memory_reuse_ratio`, `activation_retention_ratio`, `allocation_time_ns`, `max_live`, `internal_fragmentation_ratio`
 
+### Comparability guarantee
+Two allocation runs are comparable iff `ir_hash`, arena config, replay token context, trace schema, and metric schema are identical.
+
 ---
 
 ## 8) Validation
