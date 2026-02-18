@@ -27,7 +27,7 @@
 - Assignment is 100% deterministic given replay_token.
 - Two-level mapping:
   - Logical slot ID (0-based, assigned by optimal greedy linear scan on interval graph).
-  - Virtual address = BLAKE3(replay_token || "tmmu_slot" || arena_name || logical_slot_id || mode).
+  - Virtual address = `align_up(BLAKE3(replay_token || "tmmu_slot" || arena_name || logical_slot_id || mode), slot_alignment)` where `slot_alignment >= arena_config.alignment_bytes`.
 - Randomness locality: no sampling in core allocation path; any pseudo-random fill/zero pattern generation is operator-owned (`ZeroTensor_v1`) and deterministic.
 - Replay guarantee: replayable given `(replay_token, ir_hash, mode, arena_config, execution_order)`.
 - No randomness in core path. Full replayability of layout, zeroing, and physical remapping.
@@ -151,6 +151,8 @@ Active operators:
 
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 **Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
 **Category:** Memory  
 **Signature:** `(ir_dag, execution_order, mode, replay_token, arena_config → tensor_map, metrics)`  
@@ -184,7 +186,7 @@ Active operators:
 **Category:** Memory  
 **Signature:** `(live_ranges, arena_config → logical_slot_assignment: dict[tensor_id → (arena, logical_slot_id)] )`  
 **Purity class:** PURE  
-**Definition:** Optimal greedy linear-scan on interval graph per arena. Each logical slot backing sized to max tensor assigned to it.
+**Definition:** Optimal greedy linear-scan on interval graph per arena (optimal slot count). Each logical slot backing is sized to max tensor assigned to it.
 **Preconditions / Postconditions:** intervals are valid and non-negative; output has no overlapping intervals per slot.  
 **Edge cases:** equal birth/death times and sparse arenas.  
 **Numerical considerations:** integer interval endpoints only.  
@@ -193,12 +195,13 @@ Active operators:
 **Failure behavior:** abort on invalid interval data.  
 **Dependencies:** live-range analyzer and arena config.  
 **Test vectors:** interval-coloring optimality cases.
+**Policy note:** slot-count optimality does not guarantee globally minimal physical bytes under heterogeneous tensor sizes; first-fit deterministic policy may leave additional fragmentation, which is tracked by `internal_fragmentation_ratio`.
 
 **Operator:** `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)  
 **Category:** Memory  
-**Signature:** `(logical_slot_assignment, replay_token → virtual_map)`  
+**Signature:** `(logical_slot_assignment, replay_token, slot_alignment_map → virtual_map)`  
 **Purity class:** PURE  
-**Definition:** VA = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id). Enables huge sparse VA space.
+**Definition:** For each `(arena, logical_slot_id)`, compute `va_raw = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id)`, then set `va = align_up(va_raw, slot_alignment_map[arena, logical_slot_id])`. `slot_alignment_map` is the max required alignment across tensors assigned to that slot, lower-bounded by `arena_config.alignment_bytes`.
 **Preconditions / Postconditions:** logical slots assigned; output addresses unique per `(arena, slot)`.  
 **Edge cases:** large slot cardinality and arena name collisions (disallowed).  
 **Numerical considerations:** integer address-space truncation policy is deterministic.  
@@ -238,13 +241,6 @@ Active operators:
 
 ---
 
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
-
 ## 6) Procedure
 
 ```text
@@ -257,9 +253,11 @@ Active operators:
    #   - Maintain active_slots set (bitset or min-heap of used slots)
    #   - For each tensor: expire ended slots, assign lowest unused logical_slot
    #   - Record max_size_per_slot for backing buffer sizing
+   #   - Record slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
 
-3. virtual_map ← MapToVirtualAddresses_v1(logical_slots, replay_token)
-   # VA = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id)
+3. virtual_map ← MapToVirtualAddresses_v1(logical_slots, replay_token, slot_alignment_map)
+   # va_raw = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id)
+   # va = align_up(va_raw, slot_alignment_map[arena, logical_slot_id])
 
 4. tensor_map ← {}
    for tensor in execution_order:
@@ -283,6 +281,7 @@ Active operators:
 - Space: O(max live) 
 - Mathematical optimality: #logical_slots = max live tensors per arena (interval graphs are perfect → greedy coloring is exact)
 - Memory reuse ratio typically >95% on transformer graphs
+- Physical-byte optimality is not guaranteed for heterogeneous sizes under first-fit; this is an explicit tradeoff for deterministic reproducibility and slot optimality.
 - Supports 100B+ models via compact per-slot backing + huge virtual address space (2^48+)
 - Alignment & padding enforced per arena
 - Future-proof: easy extension to remat, paging, size-class bucketing

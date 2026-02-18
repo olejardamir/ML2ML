@@ -24,7 +24,7 @@
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` inherited from kernel master RNG (no direct draws in core path).
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
-- Randomness locality: strictly inside registered custom operators.
+- Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive_v1`.
 - Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, driver_hash)`.
 - Replay token contribution: `modelir_replay_t = SHA-256(kernel_replay_token || "modelir_executor" || ir_hash || mode || global_position)`.
 
@@ -69,7 +69,7 @@
 - Fully-qualified names: `UML_OS.Model.<Name>_v#`
 
 ### 0.I Outputs and Metric Schema
-- Declared outputs: `(outputs: tensor_map, grads?: tensor_map, execution_fp, tmmu_state')`
+- Declared outputs: `(outputs: tensor_map, grads?: tensor_map, execution_fp, tmmu_state_next, rng_state_next)`
 - Minimum metrics: `nodes_executed`, `mode`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`
 - Completion status: `success | failed` with deterministic reason codes.
 
@@ -104,6 +104,7 @@
 - `input_data: tensor_map` (for input nodes)
 - `mode: "forward" | "backward" | "inference"`
 - `tmmu_context`
+- `rng_state` (kernel-provided deterministic RNG stream state)
 
 ### I.C Constraints and Feasible Set
 - DAG acyclic and shapes statically known/inferable.
@@ -112,7 +113,7 @@
 - **Backward-mode invariant:** every node must have a corresponding gradient implementation in the driver.
 
 ### I.D Transient Variables
-- `execution_order`, `tensor_map`, `grad_map` (backward only)
+- `execution_order`, `tensor_map`, `grad_map` (backward only), `rng_state_work`
 
 ### I.E Invariants and Assertions
 - Topological order respected (**forward or reversed for backward**).
@@ -149,9 +150,11 @@ Active operators:
 
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 **Operator:** `UML_OS.Model.ModelIR_Executor_v1`  
 **Category:** Model  
-**Signature:** `(ir_dag, theta, input_data, mode, tmmu_context → outputs, grads?, execution_fp, tmmu_state')`  
+**Signature:** `(ir_dag, theta, input_data, mode, tmmu_context, rng_state → outputs, grads?, execution_fp, tmmu_state_next, rng_state_next)`  
 **Purity class:** STATEFUL (TMMU/driver)  
 **Determinism:** deterministic  
 **Definition:** Executes full pass on UML_Model_IR DAG. Guarantees identical memory layout and critical outputs across runs/hardware. **Mode-aware scheduling (reverse order for backward).**
@@ -181,17 +184,17 @@ Active operators:
 
 **Operator:** `UML_OS.Model.DispatchPrimitive_v1`  
 **Category:** Model  
-**Signature:** `(node, tensor_map, theta, mode, tmmu_context → updated_tensor_map)`  
+**Signature:** `(node, tensor_map, theta, mode, tmmu_context, rng_state -> updated_tensor_map, rng_state_next)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic (driver contract)  
-**Definition:** Resolves input handles, dispatches driver primitive for `node.instr` **(fwd or grad variant based on mode)**, writes output to TMMU-allocated slot, validates shapes.
-**Preconditions / Postconditions:** all input handles exist; output handle written with validated shape/dtype.  
+**Definition:** Resolves input handles, dispatches driver primitive for `node.instr` **(fwd or grad variant based on mode)**, writes output to TMMU-allocated slot, validates shapes, and forwards a deterministic RNG sub-stream for primitives/custom ops that declare randomness.
+**Preconditions / Postconditions:** all input handles exist; output handle written with validated shape/dtype; RNG state advanced only by declared primitive RNG consumption.  
 **Edge cases:** unsupported primitive, custom op fallback, zero-size tensors.  
 **Numerical considerations:** primitive-specific binary64 critical paths enforced by driver contract.  
 **Ordering/tie handling:** follows provided execution order exactly.  
 **Complexity note:** primitive-dependent; dispatch overhead O(1) per node.  
 **Failure behavior:** `PRIMITIVE_UNSUPPORTED`/`SHAPE_MISMATCH`/`CONTRACT_VIOLATION` abort.  
-**Dependencies:** backend driver dispatch table and TMMU handles.  
+**Dependencies:** backend driver dispatch table, TMMU handles, kernel RNG ownership contract.  
 **Test vectors:** per-primitive deterministic forward/backward outputs.
 
 **Operator:** `UML_OS.Model.CollectGradients_v1`  
@@ -247,13 +250,6 @@ Active operators:
 **Determinism:** deterministic  
 **Definition:** Finalizes memory barriers/ownership and commits deterministic TMMU state after batch execution.
 
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
-
 ## 6) Procedure
 
 ```text
@@ -263,16 +259,17 @@ Active operators:
        execution_order ← reversed(execution_order)   # algorithmic improvement: correct gradient flow order
 4. tensor_map ← TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)  # static liveness + zeroing + slot reuse (mode-aware)
 
-5. for node in execution_order:
-       tensor_map ← DispatchPrimitive_v1(node, tensor_map, theta, mode, tmmu_context)
+5. rng_state_work <- rng_state
+6. for node in execution_order:
+       tensor_map, rng_state_work <- DispatchPrimitive_v1(node, tensor_map, theta, mode, tmmu_context, rng_state_work)
 
-6. if mode == "backward":
+7. if mode == "backward":
        grads ← CollectGradients_v1(tensor_map, ir_dag, theta)  # now explicitly defined operator
 
-7. outputs ← extract_output_nodes(tensor_map, ir_dag)
-8. execution_fp ← StateFingerprint_v1(tensor_map)  # critical tensors only
-9. TMMU.CommitExecution_v1()  # sync barriers for isolation
-10. return outputs, grads?, execution_fp, tmmu_state'
+8. outputs ← extract_output_nodes(tensor_map, ir_dag)
+9. execution_fp ← StateFingerprint_v1(tensor_map)  # critical tensors only
+10. TMMU.CommitExecution_v1()  # sync barriers for isolation
+11. return outputs, grads?, execution_fp, tmmu_state_next, rng_state_work
 ```
 
 **Scalability & Algorithmic Guarantees:**

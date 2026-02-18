@@ -170,7 +170,7 @@
   - `parallelism.type: "dp_only" | "3d" | "fsdp2" | "zero3" | "moe"`
   - `training_phase: "warmup" | "main" | "cooldown"`
   - `public_modules: list | null` (zero privacy-cost modules)
-- `sampling_rate`, `effective_batch_size`, `effective_sampling_rate`, `model_scale`, `t`
+- `sampling_rate`, `effective_batch_size`, `model_scale`, `t`
 
 ### I.C Constraints and Feasible Set
 - Unconstrained optimization context.
@@ -183,7 +183,7 @@
 - `cumulative_epsilon` is finite and non-decreasing
 - output tensor shape equals input gradient shape
 - all critical reductions follow fixed deterministic ordering
-- accounting/noise are applied only on final accumulation step (`accumulation_context.is_final=true`)
+- accountant updates occur once per micro-batch event; step counter advances by `gradient_accumulation_steps` per optimizer step.
 
 ---
 
@@ -230,6 +230,8 @@ Active operators (exact wiring table):
 ---
 
 ## 5) Operator Definitions
+
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator below explicitly declares `Operator/Category/Signature/Purity class/Determinism/Definition`; the following fields apply to all operators unless overridden inline:
 - Preconditions / Postconditions: all typed inputs validated by `PreValidation_v1`; outputs are schema-valid and deterministic under declared policies.
@@ -287,10 +289,10 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 **Operator:** `UML_OS.DifferentialPrivacy.FlashEfficientClip_v1`  
 **Category:** Security  
-**Signature:** `(gradients, clip_norm_map, sigma_map, fused_cfg -> clipped_or_noisy, norms, stats)`  
+**Signature:** `(gradients, clip_norm_map, fused_cfg -> clipped_or_averaged, norms, stats)`  
 **Purity class:** STATEFUL  
-**Determinism:** deterministic control path; stochastic if fused noise enabled  
-**Definition:** fused memory-efficient clip/average/noise path for structured large-model parameter layouts.
+**Determinism:** deterministic  
+**Definition:** fused memory-efficient clip-and-average path for structured large-model parameter layouts. Noise generation is not performed here and remains exclusively in `GenerateNoise_v1`.
 
 **Operator:** `UML_OS.DifferentialPrivacy.PEFTAwareClipHandler_v1`  
 **Category:** Security  
@@ -318,7 +320,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 **Signature:** `(sigma_map_t, remaining_steps, model_scale, accountant_hint -> projected_epsilon, confidence)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** projects long-horizon privacy trajectory and supports meet-exactly inversion and proactive safety control.
+**Definition:** projects long-horizon privacy trajectory for proactive safety control (heuristic only). It does not replace formal accounting; compliance and abort decisions are based only on `Accountant.Update_v1`.
 
 **Operator:** `UML_OS.DifferentialPrivacy.AmplificationByShuffling_v1`  
 **Category:** Security  
@@ -336,7 +338,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 **Operator:** `UML_OS.DifferentialPrivacy.Accountant.Update_v1`  
 **Category:** Security  
-**Signature:** `(accountant_type, state, sigma_map, effective_sampling_rate, t, delta, subsampling, amplification?, delta_eps? -> epsilon_t, state')`  
+**Signature:** `(accountant_type, state, sigma_map, sampling_rate, t, delta, subsampling, amplification?, delta_eps? -> epsilon_t, state')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** dispatcher for heterogeneous composition in PLD default path and fallback accountants.
@@ -413,13 +415,6 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 **Determinism:** deterministic  
 **Definition:** Updates privacy budget via Gaussian-DP approximation path for configured compatibility mode.
 
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
-
 ## 6) Procedure
 
 ```text
@@ -430,25 +425,26 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 4. If clipping.strategy == "adaptive":
    (clip_norm_t, clip_norm_state', delta_eps) <- BoundedPrivacyAwareAdaptiveClipNorm_v1(...)
    else delta_eps <- 0.
-5. If fused_kernel == true and per-layer compatible:
-   (clipped, norms, clip_stats) <- FlashEfficientClip_v1(...)
-   else
-   (clipped, norms, clip_stats) <- Clip_v1(gradients, resolved_cfg, max_microbatch)
-6. If accumulation_context.is_final == false:
-   store/update accumulation_state and return clipped_partial, unchanged_budget, partial_metrics.
-7. averaged <- AverageOrdered_v1(accumulated_or_current_clipped)
-8. sigma_map <- PrivacyBudgetScheduler_v1(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
-9. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
-10. If projected_epsilon > target_epsilon - safety_budget_reserve:
-    apply proactive sigma upscale per policy or abort.
-11. If subsampling == "shuffle": amplification_factor <- AmplificationByShuffling_v1(...)
-12. (noise, rng_dp_state') <- GenerateNoise_v1(shape(averaged), sigma_map, rng_dp_state, noise.compression)
-13. noisy_binary64 <- averaged + noise
-14. effective_sampling_rate <- sampling_rate * gradient_accumulation_steps
-15. (updated_budget, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, effective_sampling_rate, t, target_delta, subsampling, amplification_factor, delta_eps)
-16. If updated_budget > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
-17. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
-18. emit dp_metrics (`gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `effective_heterogeneous_multiplier`) and return.
+5. Let `micro_seq` be the deterministic ordered micro-batch sequence for the current optimizer step.
+6. Initialize deterministic accumulation buffer for noisy micro-gradients.
+7. For each `micro_idx, micro_gradients` in `micro_seq`:
+   7a. If fused_kernel == true and per-layer compatible:
+          (clipped_micro, norms, clip_stats) <- FlashEfficientClip_v1(micro_gradients, clip_norm_map, fused_cfg)
+       else
+          (clipped_micro, norms, clip_stats) <- Clip_v1(micro_gradients, resolved_cfg, max_microbatch)
+   7b. sigma_map <- PrivacyBudgetScheduler_v1(t_micro, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
+   7c. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
+   7d. If projected_epsilon > target_epsilon - safety_budget_reserve: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
+   7e. If subsampling == "shuffle": amplification_factor <- AmplificationByShuffling_v1(...)
+   7f. (noise_micro, rng_dp_state') <- GenerateNoise_v1(shape(clipped_micro), sigma_map, rng_dp_state, noise.compression)
+   7g. noisy_micro <- clipped_micro + noise_micro
+   7h. Accumulate noisy_micro in deterministic order.
+   7i. (cumulative_epsilon, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, sampling_rate, t_micro, target_delta, subsampling, amplification_factor, delta_eps)
+   7j. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
+8. noisy_binary64 <- deterministic_average(accumulated_noisy_micro, gradient_accumulation_steps)
+9. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
+10. Accountant step semantics: `t` advances by exactly `gradient_accumulation_steps` per optimizer step.
+11. emit dp_metrics (`gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `effective_heterogeneous_multiplier`) and return.
 ```
 
 ---
@@ -468,6 +464,7 @@ Each DP step emits deterministic trace fields from section 7, including replay t
 - `noise_scale_sigma`, `effective_noise_multiplier`, `effective_heterogeneous_multiplier`
 - `effective_accumulation_factor`
 - `cumulative_epsilon`, `privacy_budget_remaining`, `projected_final_epsilon`
+- Projection semantics: `projected_final_epsilon` is advisory only; authoritative privacy budget is accountant-computed `cumulative_epsilon`.
 - `norm_p50`, `norm_p95`, `norm_max`
 - `gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`
 - `accountant_type_used`, `pld_epsilon_tight`

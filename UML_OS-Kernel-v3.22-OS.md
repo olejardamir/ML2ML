@@ -227,7 +227,7 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 - Reliability and observability contracts: `Error-Codes.md`, `Trace-Sidecar.md`, `Checkpoint-Schema.md`, `Replay-Determinism.md`.
 - Delivery and compliance contracts: `Backend-Adapter-Guide.md`, `Security-Compliance-Profile.md`, `Dependency-Lock-Policy.md`, `Deployment-Runbook.md`.
 - Planning and execution governance: `Implementation-Roadmap.md`, `Code-Generation-Mapping.md`, `Test-Plan.md`, `Performance-Plan.md`.
-- Wiring invariant: all operator names referenced across documents must be fully qualified and versioned, and each active operator in section 4 of a document must have a section 5 definition in that same document.
+- Wiring invariant: all operator names referenced across documents must be fully qualified and versioned. Shared operators may be imported by reference from dedicated contract documents (for example `UML_OS.Error.Emit_v1` in `Error-Codes.md`).
 
 ---
 
@@ -287,6 +287,8 @@ Active operators (exact wiring table):
 ---
 
 ## 5) Operator Definitions
+
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
 
 **Kernel System Call Interface**  
 All system calls follow the EQC template and may be invoked **only** through the VI kernel procedure in section 6. No user code may call backend primitives, torch.add, jax ops, or any library function directly. Every tensor allocation, forward/backward step, or state mutation must be a syscall. Violations trigger CONTRACT_VIOLATION abort.
@@ -491,7 +493,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(L_tot, theta, ir_graph -> grads, grad_norm)`
 **Purity class:** STATEFUL
 **Determinism:** deterministic
-**Definition:** Compute partial derivatives following ir_graph in reverse topological order. For each instruction the driver executes the corresponding gradient kernel; if the backend instruction is non-deterministic, driver falls back to binary64 CPU reference path. Global gradient norm computed with Kahan summation in binary64 (ascending index). If grad_clip_norm declared: `g = g * min(1, clip_norm / (norm + EPS_EQ))`.
+**Definition:** Compute partial derivatives following ir_graph in reverse topological order. For each instruction the driver executes the corresponding gradient kernel; if the backend instruction is non-deterministic, driver falls back to binary64 CPU reference path. Global gradient norm computed with Kahan summation in binary64 (ascending index). If DP is disabled and `grad_clip_norm` is declared, apply `g = g * min(1, clip_norm / (norm + EPS_EQ))`; if DP is enabled, return unclipped gradients and perform clipping only inside `UML_OS.DifferentialPrivacy.Apply_v3`.
 **Preconditions / Postconditions:** Forward_v2 completed on same ir_graph; L_tot finite; grads returned in exact theta registration order.
 **Edge cases:** single micro-batch, world_size=1.
 **Numerical considerations:** Critical layers (embeddings, norms) accumulated in binary64 before cast to compute_dtype.
@@ -717,19 +719,6 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Dependencies:** daemon namespace registry.
 
 
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> failure_record)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** emits final structured failure record to trace and audit log.  
-**Preconditions / Postconditions:** failure record persisted before abort.  
-**Edge cases:** nested failure during emit.  
-**Numerical considerations:** N/A.  
-**Ordering/tie handling:** deterministic failure field order.  
-**Failure behavior:** terminal abort-only model.  
-**Dependencies:** 0.K failure semantics.
-
 **Operator:** `UML_OS.DifferentialPrivacy.Apply_v3`  
 **Category:** Security  
 **Signature:** `(gradients, security.differential_privacy -> noisy_gradients, updated_budget)`  
@@ -766,31 +755,38 @@ All system calls follow the EQC template and may be invoked **only** through the
 2. UML_OS.OS.NamespaceEnter_v1(job_id)
 3. UML_OS.Backend.LoadDriver_v1(manifest.backend)
 4. UML_OS.Pipeline.Dispatch_v1(...)  // resolves initial stage
+5. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
 Loop until Pipeline.Dispatch_v1 returns termination:
 - UML_OS.Termination.Check_v1(...) (scoped to current stage)
 - t <- t + 1
 - UML_OS.Contract.Validate_v1(...)
 - if current_stage.type == "augment":
+  state <- UML_OS.Transition.SwitchState_v1(state, "train")
   theta, augment_metadata <- UML_OS.Symbolic.Augment_v1(...)
 - else:
   dataset_key <- current_stage.dataset_key or default-per-type
   if current_stage.type == "train":
+    state <- UML_OS.Transition.SwitchState_v1(state, "train")
     batch <- UML_OS.Data.NextBatch_v2(dataset_key, ...)
     logits <- UML_OS.Model.Forward_v2(...)
     L_tot <- UML_OS.Objective.TotalLoss_v1(...)
     action <- UML_OS.Policy.Evaluate_v1(...)
     if action == "optimize":
-      grads = UML_OS.Model.Backward_v1(L_tot, theta)
+      grads = UML_OS.Model.Backward_v1(L_tot, theta)  # unclipped when DP is enabled
       if manifest.execution_mode == "regulated": noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads)
       theta <- UML_OS.Update_v1(noisy_grads or grads, ...)
     else if action == "eval" or current_stage.type == "eval":
+      state <- UML_OS.Transition.SwitchState_v1(state, "eval")
       UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)
     else if action == "infer":
+      state <- UML_OS.Transition.SwitchState_v1(state, "infer")
       UML_OS.Inference.RunBatch_v1(theta, dataset_key)
   else if current_stage.type == "eval":
+    state <- UML_OS.Transition.SwitchState_v1(state, "eval")
     UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)
   else if current_stage.type == "infer":
+    state <- UML_OS.Transition.SwitchState_v1(state, "infer")
     UML_OS.Inference.RunBatch_v1(theta, dataset_key)
 - if checkpoint due: UML_OS.IO.SaveCheckpoint_v1(...)
 - if fingerprint due: StateFingerprint_v1, Fingerprint.Functional_v1, Verifiable.CommitFunctional_v1 (if enabled)
@@ -799,6 +795,7 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 - current_stage = UML_OS.Pipeline.Dispatch_v1(...)  // advance or terminate
 
 On full termination:
+- state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
 - UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // self-verify before signing final certificate
 - UML_OS.IO.WriteTrainingCertificate_v1(...)
 ```

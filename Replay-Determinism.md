@@ -108,6 +108,8 @@
 
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 **Operator:** `UML_OS.Replay.ComputeReplayToken_v1`  
 **Category:** IO  
 **Signature:** `(state -> token)`  
@@ -161,13 +163,6 @@
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Verifies that restore state and replay token exactly match checkpoint commitments and deterministic replay contracts.
-
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
 
 ## 6) Procedure
 

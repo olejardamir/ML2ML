@@ -111,6 +111,8 @@
 
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 **Operator:** `UML_OS.Test.RunUnitSuite_v1`  
 **Category:** IO  
 **Signature:** `(suite_config -> suite_report)`  
@@ -164,6 +166,14 @@
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Executes deterministic integration scenarios across kernel, data, model, memory, and DP boundaries.
+**Preconditions / Postconditions:** integration fixtures and dependency contracts are available; output report includes per-scenario status and hashes.  
+**Edge cases:** optional components disabled by profile.  
+**Numerical considerations:** E0 fields exact; E1 metrics use declared tolerances only.  
+**Ordering/tie handling:** scenario_id ascending deterministic execution.  
+**Complexity note:** O(number_of_integration_scenarios).  
+**Failure behavior:** abort on malformed integration manifest; otherwise deterministic failure records in report.  
+**Dependencies:** kernel/component contracts and trace schema.  
+**Test vectors:** mixed pass/fail integration matrices.
 
 **Operator:** `UML_OS.Test.RunReplaySuite_v1`  
 **Category:** Test  
@@ -171,13 +181,14 @@
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Validates replay-token determinism, RNG locality, and checkpoint-restore replay guarantees.
-
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+**Preconditions / Postconditions:** replay traces/checkpoints and token definitions are available; output report includes replay equivalence verdicts.  
+**Edge cases:** missing intermediate checkpoint segments.  
+**Numerical considerations:** replay-critical comparisons are bitwise for E0 fields.  
+**Ordering/tie handling:** replay-case order is deterministic by replay_case_id ascending.  
+**Complexity note:** O(total_replayed_steps).  
+**Failure behavior:** abort on invalid replay manifest; deterministic mismatch reports otherwise.  
+**Dependencies:** Replay-Determinism and Checkpoint-Schema contracts.  
+**Test vectors:** fixed-token replay pass/mismatch scenarios.
 
 ## 6) Procedure
 

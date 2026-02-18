@@ -114,6 +114,8 @@
 
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 **Operator:** `UML_OS.Implementation.ValidateAPISignature_v1`  
 **Category:** IO  
 **Signature:** `(declared, implemented -> report)`  
@@ -160,13 +162,6 @@
 **Test vectors:** fixed registry hash snapshots.
 
 ---
-
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
 
 ## 6) Procedure
 

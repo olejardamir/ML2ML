@@ -105,6 +105,7 @@
 - `global_batch_size > 0`
 - `dataset_key` exists in manifest.datasets
 - `cardinality >= global_batch_size` (soft; wrap supported for streaming)
+- `drop_last=false` with non-multiple cardinality uses deterministic modulo wrap-around (`p % N`) for unfinished terminal ranges.
 
 ### I.D Transient Variables
 - `N`, `epoch_seed`, `block_order`, `current_block_perms` (lazy map)
@@ -137,6 +138,8 @@ Active operators:
 
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 **Operator:** `UML_OS.Data.NextBatch_v2`  
 **Category:** Data  
 **Signature:** `(dataset_key, world_size, rank, stage_type -> batch_sample_indices: uint64[], data_cursor')`  
@@ -157,7 +160,7 @@ Active operators:
 **Signature:** `(num_blocks, epoch_seed -> block_order: uint64[])`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** Fisher-Yates shuffle of [0 … num_blocks-1] using Philox seeded by epoch_seed. Materializes only O(num_blocks) memory.
+**Definition:** Fisher-Yates shuffle of [0 … num_blocks-1] using Philox seeded by epoch_seed. Materializes only O(num_blocks) memory. For datasets with a short tail block, caller passes only full-size block count and keeps the tail block fixed at the end.
 **Preconditions / Postconditions:** `num_blocks > 0`; output is a bijection over block IDs.  
 **Edge cases:** `num_blocks = 1`.  
 **Numerical considerations:** integer-only index swaps.  
@@ -172,24 +175,17 @@ Active operators:
 **Signature:** `(block_id, local_pos, block_size, epoch_seed, N -> original_index: uint64)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** Computes intra-block permutation via seeded reversible mapping (Philox counter mode + modular arithmetic with good mixing). O(1) per call; no storage beyond seed.
-**Preconditions / Postconditions:** `local_pos < block_size`; output index in `[0, N-1]`.  
+**Definition:** Computes an explicit affine bijection inside the selected block. Let `block_start = block_id * block_size`, `m = min(block_size, N - block_start)`, and derive `(k0, k1)` from Philox with counter tuple `(epoch_seed, block_id)`. Define `a = 1` if `(k0 & 1) == 0` else `a = m - 1` (for `m > 1`; for `m=1`, return `block_start`). Define `c = k1 mod m`. Then `j = (a * local_pos + c) mod m` and `original_index = block_start + j`. This is bijective because `gcd(1, m) = 1` and `gcd(m-1, m) = 1`.
+**Preconditions / Postconditions:** `local_pos < m`; output index in `[0, N-1]`; mapping is a permutation over `[block_start, block_start + m - 1]`.  
 **Edge cases:** short final block, `N % block_size != 0`.  
-**Numerical considerations:** integer modular arithmetic only; no float path.  
+**Numerical considerations:** integer modular arithmetic only; no float path; all intermediate arithmetic checked for uint64 overflow before modulo.  
 **Ordering/tie handling:** deterministic mapping for every `(block_id, local_pos)`.  
 **Complexity note:** O(1) per lookup.  
 **Failure behavior:** abort on invalid block bounds.  
 **Dependencies:** Philox counter path and epoch seed.  
-**Test vectors:** fixed tuple -> exact mapped index.
+**Test vectors:** fixed tuple -> exact mapped index; per-block bijection test over all `local_pos in [0, m-1]`.
 
 ---
-
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
 
 ## 6) Procedure
 
@@ -209,8 +205,9 @@ Active operators:
    else:
        is_shuffled = true
        block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
-       num_blocks = ceil(N / block_size)
-       block_order = SeededBlockPermute_v1(num_blocks, epoch_seed)
+       num_full_blocks = N // block_size
+       has_tail = (N % block_size) != 0
+       block_order = SeededBlockPermute_v1(num_full_blocks, epoch_seed) if num_full_blocks > 0 else []
 
        batch_indices = []
        for i in 0..micro_batch_size-1:
@@ -219,7 +216,10 @@ Active operators:
                if manifest.drop_last: break
                p = p % N
            block_id_global = p // block_size
-           perm_block_id = block_order[block_id_global]
+           if has_tail and block_id_global == num_full_blocks:
+               perm_block_id = num_full_blocks  # keep short tail block fixed
+           else:
+               perm_block_id = block_order[block_id_global]
            local_pos = p % block_size
            orig_idx = SeededIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
            batch_indices.append(orig_idx)
@@ -238,6 +238,7 @@ Active operators:
 - Exact bijection in train mode; perfect reproducibility across restarts, world_size, hardware.
 - Supports streaming/infinite datasets via modular wrap + epoch seed rotation.
 - drop_last behavior is configurable via manifest (`drop_last=false` default).
+- For `drop_last=false`, terminal non-multiple ranges are completed by deterministic modulo wrap-around.
 
 ---
 

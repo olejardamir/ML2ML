@@ -95,6 +95,8 @@
 ---
 ## 5) Operator Definitions
 
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `Error-Codes.md` and imported by reference.
+
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
 **Operator:** `UML_OS.DepLock.ValidateLockfile_v1`  
@@ -119,13 +121,6 @@ Template conformance note (III.A): each operator definition in this section is i
 **Definition:** computes allowed/disallowed changes and risk classification.
 
 ---
-**Operator:** `UML_OS.Error.Emit_v1`  
-**Category:** Error  
-**Signature:** `(failure_code, context -> abort)`  
-**Purity class:** IO  
-**Determinism:** deterministic  
-**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
-
 ## 6) Procedure
 ```text
 1. ValidateLockfile_v1
