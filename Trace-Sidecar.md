@@ -78,6 +78,14 @@
 ### I.E Invariants and Assertions
 - key set and type contract invariant.
 
+### II.F Canonical Trace Schema (Concrete)
+- Hash algorithm: `trace_hash = SHA-256(canonical_cbor_record)`.
+- Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
+- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`.
+- Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`.
+- Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
+- Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.
+
 ---
 ## 3) Initialization
 1. Load schema version.
@@ -166,4 +174,3 @@ Exact normalized record and hash comparison.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed validation yields identical outputs.
-

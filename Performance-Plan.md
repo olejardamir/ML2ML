@@ -28,6 +28,7 @@
 
 ### 0.C Numeric Policy
 - Timing and memory metrics stored in binary64/integer nanoseconds and bytes.
+- Quantile method: nearest-rank (`k = ceil(p*n)` on sorted ascending samples, 1-indexed); ties resolved by stable input order.
 - NaN/Inf metrics are invalid and fail the run.
 - Approx-equality: threshold-based comparisons.
 
@@ -127,7 +128,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Signature:** `(metric_samples -> aggregate_metrics)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes p50/p95/p99/peaks/throughput in deterministic order.  
+**Definition:** computes p50/p95/p99/peaks/throughput in deterministic order using nearest-rank quantiles on stably sorted samples.  
 **Preconditions / Postconditions:** sufficient samples.  
 **Edge cases:** low-sample run.  
 **Numerical considerations:** stable percentile computation policy.  

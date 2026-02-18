@@ -26,7 +26,7 @@
 - PRNG family: inherited from calling operator.
 - Randomness locality: no sampling in interface contract checks.
 - Replay guarantee: replayable given `(spec_version, interface_hash)`.
-- Replay token: `api_replay_t = SHA-256(spec_version || interface_hash)`.
+- Replay token: `api_replay_t = SHA-256(CBOR(["api_interfaces_v1", spec_version, interface_hash]))`.
 
 ### 0.C Numeric Policy
 - Numeric fields specify explicit scalar kinds (`uint64`, `float64`, etc.).
@@ -92,6 +92,13 @@
 
 ### I.E Invariants and Assertions
 - Registry entries are unique and versioned.
+
+### II.F Interface Registry (Concrete)
+| name | version | method | request_schema_hash | response_schema_hash | idempotent | side_effects | allowed_error_codes |
+|---|---|---|---|---|---|---|---|
+| `UML_OS.Data.NextBatch_v2` | v2 | syscall | `sha256:req_nextbatch` | `sha256:resp_nextbatch` | false | cursor advance | `BATCH_SIZE_INCONSISTENT,INVALID_DATASET_KEY` |
+| `UML_OS.Model.Forward_v2` | v2 | syscall | `sha256:req_forward` | `sha256:resp_forward` | true | none | `CONTRACT_VIOLATION,PRIMITIVE_UNSUPPORTED` |
+| `UML_OS.DifferentialPrivacy.Apply_v3` | v3 | syscall | `sha256:req_dp_apply` | `sha256:resp_dp_apply` | false | accountant/rng state advance | `PRIVACY_BUDGET_EXCEEDED,INVALID_DP_CONFIG` |
 
 ---
 

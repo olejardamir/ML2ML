@@ -78,6 +78,15 @@
 ### I.E Invariants and Assertions
 - every emitted code exists in registry.
 
+### II.F Error Registry (Authoritative)
+| code_id | numeric_code | category | severity | retryable | deterministic_fields_required | message_template | remediation | version_introduced |
+|---|---:|---|---|---|---|---|---|---|
+| `CONTRACT_VIOLATION` | 1001 | kernel | critical | false | `t,failure_operator,replay_token` | `Contract violation in {failure_operator}` | Validate manifest/operator contracts | v1 |
+| `BATCH_SIZE_INCONSISTENT` | 2001 | data | error | false | `t,dataset_key,replay_token` | `global_batch_size % world_size != 0` | Fix manifest batch/world_size | v1 |
+| `PRIVACY_BUDGET_EXCEEDED` | 3001 | dp | critical | false | `t,failure_operator,cumulative_epsilon,target_epsilon` | `DP budget exceeded` | Increase noise/reduce steps | v1 |
+| `ALIGNMENT_VIOLATION` | 4001 | tmmu | critical | false | `t,arena,logical_slot` | `Memory alignment violation` | Increase alignment or remap slot | v1 |
+| `BACKEND_CONTRACT_VIOLATION` | 5001 | backend | critical | false | `t,driver_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
+
 ---
 ## 3) Initialization
 1. Load registry.
@@ -164,4 +173,3 @@ Exact record and byte-level comparison.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - identical future error records for same contexts.
-

@@ -88,6 +88,20 @@
 ### I.E Invariants and Assertions
 - deterministic ordering and complete report emission.
 
+### II.F Test Manifest and Golden Inventory (Concrete)
+- Test manifest required fields:
+  - `manifest_version:string`
+  - `suites:array<string>`
+  - `seed_set:array<uint64>`
+  - `thresholds:object`
+  - `golden_ids:array<string>`
+- Golden inventory (minimum):
+  - `golden_kernel_train_v1` -> `sha256:aa01...`
+  - `golden_data_nextbatch_v2` -> `sha256:bb02...`
+  - `golden_modelir_exec_v1` -> `sha256:cc03...`
+  - `golden_dp_apply_v3` -> `sha256:dd04...`
+- Deterministic pass/fail rule: pass iff all required suites pass and no E0 field mismatch against referenced golden IDs.
+
 ---
 
 ## 3) Initialization

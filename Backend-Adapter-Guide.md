@@ -79,6 +79,15 @@
 ### I.E Invariants and Assertions
 - declared primitives map 1:1 to implemented dispatch handlers.
 
+### II.F Required Primitive Catalog
+| primitive | determinism_tier_required | allowed_algorithms | required_flags | required_tests |
+|---|---|---|---|---|
+| `matmul` | E0 same-build / E1 cross-hw | deterministic GEMM kernel set | fast-math off | exact tiny-graph gradient tests |
+| `softmax` | E0 | stable log-sum-exp | deterministic reduction | overflow/underflow golden traces |
+| `layernorm` | E0 | fixed-order reductions | deterministic accumulation | epsilon sensitivity vectors |
+| `rng_gaussian` | E2 with deterministic offsets | Philox-based | declared stream ownership | replay offset tests |
+| `all_reduce_sum` | E0 in class | fixed ring/tree order | stable rank order | multi-rank reproducibility suite |
+
 ---
 ## 3) Initialization
 1. Load driver metadata.
@@ -168,4 +177,3 @@ Exact certification report comparison.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed certification yields identical final verdict.
-

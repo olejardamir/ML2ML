@@ -81,6 +81,15 @@
 ### I.E Invariants and Assertions
 - no phase starts before dependencies are complete.
 
+### II.F Phase DAG and Milestones (Concrete)
+| phase_id | depends_on | deliverables | gate_criteria |
+|---|---|---|---|
+| `P1_core_specs` | - | kernel/data/model/tmmu/dp specs finalized | all core docs EQC-lint pass |
+| `P2_registries` | `P1_core_specs` | trace/error/config/checkpoint registries concrete | schema/hash consistency checks pass |
+| `P3_codegen_runtime` | `P2_registries` | adapters, mapping, interface stubs | backend conformance suite pass |
+| `P4_validation` | `P3_codegen_runtime` | golden traces + replay harness | E0/E1 equivalence suite pass |
+| `P5_release` | `P4_validation` | deployment runbook + signed artifacts | deployment canary gates pass |
+
 ---
 ## 3) Initialization
 1. Load dependency graph.
@@ -178,4 +187,3 @@ Exact comparison of plan and gate report.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed planning yields identical final plan.
-

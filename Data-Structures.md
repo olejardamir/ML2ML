@@ -84,6 +84,12 @@
 ### I.E Invariants and Assertions
 - unique structure names and stable field ordering.
 
+### II.F Concrete Structure Layouts
+- `TraceIterRecord` (CBOR map): `{t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, loss_total?:float64, grad_norm?:float64}`.
+- `CheckpointHeader`: `{spec_version:string, replay_token:bytes32, t:uint64, checkpoint_hash:bytes}`.
+- `ErrorRecord`: `{code_id:string, numeric_code:uint32, t:uint64, failure_operator:string, replay_token:bytes32, message:string}`.
+- Alignment policy for binary layouts: fields aligned to natural size; packed representation forbidden for cross-language canonical payloads.
+
 ---
 
 ## 3) Initialization

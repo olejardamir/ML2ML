@@ -31,7 +31,8 @@
 - Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token: `replay_token = SHA-256(spec_version || policy_hash || env_manifest_hash || seed)`
+- Replay token: `replay_token = SHA-256(CBOR(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`
+- Canonical hash/input encoding rule (global): all hash inputs are domain-separated CBOR arrays; strings encoded UTF-8; integers encoded as unsigned big-endian logical values via CBOR major type.
 
 ### 0.C Numeric Policy
 - Core arithmetic (loss, metrics, termination, fingerprints, gradient norms, DP accounting, critical reductions): IEEE-754 binary64 with deterministic ascending-index order and EPS guards.
@@ -60,7 +61,8 @@
 ### 0.F Environment and Dependency Policy
 - Each backend driver (loaded via `UML_OS.Backend.LoadDriver_v1`) must implement deterministic forward/backward passes with fixed ascending-index reduction order, deterministic collectives (all-reduce, broadcast) using ascending-rank ring topology, RNG forwarding from kernel master streams with declared offsets, exact operator contracts for all dispatched primitives, and must pass the mandatory ReproducibilityTest suite. The suite requires E0 equivalence (bit-identical critical outputs: losses, gradients, fingerprints, state_fp) against the certified CPU reference driver under binary64 for fixed test graphs, and E1 on larger workloads. Driver verification (including binary/manifest hash check) is mandatory inside `Contract.Validate_v1` before any dispatch.
 - Driver interface contract (mandatory for LoadDriver_v1): Implements Forward_v2/Backward_v1/Inference.RunBatch_v1 on UML_Model_IR DAG using only deterministic primitives; no exposed user-callable loops; supports memory-zeroing hooks, TMMU allocation/liveness hints, and TEE quote collection; declares exact op-to-primitive mapping. Passes mandatory ReproducibilityTest suite (E0 on tiny graphs vs certified CPU reference in binary64; E1 on larger workloads) before dispatch. In regulated mode only drivers from the configured signed registry are accepted.
-- Determinism level: `BITWISE` for critical paths (losses, gradients, fingerprints, `state_fp`), `TOLERANCE` for model parameters.
+- Determinism level: `BITWISE` for critical observables (`loss_total`, `grad_norm`, fingerprints, `state_fp`) within a declared adapter/hardware equivalence class; `TOLERANCE` for raw model parameters.
+- `state_fp` canonicalization rule: compute from quantized parameter view `q(theta)=round(theta*2^24)/2^24` in binary64 with fixed ordering, so tolerance-level parameter drift does not violate fingerprint comparability policy.
 
 ### 0.G Operator Manifest
 Active operator wiring is declared in section `4) Operator Manifest`.
@@ -98,7 +100,7 @@ Migration: update manifest operator versions and replay_token.
   - Driver (deterministic device primitives)
   - Runtime (pinned dependencies)
   - Module (verified operator packages)
-  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + BLAKE3(manifest_hash || hardware_attest_id || job_id) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/data_cursor/checkpoints/tapes/lineage) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Deterministic virtual addressing uses base_addr = BLAKE3(replay_token || ir_node_id || allocation_seq_t || shape_hash)[0:12] (96-bit offset into per-job arena sized from resource_requests + static IR liveness analysis). TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation. This produces identical memory layouts across runs and hardware.
+  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + BLAKE3(CBOR(["daemon_sched_v1", manifest_hash, hardware_attest_id, job_id])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/data_cursor/checkpoints/tapes/lineage) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Virtual addressing scheme is delegated to `TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
   - Management (CLI entrypoints)
   - User (manifests only)
 - Filesystem roots:
@@ -363,7 +365,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(dataset_key, world_size, rank -> batch, data_cursor')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic with declared RNG  
-**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by manifest_hash || epoch using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via seeded modular arithmetic in ascending index order. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence and training dynamics regardless of world_size. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
+**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `BLAKE3(CBOR(["nextbatch_epoch_seed_v1", manifest_hash, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via seeded modular arithmetic in ascending index order. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence and training dynamics regardless of world_size. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
 **Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
 **Edge cases:** world_size=1, final batch boundary.  
 **Numerical considerations:** preprocessing stable in binary64 for reductions.  
@@ -584,7 +586,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(probe_outputs_bytes, functional_fp, security.functional_commitment -> commitment?)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** if enabled, compute `functional_commitment = SHA-256(probe_outputs_bytes || functional_fp)` and attach to trace/certificate.  
+**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR(["functional_commitment_v1", probe_outputs_bytes, functional_fp]))` and attach to trace/certificate.  
 **Preconditions / Postconditions:** functional_fp available.  
 **Edge cases:** disabled path returns no commitment.  
 **Numerical considerations:** N/A.  
@@ -636,7 +638,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(event -> journal_state')`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** Write-ahead log: append cryptographically chained record (BLAKE3(previous_hash || event || t)) to journal before any state mutation is visible.
+**Definition:** Write-ahead log: append cryptographically chained record (`BLAKE3(CBOR(["journal_link_v1", previous_hash, event, uint64(t)]))`) to journal before any state mutation is visible.
 **Preconditions / Postconditions:** journal open; hash chain preserved.
 **Failure behavior:** abort on write failure.
 
@@ -806,7 +808,7 @@ On full termination:
 
 ### Trace schema (minimum required)
 - `run_header`: metadata, hashes, replay_token, task_type, world_size, backend_hash
-- `iter`: `t, state, action, loss_total, grad_norm, state_fp (when computed), functional_fp (when computed), functional_commitment (when enabled)`
+- `iter`: `t, stage_id, operator_id, operator_seq, rank, status, loss_total?, grad_norm?, state_fp?, functional_fp?, rng_offset_before?, rng_offset_after?, state?, action?`
 - `run_end`: status, final hashes, final fingerprints
 
 ### Metric schema
@@ -814,6 +816,7 @@ On full termination:
 
 ### Comparability guarantee
 Two implementations/runs are comparable if they share identical trace schema, metric schema, replay_token definition, objective preorder, and constraint policy (E0 for bitwise, E1 for metric).
+- `state`/`action` are mandatory only for RL task types; optional otherwise.
 
 ### Certificate schema
 - Signed `training_certificate.cbor` with Merkle root, lineage, fingerprints, manifest/contract hashes, and confidential quote when applicable

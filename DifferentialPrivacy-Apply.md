@@ -28,7 +28,7 @@
 - PRNG family: `Philox4x32-10`
 - Randomness locality: all sampling occurs only inside `UML_OS.DifferentialPrivacy.GenerateNoise_v1`
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token contribution: `dp_replay_t = SHA-256(kernel_replay_token || "dp" || t || accountant_state_hash || allocation_mode || fused_kernel || safety_reserve)`
+- Replay token contribution: `dp_replay_t = SHA-256(CBOR(["dp_apply_v3", kernel_replay_token, uint64(t), accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`
 - `noise_seed_per_step: bool` (default `false`); when true, counter derivation is `counter = t * 2^40 + param_index_hash`
 
 ### 0.C Numeric Policy
@@ -59,6 +59,7 @@
 - `world_size=1`: exact `(epsilon, delta)` guarantee
 - `world_size>1` with `per_sample`/`per_layer`/`per_group`: exact accounting, deterministic all-gather/all-reduce for required statistics
 - `world_size>1` with `ghost` local clipping path: allowed with declared `accounting_adjustment_factor`; guarantee documented as `(epsilon', delta)` where `epsilon' >= epsilon`
+- `ghost` path policy: in `regulated` mode, ghost clipping is permitted only when `accounting_adjustment_factor` is derived from a versioned audited bound artifact (`ghost_bound_hash`) and `accounting_adjustment_factor >= 1.0`; otherwise abort with `INVALID_DP_CONFIG`.
 - `fsdp2/zero3`: ghost clipping uses unsharded logical views when available; only aggregate statistics are all-reduced
 - `moe`: per-expert accounting with routing-aware effective sampling rate
 - Hierarchical all-reduce path is allowed when `parallelism.hierarchical=true` (deterministic intra-node then inter-node merge order)
@@ -184,6 +185,15 @@
 - output tensor shape equals input gradient shape
 - all critical reductions follow fixed deterministic ordering
 - accountant updates occur once per micro-batch event; step counter advances by `gradient_accumulation_steps` per optimizer step.
+
+### II.F Mechanism Definition (Formal)
+- Parameter space is partitioned into disjoint groups `g in G` by `privacy_allocation`.
+- Per-group sensitivity bound: for each sample `i`, clipped gradient satisfies `||clip_g(grad_{i,g})||_2 <= C_g`.
+- Per-micro-batch release for group `g`:
+  `G_tilde_g = (1/B) * (sum_i clip_g(grad_{i,g}) + N(0, (sigma_g * C_g)^2 I))`.
+- Group composition at a micro-step uses the selected accountant (`PLD` default, `RDP`/`moments`/`f_dp`/`gdp` fallback) with explicit `sampling_rate`, `subsampling`, and optional `amplification_factor`.
+- Step composition: accountant composes all micro-steps in deterministic order; `(epsilon, delta)` reported from accountant conversion at each step.
+- Ghost clipping: when enabled, accountant input uses `sampling_rate' = min(1.0, accounting_adjustment_factor * sampling_rate)` and requires audited bound artifact in regulated mode.
 
 ---
 
@@ -525,10 +535,12 @@ Required for changes:
 ### Checkpoint contents
 - `cumulative_epsilon_t`
 - `accountant_state_t`
+- accountant internals: PLD/RDP support grid or order set, accumulated privacy state tables/log-MGFs, conversion cache
 - `rng_dp_state_t` / offset
 - `clip_norm_state_t` (if adaptive)
 - `accumulation_state_t`
 - `allocation_map_snapshot`, `sigma_schedule_cache`
+- `sampling_rate_history_hash_chain`, `sigma_map_history_hash_chain`, `t_micro_counter`
 - `per_module_snapshot` (resolved module/group allocation snapshot)
 - DP config snapshot (`accountant`, `clipping`, `mode`, `noise_multiplier`, `safety_budget_reserve`, targets)
 

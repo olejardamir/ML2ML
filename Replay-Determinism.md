@@ -86,6 +86,13 @@
 ### I.E Invariants and Assertions
 - deterministic comparator order and complete reporting.
 
+### II.F Replay Token Formulas (Authoritative)
+- `kernel_replay_token = SHA-256(CBOR(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`.
+- `data_replay_t = SHA-256(CBOR(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
+- `modelir_replay_t = SHA-256(CBOR(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
+- `dp_replay_t = SHA-256(CBOR(["dp_apply_v3", kernel_replay_token, uint64(t), accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`.
+- Required comparator keys in traces: `t`, `operator_seq`, `rank`, `operator_id`, `status`, plus optional domain metrics.
+
 ---
 
 ## 3) Initialization

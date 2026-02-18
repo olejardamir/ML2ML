@@ -79,6 +79,14 @@
 ### I.E Invariants and Assertions
 - unique symbol per mapped operator.
 
+### II.F Mapping Table (Concrete)
+| operator | module_path | symbol_name | stub_template | ownership |
+|---|---|---|---|---|
+| `UML_OS.Data.NextBatch_v2` | `src/data/next_batch.py` | `next_batch_v2` | `py_operator_stub_v1` | data team |
+| `UML_OS.Model.ModelIR_Executor_v1` | `src/model/modelir_executor.py` | `modelir_executor_v1` | `py_operator_stub_v1` | model team |
+| `UML_OS.DifferentialPrivacy.Apply_v3` | `src/dp/apply.py` | `dp_apply_v3` | `py_operator_stub_v1` | privacy team |
+| `UML_OS.TMMU.PrepareMemory_v2` | `src/tmmu/prepare_memory.py` | `prepare_memory_v2` | `py_operator_stub_v1` | runtime team |
+
 ---
 ## 3) Initialization
 1. Load operator manifests.
@@ -168,4 +176,3 @@ Exact compare of mapping and generated signatures.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed generation yields identical artifact set.
-

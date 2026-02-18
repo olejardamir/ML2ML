@@ -2,7 +2,7 @@
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
 **Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`  
-**Purpose (1 sentence):** Perform static liveness analysis, optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic virtual-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layouts, maximal reuse (provably optimal number of slots = max live tensors), alignment safety, and minimal peak memory across 100B+ parameter models while remaining fully replayable.  
+**Purpose (1 sentence):** Perform static liveness analysis, optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic virtual-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, maximal reuse (provably optimal number of slots = max live tensors), alignment safety, and replayability across 100B+ parameter models.  
 **Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)  
 **Domain / Problem Class:** Deterministic, size-aware, multi-arena tensor memory planning via interval-graph register allocation for deep learning computation graphs.
 
@@ -23,19 +23,21 @@
 
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` inherited from kernel replay context.
-- PRNG family: Philox4x32-10 (not sampled in allocator core path; used only if deterministic zeroing pattern derivation requires counter expansion).
+- PRNG family: Philox4x32-10 (not sampled in allocator core path).
 - Assignment is 100% deterministic given replay_token.
 - Two-level mapping:
   - Logical slot ID (0-based, assigned by optimal greedy linear scan on interval graph).
-  - Virtual address = `align_up(BLAKE3(replay_token || "tmmu_slot" || arena_name || logical_slot_id || mode), slot_alignment)` where `slot_alignment >= arena_config.alignment_bytes`.
+  - Virtual address = `align_up(BLAKE3(CBOR(["tmmu_slot_v2", replay_token, arena_name, uint64(logical_slot_id), mode])), slot_alignment)` where `slot_alignment >= arena_config.alignment_bytes`.
 - Randomness locality: no sampling in core allocation path; any pseudo-random fill/zero pattern generation is operator-owned (`ZeroTensor_v1`) and deterministic.
 - Replay guarantee: replayable given `(replay_token, ir_hash, mode, arena_config, execution_order)`.
+- Replay token size: fixed 32 bytes (SHA-256 output), inherited from kernel contract.
 - No randomness in core path. Full replayability of layout, zeroing, and physical remapping.
 
 ### 0.C Numeric Policy
 - All sizes, offsets, alignments, and addresses in uint64.
 - No floating-point in allocation path.
-- Zeroing pattern: deterministic replay-seeded (BLAKE3-derived fill).
+- Zeroing policy: `ZeroTensor_v1` writes literal zeros only.
+- Optional debug fill: `DebugFillTensor_v1` may write deterministic patterns; forbidden in `confidential` and `regulated` modes.
 - Overflow policy: abort on uint64 overflow in offset/size arithmetic.
 - Approx-equality: exact integer equality only.
 - Normalized exponentials / transcendental functions: N/A for allocator semantics.
@@ -62,6 +64,7 @@
 - `UML_OS.TMMU.AssignLogicalSlots_v1` (new)
 - `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)
 - `UML_OS.TMMU.ZeroTensor_v1`
+- `UML_OS.TMMU.DebugFillTensor_v1`
 - `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Error.Emit_v1`
 
@@ -108,7 +111,7 @@
 - `ir_dag: UML_Model_IR` (with tensor roles)
 - `execution_order: node[]`
 - `mode: "forward" | "backward" | "inference"`
-- `replay_token: bytes` (≥64 bytes)
+- `replay_token: bytes` (32 bytes, SHA-256)
 - `arena_config`: {arena_name → {capacity_bytes, alignment_bytes (default 128), page_size}}
 
 ### I.C Constraints and Feasible Set
@@ -201,7 +204,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Category:** Memory  
 **Signature:** `(logical_slot_assignment, replay_token, slot_alignment_map → virtual_map)`  
 **Purity class:** PURE  
-**Definition:** For each `(arena, logical_slot_id)`, compute `va_raw = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id)`, then set `va = align_up(va_raw, slot_alignment_map[arena, logical_slot_id])`. `slot_alignment_map` is the max required alignment across tensors assigned to that slot, lower-bounded by `arena_config.alignment_bytes`.
+**Definition:** For each `(arena, logical_slot_id)`, compute `va_raw = BLAKE3(CBOR(["tmmu_va_v2", replay_token, arena, uint64(logical_slot_id)]))`, then set `va = align_up(va_raw, slot_alignment_map[arena, logical_slot_id])`. `slot_alignment_map` is the max required alignment across tensors assigned to that slot, lower-bounded by `arena_config.alignment_bytes`.
 **Preconditions / Postconditions:** logical slots assigned; output addresses unique per `(arena, slot)`.  
 **Edge cases:** large slot cardinality and arena name collisions (disallowed).  
 **Numerical considerations:** integer address-space truncation policy is deterministic.  
@@ -224,6 +227,19 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Failure behavior:** abort on invalid address/write failure.  
 **Dependencies:** driver memory primitive.  
 **Test vectors:** zero verification across varied tensor sizes.
+
+**Operator:** `UML_OS.TMMU.DebugFillTensor_v1`  
+**Category:** Memory  
+**Signature:** `(virtual_address, pattern_seed -> )`  
+**Purity class:** STATEFUL  
+**Definition:** Deterministic debug pattern fill for allocator diagnostics only.
+**Preconditions / Postconditions:** allowed only in non-confidential and non-regulated modes.  
+**Edge cases:** repeated fill operations.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** deterministic tensor-map order.  
+**Complexity note:** O(size of tensor backing).  
+**Failure behavior:** abort on invalid address/mode violation.  
+**Dependencies:** driver memory primitive and execution mode.
 
 **Operator:** `UML_OS.TMMU.CommitExecution_v1`  
 **Category:** Memory  
@@ -256,7 +272,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
    #   - Record slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
 
 3. virtual_map ← MapToVirtualAddresses_v1(logical_slots, replay_token, slot_alignment_map)
-   # va_raw = BLAKE3(replay_token || "tmmu_va" || arena || logical_slot_id)
+   # va_raw = BLAKE3(CBOR(["tmmu_va_v2", replay_token, arena, uint64(logical_slot_id)]))
    # va = align_up(va_raw, slot_alignment_map[arena, logical_slot_id])
 
 4. tensor_map ← {}
@@ -268,6 +284,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 
 5. for each tensor in tensor_map:
        ZeroTensor_v1(tensor_map[tensor_id].handle)
+       # DebugFillTensor_v1 is optional and forbidden in confidential/regulated modes.
 
 6. metrics ← ComputeMetrics(live_ranges, logical_slots, virtual_map)
    # Includes per-arena peak, reuse_ratio = 1 - (slots_used / total_tensors), fragmentation

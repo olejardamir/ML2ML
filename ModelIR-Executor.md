@@ -2,7 +2,7 @@
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
 **Algorithm:** `UML_OS.Model.ModelIR_Executor_v1`  
-**Purpose (1 sentence):** Deterministically execute any valid UML_Model_IR DAG on a contract-validated backend driver using TMMU-managed memory with strict topological ordering, static liveness analysis for slot reuse, **mode-aware forward/reverse scheduling**, and full support for forward/backward/inference passes, guaranteeing bit-identical critical-path outputs across hardware while scaling to 100 B+ parameter models.  
+**Purpose (1 sentence):** Deterministically execute any valid UML_Model_IR DAG on a contract-validated backend driver using TMMU-managed memory with strict topological ordering, static liveness analysis for slot reuse, **mode-aware forward/reverse scheduling**, and full support for forward/backward/inference passes, guaranteeing E0/E1 reproducibility per declared adapter/hardware tier while scaling to 100 B+ parameter models.  
 **Spec Version:** `UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
 **Domain / Problem Class:** Declarative neural-network graph execution with memory isolation and bit-identical reproducibility.
 
@@ -18,7 +18,7 @@
 
 ### 0.A Objective Semantics
 - Not an optimization operator.
-- Primary guarantee: bitwise-identical outputs on critical paths (gradients, losses, fingerprints) for identical `(ir_dag, theta, inputs, mode, replay_token, driver_hash)`.
+- Primary guarantee: deterministic critical-path outputs for identical `(ir_dag, theta, inputs, mode, replay_token, driver_hash)` under a declared adapter/hardware determinism tier.
 - Comparison rule: exact tensor equality on binary64 critical reductions; EPS_EQ tolerance on compute_dtype paths.
 
 ### 0.B Reproducibility Contract
@@ -26,7 +26,8 @@
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
 - Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive_v1`.
 - Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, driver_hash)`.
-- Replay token contribution: `modelir_replay_t = SHA-256(kernel_replay_token || "modelir_executor" || ir_hash || mode || global_position)`.
+- Replay token contribution: `modelir_replay_t = SHA-256(CBOR(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
+- Determinism tier contract: E0 only within same adapter build + deterministic kernel set + fixed math flags; E1 across broader hardware/driver classes.
 
 ### 0.C Numeric Policy
 - Critical reductions/gradients/norms/fingerprints: IEEE-754 binary64 with Kahan or pairwise summation in ascending node_id order.
@@ -157,7 +158,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Signature:** `(ir_dag, theta, input_data, mode, tmmu_context, rng_state → outputs, grads?, execution_fp, tmmu_state_next, rng_state_next)`  
 **Purity class:** STATEFUL (TMMU/driver)  
 **Determinism:** deterministic  
-**Definition:** Executes full pass on UML_Model_IR DAG. Guarantees identical memory layout and critical outputs across runs/hardware. **Mode-aware scheduling (reverse order for backward).**
+**Definition:** Executes full pass on UML_Model_IR DAG. Guarantees deterministic layout plans and critical outputs within the declared adapter/hardware determinism tier (E0/E1 contract). **Mode-aware scheduling (reverse order for backward).**
 **Preconditions / Postconditions:** validated IR/driver contract; outputs and optional gradients returned with committed TMMU state.  
 **Edge cases:** empty DAG, single-node DAG, backward on non-differentiable nodes.  
 **Numerical considerations:** binary64 critical-path reductions with deterministic ordering.  
@@ -217,7 +218,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Signature:** `(ir_dag, execution_order, mode → tensor_map)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** Performs static liveness analysis on IR; assigns deterministic virtual slots (BLAKE3(replay_token || node_id || allocation_seq)); zeros all tensors; prepares reuse schedule. **Mode-aware: reserves extra slots for activations only when backward is requested.**
+**Definition:** Performs static liveness analysis on IR; delegates virtual addressing to the versioned TMMU allocation contract; zeros all tensors; prepares reuse schedule. **Mode-aware: reserves extra slots for activations only when backward is requested.**
 **Preconditions / Postconditions:** valid TMMU context and arena config; tensor handles are ready before dispatch.  
 **Edge cases:** memory pressure near arena cap.  
 **Numerical considerations:** N/A (address arithmetic in integer space).  

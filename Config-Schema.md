@@ -80,6 +80,21 @@
 ### I.E Invariants and Assertions
 - normalized manifest is canonical and deterministic.
 
+### II.F Authoritative Manifest Schema (Concrete)
+- Canonical serialization: CBOR map with lexicographically sorted keys.
+- `manifest_hash = SHA-256(canonical_manifest_cbor)`.
+- Required top-level fields:
+  - `spec_version:string`
+  - `seed:uint64`
+  - `global_batch_size:uint64 (>=1)`
+  - `pipeline_stages:array<object>`
+  - `model:object`
+  - `security:object`
+- Required `security.differential_privacy` fields when enabled:
+  - `enabled:bool`, `accountant:string`, `target_epsilon:float64`, `target_delta:float64`, `noise_multiplier:float64`.
+- Required `pipeline_stages[i]` fields:
+  - `step_id:string`, `type:enum(train|eval|infer|augment)`, `depends_on:array<string>`.
+
 ---
 ## 3) Initialization
 1. Load schema.
@@ -178,4 +193,3 @@ Exact diff on normalized manifest/report.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resume yields identical validation output.
-

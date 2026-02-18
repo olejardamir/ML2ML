@@ -80,6 +80,16 @@
 ### I.E Invariants and Assertions
 - production promotion only after staging pass.
 
+### II.F Deterministic Rollout Playbook (Concrete)
+- Preflight checks: signature verification, dependency lock verification, config-schema validation, checkpoint compatibility check.
+- Canary policy: fixed cohort order `[1%, 5%, 25%, 50%, 100%]`, each stage has fixed dwell time and deterministic metric window.
+- Gate thresholds:
+  - error_rate <= 0.5%
+  - p95_latency_delta <= 10%
+  - replay_determinism_failures == 0
+- Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
+- Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
+
 ---
 ## 3) Initialization
 1. Load release manifest and signatures.
@@ -178,4 +188,3 @@ Exact compare of stage transitions and final status.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed rollout yields identical stage sequence and decisions.
-

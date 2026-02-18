@@ -26,7 +26,7 @@
 - PRNG family: `Philox4x32-10`
 - Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
 - Replay guarantee: fully replayable given `(manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
-- Replay token contribution: `data_replay_t = SHA-256(kernel_replay_token || "nextbatch" || dataset_key || epoch || global_position || world_size || rank)`
+- Replay token contribution: `data_replay_t = SHA-256(CBOR(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
 
 ### 0.C Numeric Policy
 - All indices, cardinalities, positions: uint64 (no wrap-around overflow; explicit bounds checks)
@@ -122,7 +122,7 @@
 
 1. `cursor <- data_cursors.get(dataset_key, {epoch:0, global_index:0})`
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0` or wrapped): compute `epoch_seed = BLAKE3(manifest_hash || dataset_key || cursor.epoch)[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0` or wrapped): compute `epoch_seed = BLAKE3(CBOR(["nextbatch_epoch_seed_v2", manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
 
 ---
 
@@ -236,6 +236,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 - Memory: O(num_blocks) worst-case (~1 MiB for 1 B samples with 1 M block_size); lazy per-batch block materialization possible in future.
 - Time: O(micro_batch_size) per call with O(1) intra-block mapping.
 - Exact bijection in train mode; perfect reproducibility across restarts, world_size, hardware.
+- Bijection proof sketch: full blocks are permuted bijectively among full blocks; each block uses affine bijection over its local domain; tail block is mapped only to itself with its own domain length, so global mapping is a permutation over `[0, N)`.
 - Supports streaming/infinite datasets via modular wrap + epoch seed rotation.
 - drop_last behavior is configurable via manifest (`drop_last=false` default).
 - For `drop_last=false`, terminal non-multiple ranges are completed by deterministic modulo wrap-around.

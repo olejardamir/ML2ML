@@ -79,6 +79,13 @@
 ### I.E Invariants and Assertions
 - no unlocked transitive dependency allowed in strict mode.
 
+### II.F Operative Lock Policy Rules
+- Accepted lockfile formats: `poetry.lock`, `requirements.txt` with hashes, `uv.lock`.
+- Artifact verification: each package entry must include SHA-256; downloaded artifact hash must match exactly.
+- Registry allowlist: explicit host allowlist only; direct URL dependencies forbidden unless signed and pinned.
+- SBOM requirement: CycloneDX JSON emitted per build and hashed into trace.
+- Toolchain hash: `toolchain_hash = SHA-256(CBOR(["toolchain_v1", python_version, pip_version, installer_version]))`.
+
 ---
 ## 3) Initialization
 1. Load lock policy.
@@ -168,4 +175,3 @@ Exact report comparison on baseline lockfiles.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed verification yields identical final verdict.
-

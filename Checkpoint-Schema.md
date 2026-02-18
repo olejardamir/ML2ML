@@ -79,6 +79,21 @@
 ### I.E Invariants and Assertions
 - round-trip serialize/restore invariance.
 
+### II.F Checkpoint Record Layout (Concrete)
+- Required fields:
+  - `spec_version:string`
+  - `checkpoint_schema_version:string`
+  - `replay_token:bytes(32)`
+  - `t:uint64`
+  - `theta_hash:bytes`
+  - `optimizer_state:bytes`
+  - `rng_states:map<string,bytes>`
+  - `accountant_state:bytes`
+  - `data_cursor:map<string,object>`
+  - `trace_hash_prefix:bytes`
+- Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_cbor)`.
+- Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
+
 ---
 ## 3) Initialization
 1. Load checkpoint schema.
@@ -168,4 +183,3 @@ Exact blob/hash compare + state equivalence.
 - deterministic CBOR/protobuf.
 ### Restore semantics
 - restored run must produce identical subsequent deterministic traces.
-
