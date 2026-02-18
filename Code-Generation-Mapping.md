@@ -90,6 +90,24 @@
 | `UML_OS.IO.SaveCheckpoint_v1` | `src/io/save_checkpoint.py` | `save_checkpoint_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO"]` | `sha256:sig_save_ckpt_v1` |
 | `UML_OS.Certificate.EvidenceValidate_v1` | `src/cert/evidence_validate.py` | `evidence_validate_v1` | `py_operator_stub_v1` | security team | `["NONE"]` | `sha256:sig_evidence_validate_v1` |
 | `UML_OS.Tracking.MetricLog_v1` | `src/tracking/metric_log.py` | `metric_log_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_metric_log_v1` |
+| `UML_OS.Backend.LoadDriver_v1` | `src/backend/load_driver.py` | `load_driver_v1` | `py_operator_stub_v1` | backend team | `["PERFORMS_IO","NETWORK_COMM"]` | `sha256:sig_load_driver_v1` |
+| `UML_OS.Checkpoint.CheckpointMigrate_v1` | `src/checkpoint/migrate_checkpoint.py` | `checkpoint_migrate_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO"]` | `sha256:sig_checkpoint_migrate_v1` |
+| `UML_OS.Checkpoint.Restore_v1` | `src/checkpoint/restore.py` | `checkpoint_restore_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO","MUTATES_MODEL_STATE"]` | `sha256:sig_restore_ckpt_v1` |
+| `UML_OS.Config.ManifestMigrate_v1` | `src/config/migrate_manifest.py` | `manifest_migrate_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_manifest_migrate_v1` |
+| `UML_OS.Model.Forward_v2` | `src/model/forward.py` | `forward_v2` | `py_operator_stub_v1` | model team | `["NONE"]` | `sha256:sig_forward_v2` |
+| `UML_OS.Monitor.DriftCompute_v1` | `src/monitor/drift_compute.py` | `drift_compute_v1` | `py_operator_stub_v1` | platform team | `["NONE"]` | `sha256:sig_monitor_drift_v1` |
+| `UML_OS.Monitor.Emit_v1` | `src/monitor/emit.py` | `monitor_emit_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_monitor_emit_v1` |
+| `UML_OS.Monitor.Register_v1` | `src/monitor/register.py` | `monitor_register_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_monitor_register_v1` |
+| `UML_OS.Registry.StageTransition_v1` | `src/registry/stage_transition.py` | `registry_stage_transition_v1` | `py_operator_stub_v1` | governance team | `["PERFORMS_IO"]` | `sha256:sig_registry_stage_transition_v1` |
+| `UML_OS.Registry.VersionCreate_v1` | `src/registry/version_create.py` | `registry_version_create_v1` | `py_operator_stub_v1` | governance team | `["PERFORMS_IO"]` | `sha256:sig_registry_version_create_v1` |
+| `UML_OS.Trace.TraceMigrate_v1` | `src/trace/migrate_trace.py` | `trace_migrate_v1` | `py_operator_stub_v1` | trace team | `["PERFORMS_IO"]` | `sha256:sig_trace_migrate_v1` |
+| `UML_OS.Tracking.ArtifactDelete_v1` | `src/tracking/artifact_delete.py` | `artifact_delete_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_delete_v1` |
+| `UML_OS.Tracking.ArtifactGet_v1` | `src/tracking/artifact_get.py` | `artifact_get_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_get_v1` |
+| `UML_OS.Tracking.ArtifactList_v1` | `src/tracking/artifact_list.py` | `artifact_list_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_list_v1` |
+| `UML_OS.Tracking.ArtifactPut_v1` | `src/tracking/artifact_put.py` | `artifact_put_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_artifact_put_v1` |
+| `UML_OS.Tracking.RunCreate_v1` | `src/tracking/run_create.py` | `run_create_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_run_create_v1` |
+| `UML_OS.Tracking.RunEnd_v1` | `src/tracking/run_end.py` | `run_end_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_run_end_v1` |
+| `UML_OS.Tracking.RunStart_v1` | `src/tracking/run_start.py` | `run_start_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_run_start_v1` |
 
 Signature lock invariant:
 - For each operator `op`, `signature_digest` must match `API-Interfaces.md` and (for backend-exposed ops/primitives) `Backend-Adapter-Guide.md`.
