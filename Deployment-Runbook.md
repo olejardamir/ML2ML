@@ -128,6 +128,13 @@ Template conformance note (III.A): each operator definition in this section is i
 **Definition:** restores previous stable release and validates post-rollback health.
 
 ---
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> abort)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+
 ## 6) Procedure
 ```text
 1. PreflightChecks_v1

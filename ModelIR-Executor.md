@@ -226,6 +226,34 @@ Active operators:
 
 ---
 
+**Operator:** `UML_OS.Contract.Validate_v1`  
+**Category:** Contract  
+**Signature:** `(ir_dag, driver, mode -> contract_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Verifies IR schema, primitive coverage, determinism requirements, and mode constraints before execution.
+
+**Operator:** `UML_OS.StateFingerprint_v1`  
+**Category:** Observability  
+**Signature:** `(tensor_map -> execution_fp)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Computes canonical binary64 fingerprint over declared critical tensors using deterministic ordering.
+
+**Operator:** `UML_OS.TMMU.CommitExecution_v1`  
+**Category:** Memory  
+**Signature:** `(tmmu_context -> tmmu_state_next)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** Finalizes memory barriers/ownership and commits deterministic TMMU state after batch execution.
+
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> abort)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+
 ## 6) Procedure
 
 ```text

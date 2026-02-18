@@ -119,6 +119,13 @@ Template conformance note (III.A): each operator definition in this section is i
 **Definition:** computes allowed/disallowed changes and risk classification.
 
 ---
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> abort)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+
 ## 6) Procedure
 ```text
 1. ValidateLockfile_v1

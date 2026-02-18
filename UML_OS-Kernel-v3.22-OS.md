@@ -221,6 +221,14 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 - Deterministic ordering
 - Contract checks mandatory
 
+### Architecture Overview (Document Wiring)
+- Core execution specs: `Data-NextBatch.md`, `ModelIR-Executor.md`, `TMMU-Allocation.md`, `DifferentialPrivacy-Apply.md`.
+- Interface and type contracts: `API-Interfaces.md`, `Data-Structures.md`, `Config-Schema.md`.
+- Reliability and observability contracts: `Error-Codes.md`, `Trace-Sidecar.md`, `Checkpoint-Schema.md`, `Replay-Determinism.md`.
+- Delivery and compliance contracts: `Backend-Adapter-Guide.md`, `Security-Compliance-Profile.md`, `Dependency-Lock-Policy.md`, `Deployment-Runbook.md`.
+- Planning and execution governance: `Implementation-Roadmap.md`, `Code-Generation-Mapping.md`, `Test-Plan.md`, `Performance-Plan.md`.
+- Wiring invariant: all operator names referenced across documents must be fully qualified and versioned, and each active operator in section 4 of a document must have a section 5 definition in that same document.
+
 ---
 
 ## 3) Initialization

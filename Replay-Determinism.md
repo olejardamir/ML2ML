@@ -155,6 +155,20 @@
 
 ---
 
+**Operator:** `UML_OS.Replay.VerifyRestore_v1`  
+**Category:** Replay  
+**Signature:** `(checkpoint_blob, restored_state, replay_token -> restore_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Verifies that restore state and replay token exactly match checkpoint commitments and deterministic replay contracts.
+
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> abort)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+
 ## 6) Procedure
 
 ```text

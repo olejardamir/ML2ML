@@ -158,6 +158,27 @@
 
 ---
 
+**Operator:** `UML_OS.Test.RunIntegrationSuite_v1`  
+**Category:** Test  
+**Signature:** `(integration_manifest -> integration_report)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Executes deterministic integration scenarios across kernel, data, model, memory, and DP boundaries.
+
+**Operator:** `UML_OS.Test.RunReplaySuite_v1`  
+**Category:** Test  
+**Signature:** `(replay_manifest -> replay_report)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Validates replay-token determinism, RNG locality, and checkpoint-restore replay guarantees.
+
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> abort)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+
 ## 6) Procedure
 
 ```text

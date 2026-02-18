@@ -343,6 +343,83 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 ---
 
+**Operator:** `UML_OS.DifferentialPrivacy.ClipPerSample_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(per_sample_grads, clip_norm -> clipped_grads, norms)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Deterministically clips each sample gradient to the declared norm bound.
+
+**Operator:** `UML_OS.DifferentialPrivacy.GhostClipPerSample_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(model, batch, clip_norm -> clipped_grads, norms)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** Computes per-sample clipping via ghost-norm path without full per-sample materialization.
+
+**Operator:** `UML_OS.DifferentialPrivacy.PerLayerClip_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(gradients, per_layer_norms -> clipped_gradients, layer_stats)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Applies deterministic clipping independently per parameter layer/tensor group.
+
+**Operator:** `UML_OS.DifferentialPrivacy.PerGroupClip_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(gradients, per_group_norms, group_map -> clipped_gradients, group_stats)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Clips gradients by configured logical groups in stable registration order.
+
+**Operator:** `UML_OS.DifferentialPrivacy.PerTensorClip_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(gradients, clip_norm_map -> clipped_gradients, tensor_stats)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Clips each trainable tensor with its own deterministic bound.
+
+**Operator:** `UML_OS.DifferentialPrivacy.MomentsAccountant.Update_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(state, sigma_map, sampling_rate, t, delta -> epsilon_t, state_next)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Updates privacy budget using moments accountant composition.
+
+**Operator:** `UML_OS.DifferentialPrivacy.PLDAccountant.Update_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(state, sigma_map, sampling_rate, t, delta -> epsilon_t, state_next)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Updates privacy budget using privacy-loss distribution composition (recommended).
+
+**Operator:** `UML_OS.DifferentialPrivacy.RDPAccountant.Update_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(state, sigma_map, sampling_rate, t, delta -> epsilon_t, state_next)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Updates privacy budget via Renyi-DP composition with deterministic order set.
+
+**Operator:** `UML_OS.DifferentialPrivacy.FDPAccountant.Update_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(state, sigma_map, sampling_rate, t, delta -> epsilon_t, state_next)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Updates privacy budget via f-DP conversion path for configured compatibility mode.
+
+**Operator:** `UML_OS.DifferentialPrivacy.GDPAccountant.Update_v1`  
+**Category:** DifferentialPrivacy  
+**Signature:** `(state, sigma_map, sampling_rate, t, delta -> epsilon_t, state_next)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Updates privacy budget via Gaussian-DP approximation path for configured compatibility mode.
+
+**Operator:** `UML_OS.Error.Emit_v1`  
+**Category:** Error  
+**Signature:** `(failure_code, context -> abort)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** Emits canonical error record and triggers deterministic abort per 0.K.
+
 ## 6) Procedure
 
 ```text
