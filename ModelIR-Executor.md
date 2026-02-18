@@ -1,0 +1,262 @@
+```markdown
+# Universal Machine Learning Operating System — ModelIR Executor
+**EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
+
+**Algorithm:** `UML_OS.Model.ModelIR_Executor_v1`  
+**Purpose (1 sentence):** Deterministically execute any valid UML_Model_IR DAG on a contract-validated backend driver using TMMU-managed memory with strict topological ordering, static liveness analysis for slot reuse, **mode-aware forward/reverse scheduling**, and full support for forward/backward/inference passes, guaranteeing bit-identical critical-path outputs across hardware while scaling to 100 B+ parameter models.  
+**Spec Version:** `UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Domain / Problem Class:** Declarative neural-network graph execution with memory isolation and bit-identical reproducibility.
+
+---
+
+## 1) Header & Global Semantics
+
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Model.ModelIR_Executor_v1`
+- **Purpose (1 sentence):** Execute UML_Model_IR DAGs deterministically on validated drivers with TMMU memory management.
+- **Spec Version:** `UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Domain / Problem Class:** Scalable deterministic ML computation graph execution.
+
+### 0.A Objective Semantics
+- Not an optimization operator.
+- Primary guarantee: bitwise-identical outputs on critical paths (gradients, losses, fingerprints) for identical `(ir_dag, theta, inputs, mode, replay_token, driver_hash)`.
+- Comparison rule: exact tensor equality on binary64 critical reductions; EPS_EQ tolerance on compute_dtype paths.
+
+### 0.B Reproducibility Contract
+- Seed space: inherited from kernel master RNG (no direct draws in core path).
+- PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
+- Randomness locality: strictly inside registered custom operators.
+- Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, driver_hash)`.
+- Replay token contribution: `modelir_replay_t = SHA-256(kernel_replay_token || "modelir_executor" || ir_hash || mode || global_position)`.
+
+### 0.C Numeric Policy
+- Critical reductions/gradients/norms/fingerprints: IEEE-754 binary64 with Kahan or pairwise summation in ascending node_id order.
+- All other computations: manifest.compute_dtype (float32 default).
+- Rounding: round-to-nearest ties-to-even.
+- Fast-math: forbidden.
+- NaN/Inf policy: inherited from kernel 0.A/0.K (rank as +Inf, abort on critical paths).
+
+### 0.D Ordering and Tie-Break Policy
+- Index base: 0-based.
+- Execution order: strict topological order with stable sort by node_id (lowest node_id wins on ties). **For backward mode: reversed topological order (guarantees correct gradient propagation order).**
+- Tensor reductions: ascending flat index or node_id order.
+
+### 0.E Parallel, Concurrency, and Reduction Policy
+- Driver handles intra-op parallelism (must be deterministic per Contract.Validate_v1).
+- Inter-node execution: sequential topological order (no concurrent nodes unless driver proves independence under contract).
+- Reductions: fixed ascending-index tree order per kernel 0.E.
+
+### 0.F Environment and Dependency Policy
+- Requires loaded compliant backend driver (via UML_OS.Backend.LoadDriver_v1) and active TMMU.
+- Reference runtime: CPU reference driver for E0 verification.
+- Dependencies: UML_Model_IR schema (0.Y of kernel), registered custom operators, TMMU arena.
+- **Backward-mode requirement:** ir_dag contains the same nodes as forward but DispatchPrimitive_v1 uses mode="backward" to invoke gradient kernels; reverse ordering ensures downstream gradients arrive before upstream accumulation.
+
+### 0.G Operator Manifest
+- `UML_OS.Model.ModelIR_Executor_v1`
+- `UML_OS.Model.TopoSortNodes_v1`
+- `UML_OS.Model.DispatchPrimitive_v1`
+- `UML_OS.Model.CollectGradients_v1` **(NEW — fixes prior reference)**
+- `UML_OS.TMMU.PrepareMemory_v1` (includes static liveness + deterministic slot assignment)
+- `UML_OS.Contract.Validate_v1`
+- `UML_OS.Error.Emit_v1`
+
+### 0.H Namespacing and Packaging
+- Fully-qualified names: `UML_OS.Model.<Name>_v#`
+
+### 0.I Outputs and Metric Schema
+- Declared outputs: `(outputs: tensor_map, grads?: tensor_map, execution_fp, tmmu_state')`
+- Minimum metrics: `nodes_executed`, `mode`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`
+
+### 0.K Failure and Error Semantics
+- Global error model: abort-only
+- Failure codes: `INVALID_IR`, `CYCLE_DETECTED`, `SHAPE_MISMATCH`, `PRIMITIVE_UNSUPPORTED`, `TMMU_ALLOCATION_FAILURE`, `CONTRACT_VIOLATION`
+- Failure record fields: `t`, `failure_code`, `node_id`, `modelir_replay_t`
+
+### 0.L Input/Data Provenance
+- IR must carry canonical `ir_hash`; all input tensors must be TMMU-resident and fingerprinted.
+
+### 0.M Recommended Presets
+- `forward_train`: forward pass + activation saving
+- `backward_train`: **reverse topological gradient propagation** (reversed execution_order + gradient-kernel dispatch)
+- `inference`: forward-only with no grad tracking
+
+---
+
+## 2) System Model
+
+### I.A Persistent State
+- None (stateless per call; all tensor storage owned by TMMU).
+
+### I.B Inputs and Hyperparameters
+- `ir_dag: UML_Model_IR` (nodes with `node_id`, `instr`, `params`, `inputs`, `shape_in/out`)
+- `theta: dict` (parameter tensors)
+- `input_data: tensor_map` (for input nodes)
+- `mode: "forward" | "backward" | "inference"`
+- `tmmu_context`
+
+### I.C Constraints and Feasible Set
+- DAG acyclic and shapes statically known/inferable.
+- All `instr` supported by driver or registered custom.
+- `global_batch_size % world_size == 0` (inherited from kernel).
+- **Backward-mode invariant:** every node must have a corresponding gradient implementation in the driver.
+
+### I.D Transient Variables
+- `execution_order`, `tensor_map`, `grad_map` (backward only)
+
+### I.E Invariants and Assertions
+- Topological order respected (**forward or reversed for backward**).
+- Every node input available before dispatch.
+- All allocated tensors zeroed by TMMU before first write.
+- Critical reductions performed in binary64 with fixed order.
+- TMMU deterministic virtual addressing (BLAKE3-based per kernel 0.N).
+
+---
+
+## 3) Initialization
+
+1. `Contract.Validate_v1(ir_dag, driver, mode)`
+2. `execution_order ← UML_OS.Model.TopoSortNodes_v1(ir_dag)`
+3. **if mode == "backward": execution_order ← reversed(execution_order)**  *(algorithmic guarantee of correct gradient flow)*
+4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v1(ir_dag, execution_order, mode)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
+
+---
+
+## 4) Operator Manifest
+
+Active operators:
+- `UML_OS.Model.ModelIR_Executor_v1`
+- `UML_OS.Model.TopoSortNodes_v1`
+- `UML_OS.Model.DispatchPrimitive_v1`
+- `UML_OS.Model.CollectGradients_v1` **(NEW)**
+- `UML_OS.TMMU.PrepareMemory_v1`
+- `UML_OS.Contract.Validate_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+
+## 5) Operator Definitions
+
+**Operator:** `UML_OS.Model.ModelIR_Executor_v1`  
+**Category:** Model  
+**Signature:** `(ir_dag, theta, input_data, mode, tmmu_context → outputs, grads?, execution_fp, tmmu_state')`  
+**Purity class:** STATEFUL (TMMU/driver)  
+**Determinism:** deterministic  
+**Definition:** Executes full pass on UML_Model_IR DAG. Guarantees identical memory layout and critical outputs across runs/hardware. **Mode-aware scheduling (reverse order for backward).**
+
+**Operator:** `UML_OS.Model.TopoSortNodes_v1`  
+**Category:** Model  
+**Signature:** `(ir_dag → execution_order: node[])`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Topological sort (Kahn/DFS) with stable tie-break by lowest node_id. Detects cycles. (Reversal for backward performed by caller/executor.)
+
+**Operator:** `UML_OS.Model.DispatchPrimitive_v1`  
+**Category:** Model  
+**Signature:** `(node, tensor_map, theta, mode, tmmu_context → updated_tensor_map)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic (driver contract)  
+**Definition:** Resolves input handles, dispatches driver primitive for `node.instr` **(fwd or grad variant based on mode)**, writes output to TMMU-allocated slot, validates shapes.
+
+**Operator:** `UML_OS.Model.CollectGradients_v1` **(NEW — resolves prior undefined reference)**  
+**Category:** Model  
+**Signature:** `(tensor_map, ir_dag, theta → grads: tensor_map)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** After backward pass, aggregates all parameter gradients (from dedicated grad slots or accumulated in-place) into a clean grads dict. Supports multi-step accumulation.
+
+**Operator:** `UML_OS.TMMU.PrepareMemory_v1`  
+**Category:** Memory  
+**Signature:** `(ir_dag, execution_order, mode → tensor_map)`  
+**Purity class:** STATEFUL  
+**Determinism:** deterministic  
+**Definition:** Performs static liveness analysis on IR; assigns deterministic virtual slots (BLAKE3(replay_token || node_id || allocation_seq)); zeros all tensors; prepares reuse schedule. **Mode-aware: reserves extra slots for activations only when backward is requested.**
+
+---
+
+## 6) Procedure
+
+```text
+1. Contract.Validate_v1(ir_dag, driver, mode)
+2. execution_order ← TopoSortNodes_v1(ir_dag)
+3. if mode == "backward":
+       execution_order ← reversed(execution_order)   # algorithmic improvement: correct gradient flow order
+4. tensor_map ← TMMU.PrepareMemory_v1(ir_dag, execution_order, mode)  # static liveness + zeroing + slot reuse (mode-aware)
+
+5. for node in execution_order:
+       tensor_map ← DispatchPrimitive_v1(node, tensor_map, theta, mode, tmmu_context)
+
+6. if mode == "backward":
+       grads ← CollectGradients_v1(tensor_map, ir_dag, theta)  # now explicitly defined operator
+
+7. outputs ← extract_output_nodes(tensor_map, ir_dag)
+8. execution_fp ← StateFingerprint_v1(tensor_map)  # critical tensors only
+9. TMMU.CommitExecution_v1()  # sync barriers for isolation
+10. return outputs, grads?, execution_fp, tmmu_state'
+```
+
+**Scalability & Algorithmic Guarantees:**
+- Time: O(|nodes| + |edges|) per execution after O(|nodes|) liveness prep.
+- Memory: O(live set size) via static liveness + deterministic slot reuse (enables 100 B+ models on fixed arena).
+- **Backward pass now algorithmically correct** (reverse topological order + mode-aware dispatch).
+- Exact bijection with CPU reference driver on critical paths (E0).
+- Fully supports streaming/large-batch via TMMU virtual addressing; no O(N) storage beyond live tensors.
+
+---
+
+## 7) Trace & Metrics
+
+### Trace schema (minimum required)
+- `run_header`: `ir_hash`, `mode`, `driver_hash`, `tmmu_arena_size`
+- `node`: `node_id`, `instr`, `shape`, `dtype`, `dispatch_success`
+- `run_end`: `execution_fp`, `memory_peak`, `reuse_ratio`, `nodes_executed`
+
+### Metric schema
+- `nodes_executed`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`
+
+---
+
+## 8) Validation
+
+#### VII.A Lint rules (mandatory)
+- DAG acyclicity, shape propagation totality, primitive coverage, topological determinism, TMMU contract adherence, **backward-order correctness**.
+
+#### VII.B Operator test vectors (mandatory)
+- Tiny linear/residual/transformer DAGs → exact binary64 match vs reference driver.
+- Backward pass gradient verification within EPS_EQ (now tested with explicit reverse ordering).
+
+#### VII.C Golden traces (mandatory)
+- Full forward/backward/inference on all kernel presets (ResNet, ViT, GPT) across drivers; E0 critical-path match.
+
+---
+
+## 9) Refactor & Equivalence
+
+#### VIII.A Equivalence levels
+- **E0** required for any change affecting critical-path tensors or execution order.
+- **E1** allowed for non-critical memory optimizations.
+
+#### VIII.B Allowed refactor categories
+- Alternative topological algorithms (must preserve stable node_id order + reverse for backward).
+- Advanced static liveness / fusion / **rematerialization heuristics** (via driver contract; preserves E0).
+- Kernel-fusion extensions (preserves E0).
+
+#### VIII.C Equivalence test procedure (mandatory)
+- 10 seeds × all presets × 3 modes.
+- Exact match on gradients/losses/fingerprints in binary64; statistical test on non-critical paths.
+
+---
+
+## 10) Checkpoint/Restore
+
+### Checkpoint contents
+- Stateless executor; relies on kernel checkpoint of `ir_dag`, `theta`, and TMMU state.
+
+### Serialization
+- TMMU state via deterministic CBOR (fixed order).
+
+### Restore semantics
+- Identical execution sequence on restore (same replay_token → same slot assignments).
+- Mid-pass restore not supported (atomic per-batch execution).
+```
+
