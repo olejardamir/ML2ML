@@ -184,15 +184,16 @@
 - `cumulative_epsilon` is finite and non-decreasing
 - output tensor shape equals input gradient shape
 - all critical reductions follow fixed deterministic ordering
-- accountant updates occur once per micro-batch event; step counter advances by `gradient_accumulation_steps` per optimizer step.
+- clipping may occur per micro-batch; accountant update and noise draw occur once per optimizer step.
 
 ### II.F Mechanism Definition (Formal)
 - Parameter space is partitioned into disjoint groups `g in G` by `privacy_allocation`.
 - Per-group sensitivity bound: for each sample `i`, clipped gradient satisfies `||clip_g(grad_{i,g})||_2 <= C_g`.
-- Per-micro-batch release for group `g`:
-  `G_tilde_g = (1/B) * (sum_i clip_g(grad_{i,g}) + N(0, (sigma_g * C_g)^2 I))`.
-- Group composition at a micro-step uses the selected accountant (`PLD` default, `RDP`/`moments`/`f_dp`/`gdp` fallback) with explicit `sampling_rate`, `subsampling`, and optional `amplification_factor`.
-- Step composition: accountant composes all micro-steps in deterministic order; `(epsilon, delta)` reported from accountant conversion at each step.
+- Per-optimizer-step release for group `g`:
+  `G_tilde_g = (1/B_eff) * (sum_i clip_g(grad_{i,g}) + N(0, (sigma_g * C_g / B_eff)^2 I))`,
+  where `B_eff` is the effective optimizer-step batch size after accumulation.
+- Group composition at a step uses the selected accountant (`PLD` default, `RDP`/`moments`/`f_dp`/`gdp` fallback) with explicit `sampling_rate`, `subsampling`, and optional `amplification_factor`.
+- Step composition: accountant composes optimizer steps in deterministic order; `(epsilon, delta)` reported from accountant conversion per optimizer step.
 - Ghost clipping: when enabled, accountant input uses `sampling_rate' = min(1.0, accounting_adjustment_factor * sampling_rate)` and requires audited bound artifact in regulated mode.
 
 ---
@@ -436,25 +437,25 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
    (clip_norm_t, clip_norm_state', delta_eps) <- BoundedPrivacyAwareAdaptiveClipNorm_v1(...)
    else delta_eps <- 0.
 5. Let `micro_seq` be the deterministic ordered micro-batch sequence for the current optimizer step.
-6. Initialize deterministic accumulation buffer for noisy micro-gradients.
+6. Initialize deterministic accumulation buffer for clipped micro-gradients.
 7. For each `micro_idx, micro_gradients` in `micro_seq`:
    7a. If fused_kernel == true and per-layer compatible:
           (clipped_micro, norms, clip_stats) <- FlashEfficientClip_v1(micro_gradients, clip_norm_map, fused_cfg)
        else
           (clipped_micro, norms, clip_stats) <- Clip_v1(micro_gradients, resolved_cfg, max_microbatch)
-   7b. sigma_map <- PrivacyBudgetScheduler_v1(t_micro, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
-   7c. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
-   7d. If projected_epsilon > target_epsilon - safety_budget_reserve: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
-   7e. If subsampling == "shuffle": amplification_factor <- AmplificationByShuffling_v1(...)
-   7f. (noise_micro, rng_dp_state') <- GenerateNoise_v1(shape(clipped_micro), sigma_map, rng_dp_state, noise.compression)
-   7g. noisy_micro <- clipped_micro + noise_micro
-   7h. Accumulate noisy_micro in deterministic order.
-   7i. (cumulative_epsilon, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, sampling_rate, t_micro, target_delta, subsampling, amplification_factor, delta_eps)
-   7j. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
-8. noisy_binary64 <- deterministic_average(accumulated_noisy_micro, gradient_accumulation_steps)
-9. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
-10. Accountant step semantics: `t` advances by exactly `gradient_accumulation_steps` per optimizer step.
-11. emit dp_metrics (`gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `effective_heterogeneous_multiplier`) and return.
+   7b. Accumulate clipped_micro in deterministic order.
+8. averaged_clipped <- deterministic_average(accumulated_clipped_micro, gradient_accumulation_steps)
+9. sigma_map <- PrivacyBudgetScheduler_v1(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
+10. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
+11. If projected_epsilon > target_epsilon - safety_budget_reserve: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
+12. If subsampling == "shuffle": amplification_factor <- AmplificationByShuffling_v1(...)
+13. (noise_step, rng_dp_state') <- GenerateNoise_v1(shape(averaged_clipped), sigma_map, rng_dp_state, noise.compression)
+14. noisy_binary64 <- averaged_clipped + noise_step
+15. (cumulative_epsilon, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, sampling_rate, t, target_delta, subsampling, amplification_factor, delta_eps)
+16. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
+17. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
+18. Accountant step semantics: `t` advances by 1 per optimizer step.
+19. emit dp_metrics (`gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `effective_heterogeneous_multiplier`) and return.
 ```
 
 ---
@@ -494,7 +495,7 @@ Passes all mandatory lint rules: symbol completeness, no hidden globals, total s
 #### VII.B Operator test vectors (mandatory)
 - Deterministic path: DP disabled returns identity gradients and unchanged budget.
 - Deterministic path: fixed synthetic gradients verify clipping scales, per-group/per-tensor allocations, and accountant increments in binary64.
-- Accumulation path: only final accumulation step changes budget and consumes noise RNG offsets.
+- Accumulation path: clipping is per-micro-batch; budget update and noise RNG consumption occur once per optimizer step.
 - Heterogeneous path: sigma-map composition matches reference PLD composition.
 - Stochastic path: fixed seed reproduces identical RNG offsets, replay tokens, and accountant trajectory.
 

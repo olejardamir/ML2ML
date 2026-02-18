@@ -90,6 +90,10 @@
 | `P4_validation` | `P3_codegen_runtime` | golden traces + replay harness | E0/E1 equivalence suite pass |
 | `P5_release` | `P4_validation` | deployment runbook + signed artifacts | deployment canary gates pass |
 
+Deterministic gate evaluation:
+- Gates evaluate a fixed ordered checklist with boolean outcomes.
+- Final gate verdict is lexical reduction over checklist items (`fail` dominates `pass`), independent of runtime execution ordering.
+
 ---
 ## 3) Initialization
 1. Load dependency graph.

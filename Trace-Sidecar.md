@@ -86,6 +86,12 @@
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.
 
+### II.G Privacy Classification and Redaction Contract
+- Field classification labels: `PUBLIC | INTERNAL | CONFIDENTIAL`.
+- No-raw-data rule: traces must not contain raw examples, prompts, gradients, secrets, or direct identifiers.
+- Confidential-mode redaction: sensitive values must be replaced by deterministic keyed hashes (`HMAC-SHA256`) with declared key identifier.
+- Size and sampling controls: deterministic per-operator caps and sampling policy must be declared to bound trace overhead.
+
 ---
 ## 3) Initialization
 1. Load schema version.

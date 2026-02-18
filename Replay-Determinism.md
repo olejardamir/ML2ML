@@ -92,6 +92,10 @@
 - `modelir_replay_t = SHA-256(CBOR(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
 - `dp_replay_t = SHA-256(CBOR(["dp_apply_v3", kernel_replay_token, uint64(t), accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`.
 - Required comparator keys in traces: `t`, `operator_seq`, `rank`, `operator_id`, `status`, plus optional domain metrics.
+- Required environment capture in replay token context:
+  - driver/runtime versions,
+  - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
+  - backend adapter build hash.
 
 ---
 

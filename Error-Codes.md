@@ -87,6 +87,20 @@
 | `ALIGNMENT_VIOLATION` | 4001 | tmmu | critical | false | `t,arena,logical_slot` | `Memory alignment violation` | Increase alignment or remap slot | v1 |
 | `BACKEND_CONTRACT_VIOLATION` | 5001 | backend | critical | false | `t,driver_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
 
+Numeric range reservation:
+- 1000-1999 kernel/contract
+- 2000-2999 data/config
+- 3000-3999 differential privacy
+- 4000-4999 tmmu/memory/checkpoint
+- 5000-5999 backend/model execution
+- 6000-6999 security/compliance
+
+Additional referenced codes:
+- `INVALID_IR` (5002), `CYCLE_DETECTED` (5003), `SHAPE_MISMATCH` (5004), `PRIMITIVE_UNSUPPORTED` (5005), `TMMU_ALLOCATION_FAILURE` (4002), `API_SIGNATURE_MISMATCH` (2002), `INVALID_DP_CONFIG` (3002), `ACCOUNTANT_OVERFLOW` (3003), `DISTRIBUTED_COMMUNICATION_FAILURE` (5006), `ATTESTATION_FAILURE` (6001), `ALIGNMENT_VIOLATION` (4001).
+
+Lint invariant:
+- Build/test must fail if any referenced `code_id` in any spec is absent from this registry.
+
 ---
 ## 3) Initialization
 1. Load registry.

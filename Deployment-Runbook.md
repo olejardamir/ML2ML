@@ -89,6 +89,12 @@
   - replay_determinism_failures == 0
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
+- Secrets and keys:
+  - secret injection only through managed secret stores,
+  - key rotation procedure and rotation audit record required before promotion.
+- Migration/DR:
+  - migration playbook must include schema/version compatibility checks and rollback points,
+  - disaster recovery artifacts required: last-good checkpoint manifest hash, restore procedure hash, incident timeline log.
 
 ---
 ## 3) Initialization

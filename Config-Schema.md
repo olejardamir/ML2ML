@@ -94,6 +94,15 @@
   - `enabled:bool`, `accountant:string`, `target_epsilon:float64`, `target_delta:float64`, `noise_multiplier:float64`.
 - Required `pipeline_stages[i]` fields:
   - `step_id:string`, `type:enum(train|eval|infer|augment)`, `depends_on:array<string>`.
+- Modular extension model:
+  - Core schema namespace: top-level required fields above.
+  - Extension namespaces: `data.*`, `backend.*`, `tmmu.*`, `dp.*`, `trace.*`, `security.*`.
+  - Unknown keys policy: forbidden unless under a declared extension namespace with `schema_extension_id` and `schema_extension_version`.
+- Required cross-doc fields:
+  - `data.sampler_block_size:uint64` (default `1048576`)
+  - `compute_dtype:enum(float32,float64)` (default `float32`)
+  - `backend.name:string`
+  - `trace.schema_version:string`
 
 ---
 ## 3) Initialization

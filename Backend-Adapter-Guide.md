@@ -88,6 +88,12 @@
 | `rng_gaussian` | E2 with deterministic offsets | Philox-based | declared stream ownership | replay offset tests |
 | `all_reduce_sum` | E0 in class | fixed ring/tree order | stable rank order | multi-rank reproducibility suite |
 
+### II.G GPU Determinism Profile (Required)
+- TF32 policy must be explicitly declared (`enabled` or `disabled`) and captured in run metadata.
+- cuDNN/cuBLAS algorithm selection must use deterministic allow-list only.
+- Atomic reduction kernels are forbidden for E0 paths unless deterministic ordering is proven.
+- NCCL/all-reduce ordering must be fixed and rank-stable; environment variables affecting ordering must be pinned and captured.
+
 ---
 ## 3) Initialization
 1. Load driver metadata.

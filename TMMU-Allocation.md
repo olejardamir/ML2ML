@@ -118,6 +118,8 @@
 - All shapes/dtypes known statically.
 - Acyclic dataflow.
 - Peak live bytes per arena ≤ arena capacity.
+- Alias/in-place constraints must be declared in IR metadata and honored by liveness planner.
+- Dynamic shapes require either declared shape envelope or deterministic replan trigger policy.
 
 ### I.D Transient Variables
 - `live_ranges`, `active_set`, `logical_slot_map`, `virtual_address_table`, `free_intervals_per_arena` (for size-aware fallback)
@@ -216,7 +218,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 
 **Operator:** `UML_OS.TMMU.ZeroTensor_v1`  
 **Category:** Memory  
-**Signature:** `(virtual_address → )` (driver primitive)  
+**Signature:** `(virtual_address, size_bytes -> ok)` (driver primitive)  
 **Purity class:** STATEFUL  
 **Definition:** Deterministic zero-fill.
 **Preconditions / Postconditions:** address is valid and writable; tensor contents are zeroed.  
@@ -363,3 +365,11 @@ Each allocation run emits deterministic per-tensor allocation records and one de
 ### Restore semantics
 - Same replay_token → identical layout.
 - Physical backing re-mappable by driver.
+
+### Dynamic/Alias Policy
+- IR must declare:
+  - `alias_group_id` for shared-storage views,
+  - `must_not_alias` constraints,
+  - `in_place_write` markers extending live ranges,
+  - `saved_for_backward` markers.
+- Replan key: `(shape_envelope_hash, mode, arena_config_hash)`; if runtime shape exits envelope, deterministic replan is required and logged.

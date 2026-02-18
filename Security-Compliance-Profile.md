@@ -80,6 +80,22 @@
 ### I.E Invariants and Assertions
 - no unsigned compliant status is accepted in regulated mode.
 
+### II.F Threat Model and Governance (Normative)
+- Threat model: malicious tenant code, compromised node runtime, stale/revoked attestations, unsigned artifact injection, and transport MITM.
+- Required attestation claims:
+  - platform measurement/PCR set,
+  - TCB version,
+  - runtime config hash,
+  - loaded driver hash,
+  - policy hash.
+- Key governance:
+  - signing keys must reside in KMS/HSM-backed stores,
+  - key rotation policy with max key age and revocation checks,
+  - role-based signing authorization and audit trail.
+- Transport/security baseline:
+  - mTLS required for control plane APIs,
+  - service identity binding to attestation identity.
+
 ---
 ## 3) Initialization
 1. Load policy profile.
@@ -178,4 +194,3 @@ Exact compliance report + signature verification comparison.
 - deterministic JSON/CBOR.
 ### Restore semantics
 - resumed compliance evaluation yields identical verdict/signature.
-

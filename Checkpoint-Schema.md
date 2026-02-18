@@ -94,6 +94,19 @@
 - Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_cbor)`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 
+### II.G Sharded/Streaming Container Format
+- Container layout:
+  - `manifest.cbor` (small canonical metadata + shard index)
+  - `tensors/` (rank or tensor-group shard files)
+  - `metadata/` (`optimizer_state`, `rng_states`, `accountant_state`, `tmmu_plan_hash`, `trace_hash_prefix`)
+- Integrity:
+  - `manifest.cbor` includes per-shard hash list and optional Merkle root.
+  - Full checkpoint hash derives from canonical manifest + shard hash list.
+- Atomicity protocol:
+  - write to temp path, fsync file, rename atomically, fsync parent directory.
+- Restore semantics:
+  - supports full restore and deterministic partial restore by shard subset when declared by policy.
+
 ---
 ## 3) Initialization
 1. Load checkpoint schema.

@@ -101,6 +101,10 @@
   - `golden_modelir_exec_v1` -> `sha256:cc03...`
   - `golden_dp_apply_v3` -> `sha256:dd04...`
 - Deterministic pass/fail rule: pass iff all required suites pass and no E0 field mismatch against referenced golden IDs.
+- Required hardening suites:
+  - property/fuzz tests for IR validation, schema parsing, checkpoint decode, and TMMU planner invariants,
+  - distributed chaos tests (rank loss, network partition, delayed collective),
+  - replay divergence minimization tests at scale (multi-rank long-horizon).
 
 ---
 
