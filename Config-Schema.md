@@ -83,6 +83,7 @@
 ### II.F Authoritative Manifest Schema (Concrete)
 - Canonical serialization: CBOR map with lexicographically sorted keys.
 - `manifest_hash = SHA-256(canonical_manifest_cbor)`.
+- `schema_mode: enum("AUTHORITATIVE","MODULAR")` (default `AUTHORITATIVE`).
 - Required top-level fields:
   - `spec_version:string`
   - `seed:uint64`
@@ -94,15 +95,44 @@
   - `enabled:bool`, `accountant:string`, `target_epsilon:float64`, `target_delta:float64`, `noise_multiplier:float64`.
 - Required `pipeline_stages[i]` fields:
   - `step_id:string`, `type:enum(train|eval|infer|augment)`, `depends_on:array<string>`.
-- Modular extension model:
-  - Core schema namespace: top-level required fields above.
-  - Extension namespaces: `data.*`, `backend.*`, `tmmu.*`, `dp.*`, `trace.*`, `security.*`.
-  - Unknown keys policy: forbidden unless under a declared extension namespace with `schema_extension_id` and `schema_extension_version`.
+- Unknown keys policy:
+  - In `AUTHORITATIVE` mode: unknown key paths are fatal (`CONTRACT_VIOLATION`).
+  - In `MODULAR` mode: unknown keys allowed only under registered extension roots and only when ownership/version checks in II.G pass.
 - Required cross-doc fields:
   - `data.sampler_block_size:uint64` (default `1048576`)
   - `compute_dtype:enum(float32,float64)` (default `float32`)
   - `backend.name:string`
   - `trace.schema_version:string`
+
+### II.G Extension Registry (Normative)
+| ext_id | root_prefix | owner_org | signing_key_id | version_range | conflict_policy |
+|---|---|---|---|---|---|
+| `core_data` | `data.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_backend` | `backend.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_tmmu` | `tmmu.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_dp` | `dp.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_trace` | `trace.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_security` | `security.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+
+Normative checks in `MODULAR` mode:
+- `schema_extensions[ext_id].owner == manifest.extensions[ext_id].owner`
+- `manifest.extensions[ext_id].version` must satisfy `version_range`
+- two extensions cannot claim overlapping `root_prefix` (`FAIL`)
+
+### II.H Field Access Rule (Normative)
+- Define `MANIFEST_FIELD_ACCESS_SET`: exact set of manifest key paths referenced by kernel, executor, sampler, DP, checkpoint, trace, backend adapter, and deployment operators.
+- CI must compute `MANIFEST_FIELD_ACCESS_SET` from static extraction and compare against schema-declared paths.
+- Build fails with `CONTRACT_VIOLATION` if any referenced path is undeclared.
+
+### II.I Canonical Defaults Table (Normative)
+| field_path | default |
+|---|---|
+| `data.sampler_block_size` | `1048576` |
+| `trace.schema_version` | `UML_OS.Trace.SidecarSchema_v1` |
+| `trace.max_bytes_per_step` | `1048576` |
+| `trace.sample_policy` | `HASH_GATED` |
+| `dp.accountant_granularity` | `PER_STEP` |
+| `backend.determinism_profile_id` | `gpu_determinism_v1` |
 
 ---
 ## 3) Initialization

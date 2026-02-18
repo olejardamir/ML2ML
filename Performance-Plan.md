@@ -25,6 +25,7 @@
 - PRNG family: inherited from tested operators.
 - Randomness locality: benchmark harness does not sample except workload generation operators.
 - Replay guarantee: benchmark replayable given `(workload_manifest, env_hash, seeds, commit_hash)`.
+- Determinism scope: metric sampling is physical-world variable; aggregation and verdict are deterministic given a frozen metric snapshot hash.
 
 ### 0.C Numeric Policy
 - Timing and memory metrics stored in binary64/integer nanoseconds and bytes.
@@ -41,7 +42,7 @@
 
 ### 0.F Environment and Dependency Policy
 - Pinned benchmark runtime image and dependency lockfile required.
-- Determinism level: `BITWISE` for gate verdicts, `TOLERANCE` for metric deltas.
+- Determinism level: deterministic analysis/verdict over frozen samples (E0 on analysis), tolerance-based policy on raw metrics.
 
 ### 0.G Operator Manifest
 - `UML_OS.Perf.RunBenchmark_v1`
@@ -54,7 +55,7 @@
 
 ### 0.I Outputs and Metric Schema
 - Outputs: `(perf_report, gate_verdict)`.
-- Metrics: `p50`, `p95`, `p99`, `peak_memory`, `throughput`, `regression_count`.
+- Metrics: `p50`, `p95`, `p99`, `peak_memory`, `throughput`, `regression_count`, `peak_memory_bytes`, `tmmu_fragmentation_ratio`.
 - Completion status: `success | failed`.
 
 ### 0.J Spec Lifecycle Governance
@@ -84,6 +85,12 @@
 
 ### I.E Invariants and Assertions
 - deterministic run order and complete metric emission.
+
+### II.F Regression Guards (Normative)
+- `peak_memory_bytes` ceiling is mandatory per workload/profile; exceeding ceiling is a hard failure.
+- `tmmu_fragmentation_ratio` is computed deterministically as `1 - (largest_free_block_bytes / total_free_bytes)` at measurement point.
+- Fragmentation regression beyond declared threshold is a hard failure.
+- Gate verdict is computed on frozen snapshot samples only.
 
 ---
 

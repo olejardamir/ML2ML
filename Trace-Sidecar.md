@@ -16,7 +16,7 @@
 ### 0.A Objective Semantics
 - Minimize trace ambiguity and schema drift.
 ### 0.B Reproducibility Contract
-- Replayable given `(schema_version, trace_hash, replay_token_formula)`.
+- Replayable given `(schema_version, trace_root_hash, replay_token_formula)`.
 ### 0.C Numeric Policy
 - Field types are explicit; numeric fields use declared scalar kinds.
 ### 0.D Ordering and Tie-Break Policy
@@ -32,7 +32,7 @@
 ### 0.H Namespacing and Packaging
 - Namespaced schema keys required.
 ### 0.I Outputs and Metric Schema
-- Outputs: `(normalized_trace, trace_hash)`.
+- Outputs: `(normalized_trace, final_trace_hash)`.
 - Metrics: `record_count`, `missing_required_keys`.
 - Completion status: `success | failed`.
 ### 0.J Spec Lifecycle Governance
@@ -79,18 +79,41 @@
 - key set and type contract invariant.
 
 ### II.F Canonical Trace Schema (Concrete)
-- Hash algorithm: `trace_hash = SHA-256(canonical_cbor_record)`.
+- Hash algorithms:
+  - `record_hash_i = SHA-256(CBOR(normalized_record_i))`
+  - Whole-run hash chain:
+    - `h_0 = SHA-256(CBOR(["trace_chain_v1"]))`
+    - `h_i = SHA-256(h_{i-1} || record_hash_i)` for records in canonical order
+    - `final_trace_hash = h_last`
+- Trace endpoints:
+  - `trace_head_hash = h_0`
+  - `trace_tail_hash = h_last`
+- Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted (or encoded as empty bytes) in the canonical CBOR input.
 - Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
 - Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`.
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`.
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.
+- Migration controls:
+  - `migration_supported_from: array<string>`
+  - `migration_operator: string`
+  - `migration_invariants: array<string>`
 
 ### II.G Privacy Classification and Redaction Contract
 - Field classification labels: `PUBLIC | INTERNAL | CONFIDENTIAL`.
+- Field-level baseline classes:
+  - `PUBLIC`: `t`, `operator_id`, `operator_seq`, hash digests, status.
+  - `INTERNAL`: driver/runtime fingerprints, backend/hash metadata.
+  - `CONFIDENTIAL`: any value that can leak sample/model-sensitive properties.
 - No-raw-data rule: traces must not contain raw examples, prompts, gradients, secrets, or direct identifiers.
 - Confidential-mode redaction: sensitive values must be replaced by deterministic keyed hashes (`HMAC-SHA256`) with declared key identifier.
 - Size and sampling controls: deterministic per-operator caps and sampling policy must be declared to bound trace overhead.
+- Deterministic size/sampling controls:
+  - `max_bytes_per_step:uint64`
+  - `max_record_bytes:uint32`
+  - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
+  - HASH_GATED inclusion rule: include iff `SHA-256(CBOR([replay_token, t, operator_seq])) mod M < K`.
+  - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with declared priority ordering.
 
 ---
 ## 3) Initialization
@@ -127,10 +150,10 @@ Template conformance note (III.A): each operator definition in this section is i
 
 **Operator:** `UML_OS.Trace.ComputeTraceHash_v1`  
 **Category:** IO  
-**Signature:** `(normalized_trace -> hash)`  
+**Signature:** `(normalized_trace -> final_trace_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** canonical hash over normalized records.
+**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain_v1` hash-chain rule to emit the whole-run `final_trace_hash`.
 
 ---
 ## 6) Procedure
@@ -148,7 +171,7 @@ Trace schema validation itself emits deterministic validation records.
 ### Trace schema
 - `run_header`: schema_version, source_component
 - `iter`: t, operator, validation_status
-- `run_end`: trace_hash, status
+- `run_end`: final_trace_hash, status
 ### Metric schema
 - `record_count`, `missing_required_keys`
 ### Comparability guarantee

@@ -2,7 +2,7 @@
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
 **Algorithm:** `UML_OS.DifferentialPrivacy.Apply_v3`  
-**Purpose (1 sentence):** Apply deterministic clipping (with FlashDP-fused and PEFT-aware paths), smart privacy budget allocation, heterogeneous per-layer/per-group noise, pre-computed sigma schedules, scaling-law projections, and exact PLD-dominant accounting with safety-reserve abort-on-budget semantics for regulated frontier LLM training.  
+**Purpose (1 sentence):** Apply deterministic clipping (with FlashDP-fused and PEFT-aware paths), smart privacy budget allocation, heterogeneous per-layer/per-group noise, pre-computed sigma schedules, scaling-law projections, and PLD-default accounting with safety-reserve abort-on-budget semantics for regulated frontier LLM training.  
 **Spec Version:** `UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
 **Domain / Problem Class:** DP-SGD and related private first-order optimization at LLM/frontier scale.
 
@@ -34,7 +34,7 @@
 ### 0.C Numeric Policy
 - Critical arithmetic (norms, clipping scales, means, sigma schedules/maps, accountant state): IEEE-754 binary64
 - Deterministic reductions: ascending global parameter index with Kahan summation in binary64
-- Heterogeneous maps (`sigma_map`, `clip_norm_map`, `sensitivity_map`) are processed in binary64 with deterministic group-local Kahan reductions
+- Heterogeneous maps (`sigma_map`, `clip_norm_map`, `sensitivity_map`, `stddev_map`) are processed in binary64 with deterministic group-local Kahan reductions
 - Stable norm computation: max-rescaled L2 path + Kahan accumulation
 - Optional `log_space_accounting: true` for very long runs (`steps > 10k`)
 - Output cast: `manifest.compute_dtype` only at final return
@@ -116,7 +116,8 @@
 ### 0.K Failure and Error Semantics
 - Global error model: abort-only with deterministic final record
 - Failure codes: `PRIVACY_BUDGET_EXCEEDED`, `INVALID_GRADIENT`, `NAN_IN_SIGMA`, `ACCOUNTANT_OVERFLOW`, `ACCOUNTANT_DIVERGENCE`, `RNG_CONSUMPTION_VIOLATION`, `INVALID_DP_CONFIG`
-- Soft safety warning threshold: `target_epsilon * (1 - safety_budget_reserve)`
+- `safety_budget_reserve` is a fractional reserve `r in [0,1)`.
+- Soft safety warning threshold: `warn_threshold = target_epsilon * (1 - r)`
 - Failure record fields: `t`, `failure_code`, `failure_operator`, `dp_replay_t`, `state_fp_t`
 
 ### 0.L Input/Data Provenance
@@ -147,11 +148,12 @@
   - `mechanism: "gaussian"`
   - `accountant: "pld" | "moments" | "rdp" | "f_dp" | "gdp"` (default/recommended: `pld`)
   - `subsampling: "poisson" | "fixed" | "shuffle"`
+  - `accountant_granularity: "PER_STEP" | "PER_EPOCH"` (default `PER_STEP`, recommended `PER_STEP`)
   - `clipping.strategy: "per_sample" | "ghost" | "per_layer" | "per_group" | "per_tensor" | "hybrid" | "peft_targeted" | "adaptive"`
   - `clipping.norm: float | "adaptive"`
   - `clip_norm_map: dict | null`
   - `sensitivity_map: dict | null`
-  - `sigma_map: dict | null`
+  - `sigma_map: dict | null` (dimensionless multipliers `sigma_g`)
   - `noise.per_layer_multiplier: dict | null`
   - `noise.compression: "none" | "topk_dp" | "sparse_dp"`
   - `fused_kernel: bool` (default `true` for llm presets)
@@ -178,7 +180,7 @@
 - Runtime constraints: `target_epsilon >= 0`, `target_delta in (0,1)`, `noise_multiplier >= 0` (debug mode permits `0`), valid clipping strategy/scheduler/accountant, deterministic contract checks.
 
 ### I.D Transient Variables
-- `clipped_gradients`, `per_sample_norms`, `per_group_norms`, `sigma_map_t`, `noise_t`, `averaged_gradients`, `projected_epsilon`, `allocation_map`, `amplification_factor`
+- `clipped_gradients`, `per_sample_norms`, `per_group_norms`, `sigma_map_t`, `stddev_map_t`, `noise_t`, `averaged_gradients`, `projected_epsilon`, `allocation_map`, `amplification_factor`
 
 ### I.E Invariants and Assertions
 - `cumulative_epsilon` is finite and non-decreasing
@@ -187,14 +189,33 @@
 - clipping may occur per micro-batch; accountant update and noise draw occur once per optimizer step.
 
 ### II.F Mechanism Definition (Formal)
+- Adjacency: record-level adjacency (datasets differ by one record via add/remove or replace).
 - Parameter space is partitioned into disjoint groups `g in G` by `privacy_allocation`.
 - Per-group sensitivity bound: for each sample `i`, clipped gradient satisfies `||clip_g(grad_{i,g})||_2 <= C_g`.
 - Per-optimizer-step release for group `g`:
   `G_tilde_g = (1/B_eff) * (sum_i clip_g(grad_{i,g}) + N(0, (sigma_g * C_g / B_eff)^2 I))`,
   where `B_eff` is the effective optimizer-step batch size after accumulation.
+- `sigma_map_t[g]` is the dimensionless multiplier `sigma_g`.
+- `stddev_map_t[g]` is derived deterministically as `stddev_map_t[g] = sigma_map_t[g] * C_g / B_eff`.
 - Group composition at a step uses the selected accountant (`PLD` default, `RDP`/`moments`/`f_dp`/`gdp` fallback) with explicit `sampling_rate`, `subsampling`, and optional `amplification_factor`.
+- Normative heterogeneous composition rule:
+  - For each Renyi order `alpha` in a fixed declared grid, compute `RDP_step(alpha) = sum_g RDP_g(alpha; q_eff, sigma_g)`.
+  - Compose across optimizer steps by summation in deterministic step order.
+  - Convert to `(epsilon, delta)` via deterministic minimization over the fixed `alpha` grid.
+  - PLD path is allowed as primary implementation only when configured discretization/truncation error bound is declared and included in trace.
 - Step composition: accountant composes optimizer steps in deterministic order; `(epsilon, delta)` reported from accountant conversion per optimizer step.
 - Ghost clipping: when enabled, accountant input uses `sampling_rate' = min(1.0, accounting_adjustment_factor * sampling_rate)` and requires audited bound artifact in regulated mode.
+
+### II.G Subsampling/Accounting Alignment (Normative)
+- `subsampling` must be one of `POISSON`, `SHUFFLE_WITHOUT_REPLACEMENT`, or `NONE`.
+- Accountant assumptions must match sampler behavior declared in `Data-NextBatch.md`.
+- If exact match is unavailable, run must declare deterministic approximation policy and log `accounting_approximation_policy` in trace.
+
+### II.H Adaptation Safety (Normative)
+- Any adaptation of `clip_norm`, `allocation_map`, or budget schedule that depends on private gradients must use:
+  - DP-sanitized aggregates only, or
+  - explicitly budgeted adaptation composed into the same accountant state.
+- Adaptation budget consumption (`delta_eps`) must be logged and included in replay/checkpoint accountant state.
 
 ---
 
@@ -342,10 +363,10 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 **Operator:** `UML_OS.DifferentialPrivacy.GenerateNoise_v1`  
 **Category:** Security  
-**Signature:** `(shape, sigma_map_t, rng_dp_state, compression_cfg? -> noise, rng_dp_state')`  
+**Signature:** `(shape, stddev_map_t, rng_dp_state, compression_cfg? -> noise, rng_dp_state')`  
 **Purity class:** STATEFUL  
 **Determinism:** stochastic (distributionally deterministic under replay contract)  
-**Definition:** isotropic/heterogeneous Gaussian generation with exact RNG offset accounting; applies variance-aware compression adjustments if configured.
+**Definition:** isotropic/heterogeneous Gaussian generation with exact RNG offset accounting; consumes per-group standard deviations from `stddev_map_t`; applies variance-aware compression adjustments if configured.
 
 **Operator:** `UML_OS.DifferentialPrivacy.Accountant.Update_v1`  
 **Category:** Security  
@@ -446,15 +467,18 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
    7b. Accumulate clipped_micro in deterministic order.
 8. averaged_clipped <- deterministic_average(accumulated_clipped_micro, gradient_accumulation_steps)
 9. sigma_map <- PrivacyBudgetScheduler_v1(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
+9b. stddev_map <- derive_stddev_map(sigma_map, clip_norm_map, effective_batch_size)   # stddev_g = sigma_g * C_g / B_eff
 10. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
-11. If projected_epsilon > target_epsilon - safety_budget_reserve: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
+11. If projected_epsilon > target_epsilon: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
 12. If subsampling == "shuffle": amplification_factor <- AmplificationByShuffling_v1(...)
-13. (noise_step, rng_dp_state') <- GenerateNoise_v1(shape(averaged_clipped), sigma_map, rng_dp_state, noise.compression)
+13. (noise_step, rng_dp_state') <- GenerateNoise_v1(shape(averaged_clipped), stddev_map, rng_dp_state, noise.compression)
 14. noisy_binary64 <- averaged_clipped + noise_step
 15. (cumulative_epsilon, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, sampling_rate, t, target_delta, subsampling, amplification_factor, delta_eps)
 16. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
 17. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
-18. Accountant step semantics: `t` advances by 1 per optimizer step.
+18. Accountant step semantics:
+    - if `accountant_granularity == PER_STEP`, `t` advances by 1 per optimizer step.
+    - if `accountant_granularity == PER_EPOCH`, budget updates are aggregated deterministically across step set and committed once at epoch boundary.
 19. emit dp_metrics (`gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `effective_heterogeneous_multiplier`) and return.
 ```
 

@@ -87,11 +87,17 @@
   - error_rate <= 0.5%
   - p95_latency_delta <= 10%
   - replay_determinism_failures == 0
+- Gate verdict determinism: verdict is computed from a frozen metrics snapshot (`metrics_snapshot_hash`) captured at each canary stage; real-time telemetry ordering is not used directly for final verdict computation.
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Secrets and keys:
   - secret injection only through managed secret stores,
   - key rotation procedure and rotation audit record required before promotion.
+- Transport and isolation requirements:
+  - control-plane mTLS required,
+  - trust-root pinning policy required,
+  - minimum cipher-suite baseline required,
+  - namespace/network-policy/storage-path segregation required between tenants/environments.
 - Migration/DR:
   - migration playbook must include schema/version compatibility checks and rollback points,
   - disaster recovery artifacts required: last-good checkpoint manifest hash, restore procedure hash, incident timeline log.

@@ -32,13 +32,19 @@
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
 - Replay token: `replay_token = SHA-256(CBOR(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`
+- Replay context must also bind:
+  - `sampler_config_hash`,
+  - `tmmu_plan_hash`,
+  - `dp_accountant_state_hash`,
+  - `determinism_profile_hash`,
+  - backend runtime fingerprint.
 - Canonical hash/input encoding rule (global): all hash inputs are domain-separated CBOR arrays; strings encoded UTF-8; integers encoded as unsigned big-endian logical values via CBOR major type.
 
 ### 0.C Numeric Policy
 - Core arithmetic (loss, metrics, termination, fingerprints, gradient norms, DP accounting, critical reductions): IEEE-754 binary64 with deterministic ascending-index order and EPS guards.
 - Model parameters, optimizer state, intermediates, non-critical computations: manifest.compute_dtype (float32 default).
 - Critical reductions and fingerprints: binary64, deterministic ascending-index order
-- All reductions (including all-reduce, gradient norm, loss summation) use Kahan compensated summation or pairwise tree reduction in binary64 with fixed ascending-index order; associative ordering is guaranteed independent of hardware topology or world_size.
+- All reductions (including all-reduce, gradient norm, loss summation) use Kahan compensated summation or pairwise tree reduction in binary64 with fixed ascending-index order; E0 bitwise guarantees apply within a fixed `(world_size, collective algorithm, rank order, driver build, math flags)` equivalence class.
 - Rounding mode: round-to-nearest ties-to-even
 - Fast-math: forbidden
 - Constants: `EPS_EQ = 1e-10`, `EPS_DENOM = 1e-12`, `EPS_PROB = 1e-15`
@@ -100,7 +106,7 @@ Migration: update manifest operator versions and replay_token.
   - Driver (deterministic device primitives)
   - Runtime (pinned dependencies)
   - Module (verified operator packages)
-  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + BLAKE3(CBOR(["daemon_sched_v1", manifest_hash, hardware_attest_id, job_id])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/data_cursor/checkpoints/tapes/lineage) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Virtual addressing scheme is delegated to `TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
+  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + BLAKE3(CBOR(["daemon_sched_v1", manifest_hash, hardware_attest_id, job_id])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/data_cursor/checkpoints/tapes/lineage) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
   - Management (CLI entrypoints)
   - User (manifests only)
 - Filesystem roots:
@@ -154,7 +160,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 ### 0.R Distributed and Multi-tenancy Policy
 - Deterministic rank ordering and deterministic collective primitives
 - `global_batch_size % world_size == 0` required for distributed runs
-- Global batch sequence and update sequence independent of `world_size`; sharding always contiguous rank-ordered after global deterministic permutation; collective order fixed by ascending rank.
+- Global batch sequence is world-size invariant by data contract; update values are E0 only within fixed distributed configuration and E1 across compatible re-shards; sharding remains contiguous rank-ordered after global deterministic permutation; collective order fixed by ascending rank.
 - In `daemon_mode=cluster`, all collectives respect manifest `distributed.timeout_seconds` (default 300); any timeout or communication error aborts deterministically with `DISTRIBUTED_COMMUNICATION_FAILURE` record (included in trace and certificate).
 - Declared parallelism.strategy is implemented by the loaded driver under Contract.Validate_v1 and the ReproducibilityTest suite (sharding of model parameters and data consistent with NextBatch_v2 and UML_Model_IR node annotations). Hybrid strategies combine via manifest-defined stage or node partitioning.
 
@@ -173,7 +179,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - `local`: daemon optional, relaxed warnings mode
 - `managed`: full enforcement, signed certificate required
 - `confidential`: TEE launch + quote mandatory, full enforcement, signed certificate includes quote
-- `regulated`: daemon mandatory; enforces exact differential-privacy accounting, immutable append-only audit trail, and electronic signatures. Launches inside hardware TEE if present. If Security.AttestTEE_v1 fails at any point (including micro-second quote refresh), kernel issues immediate SIGKILL to the process and zero-fills all GPU/CPU memory in the same clock cycle before abort. Full RNG auditing; produces signed provenance record.
+- `regulated`: daemon mandatory; enforces exact differential-privacy accounting, immutable append-only audit trail, and electronic signatures. Launches inside hardware TEE if present. If Security.AttestTEE_v1 fails at any point, kernel issues immediate termination, executes deterministic best-effort zeroization hooks for owned memory regions, records zeroization evidence, and aborts. Full RNG auditing; produces signed provenance record.
 
 ### 0.W CLI and Usability Requirements
 - Required commands (prioritized entrypoints): `umlos quickstart [template: classification|regression|pipeline|regulated]` (creates minimal ready-to-run manifest.yaml + project layout + example pipeline under current dir; runnable in <10 s), `umlos run manifest.yaml`, `umlos validate`, `umlos doctor`, `umlos replay <token>`, `umlos certificate verify`, `umlos migrate <legacy_path> [options] --output-dir .` (analyzes common training scripts/notebooks, generates runnable UML_OS manifest.yaml + IR; runs Contract.Validate_v1 on result), plus `job submit`/`export`/`infer`/`namespace init`/`daemon start`/`dataset register`/`import`/`audit export`/`ps/logs/kill/queue`. All CLI paths perform full Contract.Validate_v1 + manifest validation before any action.
@@ -365,7 +371,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(dataset_key, world_size, rank -> batch, data_cursor')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic with declared RNG  
-**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `BLAKE3(CBOR(["nextbatch_epoch_seed_v1", manifest_hash, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via seeded modular arithmetic in ascending index order. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence and training dynamics regardless of world_size. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
+**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `BLAKE3(CBOR(["nextbatch_epoch_seed_v1", manifest_hash, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
 **Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
 **Edge cases:** world_size=1, final batch boundary.  
 **Numerical considerations:** preprocessing stable in binary64 for reductions.  

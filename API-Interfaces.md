@@ -94,11 +94,30 @@
 - Registry entries are unique and versioned.
 
 ### II.F Interface Registry (Concrete)
-| name | version | method | request_schema_hash | response_schema_hash | idempotent | side_effects | allowed_error_codes |
+| name | version | method | request_schema_hash | response_schema_hash | idempotent | side_effects | allowed_error_codes | signature_digest |
 |---|---|---|---|---|---|---|---|
-| `UML_OS.Data.NextBatch_v2` | v2 | syscall | `sha256:req_nextbatch` | `sha256:resp_nextbatch` | false | cursor advance | `BATCH_SIZE_INCONSISTENT,INVALID_DATASET_KEY` |
-| `UML_OS.Model.Forward_v2` | v2 | syscall | `sha256:req_forward` | `sha256:resp_forward` | true | none | `CONTRACT_VIOLATION,PRIMITIVE_UNSUPPORTED` |
-| `UML_OS.DifferentialPrivacy.Apply_v3` | v3 | syscall | `sha256:req_dp_apply` | `sha256:resp_dp_apply` | false | accountant/rng state advance | `PRIVACY_BUDGET_EXCEEDED,INVALID_DP_CONFIG` |
+| `UML_OS.Data.NextBatch_v2` | v2 | syscall | `sha256:req_nextbatch` | `sha256:resp_nextbatch` | false | `["ADVANCES_CURSOR"]` | `BATCH_SIZE_INCONSISTENT,INVALID_DATASET_KEY` | `sha256:sig_nextbatch_v2` |
+| `UML_OS.Model.Forward_v2` | v2 | syscall | `sha256:req_forward` | `sha256:resp_forward` | true | `["NONE"]` | `CONTRACT_VIOLATION,PRIMITIVE_UNSUPPORTED` | `sha256:sig_forward_v2` |
+| `UML_OS.DifferentialPrivacy.Apply_v3` | v3 | syscall | `sha256:req_dp_apply` | `sha256:resp_dp_apply` | false | `["ADVANCES_RNG","MUTATES_ACCOUNTANT"]` | `PRIVACY_BUDGET_EXCEEDED,INVALID_DP_CONFIG` | `sha256:sig_dp_apply_v3` |
+| `UML_OS.IO.SaveCheckpoint_v1` | v1 | syscall | `sha256:req_save_ckpt` | `sha256:resp_save_ckpt` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_save_ckpt_v1` |
+| `UML_OS.Checkpoint.Restore_v1` | v1 | syscall | `sha256:req_restore_ckpt` | `sha256:resp_restore_ckpt` | false | `["PERFORMS_IO","MUTATES_MODEL_STATE"]` | `CONTRACT_VIOLATION` | `sha256:sig_restore_ckpt_v1` |
+| `UML_OS.Trace.ComputeTraceHash_v1` | v1 | syscall | `sha256:req_trace_hash` | `sha256:resp_trace_hash` | true | `["NONE"]` | `CONTRACT_VIOLATION` | `sha256:sig_trace_hash_v1` |
+| `UML_OS.Backend.LoadDriver_v1` | v1 | syscall | `sha256:req_load_driver` | `sha256:resp_load_driver` | false | `["PERFORMS_IO","NETWORK_COMM"]` | `BACKEND_CONTRACT_VIOLATION` | `sha256:sig_load_driver_v1` |
+| `UML_OS.Model.ModelIR_Executor_v1` | v1 | syscall | `sha256:req_modelir_exec` | `sha256:resp_modelir_exec` | false | `["ALLOCATES_MEMORY","MUTATES_MODEL_STATE"]` | `INVALID_IR,PRIMITIVE_UNSUPPORTED` | `sha256:sig_modelir_exec_v1` |
+| `UML_OS.TMMU.PrepareMemory_v2` | v2 | syscall | `sha256:req_tmmu_prepare` | `sha256:resp_tmmu_prepare` | false | `["ALLOCATES_MEMORY"]` | `TMMU_ALLOCATION_FAILURE,ALIGNMENT_VIOLATION` | `sha256:sig_tmmu_prepare_v2` |
+
+Signature digest rule:
+- `signature_digest = SHA-256(CBOR([name, version, method, request_schema_hash, response_schema_hash, sorted(side_effects), sorted(allowed_error_codes)]))`.
+- Cross-file invariant: for each operator `op`, digest in `API-Interfaces.md`, `Code-Generation-Mapping.md`, and `Backend-Adapter-Guide.md` (for backend-exposed ops) must be identical.
+- `side_effects` allowed enum values:
+  - `NONE`
+  - `ADVANCES_CURSOR`
+  - `ADVANCES_RNG`
+  - `MUTATES_ACCOUNTANT`
+  - `MUTATES_MODEL_STATE`
+  - `PERFORMS_IO`
+  - `ALLOCATES_MEMORY`
+  - `NETWORK_COMM`
 
 ---
 

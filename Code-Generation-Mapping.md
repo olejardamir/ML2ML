@@ -80,12 +80,17 @@
 - unique symbol per mapped operator.
 
 ### II.F Mapping Table (Concrete)
-| operator | module_path | symbol_name | stub_template | ownership |
-|---|---|---|---|---|
-| `UML_OS.Data.NextBatch_v2` | `src/data/next_batch.py` | `next_batch_v2` | `py_operator_stub_v1` | data team |
-| `UML_OS.Model.ModelIR_Executor_v1` | `src/model/modelir_executor.py` | `modelir_executor_v1` | `py_operator_stub_v1` | model team |
-| `UML_OS.DifferentialPrivacy.Apply_v3` | `src/dp/apply.py` | `dp_apply_v3` | `py_operator_stub_v1` | privacy team |
-| `UML_OS.TMMU.PrepareMemory_v2` | `src/tmmu/prepare_memory.py` | `prepare_memory_v2` | `py_operator_stub_v1` | runtime team |
+| operator | module_path | symbol_name | stub_template | ownership | side_effects | signature_digest |
+|---|---|---|---|---|---|---|
+| `UML_OS.Data.NextBatch_v2` | `src/data/next_batch.py` | `next_batch_v2` | `py_operator_stub_v1` | data team | `["ADVANCES_CURSOR"]` | `sha256:sig_nextbatch_v2` |
+| `UML_OS.Model.ModelIR_Executor_v1` | `src/model/modelir_executor.py` | `modelir_executor_v1` | `py_operator_stub_v1` | model team | `["ALLOCATES_MEMORY","MUTATES_MODEL_STATE"]` | `sha256:sig_modelir_exec_v1` |
+| `UML_OS.DifferentialPrivacy.Apply_v3` | `src/dp/apply.py` | `dp_apply_v3` | `py_operator_stub_v1` | privacy team | `["ADVANCES_RNG","MUTATES_ACCOUNTANT"]` | `sha256:sig_dp_apply_v3` |
+| `UML_OS.TMMU.PrepareMemory_v2` | `src/tmmu/prepare_memory.py` | `prepare_memory_v2` | `py_operator_stub_v1` | runtime team | `["ALLOCATES_MEMORY"]` | `sha256:sig_tmmu_prepare_v2` |
+| `UML_OS.Trace.ComputeTraceHash_v1` | `src/trace/compute_trace_hash.py` | `compute_trace_hash_v1` | `py_operator_stub_v1` | trace team | `["NONE"]` | `sha256:sig_trace_hash_v1` |
+| `UML_OS.IO.SaveCheckpoint_v1` | `src/io/save_checkpoint.py` | `save_checkpoint_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO"]` | `sha256:sig_save_ckpt_v1` |
+
+Signature lock invariant:
+- For each operator `op`, `signature_digest` must match `API-Interfaces.md` and (for backend-exposed ops/primitives) `Backend-Adapter-Guide.md`.
 
 ---
 ## 3) Initialization

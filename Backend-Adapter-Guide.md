@@ -93,6 +93,17 @@
 - cuDNN/cuBLAS algorithm selection must use deterministic allow-list only.
 - Atomic reduction kernels are forbidden for E0 paths unless deterministic ordering is proven.
 - NCCL/all-reduce ordering must be fixed and rank-stable; environment variables affecting ordering must be pinned and captured.
+- Effective profile must be exported as `determinism_profile_hash` and bound into replay token context.
+
+### II.H Backend Signature Lock (Normative)
+- Backend-exposed syscall/primitive bindings must publish `signature_digest`:
+  - `signature_digest = SHA-256(CBOR([name, version, method, request_schema_hash, response_schema_hash, sorted(side_effects), sorted(allowed_error_codes)]))`.
+- Cross-file invariant:
+  - `API-Interfaces.signature_digest(op) == Code-Generation-Mapping.signature_digest(op) == Backend-Adapter-Guide.signature_digest(op)` for every backend-exposed operator.
+- Minimum backend-exposed digest set:
+  - `UML_OS.Model.Forward_v2 -> sha256:sig_forward_v2`
+  - `UML_OS.Model.ModelIR_Executor_v1 -> sha256:sig_modelir_exec_v1`
+  - `UML_OS.Backend.LoadDriver_v1 -> sha256:sig_load_driver_v1`
 
 ---
 ## 3) Initialization

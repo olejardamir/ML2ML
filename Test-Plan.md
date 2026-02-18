@@ -106,6 +106,32 @@
   - distributed chaos tests (rank loss, network partition, delayed collective),
   - replay divergence minimization tests at scale (multi-rank long-horizon).
 
+### II.G Property Invariants (Normative)
+- IR invariants: DAG acyclic, edge typing valid, shape constraints satisfied, gradient dependency graph consistent.
+- Schema invariants: normalization idempotent, unknown key handling follows `schema_mode`.
+- TMMU invariants: no overlap on reused live intervals, alias/in-place constraints enforced, replan triggers deterministic.
+- DP invariants: epsilon monotonicity, delta bounds respected, no negative budgets, stable accountant state hash under replay.
+
+### II.H Fuzz Harness Inventory (Normative)
+- Manifest parser fuzzer (`max_input_bytes` declared, crash=fail).
+- IR ingestion fuzzer (`max_nodes` declared, crash=fail).
+- Checkpoint loader fuzzer (`max_blob_bytes` declared, crash=fail).
+- Trace parser fuzzer (`max_record_bytes` declared, crash=fail).
+- Sanitizer baseline: memory/UB sanitizers required in fuzz CI profile.
+
+### II.I Registry Completeness Lint (Normative)
+- Parse all docs for `Failure codes:` and `allowed_error_codes`.
+- Fail build if any referenced code is absent from `Error-Codes.md`.
+
+### II.J Determinism Regression Matrix (Normative)
+- Required replay matrices:
+  - same machine / same driver (E0 required),
+  - same GPU class / different driver patch (E1 policy),
+  - cross-GPU class (E1 only, explicit tolerances).
+- Pass/fail policy:
+  - E0 fields must be bitwise equal.
+  - E1 fields must remain within declared per-field tolerance bands.
+
 ---
 
 ## 3) Initialization

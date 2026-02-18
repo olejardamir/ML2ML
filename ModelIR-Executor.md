@@ -42,6 +42,7 @@
 - Index base: 0-based.
 - Execution order: strict topological order with stable sort by node_id (lowest node_id wins on ties). **For backward mode: reversed topological order (guarantees correct gradient propagation order).**
 - Tensor reductions: ascending flat index or node_id order.
+- Backward ordering contract: execution follows topological order of the explicit gradient dependency graph (`grad_edges`); plain reverse-forward order is valid only when equivalent to `grad_edges` order.
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Driver handles intra-op parallelism (must be deterministic per Contract.Validate_v1).
@@ -121,7 +122,12 @@
 - Every node input available before dispatch.
 - All allocated tensors zeroed by TMMU before first write.
 - Critical reductions performed in binary64 with fixed order.
-- TMMU deterministic virtual addressing (BLAKE3-based per kernel 0.N).
+- TMMU deterministic virtual addressing (delegated to `TMMU-Allocation.md` contract).
+- Backward adjoint invariants:
+  - each differentiable tensor has a declared `grad_slot`,
+  - all grad slots are zero-initialized at backward start,
+  - terminal loss/output gradient seed is explicitly set to 1 (or declared upstream value),
+  - multi-parent gradient contributions are accumulated in deterministic `(node_id, input_index)` order.
 
 ---
 

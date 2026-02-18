@@ -67,6 +67,10 @@
 - Declared outputs: `(batch_sample_indices: uint64[], data_cursor')`
 - Minimum metrics: `epoch`, `global_position`, `is_shuffled`, `effective_batch_size`, `blocks_materialized`
 - DP/accounting metadata output: `subsampling_mode`, `effective_q`, `sampler_block_size`
+- Deterministic definitions:
+  - `B_eff = global_batch_size`
+  - `effective_q = float64(B_eff) / float64(N)`
+  - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
@@ -116,6 +120,7 @@
 - Eval/infer: sample_indices == [global_pos, global_pos+1, …] % N
 - Train: permutation is a bijection over [0 … N-1]
 - Cursor only advances on successful batch return
+- DP alignment invariant: emitted `subsampling_mode` must match DP accountant assumption for the same run.
 
 ---
 
@@ -251,7 +256,7 @@ Each invocation emits one deterministic trace record with cursor-before/cursor-a
 
 ### Trace schema (minimum required)
 - `run_header`: `dataset_key`, `cardinality`, `sampler_block_size`, `is_shuffled_per_stage`
-- `iter`: `t`, `epoch`, `global_position`, `is_shuffled`, `micro_batch_size`, `subsampling_mode`, `effective_q`, `data_replay_t`
+- `iter`: `t`, `epoch`, `global_position`, `is_shuffled`, `micro_batch_size`, `global_batch_size`, `subsampling_mode`, `effective_q`, `epoch_seed_hash`, `data_replay_t`
 - `run_end`: final epoch count, total_samples_seen
 
 ### Metric schema

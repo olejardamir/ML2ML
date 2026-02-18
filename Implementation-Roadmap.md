@@ -94,6 +94,14 @@ Deterministic gate evaluation:
 - Gates evaluate a fixed ordered checklist with boolean outcomes.
 - Final gate verdict is lexical reduction over checklist items (`fail` dominates `pass`), independent of runtime execution ordering.
 
+### II.G Compatibility Contract (Normative)
+- Deprecation lifecycle: announce -> warning phase -> removal.
+- Minimum supported versions window must be declared for config/trace/checkpoint schemas.
+- Breaking change protocol:
+  - requires MAJOR version bump,
+  - requires migration operator,
+  - requires golden migration tests with E0/E1 invariants.
+
 ---
 ## 3) Initialization
 1. Load dependency graph.

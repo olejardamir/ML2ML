@@ -93,19 +93,39 @@
   - `trace_hash_prefix:bytes`
 - Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_cbor)`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
+- Migration controls:
+  - `migration_supported_from: array<string>`
+  - `migration_operator: string`
+  - `migration_invariants: array<string>`
 
 ### II.G Sharded/Streaming Container Format
 - Container layout:
-  - `manifest.cbor` (small canonical metadata + shard index)
-  - `tensors/` (rank or tensor-group shard files)
-  - `metadata/` (`optimizer_state`, `rng_states`, `accountant_state`, `tmmu_plan_hash`, `trace_hash_prefix`)
+  - `checkpoint_manifest.cbor` (authoritative metadata + shard index)
+  - `tensors/rank=<r>/shard=<k>.bin`
+  - `optimizer/rank=<r>/state.bin` (optional)
+  - `dp/accountant_state.cbor`
+  - `data/cursors.cbor`
+  - `tmmu/plan.cbor`
+  - `trace/link.cbor`
 - Integrity:
-  - `manifest.cbor` includes per-shard hash list and optional Merkle root.
+  - `checkpoint_manifest.cbor` includes per-shard hash list and Merkle root.
   - Full checkpoint hash derives from canonical manifest + shard hash list.
 - Atomicity protocol:
-  - write to temp path, fsync file, rename atomically, fsync parent directory.
+  - write to temp path, `fsync(file)`, `rename(temp, final)`, `fsync(directory)`.
+  - crash-consistency guarantee: either previous checkpoint remains valid or new checkpoint is fully valid; partial writes are invalid.
 - Restore semantics:
   - supports full restore and deterministic partial restore by shard subset when declared by policy.
+
+### II.H Partial Restore Matrix (Normative)
+- Training restore requires: model params, optimizer state, RNG states, DP accountant state, data cursors, TMMU plan.
+- Eval/infer partial restore may use: model params + minimal runtime config.
+- Any partial restore must emit `restore_profile_id` and trace record.
+
+### II.I Trace-Link Integrity (Normative)
+- Checkpoint header must store:
+  - `trace_tail_hash_at_checkpoint`
+  - `checkpoint_hash_prev` (if checkpoint chaining enabled)
+- `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 
 ---
 ## 3) Initialization

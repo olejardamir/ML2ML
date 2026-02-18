@@ -96,6 +96,27 @@
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
   - backend adapter build hash.
+- Replay token minimum state coverage:
+  - RNG counters: `rng_offset_before`, `rng_offset_after`,
+  - DP: `dp_accountant_state_hash`, `dp_config_hash`,
+  - Data: `sampler_config_hash`, `effective_q`,
+  - Memory: `tmmu_plan_hash`,
+  - Backend: `backend_binary_hash`, `determinism_profile_hash`, `driver_runtime_fingerprint`.
+
+### II.G DeterminismProfile (Normative)
+- `tf32: bool`
+- `allowlist_cublas_algorithms: array<string>`
+- `allowlist_cudnn_algorithms: array<string>`
+- `reduction_ordering: enum("ASCENDING_INDEX","ASCENDING_RANK_RING")`
+- `atomic_reductions_allowed: bool` (`false` required for E0)
+- `env_vars_fingerprint: bytes32`
+- `driver_versions: map<string,string>`
+
+### II.H Divergence Policy (Normative)
+- `replay_mode: enum("STRICT_E0","TOLERANT_E1")`.
+- `STRICT_E0`: bitwise equality on declared E0 fields.
+- `TOLERANT_E1`: explicit per-field tolerance bands only (no implicit tolerances).
+- On first divergence: emit `REPLAY_DIVERGENCE`, record deterministic diagnostics, and stop replay.
 
 ---
 
@@ -162,7 +183,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Numerical considerations:** exact for E0 fields, threshold for E1.  
 **Ordering/tie handling:** ascending `t`/rank order.  
 **Complexity note:** O(trace_size).  
-**Failure behavior:** deterministic divergence report.  
+**Failure behavior:** deterministic divergence report; emits `REPLAY_DIVERGENCE` on first mismatch under selected replay mode.  
 **Dependencies:** determinism-class map.  
 **Test vectors:** replay-equivalent and divergent pairs.
 

@@ -82,6 +82,12 @@
 
 ### II.F Threat Model and Governance (Normative)
 - Threat model: malicious tenant code, compromised node runtime, stale/revoked attestations, unsigned artifact injection, and transport MITM.
+- Trust boundaries and required controls:
+  - tenant code ↔ runtime: sandboxing, least privilege, syscall policy.
+  - runtime ↔ daemon/control plane: mTLS + attestation identity binding.
+  - daemon ↔ storage: signed artifact verification + path segregation.
+  - daemon ↔ KMS/HSM: authenticated key access + audit logging.
+  - node ↔ network fabric: network policies + authenticated channels.
 - Required attestation claims:
   - platform measurement/PCR set,
   - TCB version,
@@ -89,12 +95,24 @@
   - loaded driver hash,
   - policy hash.
 - Key governance:
+  - `key_origin: enum("KMS","HSM")`,
   - signing keys must reside in KMS/HSM-backed stores,
-  - key rotation policy with max key age and revocation checks,
+  - `rotation_max_age_days` and `rotation_procedure_hash` are mandatory,
+  - revocation checks mandatory for quote certs, signing certs, and policy keys,
   - role-based signing authorization and audit trail.
+- Access governance:
+  - `access_control_model` (RBAC roles + required permissions),
+  - `breakglass_policy` must be explicit, time-bounded, and fully audited.
 - Transport/security baseline:
   - mTLS required for control plane APIs,
-  - service identity binding to attestation identity.
+  - service identity binding to attestation identity,
+  - pinned trust roots and minimum cipher-suite policy are mandatory.
+- Deterministic verification evidence bundle (mandatory for reproducible verdicts):
+  - `attest_verification_time_utc` (RFC3339),
+  - `trust_store_hash`,
+  - `revocation_evidence_hash` (or pinned-CRL bundle hash when offline policy is used),
+  - `attestation_bundle_hash`.
+- Verification verdict determinism claim is scoped to identical evidence bundles and policy hash.
 
 ---
 ## 3) Initialization
