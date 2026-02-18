@@ -103,6 +103,10 @@
 - Access governance:
   - `access_control_model` (RBAC roles + required permissions),
   - `breakglass_policy` must be explicit, time-bounded, and fully audited.
+- Registry governance roles:
+  - `registry_approver`, `registry_publisher`, `registry_auditor` (least-privilege RBAC mandatory).
+- Multi-tenant requirement:
+  - `tenant_id` must be present in run, trace, checkpoint, artifact, and registry records.
 - Transport/security baseline:
   - mTLS required for control plane APIs,
   - service identity binding to attestation identity,

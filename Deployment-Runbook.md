@@ -89,6 +89,8 @@
   - replay_determinism_failures == 0
 - Gate verdict determinism: verdict is computed from a frozen metrics snapshot (`metrics_snapshot_hash`) captured at each canary stage; real-time telemetry ordering is not used directly for final verdict computation.
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
+- Promotion gate:
+  - production promotion requires valid `ExecutionCertificate` and `EvidenceValidate` pass.
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Secrets and keys:
   - secret injection only through managed secret stores,

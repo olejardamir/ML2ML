@@ -107,6 +107,7 @@
   - `data/cursors.cbor`
   - `tmmu/plan.cbor`
   - `trace/link.cbor`
+  - `artifacts/artifact_index.cbor`
 - Integrity:
   - `checkpoint_manifest.cbor` includes per-shard hash list and Merkle root.
   - Full checkpoint hash derives from canonical manifest + shard hash list.
@@ -126,6 +127,7 @@
   - `trace_tail_hash_at_checkpoint`
   - `checkpoint_hash_prev` (if checkpoint chaining enabled)
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
+- checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
 
 ---
 ## 3) Initialization

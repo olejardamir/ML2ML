@@ -133,6 +133,10 @@ Normative checks in `MODULAR` mode:
 | `trace.sample_policy` | `HASH_GATED` |
 | `dp.accountant_granularity` | `PER_STEP` |
 | `backend.determinism_profile_id` | `gpu_determinism_v1` |
+| `tracking.store_uri` | `cas://tracking/default` |
+| `tracking.retention_days` | `90` |
+| `tracking.tenant_id` | `default_tenant` |
+| `security.trust_mode` | `SOFTWARE_ONLY` |
 
 ---
 ## 3) Initialization

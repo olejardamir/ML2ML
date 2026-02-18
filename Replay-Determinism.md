@@ -117,6 +117,9 @@
 - `STRICT_E0`: bitwise equality on declared E0 fields.
 - `TOLERANT_E1`: explicit per-field tolerance bands only (no implicit tolerances).
 - On first divergence: emit `REPLAY_DIVERGENCE`, record deterministic diagnostics, and stop replay.
+- Determinism conformance governance:
+  - certificate must include `determinism_conformance_suite_id`.
+  - verifier rejects certificates with unknown or revoked conformance suite IDs.
 
 ---
 

@@ -90,9 +90,10 @@
   - `trace_tail_hash = h_last`
 - Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted (or encoded as empty bytes) in the canonical CBOR input.
 - Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
-- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`.
+- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`.
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`.
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
+- Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
 - Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.
 - Migration controls:
   - `migration_supported_from: array<string>`

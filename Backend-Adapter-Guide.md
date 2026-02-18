@@ -104,6 +104,10 @@
   - `UML_OS.Model.Forward_v2 -> sha256:sig_forward_v2`
   - `UML_OS.Model.ModelIR_Executor_v1 -> sha256:sig_modelir_exec_v1`
   - `UML_OS.Backend.LoadDriver_v1 -> sha256:sig_load_driver_v1`
+- Proof-carrying backend requirements:
+  - each primitive declares `primitive_semantics_hash`,
+  - backend emits `determinism_compliance_report_hash`,
+  - execution is forbidden when backend semantics hash set mismatches approved IR operator set hash.
 
 ---
 ## 3) Initialization

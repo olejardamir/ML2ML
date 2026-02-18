@@ -101,6 +101,10 @@ Deterministic gate evaluation:
   - requires MAJOR version bump,
   - requires migration operator,
   - requires golden migration tests with E0/E1 invariants.
+- Standard migration operators:
+  - `UML_OS.Config.ManifestMigrate_v1`
+  - `UML_OS.Checkpoint.CheckpointMigrate_v1`
+  - `UML_OS.Trace.TraceMigrate_v1`
 
 ---
 ## 3) Initialization

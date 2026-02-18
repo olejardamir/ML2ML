@@ -105,6 +105,23 @@
 | `UML_OS.Backend.LoadDriver_v1` | v1 | syscall | `sha256:req_load_driver` | `sha256:resp_load_driver` | false | `["PERFORMS_IO","NETWORK_COMM"]` | `BACKEND_CONTRACT_VIOLATION` | `sha256:sig_load_driver_v1` |
 | `UML_OS.Model.ModelIR_Executor_v1` | v1 | syscall | `sha256:req_modelir_exec` | `sha256:resp_modelir_exec` | false | `["ALLOCATES_MEMORY","MUTATES_MODEL_STATE"]` | `INVALID_IR,PRIMITIVE_UNSUPPORTED` | `sha256:sig_modelir_exec_v1` |
 | `UML_OS.TMMU.PrepareMemory_v2` | v2 | syscall | `sha256:req_tmmu_prepare` | `sha256:resp_tmmu_prepare` | false | `["ALLOCATES_MEMORY"]` | `TMMU_ALLOCATION_FAILURE,ALIGNMENT_VIOLATION` | `sha256:sig_tmmu_prepare_v2` |
+| `UML_OS.Tracking.RunCreate_v1` | v1 | syscall | `sha256:req_run_create` | `sha256:resp_run_create` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_run_create_v1` |
+| `UML_OS.Tracking.RunStart_v1` | v1 | syscall | `sha256:req_run_start` | `sha256:resp_run_start` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_run_start_v1` |
+| `UML_OS.Tracking.RunEnd_v1` | v1 | syscall | `sha256:req_run_end` | `sha256:resp_run_end` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_run_end_v1` |
+| `UML_OS.Tracking.MetricLog_v1` | v1 | syscall | `sha256:req_metric_log` | `sha256:resp_metric_log` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_metric_log_v1` |
+| `UML_OS.Tracking.ArtifactPut_v1` | v1 | syscall | `sha256:req_artifact_put` | `sha256:resp_artifact_put` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_put_v1` |
+| `UML_OS.Tracking.ArtifactGet_v1` | v1 | syscall | `sha256:req_artifact_get` | `sha256:resp_artifact_get` | true | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_get_v1` |
+| `UML_OS.Tracking.ArtifactList_v1` | v1 | syscall | `sha256:req_artifact_list` | `sha256:resp_artifact_list` | true | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_list_v1` |
+| `UML_OS.Tracking.ArtifactDelete_v1` | v1 | syscall | `sha256:req_artifact_delete` | `sha256:resp_artifact_delete` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_artifact_delete_v1` |
+| `UML_OS.Registry.VersionCreate_v1` | v1 | syscall | `sha256:req_registry_version_create` | `sha256:resp_registry_version_create` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_registry_version_create_v1` |
+| `UML_OS.Registry.StageTransition_v1` | v1 | syscall | `sha256:req_registry_stage_transition` | `sha256:resp_registry_stage_transition` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_registry_stage_transition_v1` |
+| `UML_OS.Monitor.Register_v1` | v1 | syscall | `sha256:req_monitor_register` | `sha256:resp_monitor_register` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_monitor_register_v1` |
+| `UML_OS.Monitor.Emit_v1` | v1 | syscall | `sha256:req_monitor_emit` | `sha256:resp_monitor_emit` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_monitor_emit_v1` |
+| `UML_OS.Monitor.DriftCompute_v1` | v1 | syscall | `sha256:req_monitor_drift` | `sha256:resp_monitor_drift` | true | `["NONE"]` | `CONTRACT_VIOLATION` | `sha256:sig_monitor_drift_v1` |
+| `UML_OS.Certificate.EvidenceValidate_v1` | v1 | syscall | `sha256:req_evidence_validate` | `sha256:resp_evidence_validate` | true | `["NONE"]` | `CONTRACT_VIOLATION` | `sha256:sig_evidence_validate_v1` |
+| `UML_OS.Config.ManifestMigrate_v1` | v1 | syscall | `sha256:req_manifest_migrate` | `sha256:resp_manifest_migrate` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_manifest_migrate_v1` |
+| `UML_OS.Checkpoint.CheckpointMigrate_v1` | v1 | syscall | `sha256:req_checkpoint_migrate` | `sha256:resp_checkpoint_migrate` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_checkpoint_migrate_v1` |
+| `UML_OS.Trace.TraceMigrate_v1` | v1 | syscall | `sha256:req_trace_migrate` | `sha256:resp_trace_migrate` | false | `["PERFORMS_IO"]` | `CONTRACT_VIOLATION` | `sha256:sig_trace_migrate_v1` |
 
 Signature digest rule:
 - `signature_digest = SHA-256(CBOR([name, version, method, request_schema_hash, response_schema_hash, sorted(side_effects), sorted(allowed_error_codes)]))`.

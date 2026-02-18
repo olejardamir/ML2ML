@@ -88,6 +88,8 @@
 | `UML_OS.TMMU.PrepareMemory_v2` | `src/tmmu/prepare_memory.py` | `prepare_memory_v2` | `py_operator_stub_v1` | runtime team | `["ALLOCATES_MEMORY"]` | `sha256:sig_tmmu_prepare_v2` |
 | `UML_OS.Trace.ComputeTraceHash_v1` | `src/trace/compute_trace_hash.py` | `compute_trace_hash_v1` | `py_operator_stub_v1` | trace team | `["NONE"]` | `sha256:sig_trace_hash_v1` |
 | `UML_OS.IO.SaveCheckpoint_v1` | `src/io/save_checkpoint.py` | `save_checkpoint_v1` | `py_operator_stub_v1` | runtime team | `["PERFORMS_IO"]` | `sha256:sig_save_ckpt_v1` |
+| `UML_OS.Certificate.EvidenceValidate_v1` | `src/cert/evidence_validate.py` | `evidence_validate_v1` | `py_operator_stub_v1` | security team | `["NONE"]` | `sha256:sig_evidence_validate_v1` |
+| `UML_OS.Tracking.MetricLog_v1` | `src/tracking/metric_log.py` | `metric_log_v1` | `py_operator_stub_v1` | platform team | `["PERFORMS_IO"]` | `sha256:sig_metric_log_v1` |
 
 Signature lock invariant:
 - For each operator `op`, `signature_digest` must match `API-Interfaces.md` and (for backend-exposed ops/primitives) `Backend-Adapter-Guide.md`.

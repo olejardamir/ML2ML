@@ -1,0 +1,155 @@
+# UML_OS Experiment Tracking Contract
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Tracking.ExperimentTracking_v1`  
+**Purpose (1 sentence):** Define deterministic run/metric/artifact tracking APIs and storage contracts for lifecycle observability.  
+**Spec Version:** `UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Domain / Problem Class:** Experiment tracking and artifact lifecycle.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Tracking.ExperimentTracking_v1`
+- **Purpose (1 sentence):** Deterministic experiment/run tracking.
+- **Spec Version:** `UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Domain / Problem Class:** Tracking and artifacts.
+### 0.A Objective Semantics
+- Minimize tracking ambiguity and non-replayable run metadata.
+### 0.B Reproducibility Contract
+- Replayable given `(run_id, tracking_store_hash, artifact_index_hash)`.
+### 0.C Numeric Policy
+- Metric values in binary64; identifiers exact.
+### 0.D Ordering and Tie-Break Policy
+- Events ordered by `(t, operator_seq, rank)`.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- Concurrent metric writes merged deterministically.
+### 0.F Environment and Dependency Policy
+- Tracking backend must expose content-addressable artifact APIs.
+### 0.G Operator Manifest
+- `UML_OS.Tracking.RunCreate_v1`
+- `UML_OS.Tracking.RunStart_v1`
+- `UML_OS.Tracking.RunEnd_v1`
+- `UML_OS.Tracking.MetricLog_v1`
+- `UML_OS.Tracking.ArtifactPut_v1`
+- `UML_OS.Tracking.ArtifactGet_v1`
+- `UML_OS.Tracking.ArtifactList_v1`
+- `UML_OS.Tracking.ArtifactDelete_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- `UML_OS.Tracking.*` operators.
+### 0.I Outputs and Metric Schema
+- Outputs: `(tracking_report, artifact_index_hash)`
+- Metrics: `run_count`, `metric_events`, `artifact_count`
+- Completion status: `success | failed`
+### 0.J Spec Lifecycle Governance
+- API/signature changes require MAJOR.
+### 0.K Failure and Error Semantics
+- Deterministic failures on invalid run/artifact operations.
+### 0.L Input/Data Provenance
+- Every artifact must include content hash and tenant scope.
+
+---
+## 2) System Model
+### I.A Persistent State
+- run registry and artifact index.
+### I.B Inputs and Hyperparameters
+- `tenant_id`, `run_id`, metric payloads, artifact metadata.
+### I.C Constraints and Feasible Set
+- run_id unique per tenant/project.
+### I.D Transient Variables
+- write buffers and upload diagnostics.
+### I.E Invariants and Assertions
+- immutable run lineage; append-only metrics/events.
+
+---
+## 3) Initialization
+1. Initialize tracking store bindings.
+2. Validate tenant/project namespace.
+3. Initialize run/event streams.
+
+---
+## 4) Operator Manifest
+- `UML_OS.Tracking.RunCreate_v1`
+- `UML_OS.Tracking.RunStart_v1`
+- `UML_OS.Tracking.RunEnd_v1`
+- `UML_OS.Tracking.MetricLog_v1`
+- `UML_OS.Tracking.ArtifactPut_v1`
+- `UML_OS.Tracking.ArtifactGet_v1`
+- `UML_OS.Tracking.ArtifactList_v1`
+- `UML_OS.Tracking.ArtifactDelete_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+## 5) Operator Definitions
+External operator reference: `UML_OS.Error.Emit_v1` is defined in `Error-Codes.md`.
+
+**Operator:** `UML_OS.Tracking.RunCreate_v1`  
+**Category:** IO  
+**Signature:** `(tenant_id, run_manifest -> run_id)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** creates immutable run metadata anchor.
+
+**Operator:** `UML_OS.Tracking.MetricLog_v1`  
+**Category:** IO  
+**Signature:** `(run_id, metric_event -> ok)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends typed metric event.
+
+**Operator:** `UML_OS.Tracking.ArtifactPut_v1`  
+**Category:** IO  
+**Signature:** `(run_id, artifact_bytes, metadata -> artifact_id)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** stores content-addressed artifact and updates index.
+
+---
+## 6) Procedure
+```text
+1. RunCreate_v1
+2. RunStart_v1
+3. MetricLog_v1 / ArtifactPut_v1 repeated
+4. RunEnd_v1
+5. Return tracking_report
+```
+
+---
+## 7) Trace & Metrics
+### Logging rule
+- Tracking operations emit deterministic run/metric/artifact events.
+### Trace schema
+- `run_header`: tenant_id, run_id
+- `iter`: event_type, key, status
+- `run_end`: artifact_index_hash
+### Metric schema
+- `metric_events`, `artifact_count`
+### Comparability guarantee
+- Comparable iff schemas, run IDs, and content hashes are identical.
+
+---
+## 8) Validation
+#### VII.A Lint rules (mandatory)
+- signature-locked APIs, typed events, hash-addressed artifacts.
+#### VII.B Operator test vectors (mandatory)
+- create/start/end flow, invalid state transitions, artifact hash mismatch.
+#### VII.C Golden traces (mandatory)
+- golden run-tracking traces.
+
+---
+## 9) Refactor & Equivalence
+#### VIII.A Equivalence levels
+- E0 for run/artifact identifiers and trace outputs.
+#### VIII.B Allowed refactor categories
+- storage backend optimization preserving IDs and hashes.
+#### VIII.C Equivalence test procedure (mandatory)
+- exact compare of run metadata + artifact index hash.
+
+---
+## 10) Checkpoint/Restore
+### Checkpoint contents
+- run cursor and artifact index watermark.
+### Serialization
+- deterministic CBOR.
+### Restore semantics
+- resumed tracking yields identical IDs/order under same inputs.
