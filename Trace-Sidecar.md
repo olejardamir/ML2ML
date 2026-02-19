@@ -84,10 +84,10 @@
 
 ### II.F Canonical Trace Schema (Concrete)
 - Hash algorithms:
-  - `record_hash_i = SHA-256(CBOR(normalized_record_i))`
+  - `record_hash_i = SHA-256(CBOR_CANONICAL(normalized_record_i))`
   - Whole-run hash chain:
-    - `h_0 = SHA-256(CBOR(["trace_chain_v1"]))`
-    - `h_i = SHA-256(CBOR(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
+    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
+    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
     - `final_trace_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
@@ -119,7 +119,7 @@
   - `max_bytes_per_step:uint64`
   - `max_record_bytes:uint32`
   - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
-  - HASH_GATED inclusion rule: include iff `SHA-256(CBOR([replay_token, t, operator_seq])) mod M < K`.
+  - HASH_GATED inclusion rule: include iff `SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq])) mod M < K`.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with declared priority ordering.
   - `mandatory_record_kinds = {run_header, policy_gate_verdict, checkpoint_commit, certificate_inputs, run_end}`.
   - Mandatory records MUST NEVER be sampled out or dropped.

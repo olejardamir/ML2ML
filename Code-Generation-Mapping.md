@@ -150,7 +150,7 @@ Template conformance note (III.A): each operator definition in this section is i
 **Operator:** `UML_OS.Implementation.ResolveOperatorTargets_v1`  
 **Category:** IO  
 **Signature:** `(operator_manifest, conventions -> mapping_table)`  
-**Purity class:** PURE  
+**Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** resolves canonical code targets for each operator.
 

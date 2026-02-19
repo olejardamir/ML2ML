@@ -30,7 +30,7 @@
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
 - Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive_v1`.
 - Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, driver_hash)`.
-- Replay token contribution: `modelir_replay_t = SHA-256(CBOR(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
+- Replay token contribution: `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
 - Proof-carrying IR fields:
   - `ir_schema_hash`
   - `ir_operator_set_hash`

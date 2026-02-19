@@ -31,7 +31,7 @@
 - Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token: `replay_token = SHA-256(CBOR(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`
+- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`
 - Replay context must also bind:
   - `sampler_config_hash`,
   - `tmmu_plan_hash`,
@@ -632,7 +632,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(probe_outputs_bytes, functional_fp, security.functional_commitment -> commitment?)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR(["functional_commitment_v1", probe_outputs_bytes, functional_fp]))` and attach to trace/certificate.  
+**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR_CANONICAL(["functional_commitment_v1", probe_outputs_bytes, functional_fp]))` and attach to trace/certificate.  
 **Preconditions / Postconditions:** functional_fp available.  
 **Edge cases:** disabled path returns no commitment.  
 **Numerical considerations:** N/A.  

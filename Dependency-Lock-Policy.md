@@ -88,7 +88,7 @@
 - Artifact verification: each package entry must include SHA-256; downloaded artifact hash must match exactly.
 - Registry allowlist: explicit host allowlist only; direct URL dependencies forbidden unless signed and pinned.
 - SBOM requirement: CycloneDX JSON emitted per build and hashed into trace.
-- Toolchain hash: `toolchain_hash = SHA-256(CBOR(["toolchain_v1", python_version, pip_version, installer_version]))`.
+- Toolchain hash: `toolchain_hash = SHA-256(CBOR_CANONICAL(["toolchain_v1", python_version, pip_version, installer_version]))`.
 - `LockfileDigest_v1` (normative):
   - parse lockfile into normalized tuples `(name, version, source, integrity_hash)`,
   - sort tuples by `(name, version, source)`,

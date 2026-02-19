@@ -80,7 +80,7 @@
 - every snapshot ID is content-addressed and deterministic.
 
 ### II.F Snapshot Identifier (Normative)
-- `dataset_snapshot_id = SHA-256(CBOR([tenant_id, run_id, dataset_root_hash, split_hashes, transform_chain_hash, sampler_config_hash]))`
+- `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, run_id, dataset_root_hash, split_hashes, transform_chain_hash, sampler_config_hash]))`
 - Cross-tenant rule: all lineage objects are namespaced by `(tenant_id, object_id)`; cross-tenant references must hard-fail deterministically.
 - CAS retention metadata is mandatory:
   - `retention_class ∈ {golden, certified_release, experimental, ephemeral}`,

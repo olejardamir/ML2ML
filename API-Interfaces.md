@@ -30,7 +30,7 @@
 - PRNG family: inherited from calling operator.
 - Randomness locality: no sampling in interface contract checks.
 - Replay guarantee: replayable given `(spec_version, interface_hash)`.
-- Replay token: `api_replay_t = SHA-256(CBOR(["api_interfaces_v1", spec_version, interface_hash]))`.
+- Replay token: `api_replay_t = SHA-256(CBOR_CANONICAL(["api_interfaces_v1", spec_version, interface_hash]))`.
 
 ### 0.C Numeric Policy
 - Numeric fields specify explicit scalar kinds (`uint64`, `float64`, etc.).
@@ -170,6 +170,48 @@
 - Authorization verdict per call must be deterministic:
   - `authz_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), policy_hash]))`.
 - Denied calls must emit a deterministic failure record and trace event with `authz_hash`.
+
+### II.K Kernel Syscall Registry (Authoritative)
+- This table is the authoritative kernel syscall view and must match `UML_OS-Kernel-v3.22-OS.md` section 4 (1:1 operator membership).
+- Each listed operator must resolve to concrete request/response schema digests and signature digest in `contracts/operator_registry.cbor`.
+| name | method | request_schema_hash | response_schema_hash | signature_digest |
+|---|---|---|---|---|
+| `UML_OS.OS.Bootstrap_v1` | syscall | `sha256:6b95add4346e37b63e64c7e208a7df8f4965e372878b8b9fd4fed7c5bbd403b7` | `sha256:d9625678d8addcaf15db3e69d1ffa9e954a64bb290d4981087a5837bce2c87af` | `sha256:08c1cb8901ce5f30ec8015c5eed6efd43061269ef899e03f8a493b54f4a335c7` |
+| `UML_OS.OS.ResolvePath_v1` | syscall | `sha256:f82201a6830a4c6d980a9b4b43978c87f7122478d60be2dfbb8a052deb00783b` | `sha256:e647055a824d66af8290fadbe67fad3ca74f8b25c452d2848ed2d427bba80997` | `sha256:d1351c580e2a35476e067c55ed84657c51d716176e24ec14afa9b3e60f9b9a7e` |
+| `UML_OS.OS.NamespaceEnter_v1` | syscall | `sha256:2a87e448ed17daf1a91417ecf6bb467a1d379b6c85b0299f5d882d6065620633` | `sha256:8d28371559d3bd93aa1dc4db75b922db61ab64789ccb1b3a468c9e252f6117d9` | `sha256:edd3f2c3428542cf0bfe2eef09c0189da81eb4cbeda72dec97880474d3088682` |
+| `UML_OS.Data.Manifest_v1` | syscall | `sha256:3654426af7930039cad3d1dc0369450f7f18066c718f9a186867c1a9f619c3e2` | `sha256:78a4b828924c20cfd65a2112f2ddefeee17c7a60cdffa4a3d3061f8888aa81e1` | `sha256:a6ed8cf76086a6ac859048e40f5980c02c797917039b4f85539169c2a2a60a71` |
+| `UML_OS.Data.ValidateManifest_v1` | syscall | `sha256:c1f88fca6f77de2cc6bd833f478e774d2a7430ffbad7367f03f4aeffded23e26` | `sha256:b8d90fedcca9d9ffbce84a11c1c2a48e5722ac3499116d893f94a55e8296239d` | `sha256:6a7868616da975c611ac763a815fe897481b70ad8b888f8bff209233c89b6bf8` |
+| `UML_OS.Data.NextBatch_v2` | syscall | `sha256:cbe6b06b50937993c867007b5d7b2f02865cec893615a08ac1d90df12074536e` | `sha256:e3402033c9a6830ce4ae42526a26333bacc8c07b01d1da51643d1107bc95744a` | `sha256:9725e7a22f95e63167799fb626e886fa455ca30ad2498d696b8de1f8e7fe72cc` |
+| `UML_OS.Data.RegisterDataset_v1` | syscall | `sha256:8e46cc4203902d52e8543728f848463fe1147a106349fe55c251fc9900371b20` | `sha256:8c69578f99e296e93a31b23a15be300c9a1e4e8c16afe55923b8f8054c999aca` | `sha256:fa4fca34ee532474b5ebb5cdbfba175fed2eaadbe4d5e99cbbd4a47387420989` |
+| `UML_OS.Data.ImportAndRegister_v1` | syscall | `sha256:d7d5be587bcdcc3459b7873757323b45818a9a0881b4603f8d3a8e5994a13839` | `sha256:caca94241bc539142fabc502bdcb3153aa1592f9c241335397b392076e506adc` | `sha256:a69a029f9fed4e9f654c6d54a3bc2e54285f01285b8d556cf339742ec81eb5ef` |
+| `UML_OS.Model.Forward_v2` | syscall | `sha256:5b53b2ebd3a814e5b5f9bfd8a953b969fd830cd501ff9d72713626287b32fc43` | `sha256:618a7157adb5061045a557cbee5f1e1a80ed7a3f1ca11676652a91e191e9a6f6` | `sha256:f616248f2d59ffc41dddcfc7d67934d7d4606b64a5d9141711ac8b892f079e6e` |
+| `UML_OS.Model.ExpandPreset_v1` | syscall | `sha256:a29fb645799b57ea4a4032a9a29697bf51ff20ee2469af83098973c2e1fb0826` | `sha256:662de6db6e9b14bf13168b79137682e783b60eb605d9e5610210766195e331e7` | `sha256:8b58dca0a2345b5d115d81187589ec0d61388a19d8d94f3b5cdd5c2334534f83` |
+| `UML_OS.Model.ApplyFineTune_v1` | syscall | `sha256:ab5fec71b1c0ed85d7def95b9ca4a93512bfadc76694ad56380c947a88ce4679` | `sha256:f7bfe9be3307d5cf1eb847c5a4908ee959686c238a0903e2e490e3898b77a643` | `sha256:840971d67ece4e5b7eef6eb5d68c1fb5bcac5b61181798a966ba527f5291272a` |
+| `UML_OS.Objective.TotalLoss_v1` | syscall | `sha256:9b83b6707b2fa85f58f49ff5a1c66114b1bd8997d89e7402c1146f9d871ea736` | `sha256:1a712c624d506411a4f89b0c50817a7d6fa2aebd7bc960886fc5e00e21c19ddc` | `sha256:2d7e17c8b906d090f7edb238571f68d6f36409a2e886bc80bdc41cdaa33c77d3` |
+| `UML_OS.Optimizer.Update_v1` | syscall | `sha256:b67f9f7943effca758fe10599372e960112fe27e689b81fff9d510ef3210a54e` | `sha256:44bc40731fe3f283a666c65c806b6513709608ce8f86cd73575f72fea5768cb5` | `sha256:f5163784a6f0c3e0ab7f9d93ee7652348264809600fc1bdca121ce22707e033f` |
+| `UML_OS.Module.RegisterCustom_v1` | syscall | `sha256:4fdba7baab89d6c7ff5c293cc5ddabbae21af8e0f757b0412b7e3ef3e9a3953a` | `sha256:6ffd1b926a3cc7cda04ca017481d05090fba6742d2527714c5de84e1375065a4` | `sha256:dc812a5845fc78fb7b7eae7d42b1b90f7d840d99c5c4cd1d83d09767c166d405` |
+| `UML_OS.Policy.Evaluate_v1` | syscall | `sha256:bdaeefcfdafff6ba8d79ee757f08f9d5c5ef9cd4c34110ae9a3c73ec245e4da2` | `sha256:ee125a4968ba99cea329a14b95948b8b27d4cd3d7b63752c8957ecd98609d4dc` | `sha256:d3deb27e807de01491da8f3286a03aa2a95e36c66525cefdc7d08f455396fb34` |
+| `UML_OS.Contract.Validate_v1` | syscall | `sha256:0ff020e0e3a53351c77cb0879226c6d51ee5b871027cae906bbfb99e3df1b4c4` | `sha256:43d29709c190ba8f50bad8e0cdf6e473a7a6c7c81ef5fc1c8b3377e3534601df` | `sha256:a29d999bcd747ce0a666e965492bec241a58c0e476a3dcaddf345f64c3740132` |
+| `UML_OS.IO.WriteTape_v1` | syscall | `sha256:9f05a18d391747a0fc91def1097592cb2d73d5214650ad37ad48382de2f7be28` | `sha256:c194ac7ca5ed44b138e0a5833d8345d531853f0621e85bd837ee2559de133a62` | `sha256:3f8e9fa6f43b5b95b55806068e662c63669df472a6f2fb9f11be9a6af7ec80b9` |
+| `UML_OS.IO.SaveCheckpoint_v1` | syscall | `sha256:9d50ac305e26f410d174d57773b5a0b736407a082da769e04afe45c6bd5f2975` | `sha256:490a36bfc1021118d9ddbd7b7c7a06363e3321527ad0add34228a41ee8767f3d` | `sha256:eefd269b3f1b8ecbbb2b84dc081767942faf58da936658bb0aaf68a7d7db4801` |
+| `UML_OS.IO.WriteTrainingCertificate_v1` | syscall | `sha256:5d67c20d00f6b0c3a6b8e0f3617eebdfc5eca398aed4539b7a63427be372b772` | `sha256:ffcda8c4913eba63cdb31a4b0fd3e79d9e790cb02a29129f551a5ea35de4e0c7` | `sha256:e2b8389dc808da6e631f4d6365ca256c4c0005bf756674b8357c519b3b067514` |
+| `UML_OS.State.Journal_v1` | syscall | `sha256:73d6f8f0a2ed2405131cd52a1e8cdd7ac5cdb77391a14054a35ed5a6d66ed0ec` | `sha256:968806f83eb4ec37d8c9f3f76d7a9207ecd1547b7cbf6522582dff57ef29467d` | `sha256:77af6f21db7ad774735a92323cf0635d3576bcdd943abe316aa084540d1dde34` |
+| `UML_OS.Termination.Check_v1` | syscall | `sha256:ef7d9d1d2378d1acbf85fd86af5596ecc360fb7a79e63e5c7f220f04150dce7d` | `sha256:2e764c0500e07cc3465e9fa5e71158d9151409bd12d5439414c88831ceaafefc` | `sha256:ec35105bda624ff9d225c800f34e93fdf51c82ad67e928b2c78cfc1a16ef31ef` |
+| `UML_OS.Fingerprint.StateFingerprint_v1` | syscall | `sha256:af18d3615139f226da1b6b8f7646e65547681ff49e24346eb7b23403964a004a` | `sha256:d16eb6e8964c2096a4d1632228554c776ac40166f75b910dc7d4caff2e3fac6e` | `sha256:54763a526ff78f14ffe3dec8c0944a9e9d26007f582eedfc85e798887b986669` |
+| `UML_OS.Fingerprint.Functional_v1` | syscall | `sha256:6347e5c15b9898e03120ac6a4d9a4a54ba601ac608fb10860c35dae071526c39` | `sha256:ac13b14a64283e8f257ffe80067dd72693968601a05b19a015a3a8bd0dfc500d` | `sha256:64ccf71e54020c3a17cafe24458c0147614310448b64a44749f792bcddc4a6da` |
+| `UML_OS.Error.Emit_v1` | syscall | `sha256:fe80f62ef86ec79731ec8bf913a336651d0326851760667ed1e06c1adbf4bc6e` | `sha256:83e2decc3c6e418f3a61404f91c88cec96b5a2fb573d77fe3db98ffc548622d1` | `sha256:0cb1f29e7f28d98dc020d74fdac09b1d56e18e137e6a5f445447480bd450785c` |
+| `UML_OS.Distributed.Setup_v1` | syscall | `sha256:7e8fdb0852b617888a3eb423787a9b5e1ba206173a1dda37550139d8d1ade0a2` | `sha256:3f8563b15d2050973185087fa89be664d5cf032bd1ebad0830840e0372778999` | `sha256:8f9f8367e7a00cd1b3fe87a5a9238b761b8c09ede2ec835c4c1abb0f55916702` |
+| `UML_OS.Evaluation.Run_v1` | syscall | `sha256:290a073ce9830f68151186bffe02bf6711e79949c4b9871decb3ed1fe9237d8b` | `sha256:bd29a04ed4a4297f712751d5ea1760ae79c5eb16d666708cf8e50bb3cf49b3a5` | `sha256:07d194d0b634a85eef1ca7b6fe4bd1786037a0e6b8a8504850af6533735e95f5` |
+| `UML_OS.Security.AttestTEE_v1` | syscall | `sha256:c6f8eada24a2482866d5bae0149c6707851aa7d94b886876ea849a59e55c2889` | `sha256:690253b660f5956bd6f38d5cd16b2f5ddb6a860cdf0053ac3d1b24f5d0233d30` | `sha256:ab930860204463c24c2df98764c6410f6207062a23238448ec3ea84f08148927` |
+| `UML_OS.Verifiable.CommitFunctional_v1` | syscall | `sha256:5f7682174b5ff972d570acc219ff07197bd49120980d087993ed42e12053572b` | `sha256:93e5ba69c82f516cd9806b8f9be68e8ae048c102e45ebd8cefea33a7be4ac6b0` | `sha256:8a6eedab6cf4a79fec3a17a23b4c47e91f6bfce1e979ae69210de6ae93b3862c` |
+| `UML_OS.DifferentialPrivacy.Apply_v3` | syscall | `sha256:aef5b17f48a8c3e4b4a2693f0876a55ed4aea49a867498dcca484fd423abda02` | `sha256:f76fc8f971494ae402eed935cc7e9f39e7ac252ca9d497eed0ed4063144e0312` | `sha256:753f91f4cdd8a6e913bb2c5831546e4e4e3243680b437e34fdb91e547e0a58bf` |
+| `UML_OS.Backend.LoadDriver_v1` | syscall | `sha256:88fae56da03febc3c65bdfb2c51f9ceb439f6fc18e9ad84acdf56407074f6af9` | `sha256:3ef78d17d9b988c756f89513c652945086c59e77236c4afb6784aa4c47a829fc` | `sha256:c31e6680a4e0d80db2edb41ce24bfb626e0a3f0171eeca9e4c90cbb73fad9564` |
+| `UML_OS.Pipeline.Dispatch_v1` | syscall | `sha256:c4ba86ac3ba9f9e0c322771914848eb72e9c5e36c5a9c8828f8d6f55d3de44bb` | `sha256:451c011e029b5d115e95092cc1952c36a8000a72b65e119bd1dda15d77ce18ca` | `sha256:5c3541f522edf71475ad465ea07303273dbb301db258baa63d4b6d7e25fe911d` |
+| `UML_OS.Inference.RunBatch_v1` | syscall | `sha256:413088da6e718570c050892c3e272823a4bc3be2bd85638d228fbeca14306d0f` | `sha256:d7eb4aa78a41d586676f1eb67ac4e3e7404d91648a8c2002b3caf7b899c08cba` | `sha256:d8c6c6c790701ea9f9e8e1a370549e0e059e4520a7414bbb404a56efdf3483be` |
+| `UML_OS.Model.Backward_v1` | syscall | `sha256:bc7e0699d6f8a6c778f0cf4dbbaa73cc0f9389682de1512c979608262d11d725` | `sha256:b631a6ac19ba9aa0612db577717dff96a6eebf3fe25aacd3230744b444d78858` | `sha256:703bd22df1f08ac39226c51b08bce7c73396b484c440737497dc79bda672e7af` |
+| `UML_OS.Symbolic.Augment_v1` | syscall | `sha256:f1e889eb31bd7d78329a46a40c0ccd21d35db27eb12c38d40d06fa919bace7aa` | `sha256:9edf3ecb9d21824f916f116aac19f05f17b622def37f6641210c6dad409d670e` | `sha256:810cc5b6ce8161a364e3b80f678fb8f3459790a5bdd9346be3bcd87922afec1e` |
+| `UML_OS.Security.VerifyCertificate_v1` | syscall | `sha256:11c8108318f8db27dc96b6ecd689fa171d0ea4f20b2aa82dced7e61ea0e9c526` | `sha256:8e953036cfdd7db445cd2ca698ad3aa4735c457e5053c4fc24ff0134ac7bde76` | `sha256:d4d5727241d591689241c55e5056964aba2885b5e543da86c251309dfe2cbbdb` |
+| `UML_OS.Transition.SwitchState_v1` | syscall | `sha256:7bbf2cd20736ac4f1c737302f57db2529f93c3d9db2ff83d0df607c887c9e4de` | `sha256:8c47c41abc7289ee18fd528c70289c3cde0d9214f362791ba3713fb0defab9e1` | `sha256:f1ecdd9a111f4333fbf2915bcde851c29deef1aea4f9398726e34da44c8c7452` |
 
 ---
 

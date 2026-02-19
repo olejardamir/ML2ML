@@ -118,10 +118,10 @@
   - `thresholds:object`
   - `golden_ids:array<string>`
 - Golden inventory (minimum):
-  - `golden_kernel_train_v1` -> `sha256:aa01...`
-  - `golden_data_nextbatch_v2` -> `sha256:bb02...`
-  - `golden_modelir_exec_v1` -> `sha256:cc03...`
-  - `golden_dp_apply_v3` -> `sha256:dd04...`
+  - `golden_kernel_train_v1` -> `sha256:aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01`
+  - `golden_data_nextbatch_v2` -> `sha256:bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02`
+  - `golden_modelir_exec_v1` -> `sha256:cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03`
+  - `golden_dp_apply_v3` -> `sha256:dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04`
 - Deterministic pass/fail rule: pass iff all required suites pass and no E0 field mismatch against referenced golden IDs.
 - Required hardening suites:
   - property/fuzz tests for IR validation, schema parsing, checkpoint decode, and TMMU planner invariants,

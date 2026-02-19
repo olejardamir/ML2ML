@@ -30,7 +30,7 @@
 - PRNG family: `Philox4x32-10`
 - Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
 - Replay guarantee: fully replayable given `(manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
-- Replay token contribution: `data_replay_t = SHA-256(CBOR(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
+- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
 - Contract-critical hash primitive: `SHA-256(CBOR_CANONICAL(...))`.
 
 ### 0.C Numeric Policy
