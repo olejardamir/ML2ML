@@ -1,0 +1,102 @@
+# UML_OS Spec Lint Implementation Contract
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Implementation.SpecLint_v1`  
+**Purpose (1 sentence):** Define deterministic implementation requirements for cross-document linting and contract-consistency enforcement.  
+**Spec Version:** `UML_OS.Implementation.SpecLint_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Domain / Problem Class:** Contract linting and CI enforcement.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Implementation.SpecLint_v1`
+- **Purpose (1 sentence):** Deterministic cross-spec lint implementation contract.
+### 0.A Objective Semantics
+- minimize unresolved contract inconsistencies.
+### 0.B Reproducibility Contract
+- lint verdict reproducible from `(docs_set_hash, lint_rules_hash, operator_registry_root_hash)`.
+### 0.C Numeric Policy
+- binary64 only for aggregate lint metrics.
+### 0.D Ordering and Tie-Break Policy
+- findings ordered by severity, file path, line.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- checks parallelizable; finding reduction deterministic.
+### 0.F Environment and Dependency Policy
+- pinned parser/runtime versions required.
+### 0.G Operator Manifest
+- `UML_OS.Implementation.LoadDocSet_v1`
+- `UML_OS.Implementation.RunSpecLintRules_v1`
+- `UML_OS.Implementation.AggregateLintVerdict_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- linter entrypoint: `tools/spec_lint.py`.
+### 0.I Outputs and Metric Schema
+- outputs: `(lint_report, lint_verdict, lint_metrics)`.
+### 0.J Spec Lifecycle Governance
+- rule semantics changes are MAJOR.
+### 0.K Failure and Error Semantics
+- blocker lint findings fail CI deterministically.
+### 0.L Input/Data Provenance
+- lint run records docs hash and rules hash.
+
+---
+## 2) System Model
+### I.A Persistent State
+- lint ruleset registry.
+### I.B Inputs and Hyperparameters
+- markdown set, registry artifacts, strictness profile.
+### I.C Constraints and Feasible Set
+- all referenced contracts must be parseable.
+### I.D Transient Variables
+- per-rule findings and diagnostics.
+### I.E Invariants and Assertions
+- no undefined operator or error code references.
+
+---
+## 3) Initialization
+1. Load lint ruleset and parser profile.
+2. Load operator/error registries.
+3. Initialize findings collector.
+
+---
+## 4) Operator Manifest
+- `UML_OS.Implementation.LoadDocSet_v1`
+- `UML_OS.Implementation.RunSpecLintRules_v1`
+- `UML_OS.Implementation.AggregateLintVerdict_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+## 5) Operator Definitions
+**Operator:** `UML_OS.Implementation.RunSpecLintRules_v1`  
+**Signature:** `(doc_set, rule_set -> findings)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** Executes rule suite over parsed docs and emits normalized findings.
+
+---
+## 6) Procedure
+```text
+1. Load docs and registries
+2. Execute lint rules deterministically
+3. Aggregate verdict
+4. Fail on blocker-level findings
+```
+
+---
+## 7) Trace & Metrics
+- Metrics: `finding_count`, `blocker_count`, `major_count`, `files_scanned`.
+- Trace includes `docs_set_hash`, `rules_hash`, `registry_hashes`.
+
+---
+## 8) Validation
+- golden lint fixtures (pass/fail) required.
+- regression tests for rule determinism and ordering.
+
+---
+## 9) Refactor & Equivalence
+- E0 for lint verdict and normalized finding list.
+
+---
+## 10) Checkpoint/Restore
+- checkpoint stores file cursor, rule cursor, findings hash.
+- restore must reproduce identical verdict.
