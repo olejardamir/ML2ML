@@ -133,3 +133,8 @@
 - Canonical CBOR.
 ### Restore semantics
 - Resumed CI run must produce same final verdict.
+
+---
+## 11) Related Contracts
+- `docs/layer4-implementation/EQC-CI-Policy.md`
+- `docs/layer4-implementation/Spec-Lint-Rules.md`

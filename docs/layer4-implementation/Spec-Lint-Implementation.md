@@ -30,6 +30,7 @@
 - `UML_OS.Error.Emit_v1`
 ### 0.H Namespacing and Packaging
 - linter entrypoint: `tools/spec_lint.py`.
+- normative rule catalog: `docs/layer4-implementation/Spec-Lint-Rules.md`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(lint_report, lint_verdict, lint_metrics)`.
 ### 0.J Spec Lifecycle Governance

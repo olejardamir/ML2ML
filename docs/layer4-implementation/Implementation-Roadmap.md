@@ -110,6 +110,8 @@ Deterministic gate evaluation:
   - `UML_OS.Config.ManifestMigrate_v1`
   - `UML_OS.Checkpoint.CheckpointMigrate_v1`
   - `UML_OS.Trace.TraceMigrate_v1`
+- Operational merge workflow reference:
+  - `docs/layer4-implementation/Change-Control-Playbook.md`
 
 ---
 ## 3) Initialization

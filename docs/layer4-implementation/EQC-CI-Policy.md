@@ -1,0 +1,47 @@
+# UML_OS EQC CI Policy
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Implementation.EQCCIPolicy_v1`
+**Purpose (1 sentence):** Define deterministic CI gate policy that maps EQC lint/test outcomes to merge and release decisions.
+**Spec Version:** `UML_OS.Implementation.EQCCIPolicy_v1` | 2026-02-19 | Authors: Olejar Damir
+**Domain / Problem Class:** CI/CD governance for EQC conformance.
+
+---
+## 1) Pipeline Stages (Normative)
+1. `stage_lint`
+2. `stage_contract_sync`
+3. `stage_conformance`
+4. `stage_replay`
+5. `stage_release_gates`
+
+Stage order is fixed and deterministic.
+
+---
+## 2) Mandatory Commands
+- `eqc-es validate`
+- `eqc-es impact --change DOCID@vX.Y.Z`
+- `eqc-es regenerate-sidecars`
+- `python3 tools/spec_lint.py`
+
+---
+## 3) Gate Mapping Rules
+- Any BLOCKER lint finding: `merge=DENY`.
+- Missing graph/reference parity: `merge=DENY`.
+- Layer or edge-type violation: `merge=DENY`.
+- Conformance or replay gate failure: `release=DENY`.
+- Warnings only: `merge=ALLOW_WITH_NOTICE`.
+
+---
+## 4) Deterministic Verdict Contract
+`ci_verdict_hash = SHA-256(CBOR_CANONICAL([pipeline_id, commit_hash, stage_outcomes, lint_verdict, conformance_verdict, replay_verdict]))`
+
+`ci_verdict_hash` is logged in release evidence and validation logs.
+
+---
+## 5) Wiring References
+- `docs/layer4-implementation/Build-and-CI-Matrix.md`
+- `docs/layer4-implementation/Spec-Lint-Implementation.md`
+- `docs/layer4-implementation/Spec-Lint-Rules.md`
+- `docs/layer4-implementation/Change-Control-Playbook.md`
+- `docs/layer3-tests/Test-Plan.md`
+- `ecosystem.md`

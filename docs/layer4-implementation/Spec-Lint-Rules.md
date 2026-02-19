@@ -1,0 +1,73 @@
+# UML_OS Spec Lint Rules Catalog
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Implementation.SpecLintRules_v1`
+**Purpose (1 sentence):** Define the normative lint-rule catalog and severities for deterministic cross-document contract validation.
+**Spec Version:** `UML_OS.Implementation.SpecLintRules_v1` | 2026-02-19 | Authors: Olejar Damir
+**Domain / Problem Class:** Lint rules governance.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Implementation.SpecLintRules_v1`
+- **Purpose (1 sentence):** Deterministic rule catalog for `tools/spec_lint.py`.
+### 0.A Objective Semantics
+- Maximize contract coherence and eliminate silent cross-file drift.
+### 0.B Reproducibility Contract
+- Rule verdicts replayable from `(docs_set_hash, rules_catalog_hash, registry_hashes)`.
+### 0.C Numeric Policy
+- binary64 for aggregate statistics only.
+### 0.D Ordering and Tie-Break Policy
+- findings ordered by `(severity desc, doc_path asc, line asc, rule_id asc)`.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- rules may run in parallel; merged findings must preserve deterministic ordering.
+### 0.F Environment and Dependency Policy
+- parser and regex engine versions pinned in tooling manifest.
+### 0.G Operator Manifest
+- `UML_OS.Implementation.SpecLint_v1`
+- `UML_OS.Implementation.LoadRuleCatalog_v1`
+- `UML_OS.Implementation.EvaluateRuleSet_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- Rule catalog source path: `docs/layer4-implementation/Spec-Lint-Rules.md`.
+### 0.I Outputs and Metric Schema
+- outputs: `(findings, verdict, lint_metrics)`.
+### 0.J Spec Lifecycle Governance
+- New BLOCKER rules are MINOR; changed rule semantics are MAJOR.
+### 0.K Failure and Error Semantics
+- BLOCKER findings fail validation deterministically.
+### 0.L Input/Data Provenance
+- lint run stores docs hash and catalog hash in trace metadata.
+
+---
+## 2) Normative Rule Set
+| Rule ID | Severity | Description | Failure Code |
+|---|---|---|---|
+| `EQC.LINK.RESOLVE` | BLOCKER | Every project-local `.md` reference must resolve. | `CONTRACT_VIOLATION` |
+| `EQC.GRAPH.PARITY` | BLOCKER | Every discovered doc reference must have an edge in `ecosystem-graph.yaml`. | `CONTRACT_VIOLATION` |
+| `EQC.GRAPH.STALE_EDGE` | BLOCKER | `REFERENCES` edges must correspond to real references in source docs. | `CONTRACT_VIOLATION` |
+| `EQC.REG.PATH.EXISTS` | BLOCKER | Every `FilePath` in registry must exist and be non-empty. | `CONTRACT_VIOLATION` |
+| `EQC.REG.VERSION.MATCH` | BLOCKER | Registry version declaration must match file-declared version token policy. | `CONTRACT_VIOLATION` |
+| `EQC.EDGE.DECLARED` | BLOCKER | Graph edge types must be declared in source doc `DeclaredEdgeTypes`. | `CONTRACT_VIOLATION` |
+| `EQC.LAYER.IMPORTS` | BLOCKER | `IMPORTS/EXTENDS` must not target higher layer. | `CONTRACT_VIOLATION` |
+| `EQC.GRAPH.REACHABLE` | MAJOR | All docs must be reachable from `CORE-MASTER-001` via metadata/governance edges. | `CONTRACT_VIOLATION` |
+| `EQC.DOCID.UNIQUE` | BLOCKER | Registry `DocID` values must be unique. | `CONTRACT_VIOLATION` |
+| `EQC.FILEPATH.UNIQUE` | BLOCKER | Registry `FilePath` values must be unique. | `CONTRACT_VIOLATION` |
+
+---
+## 3) Rule Evaluation Procedure
+```text
+1. Parse registry + graph + markdown corpus
+2. Resolve references and build discovered ref set
+3. Run blocker rules first
+4. Run MAJOR/MINOR informational rules
+5. Emit deterministic finding stream and verdict
+```
+
+---
+## 4) Wiring References
+- `docs/layer4-implementation/Spec-Lint-Implementation.md`
+- `docs/layer4-implementation/Repo-Layout-and-Interfaces.md`
+- `ecosystem.md`
+- `ecosystem-registry.yaml`
+- `ecosystem-graph.yaml`

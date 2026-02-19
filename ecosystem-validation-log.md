@@ -155,3 +155,60 @@
   - Layer violations (`IMPORTS`/`EXTENDS`): 0
   - `IMPORTS`/`EXTENDS` cycle detection: pass
   - Reachability from `CORE-MASTER-001`: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Added coding governance subdocuments and wired them into ecosystem.
+- Scope:
+  - Added:
+    - `docs/layer4-implementation/Operator-Registry-CBOR-Contract.md`
+    - `docs/layer4-implementation/Spec-Lint-Rules.md`
+    - `docs/layer4-implementation/Change-Control-Playbook.md`
+  - Updated references in:
+    - `docs/layer4-implementation/Spec-Lint-Implementation.md`
+    - `docs/layer4-implementation/Repo-Layout-and-Interfaces.md`
+    - `docs/layer4-implementation/Implementation-Roadmap.md`
+  - Synced registry hashes and added `L4-038..L4-040`.
+  - Regenerated graph wiring from actual references and root-recognizes policy.
+- Validation:
+  - Markdown files scanned: 87
+  - Registry records: 87
+  - Graph nodes: 87
+  - Graph edges: 411
+  - Detected markdown reference pairs: 124
+  - Broken references: 0
+  - Missing graph edges for actual references: 0
+  - Stale `REFERENCES` edges: 0
+  - Edge-type declaration violations: 0
+  - Layer violations (`IMPORTS`/`EXTENDS`): 0
+  - Reachability from `CORE-MASTER-001`: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Added optional coding governance subdocuments and completed full wiring.
+- Scope:
+  - Added:
+    - `docs/layer4-implementation/Contracts-Artifact-Lifecycle.md`
+    - `docs/layer4-implementation/EQC-CI-Policy.md`
+  - Updated:
+    - `docs/layer4-implementation/Build-and-CI-Matrix.md`
+    - `docs/layer4-implementation/Release-Evidence-Assembler.md`
+    - `docs/layer4-implementation/Change-Control-Playbook.md`
+  - Added registry entries:
+    - `L4-041` (Contracts Artifact Lifecycle)
+    - `L4-042` (EQC CI Policy)
+  - Synced graph nodes/edges from current references and master reachability policy.
+- Validation:
+  - Markdown files scanned: 89
+  - Registry records: 89
+  - Graph nodes: 89
+  - Graph edges: 436
+  - Detected markdown reference pairs: 147
+  - Broken references: 0
+  - Missing graph edges for actual references: 0
+  - Stale `REFERENCES` edges: 0
+  - Edge-type declaration violations: 0
+  - Layer violations (`IMPORTS`/`EXTENDS`): 0
+  - Reachability from `CORE-MASTER-001`: pass

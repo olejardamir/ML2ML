@@ -102,6 +102,7 @@
 
 ### II.H Operator Registry Artifact (Normative)
 - `contracts/operator_registry.cbor` is the single source of truth for operator interface metadata.
+- construction and validation contract: `docs/layer4-implementation/Operator-Registry-CBOR-Contract.md`.
 - Required fields per operator record:
   - `operator_id`, `version`, `surface`,
   - `request_schema_digest`, `response_schema_digest`, `signature_digest`,

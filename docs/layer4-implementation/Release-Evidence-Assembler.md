@@ -100,3 +100,9 @@
 ## 10) Checkpoint/Restore
 - checkpoint stores evidence-resolution cursor and partial bundle hash.
 - restore continues assembly deterministically.
+
+---
+## 11) Related Contracts
+- `docs/layer4-implementation/Contracts-Artifact-Lifecycle.md`
+- `docs/layer2-specs/Execution-Certificate.md`
+- `docs/layer2-specs/Run-Commit-WAL.md`
