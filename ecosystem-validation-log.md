@@ -884,3 +884,214 @@
 - Validation:
   - Updated hash (`L1-001`): `cfb18520eee339edff73426c963d01dd2e170249abbf030ab3df2f875ae0db83`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles full contract hardening pass.
+- Scope:
+  - Rewrote `docs/layer1-foundation/Determinism-Profiles.md` to resolve logical/structural/algorithmic gaps:
+    - removed optimization-template semantics and aligned contract to validation/comparison behavior,
+    - replaced undefined `policy_bundle_hash` dependency with deterministic profile/hash inputs,
+    - defined `E0` and `E1` equivalence levels normatively,
+    - defined machine-checkable `profile_rules` schema for `BITWISE` and `TOLERANCE`,
+    - defined deterministic primitive allowlist hash computation,
+    - defined runtime equivalence set as sorted `driver_runtime_fingerprint_hash` set,
+    - normalized and unified `DriverRuntimeFingerprint` field set,
+    - moved distributed execution controls into `profile_rules`,
+    - defined `profile_report` and `comparison_report` schemas,
+    - defined trace schema including `check_id` semantics and metric meanings,
+    - defined tolerance comparison behavior for NaN, missing fields, nested structures, and shape/type mismatch,
+    - defined comparator cursor schema and restore semantics for checkpoint/restore.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `76a8b0f6a369ce9a838cd077a9375b2f484b72525bb0f71dfefbb6a9219b55d7`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog specification determinism/clarity hardening pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - removed optimization-template artifact from `0.A`,
+    - added explicit fatal error emission semantics in `0.K`,
+    - tightened label regex rendering and preserved inline-hex reservation constraints,
+    - added explicit top-level no-extra-fields invariant for catalog object,
+    - added explicit `catalog_version` domain constraints (`1..2^32-1`),
+    - tightened `algorithm` exact-match rule (`sha256`) and `domain_tag` constraints,
+    - clarified commitment tag role (`\"digest_catalog_v1\"`) and deterministic sorting note,
+    - added explicit inline-hex charset validation and disambiguation cross-reference in `II.G`,
+    - replaced informal YAML `validation_report` with normative canonical-CBOR schema,
+    - resolved trace granularity ambiguity by defining one-resolution-per-run schema,
+    - added checkpoint restore requirement that catalog blob is retrievable by `catalog_hash` from CAS.
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `7e761fed0e06111a216d62bd1a4bf373c9390c730b25cd8b1b05da66376787f3`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog follow-up consistency pass (abort/report semantics and domain_tag validation precision).
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - separated failure policy by operator (`ResolveDigestRef_v1` fatal on unresolved labels; `ValidateDigestCatalog_v1` returns invalid report without abort),
+    - explicit `domain_tag` validation constraints and byte-length unit (`<=256` UTF-8 bytes),
+    - explicit `algorithm == sha256` validation in constraints/lint/operator definition,
+    - explicit deterministic ordering rule for `validation_report.errors` (bytewise UTF-8 lexicographic),
+    - minor wording cleanup in `0.A` for resolution-centric semantics.
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `bae71a239650bafb20e4c54858a83189e754804a487f3faa0f8f9579de41551f`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog precision pass (replay/input minimalism, trace formalization, parsing/serialization strictness).
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - simplified reproducibility input to `catalog_hash` only,
+    - replaced ambiguous `Valid iff` phrasing with exhaustive validity condition set,
+    - clarified `uint32` as value-domain constraint with canonical CBOR unsigned encoding,
+    - added explicit empty-catalog allowance,
+    - formalized `validation_report` error template set,
+    - formalized trace schema as canonical-CBOR maps and one-run-per-artifact container rule,
+    - typed metric fields (`resolved_count:uint64`, `missing_count:uint64`),
+    - added explicit canonical-CBOR output requirements for operator outputs and traces,
+    - tightened `digest_ref` parsing semantics (no surrounding whitespace, case-sensitive label lookup, inline example),
+    - clarified statement about `sha256:<label>` meaning in context of `catalog_hash`,
+    - clarified CAS dependency as external/out-of-scope assumption for restore.
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `4b8e64ad02ecd3d42c21faf75daeaefa337ac61dce71f989952f88c1e7d67ca9`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles ambiguity-closure pass (comparison semantics and schema strictness).
+- Scope:
+  - Updated `docs/layer1-foundation/Determinism-Profiles.md` with:
+    - default non-listed-field policy for `TOLERANCE` (`default_compare_policy = E0`),
+    - symmetric missing-field definition and policy application,
+    - explicit special float handling (`+/-inf`, signed zero) under tolerance,
+    - explicit constraints forbidding extra `profile_rules` fields,
+    - defined `primitive_allowlist` structure for allowlist hash,
+    - explicit runtime-equivalence-set membership check in `ValidateDeterminismProfile_v1`,
+    - harmonized per-iter status enum to `MATCH|MISMATCH`,
+    - normative code enums for `violations.code` and `mismatches.reason_code`,
+    - explicit `check_id` and `path` conventions,
+    - non-negative tolerance requirement (`abs_tol`, `rel_tol`),
+    - explicit non-floating comparison rule under `TOLERANCE` (`E0`),
+    - defined `compiler_flags_hash` computation,
+    - strengthened cursor uniqueness semantics and added trace hash retrieval assumptions for restore.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `0d814f9fe9770e9f9ecc4b5f3981d766fa50987a7856b68cd1a9e356292f0ea0`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles closure pass (finite tolerances, backend hash enforcement, fingerprint canonicalization clarity).
+- Scope:
+  - Updated `docs/layer1-foundation/Determinism-Profiles.md` with:
+    - explicit `E0` wording for machine-readable report fields (removed ambiguous phrase),
+    - `profile_rules.profile_id` consistency rule (`MUST equal determinism_profile_id`),
+    - `ToleranceRule` strengthened to require non-negative finite float64 tolerance values,
+    - explicit canonical source and normalization constraints for compiler-flag hashing,
+    - `ValidateDeterminismProfile_v1` signature updated to require `backend_binary_hash` input,
+    - mandatory backend binary equality check against `profile_rules.backend_binary_hash`,
+    - validation violation code cleanup: removed `NAN_FORBIDDEN`, added `BACKEND_BINARY_MISMATCH`,
+    - validation lint rules updated to include backend binary hash check.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `f6b77263086d1b209e0fd48041703f8a1f2dea2a56ee39371ecff22f8318709a`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles final semantics pass (runtime metadata schema closure and enforceable BITWISE runtime checks).
+- Scope:
+  - Updated `docs/layer1-foundation/Determinism-Profiles.md` with:
+    - explicit unknown-profile behavior in failure semantics and operators (`PROFILE_NOT_FOUND` for validation, fatal divergence for comparison),
+    - required `runtime_metadata` conformance to `DriverRuntimeFingerprint` schema with missing/extra fields as violations,
+    - explicit external trace format dependency (`UML_OS.Trace.Format_v1`) for deterministic path traversal,
+    - added `rules_version:uint32` common profile-rules field (`MUST be 1`),
+    - clarified `tolerance_map` keys as exact dot-path keys and exact-match path application (no wildcard/prefix),
+    - strengthened primitive allowlist identifier semantics,
+    - extended runtime fingerprint schema with `runtime_flags` and `accumulation_policy`,
+    - expanded validation checks for runtime/profile parity: backend hash, runtime flags, and accumulation policy,
+    - refreshed deterministic validation code enums (`RUNTIME_METADATA_SCHEMA_ERROR`, `RUNTIME_FLAGS_MISMATCH`, `ACCUMULATION_POLICY_MISMATCH`, `PROFILE_NOT_FOUND`),
+    - added comparison mismatch reason `PROFILE_RULE_VIOLATION` for trace/profile metadata conflicts.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `5fc6128eefd39646a02e4d948205b874ec42f3d6b94b879b768c8601dd0e0414`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles enforceability pass (BITWISE runtime capture completeness and rules-version gating).
+- Scope:
+  - Updated `docs/layer1-foundation/Determinism-Profiles.md` with:
+    - runtime fingerprint extensions for enforceable BITWISE checks:
+      - `primitive_allowlist_used_hash:bytes32`
+      - `deterministic_kernels_enabled:bool`
+      - `nondeterministic_atomics_used:bool`
+    - explicit validation checks for the above fields against profile rules and BITWISE requirements,
+    - `rules_version` enforcement (`rules_version == 1`) with deterministic failure code,
+    - expanded validation code enum to include:
+      - `PRIMITIVE_ALLOWLIST_MISMATCH`
+      - `DETERMINISTIC_KERNELS_MISMATCH`
+      - `ATOMICS_POLICY_MISMATCH`
+      - `UNSUPPORTED_RULES_VERSION`
+    - stronger trace/profile matching rule:
+      - trace metadata MUST include and match `collective_algorithm_id`, `collective_chunking_policy`, `rank_order_policy`,
+    - tolerance-map clarifications:
+      - duplicate keys forbidden,
+      - default compare policy applies per leaf path.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `68dc99dc7eaaa5aa1b6ffc79366f420f7aee1d91eea8529f2163f7a8d573e1fc`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles determinism-closure pass (traversal/cursor/path and comparison-guard semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Determinism-Profiles.md` with:
+    - normative deterministic traversal order (map key bytewise order, array index order, depth-first walk),
+    - explicit array-element path convention (`parent_path.i`),
+    - explicit shape-mismatch path targeting at parent field,
+    - note for tolerance formula overflow-to-infinity behavior,
+    - optional diagnostic policy for unused `tolerance_map` keys (non-verdict affecting),
+    - clarification that `primitive_allowlist_used_hash` is ignored for `TOLERANCE`,
+    - `profile_report.driver_runtime_fingerprint_hash` made optional when metadata is unhashable,
+    - explicit violation `path` semantics (field path vs empty string for global violations),
+    - comparison operator abort when `rules_version != 1`,
+    - stronger `check_id` determinism guidance and delimiter-safety assumption for dot-paths,
+    - restore behavior for out-of-range `check_index` (treat as completed comparison),
+    - explicit dependency that trace format must provide required collective metadata fields.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `18c342cb6a9e607515960642b9f8716ee62a8ea7fd43e9df6737f25e97f5bed8`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Determinism Profiles schema consistency fix (`PROFILE_NOT_FOUND` compatibility for validation output).
+- Scope:
+  - Updated `docs/layer1-foundation/Determinism-Profiles.md`:
+    - made `profile_report.determinism_profile_hash` optional with normative presence condition:
+      - present iff selected profile is found and loaded.
+    - this aligns report schema with `PROFILE_NOT_FOUND` outcome semantics.
+  - Updated registry hash for `L1-005` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-005`): `20eb3135ef5aa69c8cffbd8b25d17e89fc3df8aecae8704ed64d547307d52df5`
+  - Ecosystem regressions introduced: 0
