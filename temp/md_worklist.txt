@@ -1,83 +1,129 @@
-API-Interfaces.md
-Architecture-Decisions-Log.md
-Artifact-Store-Adapter-Guide.md
-AuthZ-Capability-Matrix.md
-Backend-Adapter-Guide.md
-Backend-Feature-Matrix.md
-Build-and-CI-Matrix.md
-CLI-Command-Profiles.md
-Canonical-CBOR-Profile.md
-Canonical-Hashing-Reference.md
-Checkpoint-Schema.md
-Code-Generation-Mapping.md
-Coding-Standards.md
-Command-Reference.md
-Compatibility-Test-Matrix.md
-Config-Schema.md
-Conformance-CI-Pipeline.md
-Conformance-Harness-Guide.md
-Contributing-Workflow.md
-Coverage-Targets.md
-Data-Contract-Fuzzing-Guide.md
-Data-Lineage.md
-Data-NextBatch.md
-Data-Structures.md
-Debugging-Playbook.md
-Dependency-Lock-Policy.md
-Deployment-Runbook.md
-Determinism-Debug-Checklist.md
-Determinism-Profiles.md
-Deterministic-RNG-Implementation-Guide.md
-Developer-Setup.md
-Developer-Troubleshooting-FAQ.md
-DifferentialPrivacy-Apply.md
-Digest-Catalog.md
-Distributed-Failure-Recovery-Guide.md
-Environment-Manifest.md
-Error-Codes.md
-Evaluation-Harness.md
-Execution-Certificate.md
-Experiment-Tracking.md
-Failure-Injection-Scenarios.md
-Fixtures-and-Golden-Data.md
-Implementation-Backlog.md
-Implementation-Roadmap.md
-Integration-Test-Matrix.md
-Local-Replay-Runbook.md
-Migration-Execution-Guide.md
-Model-Registry.md
-ModelIR-Executor.md
-Module-Scaffolding-Guide.md
-Monitoring-Policy.md
-Operator-Conformance-Matrix.md
-Operator-Registry-Schema.md
-Operator-SDK-Scaffold-Template.md
-PR-Review-Checklist.md
-Performance-Plan.md
-Pipeline-Orchestrator.md
-Profiling-and-Optimization-Guide.md
-Redaction-Policy.md
-Reference-Implementations.md
-Release-Evidence-Assembler.md
-Release-Gates.md
-Replay-Determinism.md
-Repo-Layout-and-Interfaces.md
-Run-Commit-WAL.md
-Runtime-State-Machine-Reference.md
-SDK-Usage-Guide.md
-SRE-Incident-Triage-Playbook.md
-Schema-Evolution-Playbook.md
-Security-Coding-Checklist.md
-Security-Compliance-Profile.md
-Spec-Lint-Implementation.md
-Storage-Recovery-Test-Matrix.md
-TMMU-Allocation.md
-Test-Harness-Implementation.md
-Test-Plan.md
-Test-Vectors-Catalog.md
-Trace-Sidecar.md
-UML_OS-Kernel-v3.22-OS.md
+docs/layer1-foundation/API-Interfaces.md
+docs/layer1-foundation/Canonical-CBOR-Profile.md
+docs/layer1-foundation/Data-Structures.md
+docs/layer1-foundation/Dependency-Lock-Policy.md
+docs/layer1-foundation/Determinism-Profiles.md
+docs/layer1-foundation/Digest-Catalog.md
+docs/layer1-foundation/Environment-Manifest.md
+docs/layer1-foundation/Error-Codes.md
+docs/layer1-foundation/Operator-Registry-Schema.md
+docs/layer1-foundation/Redaction-Policy.md
+docs/layer2-specs/AuthZ-Capability-Matrix.md
+docs/layer2-specs/Checkpoint-Schema.md
+docs/layer2-specs/Config-Schema.md
+docs/layer2-specs/Data-Lineage.md
+docs/layer2-specs/Data-NextBatch.md
+docs/layer2-specs/Deployment-Runbook.md
+docs/layer2-specs/DifferentialPrivacy-Apply.md
+docs/layer2-specs/Evaluation-Harness.md
+docs/layer2-specs/Execution-Certificate.md
+docs/layer2-specs/Experiment-Tracking.md
+docs/layer2-specs/Model-Registry.md
+docs/layer2-specs/ModelIR-Executor.md
+docs/layer2-specs/Monitoring-Policy.md
+docs/layer2-specs/Pipeline-Orchestrator.md
+docs/layer2-specs/Replay-Determinism.md
+docs/layer2-specs/Run-Commit-WAL.md
+docs/layer2-specs/Security-Compliance-Profile.md
+docs/layer2-specs/TMMU-Allocation.md
+docs/layer2-specs/Trace-Sidecar.md
+docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md
+docs/layer3-tests/Compatibility-Test-Matrix.md
+docs/layer3-tests/Conformance-CI-Pipeline.md
+docs/layer3-tests/Conformance-Harness-Guide.md
+docs/layer3-tests/Coverage-Targets.md
+docs/layer3-tests/Data-Contract-Fuzzing-Guide.md
+docs/layer3-tests/Failure-Injection-Scenarios.md
+docs/layer3-tests/Integration-Test-Matrix.md
+docs/layer3-tests/Performance-Plan.md
+docs/layer3-tests/Release-Gates.md
+docs/layer3-tests/Storage-Recovery-Test-Matrix.md
+docs/layer3-tests/Test-Plan.md
+docs/layer3-tests/Test-Vectors-Catalog.md
+docs/layer4-implementation/Architecture-Decisions-Log.md
+docs/layer4-implementation/Artifact-Store-Adapter-Guide.md
+docs/layer4-implementation/Backend-Adapter-Guide.md
+docs/layer4-implementation/Backend-Feature-Matrix.md
+docs/layer4-implementation/Build-and-CI-Matrix.md
+docs/layer4-implementation/CLI-Command-Profiles.md
+docs/layer4-implementation/Canonical-Hashing-Reference.md
+docs/layer4-implementation/Code-Generation-Mapping.md
+docs/layer4-implementation/Coding-Standards.md
+docs/layer4-implementation/Command-Reference.md
+docs/layer4-implementation/Contributing-Workflow.md
+docs/layer4-implementation/Debugging-Playbook.md
+docs/layer4-implementation/Determinism-Debug-Checklist.md
+docs/layer4-implementation/Deterministic-RNG-Implementation-Guide.md
+docs/layer4-implementation/Developer-Setup.md
+docs/layer4-implementation/Developer-Troubleshooting-FAQ.md
+docs/layer4-implementation/Distributed-Failure-Recovery-Guide.md
+docs/layer4-implementation/Fixtures-and-Golden-Data.md
+docs/layer4-implementation/Implementation-Backlog.md
+docs/layer4-implementation/Implementation-Roadmap.md
+docs/layer4-implementation/Local-Replay-Runbook.md
+docs/layer4-implementation/Migration-Execution-Guide.md
+docs/layer4-implementation/Module-Scaffolding-Guide.md
+docs/layer4-implementation/Operator-Conformance-Matrix.md
+docs/layer4-implementation/Operator-SDK-Scaffold-Template.md
+docs/layer4-implementation/PR-Review-Checklist.md
+docs/layer4-implementation/Profiling-and-Optimization-Guide.md
+docs/layer4-implementation/Reference-Implementations.md
+docs/layer4-implementation/Release-Evidence-Assembler.md
+docs/layer4-implementation/Repo-Layout-and-Interfaces.md
+docs/layer4-implementation/Runtime-State-Machine-Reference.md
+docs/layer4-implementation/SDK-Usage-Guide.md
+docs/layer4-implementation/SRE-Incident-Triage-Playbook.md
+docs/layer4-implementation/Schema-Evolution-Playbook.md
+docs/layer4-implementation/Security-Coding-Checklist.md
+docs/layer4-implementation/Spec-Lint-Implementation.md
+docs/layer4-implementation/Test-Harness-Implementation.md
+document_guidelines/EQC_ECOSYSTEM.md
+document_guidelines/EQC_GUIDELINES.md
 
 ---
 LIKELY TO BE BROKEN INTO MORE SUBDOCUMENTS (priority order)
 
+1) docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md
+   - likely splits: scheduler/runtime, namespace/process model, policy engine, distributed semantics, certificate flow
+
+2) docs/layer2-specs/DifferentialPrivacy-Apply.md
+   - likely splits: mechanism math, accountant variants, clipping strategies, distributed DP semantics, validation vectors
+
+3) docs/layer2-specs/ModelIR-Executor.md
+   - likely splits: IR spec, forward semantics, backward/adjoint semantics, primitive dispatch contract, RNG contract
+
+4) docs/layer2-specs/TMMU-Allocation.md
+   - likely splits: planner algorithm, alias/view/in-place rules, dynamic-shape replanning, distributed sharding memory contract
+
+5) docs/layer2-specs/Trace-Sidecar.md
+   - likely splits: canonical trace schema, hash-chain/integrity rules, redaction & privacy classes, sampling/caps policy
+
+6) docs/layer2-specs/Checkpoint-Schema.md
+   - likely splits: logical schema, shard container format, atomic commit/recovery protocol, migration/compatibility
+
+7) docs/layer2-specs/Replay-Determinism.md
+   - likely splits: replay token composition, comparator profiles (E0/E1), backend determinism requirements, divergence policy
+
+8) docs/layer2-specs/Security-Compliance-Profile.md
+   - likely splits: threat model, attestation verification, trust/revocation bundles, key governance, transport controls
+
+9) docs/layer1-foundation/API-Interfaces.md
+   - likely splits: syscall registry, service registry, schema digest rules, RBAC/capability bindings
+
+10) docs/layer1-foundation/Operator-Registry-Schema.md
+   - likely splits: registry schema, signature digest computation, operator lifecycle/deprecation, conformance rules
+
+11) docs/layer2-specs/Config-Schema.md
+   - likely splits: core schema, extension schema framework, canonical defaults, migration rules
+
+12) docs/layer2-specs/Pipeline-Orchestrator.md
+   - likely splits: state machine, lease/backoff/quota artifacts, commit semantics, failure/retry policy
+
+13) docs/layer2-specs/Deployment-Runbook.md
+   - likely splits: preflight/canary policy, rollback/incident playbooks, secrets/key rotation, DR procedures
+
+14) docs/layer2-specs/Monitoring-Policy.md
+   - likely splits: drift algorithm suite, policy transcript hashing, alert lifecycle, privacy-safe telemetry schema
+
+15) docs/layer2-specs/Execution-Certificate.md
+   - likely splits: signed payload schema, evidence binding, signature verification, policy gate integration

@@ -2,7 +2,7 @@
 
 **EQC Ecosystem Specification (EQC-ES)** is the single master governance layer for any collection (portfolio) of EQC documents. It enforces modularity, versioning, traceability, and fully deterministic, failsafe change propagation across the entire tree exactly as EQC v1.1 does inside one algorithm (see EQC Block 0.G Operator Manifest, Block III.C No hidden globals, Block IX Checkpoint, and Block 0.L Input/Data Provenance).
 
-Version 1.16 (2026-02-19) is the **Indestructible Final Version**. It closes every remaining architectural blind spot and systemic vulnerability identified across all reviews: Link-Time Audit for dynamic linking, Hybrid TTL for Experimental status, Portfolio Prefix for DocIDs, Adaptive Warmup Invariant, Transitive License Bubbling, Modular Drift Summation, Usage-based Tombstone Physical Cleanup, Multi-Profile Signature for promotion, Temporal Pulse for Bit-Rot, Profile-Aware Purity Matrix, Metadata Consistency Check for RECOGNIZES, Transactional Rollback for Virtual Batches, Unit-Normalised Metric Vectors with L-infinity, Deep-Scan Manifest Verification for Break-Glass, License Bubbling Rule, Pruning Milestone, and all prior points. The specification is now mathematically complete, self-healing, tamper-evident, license-safe, hardware-aware, and ready for production use at any scale.
+Version 1.16 (2026-02-19) is the **Indestructible Final Version**. It closes every architectural blind spot and systemic vulnerability identified across all reviews, including Link-Time Audit for dynamic linking, Hybrid TTL for Experimental status, Portfolio Prefix for DocIDs, Adaptive Warmup Invariant, Transitive License Bubbling, Modular Drift Summation, Usage-based Tombstone Physical Cleanup, Multi-Profile Signature, Temporal Pulse, Profile-Aware Purity Matrix, Metadata Consistency Check, Transactional Rollback, Unit-Normalised Metric Vectors with L-infinity, Deep-Scan Manifest Verification for Break-Glass, License Bubbling Rule, Pruning Milestone, and all prior points. The specification is now mathematically complete, self-healing, tamper-evident, license-safe, hardware-aware, and ready for production use at any scale.
 
 ### 0.5 Quick Impact Analysis Procedure v1.0 (how to use this brain – read this first; see §7 for tooling)
 
@@ -85,7 +85,7 @@ Conflict Escalation Protocol: If aliasing or strict-single-version cannot be aut
 **Namespace Handshake:** When a DocID moves between sub-portfolios, the Registry maintains a MOVED_TO pointer for one full MAJOR portfolio version.  
 **Namespace Cooling Period:** A retired namespace cannot be re-assigned until the MOVED_TO pointer expires **and** a Usage Audit confirms zero incoming IMPORTS or REFERENCES.  
 **Pruning Milestone:** At every MAJOR portfolio version (X.0), all expired MOVED_TO pointers and associated Usage Audits are moved to ecosystem-archive.yaml to keep the active registry lean.  
-**Portfolio Prefix (new v1.16):** All DocIDs in distributed models must include a unique Portfolio Prefix (e.g. SUB-A:ALGO-001) to guarantee global uniqueness and prevent silent collisions.
+**Portfolio Prefix:** All DocIDs in distributed models must include a unique Portfolio Prefix (e.g. SUB-A:ALGO-001) to guarantee global uniqueness and prevent silent collisions.
 
 ### 2.3 Environment Profiles (mandatory)
 ```yaml
@@ -105,7 +105,7 @@ A document is fully validated only if it has successful shadow-traces for every 
 **Provisioning TTL:** If a profile remains provisioning for more than 6 months without at least one document providing a Golden Trace, it is automatically purged or flagged for manual removal.  
 **Profile Succession Plan:** A profile cannot be purged until all documents using it have successfully generated a Golden Trace on a replacement active profile.  
 **Profile-Specific Accuracy Tags:** A document may export a unique EPS_EQ per active profile.  
-**Multi-Profile Signature for promotion (new v1.16):** Promotion to “Active” requires a Multi-Profile Signature (stability proven on at least 2 distinct hardware profiles).
+**Multi-Profile Signature for promotion:** Promotion to “Active” requires a Multi-Profile Signature (stability proven on at least 2 distinct hardware profiles).
 
 ### 2.4 Layered Architecture (anti-cycle rule)
 Layer 0: core-guidelines – may IMPORT / EXTEND only Layer 0.  
@@ -126,7 +126,7 @@ eqc-es validate performs:
 - Ghost Document detection: reachable but bypassed → warning.  
 
 Configurable: In strict mode these become blocking errors. In “experimental” status they are non-blocking.  
-**Experimental TTL (new v1.16):** Any document in experimental status for more than 2 MAJOR versions **or** 180 days (whichever comes first) must either be promoted to active (passing all checks) or be automatically moved to deprecated.
+**Experimental TTL:** Any document in experimental status for more than 2 MAJOR versions **or** 180 days (whichever comes first) must either be promoted to active (passing all checks) or be automatically moved to deprecated.
 
 ### 2.6 Data Registry (mandatory for data-driven EQC documents)
 Separate sidecar data-registry.yaml (extends EQC Block 0.L).  
@@ -207,7 +207,7 @@ Legacy Compatibility Shim, Shadow-Trace Requirement + Drift Guardrail, Automated
 25. **Recursive Manifest Loophole Closure:** Transient dependencies are fully crawled; a document’s purity is recalculated from the deepest layer. Profile-Aware Purity Matrix: The validator outputs a Purity Matrix (DocID vs. Profile) for conditional dependencies.  
 26. **Deterministic Jitter Guardrail:** If hardware partitioning is unverifiable (e.g., cloud noisy neighbors), the document must declare a JITTER_TOLERANCE in Block 0.C. The validator then performs a Statistical Identity Test (running the same trace N times) to ensure non-functional side effects do not cross into the Functional Hash's variance.  
 27. **Purity Encapsulation / Sandboxing:** A document may declare a purity class higher (purer) than its dependencies if it utilizes a Deterministic Reduction Policy that is cryptographically verified to produce bit-identical output regardless of the side-effect. The validator performs Reduction Audit Exception to confirm encapsulation holds.  
-28. **Link-Time Audit (new v1.16):** For every external-dependency, the validator must use ldd/otool (or equivalent) to verify zero undeclared dynamic links outside the container.
+28. **Link-Time Audit:** For every external-dependency, the validator must use ldd/otool (or equivalent) to verify zero undeclared dynamic links outside the container.
 
 ### 7. Portfolio Observability & Tooling (mandatory)
 Required sidecars at portfolio root: ecosystem-registry.yaml, ecosystem-graph.yaml, ecosystem-compatibility-aggregate.yaml (includes Profile Compatibility Aggregate), ecosystem-validation-log.md (audit trail), data-registry.yaml, migration-plan-template.yaml, portfolio-release-notes-template.md.
@@ -230,7 +230,7 @@ Portfolio must maintain at least one golden ecosystem trace.
 **State-Space Coverage Invariant:** The Golden Trace must include a Boundary Test trace (minimum/maximum parameter values from Block II) to ensure the functional hash holds at the edges of the specification.  
 **Environment Entropy Pulse:** Every 6 months (or on any host-level change), the validator forces a re-validation of the Golden Trace even if no code has changed, triggered by a Global Sequence Number in the Root EQC-ES file (not local clock).  
 **Pre-Trace Warmup Policy:** Golden Traces must include a non-recorded “discard run”.  
-**Adaptive Warmup Invariant (new v1.16):** The validator monitors hardware telemetry (clock speed, temperature) and only begins the Golden Trace once a “Steady State” is reached.
+**Adaptive Warmup Invariant:** The validator monitors hardware telemetry (clock speed, temperature) and only begins the Golden Trace once a “Steady State” is reached.
 
 ### 8. Refactoring & Evolution Rules
 Same E0–E3 equivalence levels as core EQC Block VIII, plus:  
@@ -251,7 +251,7 @@ Every propagation triggers the changed EQC document’s own Block VII and (if ap
 **Environment Lockfile Hash:** For non-containerized profiles, the checkpoint includes conda-lock or requirements.txt.sha256.  
 **Drift Budget Exhaustion:** Cumulative drift is calculated as the Euclidean vector norm (RMS) **and** L-infinity norm of metric deviations between the current candidate and the **last MAJOR version’s Golden Trace** (Anchor-Version Baseline). Unit-Normalised Metric Vectors: All deviations must be scaled by their respective EPS_EQ before the norm is calculated. Fails if any single metric deviates beyond its individual EPS_EQ by more than a specified multiplier (regardless of RMS) or if RMS exceeds 1.5 × EPS_EQ.  
 **Secondary Rolling Baseline:** The validator compares metrics against both the Anchor (MAJOR) and the immediate predecessor (MINOR/PATCH) to detect rapid, short-term acceleration in drift.  
-**Modular Drift Summation (new v1.16):** The validator evaluates the aggregate error of the full call stack.  
+**Modular Drift Summation:** The validator evaluates the aggregate error of the full call stack.  
 **Atomic Checkpoint Hash:** The checkpoint must be a Merkle Root of the EQC-ES file plus all mandatory sidecars listed in Section 7 to prevent TOCTOU issues.  
 **Metric Set Invariance:** A document version cannot change its metric schema without a MAJOR version bump (which resets the Drift Budget baseline), except for additive metrics in MINOR versions where only the new metric resets its baseline.
 
@@ -265,7 +265,7 @@ Localization Policy: Registry may declare supported languages; all core sections
 **Break-Glass Auto-Recovery:** Every MINOR bump of the Root EQC-ES forces a re-attempt of standard validation on all flagged documents to automatically clear the emergency state if the underlying issue is resolved.  
 **Deep-Scan Manifest Verification for Break-Glass:** The validator performs a full recursive crawl of all dependencies to detect any hidden validation-override documents, even if the direct parent claims to be “valid”.  
 **License Contamination Invariant:** The registry tracks license_type. Restrictive licenses cannot be imported by permissive ones without an explicit warning flag.  
-**Transitive License Bubbling Rule (new v1.16):** A document’s license is automatically the most restrictive type found in its entire IMPORT tree.
+**Transitive License Bubbling Rule:** A document’s license is automatically the most restrictive type found in its entire IMPORT tree.
 
 **Portfolio version rule decision tree:** (see §5 table).
 
@@ -289,4 +289,4 @@ Localization Policy: Registry may declare supported languages; all core sections
 - Unit-Normalised Metric Vectors: Deviations scaled by EPS_EQ before norm calculation.  
 - Usage-based Tombstone Protocol: Safe-to-Delete manifest for physical file cleanup after cooling period.
 
- 
+
