@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize contract violations and reproducibility drift.
 ### 0.B Reproducibility Contract
-- Replayable given `(driver_hash, adapter_version, test_manifest_hash)`.
+- Replayable given `(backend_binary_hash, driver_runtime_fingerprint_hash, adapter_version, test_manifest_hash)`.
 ### 0.C Numeric Policy
 - Critical operations must satisfy binary64 deterministic requirements.
 ### 0.D Ordering and Tie-Break Policy
@@ -113,6 +113,15 @@
   - backend emits `determinism_compliance_report_hash`,
   - execution is forbidden when backend semantics hash set mismatches approved IR operator set hash.
 
+### II.I Backend/Driver Identity Naming (Normative)
+- Canonical identities:
+  - `backend_binary_hash:bytes32` = hash of adapter binary/package artifact.
+  - `driver_runtime_fingerprint_hash:bytes32` = hash of canonical runtime/driver fingerprint map.
+- Multi-backend runs:
+  - `backend_binary_hashes: map<string,bytes32>` with canonical key ordering.
+- Deprecated aliases:
+  - `driver_hash` and `backend_hash` are non-authoritative aliases and must not be used for checkpoint/certificate commitments.
+
 ---
 ## 3) Initialization
 1. Load driver metadata.
@@ -168,7 +177,7 @@ Template conformance note (III.A): each operator definition in this section is i
 ### Logging rule
 Certification emits deterministic per-test records.
 ### Trace schema
-- `run_header`: driver_hash, adapter_version
+- `run_header`: backend_binary_hash, driver_runtime_fingerprint_hash, adapter_version
 - `iter`: test_id, result
 - `run_end`: certification_status
 ### Metric schema

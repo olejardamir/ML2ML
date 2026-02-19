@@ -93,6 +93,21 @@
 - Physical deletion is prohibited while object is reachable from active execution certificates or pinned model releases.
 - GC must be deterministic mark/sweep over declared roots and emit hash-chained GC audit records.
 
+### II.G Canonical Tracking Record Schemas (Normative)
+- `RunRecord` (CBOR map):
+  - `tenant_id:string`, `run_id:string`, `replay_token:bytes32`, `manifest_hash:bytes32`, `trace_root_hash:bytes32`, `checkpoint_hash:bytes32`, `execution_certificate_hash:bytes32`, `status:string`, `created_at:string`, `ended_at?:string`.
+- `MetricRecord` (CBOR map):
+  - `tenant_id:string`, `run_id:string`, `metric_name:string`, `metric_value:float64`, `metric_step:uint64`, `aggregation:enum(raw|sum|mean|min|max|quantile)`, `quantile_p?:float64`, `window_id?:string`, `recorded_at:string`.
+- `ArtifactRecord` (CBOR map):
+  - `tenant_id:string`, `run_id:string`, `artifact_id:string`, `artifact_digest:digest_ref`, `artifact_size_bytes:uint64`, `storage_locator:string`, `artifact_class:string`, `created_at:string`, `tombstoned_at?:string`.
+- Record hash rule:
+  - `record_hash = SHA-256(CBOR_CANONICAL(record_map))`.
+
+### II.H Tracking Gate Binding (Normative)
+- Any tracking record used by policy gates must be hash-addressed.
+- If a gate decision depends on tracking evidence, the decision transcript must include the relevant `record_hash` values and bind them through `policy_gate_hash`.
+- For regulated/confidential modes, retention rules must preserve all gate-referenced records until retention expiry.
+
 ---
 ## 3) Initialization
 1. Initialize tracking store bindings.

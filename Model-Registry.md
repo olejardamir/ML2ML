@@ -99,6 +99,16 @@
   - transition writes are append-only and keyed by monotone `transition_seq`,
   - retries use deterministic `idempotency_key` and must not duplicate state changes.
 
+### II.H Canonical Registry Record Schemas (Normative)
+- `ModelRecord` (CBOR map):
+  - `tenant_id:string`, `model_id:string`, `name:string`, `created_by:string`, `created_at:string`, `model_metadata_hash:bytes32`.
+- `ModelVersionRecord` (CBOR map):
+  - `tenant_id:string`, `model_id:string`, `model_version_id:string`, `checkpoint_hash:bytes32`, `execution_certificate_hash:bytes32`, `manifest_hash:bytes32`, `lineage_root_hash:bytes32`, `artifact_index_hash:bytes32`, `created_at:string`.
+- `StageTransitionRecord` (CBOR map):
+  - `tenant_id:string`, `model_id:string`, `model_version_id:string`, `transition_seq:uint64`, `from_stage:string`, `to_stage:string`, `policy_gate_hash:bytes32`, `authz_decision_hash:bytes32`, `decision_time:string`, `idempotency_key:bytes32`, `decision_reason_code:string`.
+- Record hash rule:
+  - `record_hash = SHA-256(CBOR_CANONICAL(record_map))`.
+
 ---
 ## 3) Initialization
 1. Load registry schema.

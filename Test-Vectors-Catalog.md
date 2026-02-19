@@ -96,6 +96,29 @@
   - domain-separated hash tuple examples.
 - These vectors are mandatory for conformance of hashing/signature-related operators.
 
+### II.H `vectors_catalog.cbor` Schema (Normative)
+- Authoritative machine-readable artifact: `contracts/vectors_catalog.cbor`.
+- Schema:
+  - `catalog_version:string`
+  - `operators: map<string, array<map>>`, where each vector map contains:
+    - `vector_id:string`
+    - `input_digest:digest_ref`
+    - `expected_output_digest:digest_ref`
+    - `expected_error_code?:string`
+    - `determinism_class: "E0" | "E1"`
+    - `signature_digest:digest_ref`
+    - `notes?:string`
+- Catalog hash:
+  - `vectors_catalog_hash = SHA-256(CBOR_CANONICAL(vectors_catalog_map))`.
+
+### II.I Minimum Baseline Vector Set (Normative)
+- Required baseline vectors:
+  - canonical CBOR map ordering edge cases (`len-first` ordering),
+  - trace hash-chain over a 3-record sequence (`trace_chain_v1`),
+  - WAL chain plus terminal `FINALIZE` commit record hash,
+  - `digest_ref` resolution (`sha256:<hex64>` inline and `sha256:<label>` lookup),
+  - `NextBatch_v2` deterministic sampling on at least two small datasets and one distributed shard case.
+
 ---
 ## 3) Initialization
 1. Load vector registry.

@@ -192,7 +192,8 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - Required commands (prioritized entrypoints): `umlos quickstart [template: classification|regression|pipeline|regulated]` (creates minimal ready-to-run manifest.yaml + project layout + example pipeline under current dir; runnable in <10 s), `umlos run manifest.yaml`, `umlos validate`, `umlos doctor`, `umlos replay <token>`, `umlos certificate verify`, `umlos migrate <legacy_path> [options] --output-dir .` (analyzes common training scripts/notebooks, generates runnable UML_OS manifest.yaml + IR; runs Contract.Validate_v1 on result), plus `job submit`/`export`/`infer`/`namespace init`/`daemon start`/`dataset register`/`import`/`audit export`/`ps/logs/kill/queue`. All CLI paths perform full Contract.Validate_v1 + manifest validation before any action.
 
 ### 0.X Training Certificate Contract
-- Certificate contains: replay_token, Merkle-chained trace root, lineage hashes, final `state_fp`, functional_fp curve (+ functional_commitment when enabled), **exact cumulative differential-privacy budget (epsilon in binary64 if regulated)**, ir_hash, scheduler_assignment_hash, total_compute_fp (summed GPU/CPU seconds from audit), compliance_artifacts hash (regulated mode), manifest hashes, backend fingerprint, driver_hashes: map of used backend names to their verification hashes, daemon public key, operator contract hashes, electronic signatures (daemon ed25519 + optional HSM/company PKI), and (in `confidential`/`regulated` mode) the full remote attestation quote.
+- Certificate field-set is authoritative in `Execution-Certificate.md` only.
+- Kernel and adapters MUST NOT add implicit certificate fields outside `Execution-Certificate.md` `signed_payload` and allowed `unsigned_metadata`.
 - Daemon signs certificate using namespace ed25519 private key; `regulated` mode additionally applies declared electronic signatures.
 - `augment_metadata` for each symbolic stage (if present)
 
@@ -713,7 +714,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(run_state -> execution_certificate.cbor)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** emits canonical `ExecutionCertificate` object (as defined in `Execution-Certificate.md`) containing Merkle trace root, lineage chain (all pipeline stages), fingerprints, manifest hashes, operator contract hashes, cumulative epsilon (regulated), full remote attestation quote (confidential/regulated), and CAS artifact hashes. Legacy `UML_OS.IO.WriteTrainingCertificate_v1` is deprecated and must be implemented as a thin alias wrapper to this operator.
+**Definition:** emits canonical `ExecutionCertificate` object exactly as defined in `Execution-Certificate.md`. Legacy `UML_OS.IO.WriteTrainingCertificate_v1` is deprecated and must be implemented as a thin alias wrapper to this operator.
 **Preconditions / Postconditions:** daemon signing key available.  
 **Edge cases:** missing quote in confidential mode.  
 **Numerical considerations:** deterministic digest encoding.  
@@ -863,7 +864,7 @@ On full termination:
 Each iteration must emit one canonical trace record via `UML_OS.IO.WriteTape_v1` with required V.B fields for the active task type.
 
 ### Trace schema (minimum required)
-- `run_header`: metadata, hashes, replay_token, task_type, world_size, backend_hash
+- `run_header`: metadata, hashes, replay_token, task_type, world_size, backend_binary_hash, driver_runtime_fingerprint_hash
 - `iter`: `t, stage_id, operator_id, operator_seq, rank, status, loss_total?, grad_norm?, state_fp?, functional_fp?, rng_offset_before?, rng_offset_after?, state?, action?`
 - `run_end`: status, final hashes, final fingerprints
 
@@ -930,7 +931,7 @@ Breaking observables require trace schema update + MAJOR version bump.
 - `theta`, optimizer state
 - `loss_hist`, `data_cursors`
 - RNG master state + offsets
-- `policy_bundle_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`
+- `policy_bundle_hash`, `env_manifest_hash`, `replay_token`, `backend_binary_hash`, `driver_runtime_fingerprint_hash`
 - latest `state_fp`, `functional_fp`, optional `functional_commitment`
 - pipeline lineage state
 

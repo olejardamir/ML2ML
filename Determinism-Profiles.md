@@ -17,7 +17,7 @@
 - Primary comparison rule: profile-conformant replay verdict.
 - Invalid objective policy: profile violation is deterministic failure.
 ### 0.B Reproducibility Contract
-- Replayable given `(determinism_profile_id, backend_hash, driver_runtime_fingerprint, policy_bundle_hash)`.
+- Replayable given `(determinism_profile_id, backend_binary_hash, driver_runtime_fingerprint_hash, policy_bundle_hash)`.
 ### 0.C Numeric Policy
 - `BITWISE` requires fixed reduction order + deterministic kernels.
 - `TOLERANCE` requires explicit per-field tolerance map.
@@ -78,6 +78,12 @@
   - `rank_order_policy`.
 - `TOLERANCE` comparator map schema:
   - `field_name -> {abs_tol:float64, rel_tol:float64, nan_policy:enum("FORBID","EQUAL_IF_BOTH_NAN")}`.
+- `DriverRuntimeFingerprint` canonical CBOR map schema:
+  - required fields:
+    - `gpu_model`, `gpu_sm_count`, `driver_version`, `cuda_version`, `cudnn_version`, `cublas_version`, `nccl_version`,
+    - `os_kernel_version`, `compiler_id`, `compiler_flags_hash`, `backend_adapter_version`, `backend_build_id`.
+  - hash rule:
+    - `driver_runtime_fingerprint_hash = SHA-256(CBOR_CANONICAL(driver_runtime_fingerprint_map))`.
 
 ### II.G Profile Hash (Normative)
 - `determinism_profile_hash = SHA-256(CBOR_CANONICAL([profile_id, profile_rules, tolerance_map?]))`.

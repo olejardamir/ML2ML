@@ -127,12 +127,15 @@
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
   - backend adapter build hash.
+- `DriverRuntimeFingerprint` schema and hash:
+  - schema fields: `gpu_model`, `gpu_sm_count`, `driver_version`, `cuda_version`, `cudnn_version`, `cublas_version`, `nccl_version`, `os_kernel_version`, `compiler_id`, `compiler_flags_hash`, `backend_adapter_version`, `backend_build_id`.
+  - `driver_runtime_fingerprint_hash = SHA-256(CBOR_CANONICAL(driver_runtime_fingerprint_map))`.
 - Replay token minimum state coverage:
   - RNG counters: `rng_offset_before`, `rng_offset_after`,
   - DP: `dp_accountant_state_hash`, `dp_config_hash`,
   - Data: `sampler_config_hash`, `effective_q`,
   - Memory: `tmmu_plan_hash`,
-  - Backend: `backend_binary_hash`, `determinism_profile_hash`, `driver_runtime_fingerprint`.
+  - Backend: `backend_binary_hash`, `determinism_profile_hash`, `driver_runtime_fingerprint_hash`.
   - Supply chain: `lockfile_hash`, `toolchain_hash`.
 
 ### II.G DeterminismProfile (Normative)

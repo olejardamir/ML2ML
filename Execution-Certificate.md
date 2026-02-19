@@ -121,8 +121,11 @@
   - `dp_delta?:float64`
   - `dp_accountant_state_hash?:bytes32` (if DP enabled)
   - `attestation_quote_hash?:bytes32` (required in `ATTESTED` mode)
+  - `attestation_bundle_hash?:bytes32` (required in `ATTESTED` mode)
+  - `trust_store_hash:bytes32`
   - `key_id:string`
   - `revocation_bundle_hash:bytes32`
+  - `verification_time_utc:string` (required when online revocation/attestation checks are verdict-affecting)
   - `determinism_conformance_suite_id?:bytes32`
   - `step_start:uint64`
   - `step_end:uint64`

@@ -121,6 +121,14 @@
 - Quota policy decisions must be reproducible from frozen snapshots and bound to `quota_policy_hash`.
 - Any quota overrun gate failure must emit deterministic diagnostics and failure code.
 
+### II.H Metric Snapshot Hash (Normative)
+- Benchmark verdicts must be computed from a frozen metric snapshot object:
+  - `MetricSnapshot = {snapshot_id, workload_ids_sorted, samples_by_workload, warmup_discard_count, quantile_method, env_hash, baseline_hash, threshold_hash}`.
+- Canonical serialization: `CBOR_CANONICAL`.
+- Snapshot hash:
+  - `metric_snapshot_hash = SHA-256(CBOR_CANONICAL(MetricSnapshot))`.
+- Gate verdict record must include `metric_snapshot_hash`; comparisons and audits must use this hash as the authoritative metric evidence identity.
+
 ---
 
 ## 3) Initialization

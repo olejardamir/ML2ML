@@ -125,12 +125,22 @@
   - `trust_store_hash`,
   - `revocation_bundle_hash` (canonical hash of either online capture bundle or pinned offline bundle),
   - `attestation_bundle_hash`.
+- Normative evidence schemas:
+  - `TrustStore` CBOR map:
+    - `trust_roots: array<bytes>`, `version:string`, `issuer_policies_hash:bytes32`.
+  - `RevocationBundle` CBOR map:
+    - `mode`, `ocsp_responses?:array<bytes>`, `crl_blobs?:array<bytes>`, `fetch_metadata_hash:bytes32`, `source_timestamps:array<string>`.
+  - `AttestationBundle` CBOR map:
+    - `tee_type:string`, `measurements_hash:bytes32`, `quote_blob:bytes`, `verification_report_hash:bytes32`, `tcb_version:string`.
+  - Hash rule for each bundle:
+    - `*_hash = SHA-256(CBOR_CANONICAL(bundle_map))`.
 - Verification verdict determinism claim is scoped to identical evidence bundles and `policy_bundle_hash`.
 - Time-policy rule:
   - if verification time affects verdict, it must be frozen as an explicit declared input and included in signed evidence;
   - otherwise verification time is informational only and excluded from deterministic verdict computation.
 - Regulated-mode trace redaction binding:
   - certificate signed payload must include `redaction_policy_hash` and `redaction_key_id` when `redaction_mode != NONE`.
+  - field-level transformation rules must conform to `Redaction-Policy.md`.
 
 ---
 ## 3) Initialization

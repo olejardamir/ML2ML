@@ -22,14 +22,14 @@
 - Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Not an optimization operator.
-- Primary guarantee: deterministic critical-path outputs for identical `(ir_dag, theta, inputs, mode, replay_token, driver_hash)` under a declared adapter/hardware determinism tier.
+- Primary guarantee: deterministic critical-path outputs for identical `(ir_dag, theta, inputs, mode, replay_token, backend_binary_hash, driver_runtime_fingerprint_hash)` under a declared adapter/hardware determinism tier.
 - Comparison rule: exact tensor equality on binary64 critical reductions; EPS_EQ tolerance on compute_dtype paths.
 
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` inherited from kernel master RNG (no direct draws in core path).
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
 - Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive_v1`.
-- Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, driver_hash)`.
+- Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, tmmu_context, backend_binary_hash, driver_runtime_fingerprint_hash)`.
 - Replay token contribution: `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
 - Proof-carrying IR fields:
   - `ir_schema_hash`
@@ -341,7 +341,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 Each invocation emits deterministic node-level trace records in execution order and a final summary record.
 
 ### Trace schema (minimum required)
-- `run_header`: `ir_hash`, `mode`, `driver_hash`, `tmmu_arena_size`
+- `run_header`: `ir_hash`, `mode`, `backend_binary_hash`, `driver_runtime_fingerprint_hash`, `tmmu_arena_size`
 - `node`: `node_id`, `instr`, `shape`, `dtype`, `dispatch_success`
 - `run_end`: `execution_fp`, `memory_peak`, `reuse_ratio`, `nodes_executed`
 

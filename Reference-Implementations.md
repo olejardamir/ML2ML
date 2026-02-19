@@ -87,6 +87,28 @@
 - `evidence_validate_v1(certificate, manifest, trace, checkpoint, replay_ctx) -> validation_report`
 - All signatures must be derived from `contracts/operator_registry.cbor`; manual signature drift is forbidden.
 
+### II.G Normative Reference Pseudocode (Required)
+- `CBOR_CANONICAL(value)`:
+  - encode using `Canonical-CBOR-Profile.md` (definite lengths, no duplicate keys, key order by `(len(encoded_key), encoded_key)`).
+  - reject non-UTF8 text keys and forbidden float values in signed payloads.
+- `ResolveDigestRef_v1(digest_ref, digest_catalog)`:
+  - if tail matches `^[0-9a-f]{64}$`, return inline bytes32 digest.
+  - else resolve label in `digest_catalog`; abort with `CONTRACT_VIOLATION` if missing.
+- `TraceRecordHashChain_v1(normalized_records)`:
+  - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
+  - for each record in canonical order:
+    - `r = SHA-256(CBOR_CANONICAL(record))`
+    - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h, r]))`
+  - return `h` as `trace_tail_hash`/`trace_root_hash` in linear-chain mode.
+- `WalChainAndFinalize_v1(records)`:
+  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]))`.
+  - terminal `FINALIZE` record hash is `commit_record_hash`.
+  - `wal_terminal_hash = commit_record_hash`.
+- `PublishCommitPointer_v1(pointer_payload)`:
+  - payload must include `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+  - publish `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent.
+  - if object exists, compare payload hash; mismatch is deterministic failure.
+
 ---
 ## 3) Initialization
 1. Load typed schemas.

@@ -36,7 +36,7 @@
 ### 0.H Namespacing and Packaging
 - Namespaced schema keys required.
 ### 0.I Outputs and Metric Schema
-- Outputs: `(normalized_trace, final_trace_hash)`.
+- Outputs: `(normalized_trace, trace_tail_hash)`.
 - Metrics: `record_count`, `missing_required_keys`.
 - Completion status: `success | failed`.
 ### 0.J Spec Lifecycle Governance
@@ -88,14 +88,14 @@
   - Whole-run hash chain:
     - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
     - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
-    - `final_trace_hash = h_last`
+    - `trace_tail_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
   - `trace_tail_hash = h_last`
-- Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted from the canonical CBOR map input.
+- Self-reference rule: when hashing the `run_end` record, `run_end.trace_tail_hash` is omitted from the canonical CBOR map input.
 - Empty-bytes substitution is forbidden for omitted fields in canonical hashing paths.
 - Canonical serialization: `CBOR_CANONICAL` from `Canonical-CBOR-Profile.md`.
-- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes32`, `policy_bundle_hash:bytes32`, `monitor_policy_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
+- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_binary_hash:bytes32`, `driver_runtime_fingerprint_hash:bytes32`, `policy_bundle_hash:bytes32`, `monitor_policy_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
 - Optional `run_header` fields/types: `authz_decision_hash?:bytes32`.
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes32`.
 - `operator_seq` is a per-rank monotone counter.
@@ -107,7 +107,7 @@
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes32`, `functional_fp:bytes32`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Optional `iter` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
 - Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
-- Required `run_end` fields/types: `status:string`, `final_state_fp:bytes32`, `final_trace_hash:bytes32`.
+- Required `run_end` fields/types: `status:string`, `final_state_fp:bytes32`, `trace_tail_hash:bytes32`.
 - Migration controls:
   - `migration_supported_from: array<string>`
   - `migration_operator: string`
@@ -120,7 +120,7 @@
   - `INTERNAL`: driver/runtime fingerprints, backend/hash metadata.
   - `CONFIDENTIAL`: any value that can leak sample/model-sensitive properties.
 - No-raw-data rule: traces must not contain raw examples, prompts, gradients, secrets, or direct identifiers.
-- Confidential-mode redaction: sensitive values must be replaced by deterministic keyed hashes (`HMAC-SHA256`) with declared key identifier.
+- Confidential-mode redaction: sensitive values must be replaced by deterministic keyed hashes (`HMAC-SHA256`) with declared key identifier, as defined in `Redaction-Policy.md`.
 - Size and sampling controls: deterministic per-operator caps and sampling policy must be declared to bound trace overhead.
 - Deterministic size/sampling controls:
   - `max_bytes_per_step:uint64`
@@ -181,10 +181,10 @@ Template conformance note (III.A): each operator definition in this section is i
 
 **Operator:** `UML_OS.Trace.ComputeTraceHash_v1`  
 **Category:** IO  
-**Signature:** `(normalized_trace -> final_trace_hash)`  
+**Signature:** `(normalized_trace -> trace_tail_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain_v1` hash-chain rule to emit the whole-run `final_trace_hash`.
+**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain_v1` hash-chain rule to emit the whole-run `trace_tail_hash`.
 
 ---
 ## 6) Procedure
@@ -202,7 +202,7 @@ Trace schema validation itself emits deterministic validation records.
 ### Trace schema
 - `run_header`: schema_version, source_component
 - `iter`: t, operator, validation_status
-- `run_end`: final_trace_hash, status
+- `run_end`: trace_tail_hash, status
 ### Metric schema
 - `record_count`, `missing_required_keys`
 ### Comparability guarantee

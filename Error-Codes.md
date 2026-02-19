@@ -108,11 +108,11 @@
 | `LIVENESS_CYCLE` | 1305 | tmmu | ERROR | false | `t,ir_hash,node_id` | `Liveness analysis cycle detected` | Fix IR DAG and liveness metadata | v1 |
 | `INVALID_IR_SHAPES` | 1306 | tmmu | ERROR | false | `t,ir_hash,node_id` | `Invalid static shapes for allocation` | Provide complete static shape metadata | v1 |
 | `ADDRESS_COLLISION` | 1307 | tmmu | FATAL | false | `t,arena,logical_slot` | `Virtual address collision` | Regenerate plan with valid injective mapping | v1 |
-| `BACKEND_CONTRACT_VIOLATION` | 1601 | backend | FATAL | false | `t,driver_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
+| `BACKEND_CONTRACT_VIOLATION` | 1601 | backend | FATAL | false | `t,backend_binary_hash,driver_runtime_fingerprint_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
 | `INVALID_IR` | 1201 | model | ERROR | false | `t,ir_hash,node_id` | `Invalid IR structure` | Validate/repair IR before execution | v1 |
 | `CYCLE_DETECTED` | 1202 | model | ERROR | false | `t,ir_hash,node_id` | `Cycle detected in IR DAG` | Fix graph topology | v1 |
 | `SHAPE_MISMATCH` | 1203 | model | ERROR | false | `t,node_id,shape_in,shape_expected` | `Tensor shape mismatch during dispatch` | Fix model IR shapes or adapter mapping | v1 |
-| `PRIMITIVE_UNSUPPORTED` | 1602 | backend | ERROR | false | `t,node_id,instr,driver_hash` | `Backend primitive unsupported` | Implement primitive or choose compatible backend | v1 |
+| `PRIMITIVE_UNSUPPORTED` | 1602 | backend | ERROR | false | `t,node_id,instr,backend_binary_hash` | `Backend primitive unsupported` | Implement primitive or choose compatible backend | v1 |
 | `DISTRIBUTED_COMMUNICATION_FAILURE` | 1803 | distributed | FATAL | true | `t,world_size,collective_id` | `Deterministic collective failed or timed out` | Retry with stable network or fallback topology | v1 |
 | `ATTESTATION_FAILURE` | 1701 | security | FATAL | false | `t,quote_hash,policy_bundle_hash` | `Attestation verification failed` | Rotate trust roots/quotes and re-attest | v1 |
 | `INVALID_OBJECTIVE` | 1204 | model | FATAL | false | `t,failure_operator,objective_value` | `Objective invalid (NaN/Inf/out-of-contract)` | Fix loss/objective numeric path and policy guards | v1 |
