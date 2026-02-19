@@ -408,3 +408,21 @@
 - Validation:
   - Updated hash (`L1-006`): `3c1ecb9540f8f8a1e2ec0cd49be0112297470c7466a6694493022a2a7c5136b3`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Error code contract consistency hardening (schema derivation, validator completeness, naming normalization).
+- Scope:
+  - Updated `docs/layer1-foundation/Error-Codes.md` with:
+    - removal of irrelevant optimization semantics from static taxonomy contract,
+    - clarified concurrency policy (deterministic ordering for summaries without record loss),
+    - reduced irrelevant EQC numeric/stochastic boilerplate in 0.Z,
+    - normalized deterministic field naming (`failure_operator` canonical; deprecated `operator_id` alias path documented),
+    - explicit derivation rules for `subsystem` (from registry `category`) and `privacy_class` (default + overrides),
+    - explicit diagnostics key-name exact-match requirement for per-code deterministic fields,
+    - strengthened `ValidateRecord_v1` to enforce per-code required fields and registry consistency.
+  - Updated registry hash for `L1-008` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-008`): `9d35c6f28f9ba21b63b725b9427c63f6918e0e62d97be415b2124c863f4a02b5`
+  - Ecosystem regressions introduced: 0

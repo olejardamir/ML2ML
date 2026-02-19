@@ -14,11 +14,8 @@
 - **Spec Version:** `UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Error taxonomy governance.
 ### 0.A Objective Semantics
-- Optimization sense: `MINIMIZE`
-- Objective type: `Scalar`
-- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
-- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
-- Minimize ambiguous or unclassified failures.
+- This contract is a static taxonomy/validation contract (not an optimization objective).
+- Primary comparison rule: exact `code_id` + `numeric_code` identity and deterministic schema validation.
 ### 0.B Reproducibility Contract
 - Replayable given `(error_registry_version, failure_context_hash)`.
 ### 0.C Numeric Policy
@@ -26,7 +23,8 @@
 ### 0.D Ordering and Tie-Break Policy
 - Error code ordering by lexical code id.
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Concurrent failures reduced deterministically by first `(t, operator, code)`.
+- Concurrent failures are all emitted as independent records.
+- Any summary/aggregation views MUST order records deterministically by `(t, failure_operator, code_id)` and MUST NOT discard emitted records.
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for emitted error records.
 ### 0.G Operator Manifest
@@ -48,26 +46,7 @@
 
 ---
 ### 0.Z EQC Mandatory Declarations Addendum
-- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
-- PRNG family: `Philox4x32-10` for declared stochastic operators.
-- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
-- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
-- Replay token: deterministic per-run token contribution is defined and included in trace records.
-- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
-- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
-- Fast-math policy: forbidden for critical checks and verdict paths.
-- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
-- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
-- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
-- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
-- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
-- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
-- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
-- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
-- Dependency manifest: pinned runtime dependencies and versions are required.
-- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
-- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
-- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+- Not applicable in this document beyond deterministic record emission/validation declared above; stochastic and numeric-kernel clauses are inherited from producing operators.
 
 
 ## 2) System Model
@@ -100,7 +79,7 @@
 | `ACCOUNTANT_DIVERGENCE` | 1404 | dp | FATAL | false | `t,accountant_type,state_hash` | `Privacy accountant diverged` | Use validated accountant settings | v1 |
 | `NAN_IN_SIGMA` | 1405 | dp | FATAL | false | `t,sigma_map_hash` | `Sigma schedule contains NaN/Inf` | Clamp/validate scheduler outputs | v1 |
 | `INVALID_GRADIENT` | 1406 | dp | ERROR | false | `t,grad_hash` | `Gradient tensor invalid for DP path` | Validate backward output and clipping inputs | v1 |
-| `RNG_CONSUMPTION_VIOLATION` | 1407 | dp | FATAL | false | `t,operator_id,rng_offset_before,rng_offset_after` | `RNG consumption contract violated` | Fix operator RNG declaration/usage | v1 |
+| `RNG_CONSUMPTION_VIOLATION` | 1407 | dp | FATAL | false | `t,failure_operator,rng_offset_before,rng_offset_after` | `RNG consumption contract violated` | Fix operator RNG declaration/usage | v1 |
 | `ALIGNMENT_VIOLATION` | 1301 | tmmu | FATAL | false | `t,arena,logical_slot` | `Memory alignment violation` | Increase alignment or remap slot | v1 |
 | `TMMU_ALLOCATION_FAILURE` | 1302 | tmmu | FATAL | false | `t,arena,peak_required_bytes` | `TMMU allocation failed` | Increase arena capacity or reduce footprint | v1 |
 | `ALLOCATION_OVERFLOW` | 1303 | tmmu | FATAL | false | `t,arena,offset,size` | `Allocation offset overflow` | Reduce allocation size or split arenas | v1 |
@@ -108,7 +87,7 @@
 | `LIVENESS_CYCLE` | 1305 | tmmu | ERROR | false | `t,ir_hash,node_id` | `Liveness analysis cycle detected` | Fix IR DAG and liveness metadata | v1 |
 | `INVALID_IR_SHAPES` | 1306 | tmmu | ERROR | false | `t,ir_hash,node_id` | `Invalid static shapes for allocation` | Provide complete static shape metadata | v1 |
 | `ADDRESS_COLLISION` | 1307 | tmmu | FATAL | false | `t,arena,logical_slot` | `Virtual address collision` | Regenerate plan with valid injective mapping | v1 |
-| `BACKEND_CONTRACT_VIOLATION` | 1601 | backend | FATAL | false | `t,backend_binary_hash,driver_runtime_fingerprint_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
+| `BACKEND_CONTRACT_VIOLATION` | 1601 | backend | FATAL | false | `t,backend_binary_hash,driver_runtime_fingerprint_hash,failure_operator` | `Backend failed determinism contract` | Use certified driver build | v1 |
 | `INVALID_IR` | 1201 | model | ERROR | false | `t,ir_hash,node_id` | `Invalid IR structure` | Validate/repair IR before execution | v1 |
 | `CYCLE_DETECTED` | 1202 | model | ERROR | false | `t,ir_hash,node_id` | `Cycle detected in IR DAG` | Fix graph topology | v1 |
 | `SHAPE_MISMATCH` | 1203 | model | ERROR | false | `t,node_id,shape_in,shape_expected` | `Tensor shape mismatch during dispatch` | Fix model IR shapes or adapter mapping | v1 |
@@ -134,12 +113,23 @@ Numeric range reservation:
 Lint invariant:
 - Build/test must fail if any referenced `code_id` in any spec is absent from this registry.
 
+Derivation rules (normative):
+- `subsystem` in `ErrorRecord` is derived from registry `category` for `code_id` with exact bytewise equality.
+- `privacy_class` default is `INTERNAL` for all registry codes unless overridden below:
+  - `ATTESTATION_FAILURE` -> `CONFIDENTIAL`
+  - `PRIVACY_BUDGET_EXCEEDED` -> `CONFIDENTIAL`
+  - `ACCOUNTANT_OVERFLOW` -> `CONFIDENTIAL`
+  - `ACCOUNTANT_DIVERGENCE` -> `CONFIDENTIAL`
+  - `TRACE_CAP_EXCEEDED_MANDATORY` -> `INTERNAL`
+- `deterministic_fields_required` keys must be present exactly by key name either as top-level `ErrorRecord` fields or as keys in `diagnostics`.
+- Canonical field name is `failure_operator`; `operator_id` is forbidden in new records and accepted only as deprecated input alias for backward-compat validation.
+
 ### II.G ErrorRecord Schema (Normative)
 - Required fields:
   - `code_id:string`
   - `numeric_code:uint32`
   - `severity:enum("FATAL","ERROR","WARN")`
-  - `subsystem:string`
+  - `subsystem:enum("config","data","model","tmmu","dp","trace","backend","security","distributed","runtime","replay")`
   - `t:uint64`
   - `rank:uint32`
   - `failure_operator:string`
@@ -179,7 +169,15 @@ Template conformance note (III.A): each operator definition in this section is i
 **Signature:** `(error_record -> ok)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** checks required fields and payload schema.
+**Definition:** checks required fields and payload schema, then enforces per-`code_id` deterministic field requirements from registry.
+**Validation requirements:**
+- `code_id` MUST exist in registry and `numeric_code`/`severity`/`retryable` MUST match registry.
+- `subsystem` MUST equal derived subsystem from registry `category`.
+- `privacy_class` MUST equal derived privacy class from derivation rules above.
+- For each key in `deterministic_fields_required` for `code_id`, key MUST exist either:
+  - as top-level field of `ErrorRecord`, or
+  - in `diagnostics` under exactly the same key name.
+- Deprecated alias handling: if `diagnostics.operator_id` is present and `failure_operator` missing for backward compatibility inputs, validator MAY map alias only for legacy ingest then MUST emit canonical `failure_operator` on serialization.
 
 **Operator:** `UML_OS.Error.SerializeRecord_v1`  
 **Category:** Error  
@@ -192,7 +190,7 @@ Template conformance note (III.A): each operator definition in this section is i
 ## 6) Procedure
 ```text
 1. Emit_v1(code, context)
-2. ValidateRecord_v1
+2. ValidateRecord_v1 (global schema + per-code required fields)
 3. SerializeRecord_v1
 4. Return record + bytes
 ```
