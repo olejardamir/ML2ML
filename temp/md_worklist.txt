@@ -7,12 +7,12 @@ DONE:
 4. docs/layer1-foundation/Canonical-CBOR-Profile.md
 5. docs/layer1-foundation/Digest-Catalog.md
 6. docs/layer1-foundation/Error-Codes.md
+7. docs/layer1-foundation/Data-Structures.md
 
 PHASE 0 — GOVERNANCE ROOT - DONE
 
 
 PHASE 1 — FOUNDATION CONTRACTS (LAYER 1)
-7. docs/layer1-foundation/Data-Structures.md
 8. docs/layer1-foundation/Operator-Registry-Schema.md
 9. docs/layer1-foundation/API-Interfaces.md
 10. docs/layer1-foundation/Determinism-Profiles.md

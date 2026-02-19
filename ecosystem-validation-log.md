@@ -426,3 +426,156 @@
 - Validation:
   - Updated hash (`L1-008`): `9d35c6f28f9ba21b63b725b9427c63f6918e0e62d97be415b2124c863f4a02b5`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures contract consistency hardening (trace alignment, checkpoint hash derivation, schema meta-model, operator/output fixes).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - removed irrelevant optimization-tuple language in 0.A,
+    - aligned outputs naming (`validation_report`, `canonical_bytes`, `struct_hash`) with procedure,
+    - corrected `ValidateStruct_v1` ordering/tie handling to `N/A`,
+    - added missing `replay_token:bytes32` to `TraceErrorRecord`,
+    - aligned section 7 trace schema with concrete trace records (`TraceRunHeader`, `TraceIterRecord`, `TraceRunEndRecord`, `TraceErrorRecord`),
+    - added normative schema meta-model (`StructDecl`, `FieldDecl`) and registry representation for machine validation,
+    - added explicit non-circular `CheckpointHeader` hash derivation rules,
+    - added `MetricSchema.quantile_p` requirement when aggregation is `quantile`,
+    - normalized checkpoint serialization wording to canonical CBOR.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `e3e4c67e6e6a502ee68109a862f85fd8d2a3276e2d8a5897a2a47b2bf6a03cdc`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures secondary hard pass (enum normalization, trace scope cleanup, distributed error trace rank, sampling parameter documentation).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - normalized enum typing via named enums (`privacy_class`, `redaction_mode`, `metric_aggregation`),
+    - added `rank:uint32` to `TraceErrorRecord` for distributed attribution,
+    - documented `hash_gate_M`/`hash_gate_K` semantics and invariant (`0 <= K <= M`),
+    - simplified `TraceIterRecord` to core deterministic fields + `trace_extensions` map to reduce overspecified contract surface,
+    - clarified alignment policy applies to in-memory/native layouts only, not canonical CBOR wire bytes,
+    - added explicit cross-reference showing `side_effect` enum consumption by operator registry/API contracts.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `ecc4bd687100aea9fa04ab098ffb67b7d5263c8812042c69db9ebec14a67135d`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures final implementability pass (formal declaration language, E0 definition, lifecycle clarity, section normalization).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - explicit `replay_token` contract (`bytes32`, generation external),
+    - explicit contract-level structure evolution model and `StructDecl.version` role,
+    - condensed 0.Z to scope-relevant declarations only,
+    - added `II.E Structure Declaration Language (Normative)` including type grammar and validation rules,
+    - normalized validation/refactor subsection labels (A/B/C) to remove inconsistent Roman-number carryover,
+    - added explicit E0 definition and cross-reference to replay contract,
+    - added authoritative test-vector index reference.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `b56baabd234b1acf28f40ca0fdf0c1508be501cd5f547225884c14ed286f31b6`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures completeness pass (remaining implementability and scope clarifications).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - explicit SHA-256 commitment-hash policy for `bytes32` fields in this contract,
+    - explicit optional-field omission semantics vs explicit `null`,
+    - deterministic `diagnostics` scalar constraints (type set + finite-float rule),
+    - deterministic redaction/serialization interaction rule,
+    - core-vs-extension structure partitioning to reduce scope ambiguity,
+    - expanded required vector classes and release-gate statement for stale/missing vectors,
+    - explicit normative dependency list for referenced contracts.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `807eb0b63eca825007a743a4e671ea48c6d472a1307325579f4899a7dc95eb36`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures foundational redesign pass (schema/instance separation and operator semantics split).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - explicit scope split between schema layer and instance layer,
+    - expanded operator manifest to include `ValidateSchemaDecl_v1` and `ValidateInstance_v1`,
+    - retained `ValidateStruct_v1` as compatibility alias to schema-validation path,
+    - explicit dual-path outputs and procedure flows (schema path vs instance path),
+    - explicit instance-validation rule bound to `(struct_name, struct_version, registry)`,
+    - explicit replay-token binding clause (type/inclusion here; derivation delegated to replay contract),
+    - generalized canonical serialization operator to support both schema objects and runtime instances.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `c3aa3255265caee02243c30d6f035c8fc0b9b9569a27f83ce9069e12bc1e603d`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures minor-issue closure pass (optionality/enums/scalar typing/dependency completeness).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - clarified optionality semantics (`required` is authoritative; legacy `optional<T>` normalization rule),
+    - explicit enum representation rule (symbol-name string encoding),
+    - defined reusable `diagnostics_scalar` and reused it for `trace_extensions`, `ErrorRecord.diagnostics`, and `PipelineTransitionRecord.diagnostics`,
+    - clarified `default` and `constraints` semantics for `FieldDecl`,
+    - expanded normative dependency list (Operator Registry, API Interfaces, Test Vectors),
+    - added embedded illustrative `StructDecl` fixture appendix.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `27287227376f317c8bf80955cd6b551a1467c763f468d74214f596c283b8970e`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures final minor-consistency pass (requiredness semantics, enum/scalar precision, sampling-hash definition, dependency gate).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - explicit requiredness rule (`required` normative; `required_fields` metadata consistency requirement),
+    - explicit enum symbol-set rule for `enum(...)`,
+    - default-value semantics split (instantiation MAY apply; validators/serializers MUST NOT materialize defaults in commitment paths),
+    - explicit `H` definition for hash-gated sampling in `TraceRunHeader`,
+    - explicit `quantile_p?:float64` field in `MetricSchema` with conditional requirement,
+    - removed local operator-enum redefinitions and referenced authoritative operator contracts,
+    - added normative dependency release-gate requirement.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `a753200283bfe264a790a4632a8f7204cd0cdedf8c90b6034c9609e5f00db72e`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures editorial consistency fix (FieldDecl default type alias).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md`:
+    - `FieldDecl.default` type changed from `scalar|string|bytes` to `diagnostics_scalar` to remove undefined/duplicative type naming.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `a955dc4d4c7d7c7ee943fe32d8a0b88941735e69bbb76dd0ab8b29d04cc7b041`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Data Structures final safety/consistency tweaks (default compatibility, modulo guard, null-omission semantics, named enum usage).
+- Scope:
+  - Updated `docs/layer1-foundation/Data-Structures.md` with:
+    - explicit default compatibility validation rules by declared field type,
+    - hash-gate invariant tightened to prevent modulo-by-zero (`0 < M`, `0 <= K <= M`),
+    - optionality rule simplified to strict omission (no implicit null allowance),
+    - `ErrorRecord.privacy_class` normalized to named enum type `privacy_class`.
+  - Updated registry hash for `L1-003` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-003`): `cd9fb6b1195bc31ad71457e1ce8b0da63952acfaedc49b61092b1ec327fc8896`
+  - Ecosystem regressions introduced: 0
