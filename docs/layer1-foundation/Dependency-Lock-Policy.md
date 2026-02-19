@@ -1,9 +1,9 @@
 # UML_OS Dependency Lock Policy
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DependencyLockPolicy_v1`  
-**Purpose (1 sentence):** Define deterministic dependency pinning, verification, and upgrade governance for reproducible builds and runs.  
-**Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `UML_OS.Implementation.DependencyLockPolicy_v1`
+**Purpose (1 sentence):** Define deterministic dependency pinning, lock validation, artifact integrity verification, and upgrade-governance semantics for reproducible builds and runs.
+**Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 | Authors: Olejar Damir
 **Domain / Problem Class:** Build/runtime dependency control.
 
 ---
@@ -11,104 +11,253 @@
 ### 0.0 Identity
 - **Algorithm:** `UML_OS.Implementation.DependencyLockPolicy_v1`
 - **Purpose (1 sentence):** Deterministic dependency governance.
-- **Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 | Authors: Olejar Damir
 - **Domain / Problem Class:** Reproducible dependency management.
+
 ### 0.A Objective Semantics
-- Optimization sense: `MINIMIZE`
-- Objective type: `Scalar`
-- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
-- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
-- Minimize dependency drift and supply-chain risk.
+- This contract performs deterministic validation and policy evaluation; it is not an optimization algorithm.
+- Diagnostic primary metric tuple: `(hash_mismatches:uint64, policy_violations:uint64)`.
+- Primary comparison rule: exact lock/schema/policy conformance and exact digest equality.
+
 ### 0.B Reproducibility Contract
-- Replayable given `(lockfile_hash, toolchain_hash, runtime_env_hash, dependencies_lock_hash)`.
-### 0.C Numeric Policy
-- Version comparison uses deterministic semantic-version parsing.
+- Replayable given `(lockfile_blob, policy_blob, artifact_index_blob, sbom_hash, toolchain_hash, runtime_env_hash)`.
+- `toolchain_hash` and `runtime_env_hash` are replay inputs.
+- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
+- Artifact verification replay requires content-addressed immutable artifact retrieval from `artifact_index_blob` locations; this store assumption is part of runtime environment reproducibility (anchored by `runtime_env_hash`).
+
+### 0.C Numeric and Version Policy
+- Semantic version parsing MUST follow SemVer 2.0.0 for valid SemVer strings.
+- Non-SemVer version strings MUST be compared as raw UTF-8 strings in bytewise lexicographic order.
+- Upgrade-comparison mixed-scheme rule: if one side is SemVer and the other is non-SemVer, the change is invalid (`VERSION_SCHEME_MISMATCH`) unless a future policy version explicitly permits mixed-scheme comparison.
+
 ### 0.D Ordering and Tie-Break Policy
-- Dependency entries sorted by package name and source.
+- Unless explicitly overridden, all string ordering uses ascending bytewise UTF-8 lexicographic order.
+- Lock tuples are sorted by `(name, version, source)`.
+- Deterministic report ordering is mandatory for all emitted arrays (defined per schema below).
+
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Lock verification can be parallelized; verdict merged deterministically.
+- Validation and artifact checks MAY run in parallel.
+- Parallel merge rule:
+  - overall validity = logical-AND of all partial validity flags,
+  - partial lists are concatenated and then globally sorted by their normative order keys before emission,
+  - trace `iter` records MUST be emitted in global sorted package/check order independent of execution scheduling.
+
 ### 0.F Environment and Dependency Policy
-- Determinism level: `BITWISE` for lockfile verification verdict.
+- Determinism target for contract-critical outputs (`lock_verdict`, `dependencies_lock_hash`, trace commitments) is `E0`.
+
 ### 0.G Operator Manifest
 - `UML_OS.DepLock.ValidateLockfile_v1`
 - `UML_OS.DepLock.VerifyArtifactHashes_v1`
 - `UML_OS.DepLock.EvaluateUpgradeRequest_v1`
 - `UML_OS.Error.Emit_v1`
+
 ### 0.H Namespacing and Packaging
-- Lock policy operators are fully-qualified and versioned.
+- Operators are fully-qualified and versioned.
+- Canonical lock-policy location: `contracts/dependency_lock_policy.cbor`.
+
 ### 0.I Outputs and Metric Schema
-- Outputs: `(lock_verdict, upgrade_report)`.
-- Metrics: `packages_total`, `hash_mismatches`, `policy_violations`.
-- Completion status: `success | failed`.
+- Outputs: `(lock_verdict, upgrade_report?)`.
+- `lock_verdict` schema:
+  - `is_valid_lock:bool`
+  - `is_artifact_integrity_valid:bool`
+  - `lockfile_hash:bytes32`
+  - `dependencies_lock_hash:bytes32`
+  - `policy_bundle_hash:bytes32`
+  - `validation_report:LockValidationReport`
+  - `verification_report:ArtifactVerificationReport`
+- Metric schema:
+  - `packages_total:uint64`
+  - `hash_mismatches:uint64`
+  - `policy_violations:uint64`
+
 ### 0.J Spec Lifecycle Governance
-- Policy-rule changes require version bump and migration notes.
+- Any normative schema/rule/ordering change requires version bump and migration notes.
+- Policy version MUST be included in `policy_bundle_hash` input.
+
 ### 0.K Failure and Error Semantics
-- Abort on hash mismatch or forbidden dependency source.
+- Deterministic abort conditions:
+  - malformed lockfile (`LOCKFILE_PARSE_ERROR`),
+  - malformed policy (`POLICY_SCHEMA_ERROR`),
+  - malformed artifact index (`ARTIFACT_INDEX_SCHEMA_ERROR`),
+  - forbidden dependency source (`FORBIDDEN_SOURCE`),
+  - unresolved required artifact (`ARTIFACT_MISSING`),
+  - digest mismatch (`ARTIFACT_HASH_MISMATCH`),
+  - missing required toolchain/runtime inputs (`INPUT_MISSING`),
+  - checkpoint lockfile mismatch on restore (`LOCKFILE_MISMATCH`),
+  - checkpoint policy mismatch on restore (`POLICY_BUNDLE_MISMATCH`),
+  - checkpoint artifact-index mismatch on restore (`ARTIFACT_INDEX_MISMATCH`),
+  - checkpoint SBOM mismatch on restore (`SBOM_HASH_MISMATCH`),
+  - checkpoint toolchain hash mismatch on restore (`TOOLCHAIN_HASH_MISMATCH`),
+  - checkpoint runtime environment hash mismatch on restore (`RUNTIME_ENV_HASH_MISMATCH`).
+- On abort, emit `UML_OS.Error.Emit_v1` with deterministic `CONTRACT_VIOLATION` payload containing one canonical code above and stop.
+
 ### 0.L Input/Data Provenance
-- Lockfile source and artifact provenance are required.
+- Lockfile source and artifact provenance are mandatory.
+- Policy and artifact index blobs MUST be content-addressable and hash-pinned.
 
 ---
 ### 0.Z EQC Mandatory Declarations Addendum
-- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
-- PRNG family: `Philox4x32-10` for declared stochastic operators.
-- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
-- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
-- Replay token: deterministic per-run token contribution is defined and included in trace records.
-- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
-- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
-- Fast-math policy: forbidden for critical checks and verdict paths.
-- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
-- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
-- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
-- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
-- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
-- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
-- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
-- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
-- Dependency manifest: pinned runtime dependencies and versions are required.
-- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
-- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
-- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+- Contract class: deterministic; stochastic declarations are N/A.
+- Floating-point tolerance declarations are N/A for critical verdict computation.
+- Error trace rule: final failure record includes `step_index:uint64`, `failure_code`, `failure_operator`, and minimal deterministic diagnostics.
+- `step_index` is the 0-based index of the failed step in Section 6 Procedure (step 1 -> index 0, ..., step 8 -> index 7).
+- Recovery policy: deterministic abort-only unless explicitly declared by a future version.
 
-
+---
 ## 2) System Model
 ### I.A Persistent State
-- lock policy registry and approved source list.
-### I.B Inputs and Hyperparameters
-- lockfile, artifact index, upgrade request.
-### I.C Constraints and Feasible Set
-- Valid if all entries satisfy policy and hashes match.
-### I.D Transient Variables
-- mismatch report and upgrade diff.
-### I.E Invariants and Assertions
-- no unlocked transitive dependency allowed in strict mode.
+- Approved lock policy registry.
+- Approved artifact index schema version.
 
-### II.F Operative Lock Policy Rules
-- Accepted lockfile formats: `poetry.lock`, `requirements.txt` with hashes, `uv.lock`.
-- Artifact verification: each package entry must include SHA-256; downloaded artifact hash must match exactly.
-- Registry allowlist: explicit host allowlist only; direct URL dependencies forbidden unless signed and pinned.
-- SBOM requirement: CycloneDX JSON emitted per build and hashed into trace.
-- Toolchain hash: `toolchain_hash = SHA-256(CBOR_CANONICAL(["toolchain_v1", python_version, pip_version, installer_version]))`.
-- `LockfileDigest_v1` (normative):
-  - parse lockfile into normalized tuples `(name, version, source, integrity_hash)`,
-  - sort tuples by `(name, version, source)`,
-  - encode with canonical CBOR,
-  - `lockfile_hash = SHA-256(canonical_cbor_tuples)`.
-- `DependenciesLockDigest_v1` (normative):
-  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`.
-- Canonical identity rule:
-  - `lockfile_hash` is the authoritative package-lock identity.
-  - `dependencies_lock_hash` is the derived environment-bound dependency commitment used in cross-artifact binding.
-- GPU/runtime pinning requirements:
-  - pinned versions for CUDA/runtime, cuDNN, NCCL, and driver stack,
-  - capture determinism-impacting environment variables,
-  - enforce `determinism_profile_hash` gate match at build/deploy time.
+### I.B Inputs and Hyperparameters
+- `lockfile_blob:bytes`
+- `policy_blob:bytes`
+- `artifact_index_blob:bytes`
+- `sbom_hash:bytes32`
+- `toolchain_hash:bytes32`
+- `runtime_env_hash:bytes32`
+- `upgrade_proposal_blob?:bytes`
+- `strict_mode:bool` (from policy; MUST be explicit)
+
+### I.C Constraints and Feasible Set
+A run is feasible iff all of the following hold:
+- lockfile parses under one supported format with canonical extraction rules,
+- policy schema validates,
+- artifact index schema validates,
+- all required package entries are pinned and policy-compliant,
+- all required artifacts are hash-verifiable,
+- required external inputs (`sbom_hash`, `toolchain_hash`, `runtime_env_hash`) are provided.
+
+### I.D Transient Variables
+- `normalized_lock_entries:array<LockTuple>`
+- `violations:array<Violation>`
+- `mismatches:array<HashMismatch>`
+
+### I.E Invariants and Assertions
+- In strict mode, unlocked transitive dependencies are forbidden.
+- Every resolved dependency in lock scope has exactly one normalized tuple.
+- Every tuple in lock scope has exactly one effective integrity policy outcome.
+- For any given `(name, source)` combination, there is at most one normalized tuple.
+
+### II.F Normative Data Schemas
+- Canonical serialization for all typed objects in this contract is canonical CBOR per `docs/layer1-foundation/Canonical-CBOR-Profile.md` and RFC 8949 deterministic encoding rules.
+
+`LockTuple`:
+- `name:tstr` (non-empty)
+- `version:tstr` (non-empty)
+- `source:tstr`
+- `integrity_hash:bytes32`
+
+`Policy` (exact fields; no extras):
+- `policy_version:uint32` (>=1)
+- `strict_mode:bool`
+- `allowed_sources:array<tstr>` (sorted unique)
+- `allow_direct_url_dependencies:bool` (MUST be `false` in v1)
+- `allow_source_changes:bool` (MUST be `false` in v1)
+- `allowed_upgrade_scopes:array<enum("patch","minor","major")>` (sorted unique)
+- `gpu_runtime_pinning_required:bool`
+- `determinism_env_var_allowlist:array<tstr>` (sorted unique)
+
+`ArtifactIndex` (exact fields; no extras):
+- `index_version:uint32` (>=1)
+- `artifacts:array<ArtifactRecord>`
+
+`ArtifactRecord` (exact fields; no extras):
+- `name:tstr`
+- `version:tstr`
+- `source:tstr`
+- `artifact_sha256:bytes32`
+- `location:tstr` where `location` MUST be content-addressed (`sha256:<64-hex>` or equivalent content-addressed immutable URI). Non-content-addressed filesystem paths are forbidden in v1.
+- runtime requirement: for identical `runtime_env_hash`, content-addressed `location` resolution MUST yield identical bytes.
+
+`UpgradeProposal` (exact fields; no extras):
+- `proposal_version:uint32` (>=1)
+- `changes:array<UpgradeChange>`
+
+`UpgradeChange`:
+- `name:tstr`
+- `from_version:tstr`
+- `to_version:tstr`
+- `source:tstr`
+
+### II.G External Definitions Bound by Reference
+- `runtime_env_hash` is the canonical environment commitment (`env_manifest_hash`) from `docs/layer1-foundation/Environment-Manifest.md`.
+- Error payload structure and canonical codes are defined in `docs/layer1-foundation/Error-Codes.md`.
+- `gpu_runtime_pinning_required` and `determinism_env_var_allowlist` are consumed by environment/deployment validation contracts; this lock-policy contract does not validate live GPU runtime state.
+
+### II.H Normative Hashes and Canonicalization
+`toolchain_hash`:
+- Input is `toolchain_hash:bytes32` provided by caller.
+- `toolchain_hash` is opaque for this contract; production/validation rules are defined by the producer contract that emits it.
+
+`source` canonicalization (normative):
+- Normalize source strings before tuple emission:
+  - apply Unicode NFC normalization,
+  - lowercase scheme and host components when URL-like,
+  - `pypi`, `pypi.org`, `pypi.python.org`, `https://pypi.org`, `http://pypi.org/simple`, `https://pypi.org/simple/` map to `https://pypi.org/simple`,
+  - if no mapping exists, keep source string unchanged after NFC normalization.
+- `allowed_sources` comparison uses the canonicalized source string only.
+
+`LockfileDigest_v1`:
+- Parse lockfile into `LockTuple` entries using format-specific canonical rules:
+  - `requirements.txt` with hashes:
+    - comments MUST be whole-line comments only (first non-whitespace char is `#`); inline comments on requirement lines are invalid in v1,
+    - trim whitespace, ignore empty/comment lines,
+    - `--index-url` directives MUST appear on their own lines,
+    - line continuations (trailing `\\`) are forbidden in v1 and make the lockfile invalid,
+    - `--extra-index-url` and `--find-links` directives are forbidden in v1 and make the lockfile invalid,
+    - editable installs (`-e`) and include directives (`-r`) are forbidden in v1 and make the lockfile invalid,
+    - environment markers (`;` outside quoted strings) are forbidden in v1 and make the lockfile invalid,
+    - source context is cumulative top-to-bottom: each `--index-url` directive applies to all subsequent requirement lines until overridden by a later `--index-url`,
+    - process effective requirement lines containing `--hash=sha256:<hex>`,
+    - extract package name as token before first version comparator (`==`, `>=`, `<=`, `~=`, `!=`, `<`, `>`),
+    - strip extras suffix from package token (remove `[...]` and everything after `[`),
+    - extract pinned version only when `==` is present; otherwise line is invalid in v1 strict lock mode,
+    - source for a requirement line is the most recent prior in-file `--index-url`; if none, canonical PyPI source,
+    - integrity hash is the first `sha256` hash token on the line.
+    - hash token decoding rule (applies to all formats): token MUST match `sha256:<64-hex>` (case-insensitive `sha256` prefix, hex tail length exactly 64). Decode hex tail to `bytes32`; otherwise lockfile is invalid.
+  - `poetry.lock`:
+    - traverse `[[package]]` entries,
+    - extract `name` and `version`,
+    - source comes from package source URL if present else canonical PyPI source,
+    - sort package file entries by `file` (bytewise UTF-8) then use the first available `sha256` token and decode per hash token decoding rule above; missing/invalid hash is invalid in v1 strict lock mode.
+  - `uv.lock`:
+    - traverse locked package records,
+    - extract `name`, `version`, source/index URL (or canonical PyPI default),
+    - integrity hash token is required and decoded per hash token decoding rule above; missing/invalid hash is invalid in v1 strict lock mode.
+- Environment markers and extras policy (v1): include all locked entries exactly as lockfile declares; marker-conditioned activation is out of scope for this contract.
+- Artifact-index coverage rule for markers/extras: artifact index MUST include entries for all lockfile tuples, including marker-conditioned entries.
+- Sort tuples by `(name, version, source)` using bytewise UTF-8 lexicographic order.
+- `lockfile_hash = SHA-256(CBOR_CANONICAL(sorted_lock_tuples))`.
+
+`DependenciesLockDigest_v1`:
+- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
+
+`policy_bundle_hash`:
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", policy_version, policy_blob]))`.
+
+`artifact_index_hash`:
+- `artifact_index_hash = SHA-256(CBOR_CANONICAL(artifact_index_blob))`.
+
+### II.I Policy Rules
+- Accepted lockfile formats:
+  - `poetry.lock`
+  - `requirements.txt` with required hash pins
+  - `uv.lock`
+- Registry/source rule:
+  - dependency source MUST be in `allowed_sources`.
+  - direct URL dependency definition (v1): any dependency source not equal to a canonical registry source string in `allowed_sources` is a direct URL dependency and is forbidden (`allow_direct_url_dependencies` MUST be false).
+- SBOM rule:
+  - `sbom_hash` MUST be provided as input and included in trace `run_header`.
+  - `sbom_hash` contributes to `dependencies_lock_hash`; therefore it is part of reproducible verdict commitments, not trace-only metadata.
+- GPU/runtime pinning note:
+  - this contract carries policy fields but does not enforce runtime hardware/driver state.
 
 ---
 ## 3) Initialization
-1. Load lock policy.
-2. Parse lockfile.
-3. Initialize verification context.
+1. Decode and validate `policy_blob` and `artifact_index_blob` schemas.
+2. Parse `lockfile_blob` into normalized `LockTuple` entries.
+3. Build deterministic verification context (sorted tuples, source allowlist set, artifact lookup map).
 
 ---
 ## 4) Operator Manifest
@@ -119,77 +268,213 @@
 
 ---
 ## 5) Operator Definitions
+External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md`.
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+`LockValidationReport`:
+- `is_valid:bool`
+- `violations:array<Violation>` sorted by `(path, code)`
 
-Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
+`Violation`:
+- `path:tstr`
+- `code:enum("LOCKFILE_PARSE_ERROR","POLICY_SCHEMA_ERROR","ARTIFACT_INDEX_SCHEMA_ERROR","FORBIDDEN_SOURCE","UNPINNED_DEPENDENCY","STRICT_MODE_VIOLATION","INPUT_MISSING","LOCKFILE_MISMATCH","POLICY_BUNDLE_MISMATCH","ARTIFACT_INDEX_MISMATCH","SBOM_HASH_MISMATCH","TOOLCHAIN_HASH_MISMATCH","RUNTIME_ENV_HASH_MISMATCH","VERSION_SCHEME_MISMATCH","PACKAGE_NOT_FOUND","PROPOSAL_VERSION_MISMATCH","EMPTY_VERSION","POLICY_CONTRACT_ERROR")`
+- `message:tstr`
+- `path` semantics:
+  - package-specific violation: `path` is package name,
+  - global violation: `path` is `GLOBAL`.
 
-**Operator:** `UML_OS.DepLock.ValidateLockfile_v1`  
-**Category:** IO  
-**Signature:** `(lockfile, policy -> report)`  
-**Purity class:** PURE  
-**Determinism:** deterministic  
-**Definition:** validates pinned versions and allowed sources.
+`ArtifactVerificationReport`:
+- `is_valid:bool`
+- `hash_mismatches:array<HashMismatch>` sorted by `(name, version, source)`
+- `missing_artifacts:array<tstr>` sorted ascending
+- each `missing_artifacts` entry MUST be `name + " " + version + " " + source`.
 
-**Operator:** `UML_OS.DepLock.VerifyArtifactHashes_v1`  
-**Category:** IO  
-**Signature:** `(lockfile, artifact_index -> report)`  
-**Purity class:** PURE  
-**Determinism:** deterministic  
-**Definition:** validates hash integrity for all locked artifacts.
+`HashMismatch`:
+- `name:tstr`
+- `version:tstr`
+- `source:tstr`
+- `expected_hash:bytes32`
+- `observed_hash:bytes32`
 
-**Operator:** `UML_OS.DepLock.EvaluateUpgradeRequest_v1`  
-**Category:** IO  
-**Signature:** `(current_lock, proposal, policy -> upgrade_report)`  
-**Purity class:** PURE  
-**Determinism:** deterministic  
-**Definition:** computes allowed/disallowed changes and risk classification.
+`UpgradeReport`:
+- `is_allowed:bool`
+- `risk_class:enum("LOW","MEDIUM","HIGH","CRITICAL")`
+- `disallowed_changes:array<UpgradeChange>` sorted by `(name, from_version, to_version, source)`
+- `notes:array<tstr>` sorted ascending
+
+**Operator:** `UML_OS.DepLock.ValidateLockfile_v1`
+- **Category:** IO
+- **Signature:** `(lockfile_blob:bytes, policy_blob:bytes -> lock_validation_report:LockValidationReport, lockfile_hash:bytes32, policy_bundle_hash:bytes32)`
+- **Purity class:** PURE
+- **Determinism:** deterministic
+- **Definition:**
+  - Validates policy schema before computing `policy_bundle_hash`.
+  - Parses and normalizes lock entries.
+  - Validates source allowlist and strict-mode invariants.
+  - Validates required pins and policy constraints.
+  - Returns deterministic sorted violations.
+
+**Operator:** `UML_OS.DepLock.VerifyArtifactHashes_v1`
+- **Category:** IO
+- **Signature:** `(lockfile_blob:bytes, artifact_index_blob:bytes -> artifact_verification_report:ArtifactVerificationReport)`
+- **Purity class:** IO
+- **Determinism:** deterministic given immutable content-addressed artifact retrieval
+- **Definition:**
+  - Resolves each lock tuple against artifact index record by `(name, version, source)`.
+  - Retrieves artifact bytes via immutable content-addressed `location`.
+  - Computes SHA-256 over artifact bytes as `observed_hash`.
+  - Sets `expected_hash` to the lock tuple `integrity_hash`.
+  - If `observed_hash != expected_hash`, records a hash mismatch.
+  - If artifact retrieval fails, records a missing artifact.
+  - Records missing artifacts and mismatches deterministically.
+
+**Operator:** `UML_OS.DepLock.EvaluateUpgradeRequest_v1`
+- **Category:** IO
+- **Signature:** `(current_lockfile_blob:bytes, proposal_blob:bytes, policy_blob:bytes -> upgrade_report:UpgradeReport)`
+- **Purity class:** PURE
+- **Determinism:** deterministic
+- **Definition:**
+  - Parses proposal changes.
+  - If `changes` is empty, return `is_allowed=true`, `risk_class=LOW`, and empty `disallowed_changes`/`notes`.
+  - Reject duplicate proposal changes by `(name, from_version, to_version, source)`.
+  - Canonicalize each change `source` using the source canonicalization rules in Section II.H before comparisons.
+  - For each change, find lock tuple by exact `(name, source)` match in current lock using canonicalized `source`.
+  - If no tuple with matching `(name, source)` exists, change is disallowed (`PACKAGE_NOT_FOUND`).
+  - If `from_version` or `to_version` is empty, change is disallowed (`EMPTY_VERSION`).
+  - The matched tuple version MUST equal `from_version`; otherwise disallowed (`PROPOSAL_VERSION_MISMATCH`).
+  - `UpgradeProposal` in v1 is delta-only for existing packages; additions/removals are out of scope and therefore disallowed.
+  - If exactly one of `from_version` or `to_version` is valid SemVer 2.0.0, change is disallowed (`VERSION_SCHEME_MISMATCH`).
+  - Source-change rule:
+    - if `source` differs from current source and `allow_source_changes=false`, change is disallowed,
+    - if `allow_source_changes=true`, new source MUST be in `allowed_sources`; otherwise disallowed.
+  - Downgrade/no-op rule:
+    - if `to_version == from_version` and source unchanged, change is a no-op and allowed,
+    - if `to_version < from_version` according to version comparison policy in `0.C`, change is disallowed in v1.
+  - SemVer pre-release/build metadata uses SemVer 2.0.0 precedence.
+  - SemVer scope classification (when both versions are valid SemVer):
+    - compare version core `(major.minor.patch)` ignoring pre-release/build metadata,
+    - major differs -> `major`,
+    - else minor differs -> `minor`,
+    - else patch differs -> `patch`,
+    - else same core with metadata-only change -> `patch`.
+  - If both versions are non-SemVer, classify as `non_semver`.
+  - Because policy `allowed_upgrade_scopes` excludes `non_semver` in v1, any `non_semver` change is automatically disallowed.
+  - Applies `allowed_upgrade_scopes` policy.
+  - Risk is the highest scope among all allowed changes with ranking `patch < minor < major = non_semver`; if any disallowed change exists, `risk_class = CRITICAL`.
 
 ---
 ## 6) Procedure
-```text
-1. ValidateLockfile_v1
-2. VerifyArtifactHashes_v1
-3. EvaluateUpgradeRequest_v1 (if requested)
-4. Emit lock_verdict + upgrade_report
-```
+1. Run `ValidateLockfile_v1`.
+2. If `lock_validation_report.is_valid=false`, emit deterministic `CONTRACT_VIOLATION` and abort.
+3. Run `VerifyArtifactHashes_v1`.
+4. If `artifact_verification_report.is_valid=false`, emit deterministic `CONTRACT_VIOLATION` and abort.
+5. Form `dependencies_lock_hash` from `lockfile_hash` and provided inputs `toolchain_hash`, `runtime_env_hash`, and `sbom_hash`.
+6. Include provided `sbom_hash` in trace commitments and dependency-lock commitment calculation.
+7. Optionally run `EvaluateUpgradeRequest_v1` when proposal is provided.
+8. Emit `lock_verdict` and optional `upgrade_report`.
 
 ---
 ## 7) Trace & Metrics
 ### Logging rule
-Every dependency verification step emits deterministic records.
+- Every verification run emits deterministic trace records encoded in canonical CBOR.
+
 ### Trace schema
-- `run_header`: lockfile_hash, policy_bundle_hash
-- `iter`: package, check, result
-- `run_end`: status, mismatch_summary
+- `run_header`:
+  - `lockfile_hash:bytes32`
+  - `policy_bundle_hash:bytes32`
+  - `artifact_index_hash:bytes32`
+  - `sbom_hash:bytes32`
+- `iter`:
+  - `package_name:tstr`
+  - `package_version:tstr`
+  - `source:tstr`
+  - `check:enum("SOURCE_POLICY","LOCK_PIN","ARTIFACT_HASH")`
+  - `result:enum("PASS","FAIL")`
+- `run_end`:
+  - `status:enum("PASS","FAIL")`
+  - `mismatch_summary:map{hash_mismatches:uint64, policy_violations:uint64, missing_artifacts:uint64}`
+
+### Deterministic iter completeness
+- For each package in sorted lock tuple order, always emit all three checks in fixed order `SOURCE_POLICY`, `LOCK_PIN`, `ARTIFACT_HASH`.
+- `LOCK_PIN` definition: validate that the tuple has an integrity hash (`integrity_hash:bytes32`) compliant with v1 lock requirements; absence, malformed hash, or all-zero 32-byte hash yields `FAIL`.
+- `ARTIFACT_HASH` definition:
+  - `PASS` if artifact exists in index/store and computed SHA-256 equals expected hash,
+  - `FAIL` if artifact exists but digest mismatches, or artifact is missing.
+
 ### Metric schema
-- `packages_total`, `hash_mismatches`, `policy_violations`
+- `packages_total:uint64`
+- `hash_mismatches:uint64`
+- `policy_violations:uint64`
+
 ### Comparability guarantee
-Comparable iff lock policy and artifact index definition are identical.
+- Full-output comparability (including `dependencies_lock_hash`) requires bytewise-identical `lockfile_hash`, `policy_bundle_hash`, `artifact_index_hash`, `toolchain_hash`, `runtime_env_hash`, and `sbom_hash`.
+- Validation-only comparability (excluding derived commitment fields) requires bytewise-identical `lockfile_hash`, `policy_bundle_hash`, and `artifact_index_hash`.
 
 ---
 ## 8) Validation
-#### VII.A Lint rules (mandatory)
-Passes determinism, completeness, and policy traceability checks.
-#### VII.B Operator test vectors (mandatory)
-Valid/invalid lockfiles and upgrade proposals.
-#### VII.C Golden traces (mandatory)
-Golden lock-verification reports for baseline lockfiles.
+### VII.A Lint rules (mandatory)
+- Reject unknown fields in `Policy`, `ArtifactIndex`, and `UpgradeProposal`.
+- Reject duplicate lock tuples by `(name, version, source)`.
+- Reject multiple lock tuples with the same `(name, source)` combination.
+- Reject unsorted/duplicate `allowed_sources` and `allowed_upgrade_scopes`.
+- Reject duplicate `UpgradeProposal.changes` by `(name, from_version, to_version, source)`.
+- Reject multiple `UpgradeProposal.changes` entries with the same `(name, source)` combination.
+- Reject duplicate `ArtifactRecord` entries by `(name, version, source)`.
+- Reject `requirements.txt` inline comments on requirement lines and reject `--index-url` directives not on standalone lines.
+- Reject `requirements.txt` line continuations (trailing `\\`).
+- Reject `requirements.txt` directives `--extra-index-url` and `--find-links`.
+- Reject `requirements.txt` editable installs (`-e`) and include directives (`-r`).
+- Reject `requirements.txt` environment markers (`;` outside quoted strings).
+- Reject any direct URL dependencies in v1.
+
+### VII.B Operator test vectors (mandatory)
+- Valid lockfile + valid index (pass).
+- Forbidden source (fail).
+- Hash mismatch (fail).
+- Missing artifact (fail).
+- Allowed patch upgrade (allow).
+- Disallowed downgrade (critical).
+- Disallowed major upgrade under patch/minor-only policy (critical).
+
+### VII.C Golden traces (mandatory)
+- Golden trace sets for canonical lockfiles, including `run_header` commitments and deterministic `run_end` summaries.
 
 ---
 ## 9) Refactor & Equivalence
-#### VIII.A Equivalence levels
-- E0 for lock verdict and mismatch reports.
-#### VIII.B Allowed refactor categories
-- verifier optimization preserving report semantics.
-#### VIII.C Equivalence test procedure (mandatory)
-Exact report comparison on baseline lockfiles.
+### VIII.A Equivalence levels
+- `E0` applies to lock verdict, dependencies lock hash, and deterministic trace commitment fields.
+
+### VIII.B Allowed refactor categories
+- Internal parser/verifier optimization preserving all normative outputs and ordering.
+
+### VIII.C Equivalence test procedure (mandatory)
+- Exact comparison of `lock_verdict` and commitment hashes over baseline lockfiles.
+- For trace equivalence, exact compare of `run_header`, `iter`, and `run_end` for same input set.
 
 ---
 ## 10) Checkpoint/Restore
 ### Checkpoint contents
-- verification cursor and partial mismatch report.
+- `verification_cursor:uint64` (next tuple index to process in sorted lock tuple array; initial value `0`)
+- `partial_hash_mismatches:array<HashMismatch>` (sorted)
+- `partial_policy_violations:array<Violation>` (sorted)
+- `lockfile_hash:bytes32`
+- `policy_bundle_hash:bytes32`
+- `artifact_index_hash:bytes32`
+- `sbom_hash:bytes32`
+- `toolchain_hash:bytes32`
+- `runtime_env_hash:bytes32`
+
 ### Serialization
-- deterministic canonical CBOR.
+- Canonical CBOR.
+
 ### Restore semantics
-- resumed verification yields identical final verdict.
+- Restore requires re-supplying the same `lockfile_blob`; parsing MUST reproduce identical sorted tuples and `lockfile_hash`.
+- On restore, recompute `lockfile_hash` from supplied lockfile and compare to checkpoint `lockfile_hash`; mismatch MUST abort with `LOCKFILE_MISMATCH`.
+- Because `lockfile_hash` matches and parsing is deterministic, the sorted tuple list is identical to the original list and resumption order is preserved.
+- Restore requires re-supplying `policy_blob`, `artifact_index_blob`, and `sbom_hash`.
+- Recompute and compare `policy_bundle_hash` and `artifact_index_hash` against checkpoint values; mismatches MUST abort with `POLICY_BUNDLE_MISMATCH` or `ARTIFACT_INDEX_MISMATCH`.
+- Supplied `sbom_hash` MUST equal checkpoint `sbom_hash`; mismatch MUST abort with `SBOM_HASH_MISMATCH`.
+- Restore requires re-supplying `toolchain_hash` and `runtime_env_hash`.
+- Supplied `toolchain_hash` and `runtime_env_hash` MUST equal checkpoint values; mismatches MUST abort with `TOOLCHAIN_HASH_MISMATCH` or `RUNTIME_ENV_HASH_MISMATCH`.
+- Checkpointing MUST occur only at tuple boundaries after all checks for a tuple are complete.
+- Restore resumes from `verification_cursor` in the same sorted tuple order.
+- Restored run MUST produce byte-identical final reports and verdict as uninterrupted execution.

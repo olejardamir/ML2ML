@@ -1344,3 +1344,184 @@
 - Validation:
   - Updated hash (`L1-007`): `3594284b82dc791d36b5e0ab9a2956171a621ef0c010ef0ebf69e45db4c82637`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy determinism/completeness rewrite (`L1-004`).
+- Scope:
+  - Rewrote `docs/layer1-foundation/Dependency-Lock-Policy.md` to resolve logical, structural, and algorithmic gaps:
+    - removed optimization/template artifacts and undefined EPS tie handling,
+    - defined strict mode, policy schema, artifact index schema, upgrade proposal schema, and report schemas,
+    - defined `runtime_env_hash`, `determinism_profile_hash`, `policy_bundle_hash`, and `artifact_index_hash`,
+    - formalized operator signatures/outputs, deterministic ordering, and abort semantics,
+    - integrated SBOM hash into trace schema and defined `mismatch_summary`,
+    - defined checkpoint `verification_cursor` and deterministic restore behavior.
+  - Updated registry record `L1-004` hash/version in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `7285865be825396b3d8518ac9217c85537d33ea51f08711432a06cfa7513262d`
+  - Previous hash (`L1-004`): `d17f7fcdb61cbda3d1cfb3e6b8e0a9d1c36e222a36dc48797ac59b479cbf1b44`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy consistency/finality pass (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` to resolve remaining determinism and completeness gaps:
+    - aligned reproducibility inputs with procedure (`toolchain_hash`, `runtime_env_hash`, `sbom_hash` as inputs),
+    - removed unused `determinism_profile_hash` from replay contract,
+    - fixed artifact verification purity semantics (`PURE` -> `IO`) and immutable content-addressed retrieval assumption,
+    - added canonical parsing/normalization guidance for lockfile formats and toolchain version extraction,
+    - constrained `ArtifactRecord.location` to content-addressed forms,
+    - specified source-change/downgrade/pre-release handling in upgrade evaluation,
+    - defined deterministic parallel merge/list ordering and complete `iter` emission rules,
+    - added explicit abort-code mapping for deterministic failures,
+    - clarified checkpoint restore requirement to re-supply identical lockfile blob.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `422769240805154b8b14279e9a4702bdd955c38d01e81ff7bde7bcc1382505fa`
+  - Previous hash (`L1-004`): `7285865be825396b3d8518ac9217c85537d33ea51f08711432a06cfa7513262d`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy final determinism clarifications (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` with additional normative fixes:
+    - defined source canonicalization mapping and canonical `allowed_sources` matching,
+    - strengthened lockfile extraction rules per format and marker/extras coverage requirement,
+    - added explicit mixed SemVer/non-SemVer invalid-case handling for upgrade comparisons,
+    - added `allow_source_changes` policy flag (default false in v1),
+    - clarified downgrade/no-op behavior and risk ranking with `non_semver` handling,
+    - defined direct URL dependency semantics precisely,
+    - bound `sbom_hash` into `dependencies_lock_hash` commitment,
+    - defined `LOCK_PIN` trace check semantics,
+    - added restore-time `lockfile_hash` revalidation with deterministic `LOCKFILE_MISMATCH` abort.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `f6a50b25160e8c17bf45a1ce016f337dd68234a8e109cb8dd4fb6de685bc955d`
+  - Previous hash (`L1-004`): `422769240805154b8b14279e9a4702bdd955c38d01e81ff7bde7bcc1382505fa`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy closure pass for remaining determinism/specification gaps (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` with final normative corrections:
+    - procedure step 5 now includes `sbom_hash` in dependency-lock commitment formation,
+    - added explicit SemVer scope classification algorithm and non-SemVer disallow rule in v1,
+    - strengthened source canonicalization (NFC + scheme/host normalization + canonical registry mapping),
+    - tightened lockfile parsing details (`requirements.txt` inline comments, extras stripping, in-file index resolution; `poetry.lock` file-entry sorting before hash selection),
+    - added explicit `missing_artifacts` canonical string format,
+    - added upgrade proposal validation rules (`PACKAGE_NOT_FOUND`, `PROPOSAL_VERSION_MISMATCH`, duplicate-change rejection, delta-only scope),
+    - expanded restore mismatch checks to include policy/artifact-index/SBOM with dedicated abort codes,
+    - added `step_index` mapping definition in error trace rule,
+    - clarified `toolchain_hash` as opaque input for this contract.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `89024e09901e36ca81b5a0b48070b4dab75973f975afce55f1568935f04b6ef8`
+  - Previous hash (`L1-004`): `f6a50b25160e8c17bf45a1ce016f337dd68234a8e109cb8dd4fb6de685bc955d`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy final ambiguity-resolution pass (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` to resolve remaining determinism/clarity gaps:
+    - made `requirements.txt` source derivation fully deterministic (top-to-bottom cumulative `--index-url`, most recent prior directive, standalone directive lines only),
+    - removed ambiguous inline-comment parsing by forbidding inline comments on requirement lines,
+    - tightened comparability guarantee to distinguish full-output comparability vs validation-only comparability,
+    - hardened checkpoint semantics: cursor now means next tuple index (initial `0`), checkpoints only at tuple boundaries, restore resumes from cursor,
+    - added lint rules for `requirements.txt` directive/comment constraints.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `3334bde69710787fb954a4ba6bd2107f878663f3bd3f6b305fd18c5ff23fdd04`
+  - Previous hash (`L1-004`): `89024e09901e36ca81b5a0b48070b4dab75973f975afce55f1568935f04b6ef8`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy determinism finalization for remaining edge-cases (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` with:
+    - explicit mixed-scheme check in `EvaluateUpgradeRequest_v1` (`VERSION_SCHEME_MISMATCH` disallow),
+    - explicit empty-proposal behavior (`is_allowed=true`, `risk_class=LOW`),
+    - `requirements.txt` hard constraints for v1 (no line continuations, forbid `--extra-index-url` and `--find-links`),
+    - checkpoint inclusion and restore verification of `toolchain_hash` and `runtime_env_hash`, with new mismatch codes,
+    - optional canonical source mapping extension for legacy PyPI domain (`pypi.python.org`).
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `7818a2378de09d893d4bf7306a5033503a98da768476f7216c6371fa65128ae1`
+  - Previous hash (`L1-004`): `3334bde69710787fb954a4ba6bd2107f878663f3bd3f6b305fd18c5ff23fdd04`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy final edge-case closure (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` to close remaining determinism/completeness gaps:
+    - comparability guarantee now includes `lockfile_hash` for both full-output and validation-only scopes,
+    - deterministic trace rule now requires all three per-package checks always emitted, with explicit `ARTIFACT_HASH` pass/fail semantics for missing/mismatched artifacts,
+    - `requirements.txt` parsing hardened by forbidding `-e` editable installs and `-r` include directives,
+    - added `EMPTY_VERSION` violation code and operator rule for empty version strings,
+    - added restore-order clarity note that matching `lockfile_hash` plus deterministic parsing implies identical sorted tuple order,
+    - extended canonical source mapping with `https://pypi.org` -> `https://pypi.org/simple`.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `5afbe3ad191b6270bf14b4dbbdecf31816ee818ad7c058d659cbc6be1fdac336`
+  - Previous hash (`L1-004`): `7818a2378de09d893d4bf7306a5033503a98da768476f7216c6371fa65128ae1`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy final review deltas (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` with final targeted clarifications:
+    - `requirements.txt` now explicitly forbids environment markers (`;` outside quoted strings) in v1,
+    - upgrade proposal tuple matching now explicitly uses exact `(name, source)` lookup before validating `from_version`.
+  - Added matching lint rule for forbidden `requirements.txt` environment markers.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `1fafcfdf8edb793c89640ddfa4f5d17d21fbab74154f8a6654fd8b3baf55b8bf`
+  - Previous hash (`L1-004`): `5afbe3ad191b6270bf14b4dbbdecf31816ee818ad7c058d659cbc6be1fdac336`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy uniqueness/canonical-hash closure (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` with final determinism constraints:
+    - added invariant and lint rule forbidding multiple lock tuples with the same `(name, source)`,
+    - added lint rule forbidding multiple `UpgradeProposal.changes` entries with the same `(name, source)`,
+    - added lint rule forbidding duplicate `ArtifactRecord` entries by `(name, version, source)`,
+    - made proposal source canonicalization explicit before upgrade matching/comparison,
+    - added normative hash-token decoding rule (`sha256:<64-hex>`, case-insensitive prefix, strict bytes32 decode) for lockfile extraction across formats.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `4b77f805c34586928e6ab54ed30d33ba16de51f3e70c650417f35d69e720e42e`
+  - Previous hash (`L1-004`): `1fafcfdf8edb793c89640ddfa4f5d17d21fbab74154f8a6654fd8b3baf55b8bf`
+  - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Dependency lock policy expected-hash source clarification (`L1-004`).
+- Scope:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` in `UML_OS.DepLock.VerifyArtifactHashes_v1` definition to remove expected-hash ambiguity:
+    - expected hash is now explicitly defined as lock tuple `integrity_hash`,
+    - artifact index is used for tuple resolution and immutable location retrieval,
+    - mismatch rule explicitly compares `observed_hash` (artifact bytes SHA-256) against lock tuple `integrity_hash`,
+    - retrieval failures explicitly recorded as missing artifacts.
+  - Updated registry record `L1-004` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-004`): `9f7e26c792d07ee2d73cd6874d0a68ab06dab8663ebddc509c5638a964d2455c`
+  - Previous hash (`L1-004`): `4b77f805c34586928e6ab54ed30d33ba16de51f3e70c650417f35d69e720e42e`
+  - Registry path for `L1-004` unchanged and resolves: pass

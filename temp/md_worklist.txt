@@ -15,12 +15,12 @@ DONE:
 9. docs/layer1-foundation/API-Interfaces.md
 10. docs/layer1-foundation/Determinism-Profiles.md
 11. docs/layer1-foundation/Environment-Manifest.md
+12. docs/layer1-foundation/Dependency-Lock-Policy.md
 
 PHASE 0 — GOVERNANCE ROOT - DONE
 
 
 PHASE 1 — FOUNDATION CONTRACTS (LAYER 1)
-12. docs/layer1-foundation/Dependency-Lock-Policy.md
 13. docs/layer1-foundation/Redaction-Policy.md
 
 PHASE 2 — CORE SYSTEM SPECS (LAYER 2)
