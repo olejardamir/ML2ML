@@ -89,7 +89,7 @@
 | phase_id | depends_on | deliverables | gate_criteria |
 |---|---|---|---|
 | `P1_core_specs` | - | kernel/data/model/tmmu/dp specs finalized | all core docs EQC-lint pass |
-| `P2_registries` | `P1_core_specs` | trace/error/config/checkpoint registries concrete | schema/hash consistency checks pass |
+| `P2_registries` | `P1_core_specs` | trace/error/config/checkpoint registries concrete + canonical operator registry artifact | schema/hash consistency checks pass |
 | `P3_codegen_runtime` | `P2_registries` | adapters, mapping, interface stubs | backend conformance suite pass |
 | `P4_validation` | `P3_codegen_runtime` | golden traces + replay harness | E0/E1 equivalence suite pass |
 | `P5_release` | `P4_validation` | deployment runbook + signed artifacts | deployment canary gates pass |
@@ -97,6 +97,7 @@
 Deterministic gate evaluation:
 - Gates evaluate a fixed ordered checklist with boolean outcomes.
 - Final gate verdict is lexical reduction over checklist items (`fail` dominates `pass`), independent of runtime execution ordering.
+- Mandatory pre-gate: `tools/spec_lint.py` pass for every phase boundary after `P2_registries`.
 
 ### II.G Compatibility Contract (Normative)
 - Deprecation lifecycle: announce -> warning phase -> removal.

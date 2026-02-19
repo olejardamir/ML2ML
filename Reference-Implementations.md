@@ -85,6 +85,7 @@
 - `prepare_memory_v2(ir_dag, execution_order, mode, arena_config) -> (tensor_map, metrics)`
 - `replay_compare_trace_v1(trace_a, trace_b, replay_mode) -> divergence_report`
 - `evidence_validate_v1(certificate, manifest, trace, checkpoint, replay_ctx) -> validation_report`
+- All signatures must be derived from `contracts/operator_registry.cbor`; manual signature drift is forbidden.
 
 ---
 ## 3) Initialization

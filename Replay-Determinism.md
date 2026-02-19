@@ -135,6 +135,9 @@
 - `atomic_reductions_allowed: bool` (`false` required for E0)
 - `env_vars_fingerprint: bytes32`
 - `driver_versions: map<string,string>`
+- Tier binding:
+  - `BITWISE`: fixed collective algorithm/chunk order/accumulation dtype-order and `atomic_reductions_allowed=false`.
+  - `TOLERANCE`: explicit per-field tolerance bands and E1 comparator profile.
 
 ### II.H Divergence Policy (Normative)
 - `replay_mode: enum("STRICT_E0","TOLERANT_E1")`.

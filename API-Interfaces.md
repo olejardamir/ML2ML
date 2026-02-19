@@ -158,6 +158,19 @@
 - `SignatureDigest_v1 = SHA-256(CBOR_CANONICAL([operator_id, version, request_schema_digest, response_schema_digest, sorted(side_effects), sorted(allowed_error_codes)]))`.
 - Canonical schema sources must be stored under `schemas/` and used as the single source for digest generation in build/codegen.
 
+### II.I Canonical Operator Registry Binding (Normative)
+- `contracts/operator_registry.cbor` is authoritative for interface metadata.
+- Every row in syscall/service registries must match the corresponding artifact record exactly for:
+  - `surface`, `request_schema_hash`, `response_schema_hash`, `signature_digest`,
+  - `side_effects`, `allowed_error_codes`, `purity_class`, `required_capabilities`.
+- This document is a rendered view; edits that are not reflected in the artifact are invalid.
+
+### II.J Capability/RBAC Binding (Normative)
+- Every callable operator must declare `required_capabilities` in the canonical operator registry.
+- Authorization verdict per call must be deterministic:
+  - `authz_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), policy_hash]))`.
+- Denied calls must emit a deterministic failure record and trace event with `authz_hash`.
+
 ---
 
 ## 3) Initialization

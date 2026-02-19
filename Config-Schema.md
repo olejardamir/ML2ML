@@ -141,6 +141,16 @@ Normative checks in `MODULAR` mode:
 | `tracking.tenant_id` | `default_tenant` |
 | `security.trust_mode` | `SOFTWARE_ONLY` |
 
+### II.J Deterministic Migration Framework (Normative)
+- Manifest schema versions must declare:
+  - `schema_version`,
+  - `migration_supported_from`,
+  - `migration_operator` (for manifests: `UML_OS.Config.ManifestMigrate_v1`).
+- Migration output must be deterministic and hash-identical across conforming implementations.
+- Each migration run must emit a migration certificate binding:
+  - `source_manifest_hash -> target_manifest_hash`,
+  - `from_version`, `to_version`, and `migration_policy_hash`.
+
 ---
 ## 3) Initialization
 1. Load schema.

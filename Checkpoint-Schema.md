@@ -153,6 +153,23 @@
 - Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `Data-Structures.md` `CheckpointHeader`.
 - Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_merkle_root, manifest_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash}`.
 
+### II.J Run Commit Protocol (Normative)
+- Commit is atomic across trace/checkpoint/lineage/certificate using temp objects:
+  1. write `trace.tmp`, `checkpoint.tmp`, `lineage.tmp`,
+  2. compute `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`,
+  3. build/sign certificate bound to those hashes,
+  4. atomically rename all temp objects to final names and emit `run_commit_record`.
+- Recovery rule after crash:
+  - if complete signed certificate and all bound final objects exist, finalize commit,
+  - otherwise roll back temp objects deterministically and emit failure record.
+
+### II.K Migration Certificate (Normative)
+- Every schema migration must emit a signed migration certificate:
+  - `from_schema_version`, `to_schema_version`,
+  - `source_hash`, `target_hash`,
+  - `migration_operator`, `migration_policy_hash`.
+- Migration output must hash identically across conforming implementations.
+
 ---
 ## 3) Initialization
 1. Load checkpoint schema.

@@ -122,6 +122,11 @@ Signature lock invariant:
 - Digest generation invariant:
   - request/response schema digests and signature digests are derived from canonical schema AST files (`schemas/*`) using `SchemaDigest_v1` and `SignatureDigest_v1` from `API-Interfaces.md`; placeholders are forbidden in generated artifacts.
 
+Canonical registry consumption invariant:
+- `contracts/operator_registry.cbor` is the authoritative input for mapping resolution and stub generation.
+- Codegen must hard-fail if any operator record lacks `surface`, schema digests, signature digest, side effects, allowed error codes, purity class, or required capabilities.
+- Generated enforcement wrappers must include capability checks for `required_capabilities` and emit deterministic authorization diagnostics.
+
 ---
 ## 3) Initialization
 1. Load operator manifests.

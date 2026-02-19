@@ -187,6 +187,13 @@
 - `tmmu_plan_hash` must incorporate rank-local arena layout and global shard specification.
 - Planner must support parameter, activation, and optimizer-state sharding contracts.
 
+### II.J Resource Ledger Emission (Normative)
+- Allocator must emit deterministic resource-ledger counters per step:
+  - `bytes_allocated`, `peak_bytes`, `allocation_failures`, `internal_fragmentation_ratio`.
+- Quota policy integration:
+  - allocator receives `memory_bytes_budget`,
+  - on budget breach emits deterministic quota failure and no partial allocation commit.
+
 ---
 
 ## 3) Initialization

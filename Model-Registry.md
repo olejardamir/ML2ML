@@ -81,6 +81,13 @@
 ### I.E Invariants and Assertions
 - immutable model version payload; append-only approvals.
 
+### II.F CAS Retention and Reachability (Normative)
+- Registry objects must reference immutable content-addressed artifacts.
+- Reachability roots include:
+  - active model versions in non-terminal retention classes,
+  - execution certificates bound to promoted versions.
+- GC safety invariant: objects reachable from active roots cannot be deleted; tombstoning is append-only and auditable.
+
 ---
 ## 3) Initialization
 1. Load registry schema.

@@ -107,6 +107,10 @@
 - Access governance:
   - `access_control_model` (RBAC roles + required permissions),
   - `breakglass_policy` must be explicit, time-bounded, and fully audited.
+  - operator-level capability enforcement is mandatory via `required_capabilities` from canonical operator registry.
+  - authorization decision hash:
+    - `authz_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), policy_hash]))`.
+  - denied authorization decisions must be recorded as deterministic trace events and included in certificate evidence binding.
 - Registry governance roles:
   - `registry_approver`, `registry_publisher`, `registry_auditor` (least-privilege RBAC mandatory).
 - Multi-tenant requirement:

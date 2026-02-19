@@ -97,6 +97,14 @@
 - Reproducibility:
   - `drift_algorithm_hash = SHA-256(CBOR_CANONICAL([drift_algorithm_id, drift_algorithm_version, binning_rule, nan_rule]))`.
 
+### II.G Auditable Policy Transcript (Normative)
+- Policy evaluation must emit deterministic transcript entries:
+  - `policy_input_hashes`, `rule_id`, `threshold_id`, `verdict`, `reason_code`.
+- Transcript hash:
+  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_policy_transcript_v1", ordered_transcript_entries]))`.
+- `policy_gate_hash` must be emitted as a mandatory trace field and bound to execution certificate evidence in regulated modes.
+- Network calls are forbidden during policy verdict evaluation unless all external inputs are pre-committed by hash.
+
 ---
 ## 3) Initialization
 1. Load monitor policy.

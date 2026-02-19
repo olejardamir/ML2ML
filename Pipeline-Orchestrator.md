@@ -76,6 +76,7 @@
 - job manifest, priority, policy constraints.
 - lease policy (`lease_ttl_ticks`, `max_retries`).
 - transition controls: `attempt_id`, `transition_seq:uint64`, `backoff_schedule_id`.
+- resource quota policy (`gpu_time_budget_ms`, `cpu_time_budget_ms`, `io_bytes_budget`, `memory_bytes_budget`).
 ### I.C Constraints and Feasible Set
 - allowed transitions:
   - `QUEUED -> RUNNING`
@@ -91,6 +92,13 @@
 ### I.E Invariants and Assertions
 - no skipped lifecycle states; transition records are append-only.
 - running jobs require valid lease and heartbeat.
+- quota-denied transitions are deterministic and auditable.
+
+### II.F Resource Ledger and Quota Enforcement (Normative)
+- Orchestrator must maintain a deterministic per-job resource ledger:
+  - `bytes_allocated`, `peak_bytes`, `io_bytes_read`, `io_bytes_written`, `gpu_time_ms`, `cpu_time_ms`.
+- Quota checks must be evaluated before state transition commits and emitted into trace with `quota_policy_hash`.
+- Quota violations must map to deterministic error codes and cannot be retried unless policy explicitly allows.
 
 ---
 ## 3) Initialization
@@ -146,7 +154,7 @@ Atomicity and deduplication rules:
 ### Trace schema
 - `run_header`: orchestrator_version, queue_policy_hash
 - `iter`: job_id, from_state, to_state, status
-- `run_end`: transition_log_hash
+- `run_end`: transition_log_hash, run_commit_record_hash?
 ### Metric schema
 - queue and lifecycle metrics.
 ### Comparability guarantee

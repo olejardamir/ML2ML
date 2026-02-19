@@ -96,6 +96,8 @@
   - `trace_root_hash:bytes32`
   - `checkpoint_hash:bytes32`
   - `policy_hash:bytes32`
+  - `policy_gate_hash:bytes32`
+  - `authz_decision_hash:bytes32`
   - `dependencies_lock_hash:bytes32`
   - `lockfile_hash:bytes32`
   - `toolchain_hash:bytes32`
@@ -113,6 +115,8 @@
   - `dp_delta?:float64`
   - `dp_accountant_state_hash?:bytes32` (if DP enabled)
   - `attestation_quote_hash?:bytes32` (required in `ATTESTED` mode)
+  - `key_id:string`
+  - `revocation_evidence_hash:bytes32`
   - `determinism_conformance_suite_id?:bytes32`
   - `step_start:uint64`
   - `step_end:uint64`
@@ -163,7 +167,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `Error-Codes.m
 **Signature:** `(execution_certificate, trust_store -> verification_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** verifies signature over `signed_payload`, required field presence, and trust chain.
+**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, and revocation status using `revocation_evidence_hash`.
 
 **Operator:** `UML_OS.Certificate.EvidenceValidate_v1`  
 **Category:** Security  

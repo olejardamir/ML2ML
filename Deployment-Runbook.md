@@ -117,6 +117,30 @@
   - migration playbook must include schema/version compatibility checks and rollback points,
   - disaster recovery artifacts required: last-good checkpoint manifest hash, restore procedure hash, incident timeline log.
 
+### II.G Atomic Run Commit Protocol (Normative)
+- Finalization of a run is a deterministic two-phase commit:
+  1. write `trace.tmp`, `checkpoint.tmp`, `lineage.tmp`,
+  2. compute and validate bound hashes,
+  3. build/sign `certificate.tmp`,
+  4. atomically rename all temp artifacts to final names,
+  5. emit durable `run_commit_record` with final artifact IDs/hashes.
+- Crash recovery must scan temp artifacts and deterministically finalize-or-rollback; partial committed visibility is forbidden.
+
+### II.H CAS Retention and Garbage Collection (Normative)
+- Objects are content-addressed and immutable.
+- Retention classes: `golden`, `certified_release`, `experimental`, `ephemeral`.
+- Reachability roots include valid execution certificates and pinned model releases.
+- GC policy:
+  - mark reachable objects from active roots,
+  - enforce minimum retention windows by class,
+  - sweep only unreachable expired objects.
+- GC must never delete objects reachable from active certified artifacts; every deletion emits an auditable hash-chained GC log.
+
+### II.I Key Rotation and Revocation (Normative)
+- Signing and redaction keys must declare `key_id`, validity window, and rotation cadence.
+- Revocation evidence bundle must be hash-pinned and checked during certificate verification.
+- Deployment promotion must fail if signer/redaction keys are revoked or outside validity window at verification time.
+
 ---
 ## 3) Initialization
 1. Load release manifest and signatures.

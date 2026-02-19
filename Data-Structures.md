@@ -121,7 +121,19 @@
 - `MonitorEvent`: `{tenant_id:string, run_id:string, model_version_id:string, window_id:string, metric_name:string, metric_value:float64, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `MetricSchema`: `{metric_name:string, scalar_type:enum(float64|int64|bool|string), aggregation:enum(sum|mean|min|max|quantile), window_policy:string, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `PipelineTransitionRecord`: `{tenant_id:string, job_id:string, attempt_id:uint32, transition_seq:uint64, idempotency_key:bytes32, from_state:string, to_state:string, status:string, diagnostics?:map<string,string>}`.
+- `ResourceLedgerRecord`: `{tenant_id:string, run_id:string, t:uint64, bytes_allocated:uint64, peak_bytes:uint64, io_bytes_read:uint64, io_bytes_written:uint64, gpu_time_ms:uint64, cpu_time_ms:uint64, quota_decision:string, quota_policy_hash:bytes32}`.
 - Alignment policy for binary layouts: fields aligned to natural size; packed representation forbidden for cross-language canonical payloads.
+
+### II.G Canonical Serialization v1 (Normative)
+- All contract-critical hashes/signatures must be computed over canonical CBOR bytes only.
+- Canonicalization rules:
+  - map keys sorted lexicographically by UTF-8 bytes,
+  - integers encoded in shortest canonical form,
+  - signed fields must encode floats as IEEE-754 binary64 only,
+  - `NaN` and `Inf` are forbidden in signed/hash-critical payloads unless explicitly normalized by operator contract,
+  - strings must be valid UTF-8; non-normalized forms are invalid for signed payloads,
+  - fixed-length digests (`bytes32`) must be exactly 32 bytes.
+- Domain separation labels (for chained hashes/signatures) must be explicit CBOR string tags in the hashed tuple.
 
 ---
 

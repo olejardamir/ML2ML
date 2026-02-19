@@ -154,6 +154,16 @@
   - E0 fields must be bitwise equal.
   - E1 fields must remain within declared per-field tolerance bands.
 
+### II.K Spec Lint Gate (Normative)
+- `tools/spec_lint.py` is a mandatory pre-test CI gate and must run before unit/integration/replay/performance suites.
+- `spec_lint` must verify at minimum:
+  - operator reference completeness across kernel/orchestrator/reference docs against canonical operator registry artifact,
+  - interface digest completeness (`request_schema_digest`, `response_schema_digest`, `signature_digest`, `side_effects`, `allowed_error_codes`, `required_capabilities`),
+  - error-code closure (all referenced codes must exist in `Error-Codes.md` with valid severity enum),
+  - no placeholder digests in normative fields (must be 64-hex where declared),
+  - contract-critical hash primitive and domain-separation consistency.
+- CI must fail deterministically on any `spec_lint` violation before running other suites.
+
 ---
 
 ## 3) Initialization
@@ -296,6 +306,12 @@ Covers symbol completeness, no hidden globals, deterministic order, trace compli
 #### VII.B Operator test vectors (mandatory)
 Includes suite-runner and aggregator vectors.
 Includes orchestrator idempotency vectors: duplicate dispatch/ack events must commit exactly once and return the same transition record for identical `idempotency_key`.
+Includes deterministic fault-injection recovery vectors:
+- crash after trace write but before checkpoint,
+- crash after checkpoint write but before certificate,
+- duplicate dispatch/retry storms,
+- partial shard write and interrupted commit.
+Each fault-injection vector must assert deterministic recovery, exactly-once visible commit semantics, and certificate/artifact hash coherence.
 
 #### VII.C Golden traces (mandatory)
 Golden report snapshots for canonical test manifests.

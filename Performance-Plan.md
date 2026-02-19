@@ -115,6 +115,12 @@
 - Fragmentation regression beyond declared threshold is a hard failure.
 - Gate verdict is computed on frozen snapshot samples only.
 
+### II.G Resource Ledger Gate Inputs (Normative)
+- Performance gates must ingest deterministic resource-ledger counters:
+  - `bytes_allocated`, `peak_bytes`, `io_bytes_read`, `io_bytes_written`, `gpu_time_ms`, `cpu_time_ms`.
+- Quota policy decisions must be reproducible from frozen snapshots and bound to `quota_policy_hash`.
+- Any quota overrun gate failure must emit deterministic diagnostics and failure code.
+
 ---
 
 ## 3) Initialization

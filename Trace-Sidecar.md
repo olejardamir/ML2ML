@@ -98,6 +98,7 @@
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes`.
 - `operator_seq` is a per-rank monotone counter.
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
+- Optional `iter` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
 - Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
 - Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.
 - Migration controls:
@@ -123,6 +124,17 @@
   - `mandatory_record_kinds = {run_header, policy_gate_verdict, checkpoint_commit, certificate_inputs, run_end}`.
   - Mandatory records MUST NEVER be sampled out or dropped.
   - If caps force dropping mandatory records: emit `TRACE_CAP_EXCEEDED_MANDATORY` and abort deterministically.
+
+### II.H Policy Transcript and Run Commit Binding (Normative)
+- Policy evaluation must emit a deterministic transcript record stream containing:
+  - `policy_input_hashes`, `rule_id`, `rule_version`, `verdict`, `reason_code`.
+- Network reads during policy evaluation are forbidden unless inputs are pre-committed and referenced by hash.
+- Transcript fold hash:
+  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["policy_transcript_v1", ordered_policy_records]))`.
+- `policy_gate_hash` must appear in trace mandatory records and in `Execution-Certificate` signed payload.
+- Atomic commit linkage:
+  - trace must include `run_commit_prepare` and `run_commit_record` mandatory records,
+  - `run_commit_record` must bind `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`, `certificate_hash`.
 
 ---
 ## 3) Initialization

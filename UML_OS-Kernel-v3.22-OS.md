@@ -268,6 +268,15 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 - Coding acceleration contracts: `Reference-Implementations.md`, `Test-Vectors-Catalog.md`, `Repo-Layout-and-Interfaces.md`.
 - Wiring invariant: all operator names referenced across documents must be fully qualified and versioned. Shared operators may be imported by reference from dedicated contract documents (for example `UML_OS.Error.Emit_v1` in `Error-Codes.md`).
 
+### II.F Deterministic Runtime Governance (Normative)
+- Distributed reduction determinism must follow declared `determinism_profile`:
+  - `BITWISE` mode requires fixed collective algorithm, fixed chunk order, fixed accumulation dtype/order, and no nondeterministic atomics.
+  - `TOLERANCE` mode requires explicit per-field tolerance bands and E1 comparability policy.
+- Kernel must emit deterministic policy and authorization transcripts:
+  - policy transcript hash `policy_gate_hash`,
+  - authorization transcript hash `authz_decision_hash`.
+- End-of-run artifacts must be finalized only through the atomic run commit protocol (`trace/checkpoint/lineage/certificate` two-phase commit).
+
 ---
 
 ## 3) Initialization

@@ -86,6 +86,15 @@
 - `expected_error_code?:string`
 - `determinism_class: "E0" | "E1"`
 - `signature_digest:bytes32`
+- `canonical_encoding_version:string` (`CanonicalSerialization_v1`)
+
+### II.G Canonical Encoding Vector Set (Normative)
+- Catalog must include vectors for canonical serialization and hashing:
+  - canonical CBOR map key ordering,
+  - float64 encoding edge cases,
+  - fixed-length digest validation (`bytes32`),
+  - domain-separated hash tuple examples.
+- These vectors are mandatory for conformance of hashing/signature-related operators.
 
 ---
 ## 3) Initialization

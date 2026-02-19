@@ -87,6 +87,12 @@
 ### I.E Invariants and Assertions
 - immutable run lineage; append-only metrics/events.
 
+### II.F CAS Retention and GC Policy (Normative)
+- Artifacts and event objects are content-addressed and immutable.
+- Retention classes: `golden`, `certified_release`, `experimental`, `ephemeral`.
+- Physical deletion is prohibited while object is reachable from active execution certificates or pinned model releases.
+- GC must be deterministic mark/sweep over declared roots and emit hash-chained GC audit records.
+
 ---
 ## 3) Initialization
 1. Initialize tracking store bindings.

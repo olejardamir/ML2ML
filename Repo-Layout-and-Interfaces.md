@@ -83,6 +83,8 @@
 - `tests/unit`, `tests/integration`, `tests/replay`, `tests/perf`.
 - `vectors/<operator_id>/`.
 - `schemas/` for config/trace/checkpoint/api schemas.
+- `tools/spec_lint.py` mandatory linter entrypoint for cross-file contract consistency.
+- `contracts/operator_registry.cbor` canonical machine-readable operator registry artifact.
 
 ### II.G Ownership Map (Normative)
 - `data team`: `src/data/*`
@@ -92,6 +94,15 @@
 - `platform team`: `src/tracking/*`, `src/monitor/*`, `src/config/*`
 - `security team`: `src/security/*`, `src/cert/*`
 - `governance team`: `src/registry/*`
+
+### II.H Operator Registry Artifact (Normative)
+- `contracts/operator_registry.cbor` is the single source of truth for operator interface metadata.
+- Required fields per operator record:
+  - `operator_id`, `version`, `surface`,
+  - `request_schema_digest`, `response_schema_digest`, `signature_digest`,
+  - `side_effects`, `allowed_error_codes`, `purity_class`, `required_capabilities`.
+- `API-Interfaces.md` and `Code-Generation-Mapping.md` are rendered/derived views and must not diverge from the artifact.
+- Any divergence is a deterministic `CONTRACT_VIOLATION` at lint time.
 
 ---
 ## 3) Initialization
