@@ -92,11 +92,17 @@
 - Trace endpoints:
   - `trace_head_hash = h_0`
   - `trace_tail_hash = h_last`
-- Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted (or encoded as empty bytes) in the canonical CBOR input.
+- Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted from the canonical CBOR map input.
+- Empty-bytes substitution is forbidden for omitted fields in canonical hashing paths.
 - Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
 - Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`.
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes`.
 - `operator_seq` is a per-rank monotone counter.
+- Canonical record ordering:
+  - `run_header` is always first,
+  - all `iter` records are sorted by `(t, rank, operator_seq)`,
+  - `run_end` is always last.
+- Uniqueness invariant: there must be at most one `iter` record for each `(t, rank, operator_seq)` tuple.
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Optional `iter` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
 - Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
@@ -221,6 +227,6 @@ Exact normalized record and hash comparison.
 ### Checkpoint contents
 - schema version and normalization state.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed validation yields identical outputs.

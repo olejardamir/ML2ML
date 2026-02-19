@@ -213,6 +213,6 @@ Exact compare of mapping and generated signatures.
 ### Checkpoint contents
 - mapping registry and generation cursor.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed generation yields identical artifact set.

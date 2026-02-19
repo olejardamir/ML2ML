@@ -199,6 +199,6 @@ Exact certification report comparison.
 ### Checkpoint contents
 - certification progress and per-test outputs.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed certification yields identical final verdict.

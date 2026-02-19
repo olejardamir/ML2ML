@@ -87,6 +87,7 @@
 - Canonical object:
   - `signed_payload` (canonical CBOR; this exact payload is signed)
   - `unsigned_metadata` (not signed; informational only)
+- `signed_payload` field set is fixed by this section; no additional implementation-specific fields are allowed in signed bytes.
 - `signed_payload` required fields:
   - `certificate_version:string`
   - `tenant_id:string`
@@ -116,7 +117,7 @@
   - `dp_accountant_state_hash?:bytes32` (if DP enabled)
   - `attestation_quote_hash?:bytes32` (required in `ATTESTED` mode)
   - `key_id:string`
-  - `revocation_evidence_hash:bytes32`
+  - `revocation_bundle_hash:bytes32`
   - `determinism_conformance_suite_id?:bytes32`
   - `step_start:uint64`
   - `step_end:uint64`
@@ -125,7 +126,7 @@
   - `wall_time_end_utc:string`
   - operational notes/audit pointers
 - Envelope:
-  - `signature:bytes`
+  - `signature:bytes64`
 - Signature scheme (normative):
   - canonical payload serialization: canonical CBOR of `signed_payload`
   - signature algorithm: Ed25519
@@ -167,7 +168,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `Error-Codes.m
 **Signature:** `(execution_certificate, trust_store -> verification_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, and revocation status using `revocation_evidence_hash`.
+**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, and revocation status using `revocation_bundle_hash`.
 
 **Operator:** `UML_OS.Certificate.EvidenceValidate_v1`  
 **Category:** Security  

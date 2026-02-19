@@ -110,6 +110,7 @@
   - `trace_tail_hash_at_checkpoint:bytes32`
   - `checkpoint_hash_prev?:bytes32`
 - Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_header_cbor)`.
+- Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 - Migration controls:
   - `migration_supported_from: array<string>`
@@ -140,7 +141,8 @@
   - supports full restore and deterministic partial restore by shard subset when declared by policy.
 
 ### II.H Partial Restore Matrix (Normative)
-- Training restore requires: model params, optimizer state, RNG states, DP accountant state, data cursors, TMMU plan.
+- Training restore requires: model params, optimizer state, RNG states, data cursors, TMMU plan.
+- If `dp_enabled=true` in committed manifest/config, DP accountant state is additionally required; if `dp_enabled=false`, DP accountant fields must be absent (not null).
 - Eval/infer partial restore may use: model params + minimal runtime config.
 - Any partial restore must emit `restore_profile_id` and trace record.
 
@@ -256,6 +258,6 @@ Exact blob/hash compare + state equivalence.
 ### Checkpoint contents
 - kernel, data, model, tmmu, dp states + metadata hashes.
 ### Serialization
-- deterministic CBOR/protobuf.
+- deterministic canonical CBOR.
 ### Restore semantics
 - restored run must produce identical subsequent deterministic traces.

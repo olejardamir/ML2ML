@@ -337,7 +337,7 @@ Exact report diff against golden baseline.
 - partial suite reports and deterministic run cursor.
 
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 
 ### Restore semantics
 - resume yields identical final report and verdict.

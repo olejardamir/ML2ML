@@ -252,7 +252,7 @@ Compare aggregate metrics and verdicts exactly/tolerance as declared.
 - partial benchmark samples and deterministic run cursor.
 
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 
 ### Restore semantics
 - resumed run yields identical aggregate metrics and verdict.

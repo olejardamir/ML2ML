@@ -601,7 +601,7 @@ Required for changes:
 - DP config snapshot (`accountant`, `clipping`, `mode`, `noise_multiplier`, `safety_budget_reserve`, targets)
 
 ### Serialization
-- deterministic CBOR/protobuf with fixed field order
+- deterministic canonical CBOR with fixed field order
 
 ### Restore semantics
 - Restore under same manifest + seed yields identical post-restore deterministic path (E0 for clipping/accounting).

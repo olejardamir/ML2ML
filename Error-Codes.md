@@ -233,6 +233,6 @@ Exact record and byte-level comparison.
 ### Checkpoint contents
 - registry snapshot and counters.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - identical future error records for same contexts.

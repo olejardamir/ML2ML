@@ -236,6 +236,6 @@ Exact compare of stage transitions and final status.
 ### Checkpoint contents
 - rollout cursor, canary set, gate states.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed rollout yields identical stage sequence and decisions.

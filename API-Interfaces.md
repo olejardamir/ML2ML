@@ -48,7 +48,7 @@
 
 ### 0.F Environment and Dependency Policy
 - Reference runtime: language-agnostic schema validator.
-- Dependencies: deterministic JSON/CBOR canonicalization.
+- Dependencies: deterministic canonical CBOR canonicalization.
 - Determinism level: `BITWISE` for signature serialization and hashes.
 
 ### 0.G Operator Manifest
@@ -194,7 +194,7 @@
 | `UML_OS.Contract.Validate_v1` | syscall | `sha256:0ff020e0e3a53351c77cb0879226c6d51ee5b871027cae906bbfb99e3df1b4c4` | `sha256:43d29709c190ba8f50bad8e0cdf6e473a7a6c7c81ef5fc1c8b3377e3534601df` | `sha256:a29d999bcd747ce0a666e965492bec241a58c0e476a3dcaddf345f64c3740132` |
 | `UML_OS.IO.WriteTape_v1` | syscall | `sha256:9f05a18d391747a0fc91def1097592cb2d73d5214650ad37ad48382de2f7be28` | `sha256:c194ac7ca5ed44b138e0a5833d8345d531853f0621e85bd837ee2559de133a62` | `sha256:3f8e9fa6f43b5b95b55806068e662c63669df472a6f2fb9f11be9a6af7ec80b9` |
 | `UML_OS.IO.SaveCheckpoint_v1` | syscall | `sha256:9d50ac305e26f410d174d57773b5a0b736407a082da769e04afe45c6bd5f2975` | `sha256:490a36bfc1021118d9ddbd7b7c7a06363e3321527ad0add34228a41ee8767f3d` | `sha256:eefd269b3f1b8ecbbb2b84dc081767942faf58da936658bb0aaf68a7d7db4801` |
-| `UML_OS.IO.WriteTrainingCertificate_v1` | syscall | `sha256:5d67c20d00f6b0c3a6b8e0f3617eebdfc5eca398aed4539b7a63427be372b772` | `sha256:ffcda8c4913eba63cdb31a4b0fd3e79d9e790cb02a29129f551a5ea35de4e0c7` | `sha256:e2b8389dc808da6e631f4d6365ca256c4c0005bf756674b8357c519b3b067514` |
+| `UML_OS.Certificate.WriteExecutionCertificate_v1` | syscall | `sha256:5d67c20d00f6b0c3a6b8e0f3617eebdfc5eca398aed4539b7a63427be372b772` | `sha256:ffcda8c4913eba63cdb31a4b0fd3e79d9e790cb02a29129f551a5ea35de4e0c7` | `sha256:e2b8389dc808da6e631f4d6365ca256c4c0005bf756674b8357c519b3b067514` |
 | `UML_OS.State.Journal_v1` | syscall | `sha256:73d6f8f0a2ed2405131cd52a1e8cdd7ac5cdb77391a14054a35ed5a6d66ed0ec` | `sha256:968806f83eb4ec37d8c9f3f76d7a9207ecd1547b7cbf6522582dff57ef29467d` | `sha256:77af6f21db7ad774735a92323cf0635d3576bcdd943abe316aa084540d1dde34` |
 | `UML_OS.Termination.Check_v1` | syscall | `sha256:ef7d9d1d2378d1acbf85fd86af5596ecc360fb7a79e63e5c7f220f04150dce7d` | `sha256:2e764c0500e07cc3465e9fa5e71158d9151409bd12d5439414c88831ceaafefc` | `sha256:ec35105bda624ff9d225c800f34e93fdf51c82ad67e928b2c78cfc1a16ef31ef` |
 | `UML_OS.Fingerprint.StateFingerprint_v1` | syscall | `sha256:af18d3615139f226da1b6b8f7646e65547681ff49e24346eb7b23403964a004a` | `sha256:d16eb6e8964c2096a4d1632228554c776ac40166f75b910dc7d4caff2e3fac6e` | `sha256:54763a526ff78f14ffe3dec8c0944a9e9d26007f582eedfc85e798887b986669` |
@@ -344,7 +344,7 @@ Compare full report and interface hash.
 - interface registry snapshot + hash.
 
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 
 ### Restore semantics
 - restored registry yields identical validation outputs.

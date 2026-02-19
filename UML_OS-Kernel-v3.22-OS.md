@@ -151,7 +151,7 @@ Migration: update manifest operator versions and replay_token.
 - `storage: {backend: "local" | "s3-compatible" | "gcs", endpoint?: string, bucket?: string, credentials_secret?: string}` (daemon uses for all CAS reads/writes; credentials_secret resolved securely by daemon only)
 - `monitoring_export: {prometheus_endpoint?: string, log_sink?: string}` (daemon pushes deterministic metrics, audit summaries, and usage records; optional)
 - `rbac_source: "local" | "ldap" | "oidc"` (default "local"; daemon integrates for `NamespaceEnter_v1` and critical ops)
-- `environment: {requirements_hash?: string (BLAKE3 of pinned pip freeze / conda env or equivalent), container_image?: string}`
+- `environment: {requirements_hash?: string (SHA-256 of canonical pinned dependency manifest), container_image?: string}`
 - `daemon_mode: "standalone" | "cluster"` (default `"standalone"`)
 - `distributed: {timeout_seconds: int (default 300)}`
 - `fine_tune` config (`full` or `lora`)
@@ -313,7 +313,7 @@ Active operators (exact wiring table):
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.IO.WriteTape_v1`
 - `UML_OS.IO.SaveCheckpoint_v1`
-- `UML_OS.IO.WriteTrainingCertificate_v1`
+- `UML_OS.Certificate.WriteExecutionCertificate_v1`
 - `UML_OS.State.Journal_v1`
 - `UML_OS.Termination.Check_v1`
 - `UML_OS.Fingerprint.StateFingerprint_v1`
@@ -385,7 +385,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(path,id,version -> dataset_id_hash)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** computes BLAKE3, validates schema, stores immutable dataset under canonical path.  
+**Definition:** computes SHA-256 over canonical dataset bytes/manifest, validates schema, stores immutable dataset under canonical path.  
 **Preconditions / Postconditions:** data readable; hash persisted.  
 **Edge cases:** duplicate id/version mismatch.  
 **Numerical considerations:** N/A.  
@@ -411,7 +411,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(dataset_key, world_size, rank -> batch, data_cursor')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic with declared RNG  
-**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v1", manifest_hash, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
+**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
 **Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
 **Edge cases:** world_size=1, final batch boundary.  
 **Numerical considerations:** preprocessing stable in binary64 for reductions.  
@@ -606,7 +606,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(state -> state_fp)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** incremental BLAKE3 update with SHA-256 tuple over deterministic state domain.  
+**Definition:** incremental SHA-256 chaining over deterministic state tuples (domain-separated canonical CBOR).  
 **Preconditions / Postconditions:** persistent state serializable.  
 **Edge cases:** empty history.  
 **Numerical considerations:** binary64 serialization for critical tensors/metrics.  
@@ -701,12 +701,12 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Failure behavior:** abort on write/serialize failure.  
 **Dependencies:** section 10 schema.
 
-**Operator:** `UML_OS.IO.WriteTrainingCertificate_v1`  
+**Operator:** `UML_OS.Certificate.WriteExecutionCertificate_v1`  
 **Category:** IO  
-**Signature:** `(run_state -> training_certificate.cbor)`  
+**Signature:** `(run_state -> execution_certificate.cbor)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** emits signed CBOR containing Merkle trace root, lineage chain (all pipeline stages), fingerprints, manifest hashes, operator contract hashes, cumulative epsilon (regulated), full remote attestation quote (confidential/regulated), and CAS artifact hashes.  
+**Definition:** emits canonical `ExecutionCertificate` object (as defined in `Execution-Certificate.md`) containing Merkle trace root, lineage chain (all pipeline stages), fingerprints, manifest hashes, operator contract hashes, cumulative epsilon (regulated), full remote attestation quote (confidential/regulated), and CAS artifact hashes. Legacy `UML_OS.Certificate.WriteExecutionCertificate_v1` is deprecated and must be implemented as a thin alias wrapper to this operator.
 **Preconditions / Postconditions:** daemon signing key available.  
 **Edge cases:** missing quote in confidential mode.  
 **Numerical considerations:** deterministic digest encoding.  
@@ -845,7 +845,7 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
 - UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // self-verify before signing final certificate
-- UML_OS.IO.WriteTrainingCertificate_v1(...)
+- UML_OS.Certificate.WriteExecutionCertificate_v1(...)
 ```
 
 ---
@@ -928,7 +928,7 @@ Breaking observables require trace schema update + MAJOR version bump.
 - pipeline lineage state
 
 ### Serialization
-- deterministic protobuf/CBOR encoding with fixed field order
+- deterministic canonical CBOR encoding with fixed field order
 
 ### Restore semantics
 - restore produces identical subsequent control flow under same manifest/seed/replay token contract

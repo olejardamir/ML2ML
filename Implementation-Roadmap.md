@@ -205,6 +205,6 @@ Exact comparison of plan and gate report.
 ### Checkpoint contents
 - phase statuses and unresolved dependency frontier.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed planning yields identical final plan.

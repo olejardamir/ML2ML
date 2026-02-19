@@ -29,7 +29,7 @@
 - Seed space: `seed ∈ {0..2^64-1}` derived deterministically.
 - PRNG family: `Philox4x32-10`
 - Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
-- Replay guarantee: fully replayable given `(manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
+- Replay guarantee: fully replayable given `(kernel_replay_token, manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
 - Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
 - Contract-critical hash primitive: `SHA-256(CBOR_CANONICAL(...))`.
 
@@ -158,7 +158,7 @@
 
 1. `cursor <- cursor_in` (caller-owned persistent cursor; default `{epoch:0, global_index:0}` at first use)
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
 
 ---
 

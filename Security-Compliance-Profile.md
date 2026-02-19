@@ -120,14 +120,14 @@
   - service identity binding to attestation identity,
   - pinned trust roots and minimum cipher-suite policy are mandatory.
 - Deterministic verification evidence bundle (mandatory for reproducible verdicts):
-  - `attest_verification_time_utc` (RFC3339),
+  - `revocation_mode: enum("ONLINE_CAPTURE","PINNED_OFFLINE_BUNDLE")`,
   - `trust_store_hash`,
-  - `revocation_evidence_hash` (or pinned-CRL bundle hash when offline policy is used),
+  - `revocation_bundle_hash` (canonical hash of either online capture bundle or pinned offline bundle),
   - `attestation_bundle_hash`.
 - Verification verdict determinism claim is scoped to identical evidence bundles and policy hash.
 - Time-policy rule:
-  - if verification time affects verdict, it must be frozen as an explicit run parameter and included in signed evidence;
-  - otherwise time fields are informational, stored only in unsigned metadata, and excluded from deterministic verdict computation.
+  - if verification time affects verdict, it must be frozen as an explicit declared input and included in signed evidence;
+  - otherwise verification time is informational only and excluded from deterministic verdict computation.
 - Regulated-mode trace redaction binding:
   - certificate signed payload must include `redaction_policy_hash` and `redaction_key_id` when `redaction_mode != NONE`.
 
@@ -226,6 +226,6 @@ Exact compliance report + signature verification comparison.
 ### Checkpoint contents
 - policy state, trust anchors, and partial audit records.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed compliance evaluation yields identical verdict/signature.

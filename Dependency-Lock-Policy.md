@@ -185,6 +185,6 @@ Exact report comparison on baseline lockfiles.
 ### Checkpoint contents
 - verification cursor and partial mismatch report.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resumed verification yields identical final verdict.

@@ -246,6 +246,6 @@ Exact diff on normalized manifest/report.
 ### Checkpoint contents
 - schema and partial diagnostics.
 ### Serialization
-- deterministic JSON/CBOR.
+- deterministic canonical CBOR.
 ### Restore semantics
 - resume yields identical validation output.

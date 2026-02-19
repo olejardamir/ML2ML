@@ -110,11 +110,13 @@
 
 ### II.F Replay Token Formulas (Authoritative)
 - `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`.
+- `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))[0:16]`.
 - `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
 - `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
 - `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", kernel_replay_token, uint64(t), accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`.
 - Required comparator keys in traces: `t`, `rank`, `operator_seq`, `operator_id`, `status`, `replay_token`, plus optional domain metrics.
 - Canonical compare order is `(t, rank, operator_seq)`.
+- Clarification: `data_replay_t` is a per-step trace token; sampler RNG seed source is `epoch_seed` above.
 - Required environment capture in replay token context:
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
