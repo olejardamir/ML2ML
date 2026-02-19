@@ -1,0 +1,135 @@
+# UML_OS Integration Test Matrix Contract
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Test.IntegrationMatrix_v1`  
+**Purpose (1 sentence):** Define deterministic cross-module integration suites and pass/fail semantics for end-to-end UML_OS correctness.  
+**Spec Version:** `UML_OS.Test.IntegrationMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Domain / Problem Class:** System integration verification.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Test.IntegrationMatrix_v1`
+- **Purpose (1 sentence):** Deterministic integration coverage contract.
+### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary objective: maximize deterministic end-to-end contract coverage.
+### 0.B Reproducibility Contract
+- Replayable given `(integration_matrix_hash, test_manifest_hash, seeds)`.
+### 0.C Numeric Policy
+- Result comparisons use E0/E1 policy declared per suite.
+### 0.D Ordering and Tie-Break Policy
+- Suites execute in fixed matrix order.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- Parallel suite runs allowed; verdict merge deterministic.
+### 0.F Environment and Dependency Policy
+- Same environment constraints as release CI.
+### 0.G Operator Manifest
+- `UML_OS.Test.RunIntegrationCase_v1`
+- `UML_OS.Test.CompareIntegrationOutputs_v1`
+- `UML_OS.Test.EvaluateIntegrationMatrix_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- `tests/integration/<suite>/<case>`
+### 0.I Outputs and Metric Schema
+- Outputs: `(integration_report, matrix_verdict)`
+- Metrics: `cases_total`, `cases_passed`, `cases_failed`
+### 0.J Spec Lifecycle Governance
+- Required suite changes are MAJOR.
+### 0.K Failure and Error Semantics
+- Any required case failure fails matrix.
+### 0.L Input/Data Provenance
+- Each case must bind fixture and expected digest refs.
+
+---
+## 2) System Model
+### I.A Persistent State
+- Integration matrix definition and golden outputs.
+### I.B Inputs and Hyperparameters
+- case fixtures, expected outputs, tolerances, modes.
+### I.C Constraints and Feasible Set
+- Valid iff all required cases execute and compare successfully.
+### I.D Transient Variables
+- case outputs and diff diagnostics.
+### I.E Invariants and Assertions
+- Every interface boundary appears in at least one integration case.
+
+---
+## 3) Initialization
+1. Load matrix and fixtures.
+2. Validate case signatures against registry.
+3. Initialize deterministic suite order.
+
+---
+## 4) Operator Manifest
+- `UML_OS.Test.RunIntegrationCase_v1`
+- `UML_OS.Test.CompareIntegrationOutputs_v1`
+- `UML_OS.Test.EvaluateIntegrationMatrix_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+## 5) Operator Definitions
+**Operator:** `UML_OS.Test.RunIntegrationCase_v1`  
+**Signature:** `(case_id, fixture -> case_output)`  
+**Purity class:** IO  
+**Determinism:** deterministic with fixed seeds.
+
+**Operator:** `UML_OS.Test.CompareIntegrationOutputs_v1`  
+**Signature:** `(case_output, expected_output, comparison_profile -> compare_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic.
+
+**Operator:** `UML_OS.Test.EvaluateIntegrationMatrix_v1`  
+**Signature:** `(case_reports, matrix_policy -> matrix_verdict)`  
+**Purity class:** PURE  
+**Determinism:** deterministic.
+
+---
+## 6) Procedure
+```text
+1. RunIntegrationCase_v1 for each case
+2. CompareIntegrationOutputs_v1
+3. EvaluateIntegrationMatrix_v1
+4. Emit integration_report
+```
+
+---
+## 7) Trace & Metrics
+### Logging rule
+- Integration suites emit deterministic case records.
+### Trace schema
+- `run_header`: matrix_hash, fixture_set_hash
+- `iter`: case_id, status, output_hash
+- `run_end`: matrix_verdict
+### Metric schema
+- `cases_total`, `cases_passed`, `cases_failed`
+### Comparability guarantee
+- Comparable iff same matrix, fixtures, and profile.
+
+---
+## 8) Validation
+#### VII.A Lint rules (mandatory)
+- Required cross-module boundaries covered.
+#### VII.B Operator test vectors (mandatory)
+- Case-run/compare/evaluate vectors.
+#### VII.C Golden traces (mandatory)
+- Golden integration matrix traces.
+
+---
+## 9) Refactor & Equivalence
+#### VIII.A Equivalence levels
+- E0 for matrix verdict and required case hashes.
+#### VIII.B Allowed refactor categories
+- Harness/runtime changes preserving case outputs.
+#### VIII.C Equivalence test procedure (mandatory)
+- Exact compare of required case reports.
+
+---
+## 10) Checkpoint/Restore
+### Checkpoint contents
+- Case cursor and partial reports.
+### Serialization
+- Canonical CBOR.
+### Restore semantics
+- Resumed integration run must preserve final verdict.

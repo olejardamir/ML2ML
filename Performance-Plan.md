@@ -24,7 +24,7 @@
 - Seed space: `seed ∈ {0..2^64-1}` for stochastic workloads.
 - PRNG family: inherited from tested operators.
 - Randomness locality: benchmark harness does not sample except workload generation operators.
-- Replay guarantee: benchmark replayable given `(workload_manifest, env_hash, seeds, commit_hash)`.
+- Replay guarantee: benchmark replayable given `(workload_manifest, runtime_env_hash, seeds, commit_hash)`.
 - Determinism scope: metric sampling is physical-world variable; aggregation and verdict are deterministic given a frozen metric snapshot hash.
 
 ### 0.C Numeric Policy
@@ -123,11 +123,15 @@
 
 ### II.H Metric Snapshot Hash (Normative)
 - Benchmark verdicts must be computed from a frozen metric snapshot object:
-  - `MetricSnapshot = {snapshot_id, workload_ids_sorted, samples_by_workload, warmup_discard_count, quantile_method, env_hash, baseline_hash, threshold_hash}`.
+  - `MetricSnapshot = {snapshot_id, workload_ids_sorted, samples_by_workload, warmup_discard_count, quantile_method, runtime_env_hash, baseline_hash, threshold_hash}`.
 - Canonical serialization: `CBOR_CANONICAL`.
 - Snapshot hash:
   - `metric_snapshot_hash = SHA-256(CBOR_CANONICAL(MetricSnapshot))`.
 - Gate verdict record must include `metric_snapshot_hash`; comparisons and audits must use this hash as the authoritative metric evidence identity.
+
+### II.I Baseline Commitment (Normative)
+- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline_v1", workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]))`.
+- Performance comparisons are valid only when baseline and candidate share compatible workload and environment commitment sets.
 
 ---
 
@@ -216,7 +220,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 Each workload emits deterministic benchmark records.
 
 ### Trace schema
-- `run_header`: env_hash, baseline_hash
+- `run_header`: runtime_env_hash, baseline_hash
 - `iter`: workload_id, sample_stats
 - `run_end`: aggregate_metrics, gate_verdict
 

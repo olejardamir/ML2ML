@@ -190,6 +190,10 @@
 - `tmmu_plan_hash` must incorporate rank-local arena layout and global shard specification.
 - Planner must support parameter, activation, and optimizer-state sharding contracts.
 
+### II.K Plan Hash (Normative)
+- `tmmu_plan_hash = SHA-256(CBOR_CANONICAL(["tmmu_plan_v1", ir_hash, mode, arena_config_hash, execution_order_hash, rank, world_size, shard_spec_hash, slot_assignment_table, logical_address_table]))`.
+- `replay_token` is `bytes32` and is included in `slot_assignment_table` derivation inputs.
+
 ### II.J Resource Ledger Emission (Normative)
 - Allocator must emit deterministic resource-ledger counters per step:
   - `bytes_allocated`, `peak_bytes`, `allocation_failures`, `internal_fragmentation_ratio`.

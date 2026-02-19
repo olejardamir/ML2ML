@@ -97,7 +97,7 @@
   - production promotion requires valid `ExecutionCertificate` and `EvidenceValidate` pass.
   - Signed-field hash equality checks are mandatory before promotion:
     - `ExecutionCertificate.signed_payload.manifest_hash == release_manifest_hash`
-    - `ExecutionCertificate.signed_payload.trace_root_hash == approved_trace_root_hash`
+    - `ExecutionCertificate.signed_payload.trace_final_hash == approved_trace_final_hash`
     - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
     - `ExecutionCertificate.signed_payload.policy_bundle_hash == deployment_policy_bundle_hash`
     - `ExecutionCertificate.signed_payload.lockfile_hash == lockfile_hash`
@@ -106,6 +106,9 @@
     - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
     - `ExecutionCertificate.signed_payload.lineage_root_hash == expected_lineage_root_hash`
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
+- Artifact commitment formulas:
+  - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", image_digest, code_commit_hash, lockfile_hash, toolchain_hash]))`.
+  - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` uses pinned canonical SBOM export format.
 - Secrets and keys:
   - secret injection only through managed secret stores,
   - key rotation procedure and rotation audit record required before promotion.
@@ -123,7 +126,7 @@
   1. write immutable content-addressed trace/checkpoint/lineage/certificate objects,
   2. compute and validate bound hashes,
   3. emit terminal WAL finalize record,
-  4. publish single COMMITTED pointer object with `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}` via conditional create-if-absent.
+  4. publish single COMMITTED pointer object with `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}` via conditional create-if-absent.
 - Crash recovery validates COMMITTED pointer if present; if absent, run remains uncommitted and recovery proceeds from WAL.
 
 ### II.H CAS Retention and Garbage Collection (Normative)

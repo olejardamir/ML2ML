@@ -94,6 +94,15 @@
 - GC invariant: lineage objects reachable from active certificate/release roots are not collectible.
 - Commit binding: finalized lineage objects must participate in the atomic run commit protocol and be referenced by `lineage_root_hash` in the execution certificate.
 
+### II.G Lineage Commitments (Normative)
+- `transform_chain_hash = SHA-256(CBOR_CANONICAL(["transform_chain_v1", transforms_sorted_by_seq]))`.
+- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object_v1", object_type, object_id, payload]))`.
+- `lineage_root_hash` uses deterministic Merkle construction:
+  - leaf list: sorted by `(object_type, object_id)` ascending,
+  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf_v1", object_type_i, object_id_i, lineage_object_hash_i]))`,
+  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node_v1", left, right]))`,
+  - odd-leaf rule: duplicate last leaf.
+
 ---
 ## 3) Initialization
 1. Load source references.

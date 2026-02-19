@@ -75,7 +75,6 @@
   - `policy_bundle_hash?:bytes32`
   - `operator_registry_hash?:bytes32`
   - `determinism_profile_hash?:bytes32`
-  - `trace_tail_hash?:bytes32`
   - `checkpoint_hash?:bytes32`
   - `lineage_root_hash?:bytes32`
   - `certificate_hash?:bytes32`
@@ -90,7 +89,7 @@ WAL hash-chain rule:
 
 Terminal commit record rule:
 - `record_type="FINALIZE"` MUST include:
-  - `trace_tail_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`,
+  - `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`,
   - `manifest_hash`, `policy_bundle_hash`, `operator_registry_hash`, `determinism_profile_hash`.
 
 ### II.G Recovery Rule (Normative)
@@ -102,7 +101,7 @@ Terminal commit record rule:
 Canonical commit barrier:
 - Write immutable content-addressed artifacts first.
 - Publish a single commit-pointer object `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent.
-- Commit pointer payload binds `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+- Commit pointer payload binds `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
 - WAL remains recovery evidence; COMMITTED pointer is the canonical visibility barrier.
 
 ---

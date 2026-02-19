@@ -25,7 +25,7 @@
 - Seed space: `seed ∈ {0..2^64-1}` for stochastic tests.
 - PRNG family: Philox4x32-10.
 - Randomness locality: only stochastic test operators.
-- Replay guarantee: replayable given `(test_manifest_hash, seed_set, environment_hash)`.
+- Replay guarantee: replayable given `(test_manifest_hash, seed_set, runtime_env_hash)`.
 
 ### 0.C Numeric Policy
 - Critical verdicts are boolean/integer exact.
@@ -285,7 +285,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 Every executed test emits deterministic result records.
 
 ### Trace schema
-- `run_header`: manifest_hash, environment_hash
+- `run_header`: manifest_hash, runtime_env_hash
 - `iter`: suite, test_id, result
 - `run_end`: verdict, aggregate counts
 

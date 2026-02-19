@@ -116,6 +116,10 @@
   - `policy_bundle.redaction_policy_hash?:bytes32`
   - `environment.env_manifest_hash:bytes32` (as defined in `Environment-Manifest.md`; alias `runtime_env_hash` must resolve identically)
 
+### II.F.1 Policy Bundle Commitment (Normative)
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]))`.
+- `policy_hash` references in other contracts are aliases of `policy_bundle_hash` and must resolve to the same bytes32 value.
+
 ### II.G Extension Registry (Normative)
 | ext_id | root_prefix | owner_org | signing_key_id | version_range | conflict_policy |
 |---|---|---|---|---|---|

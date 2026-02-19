@@ -61,6 +61,11 @@
   - `algorithm:string` (must be `sha256`)
   - `domain_tag:string`
 
+### II.H Catalog Commitment (Normative)
+- `entries_sorted` are sorted by `digest_label` ascending (bytewise UTF-8).
+- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", catalog_version, entries_sorted]))`.
+- Any document using `sha256:<label>` references is valid only against the committed `catalog_hash`.
+
 ### II.G Resolution Rule (Normative)
 - `digest_ref` supports two forms:
   - inline: `sha256:<hex64>` where `<hex64>` is exactly 64 lowercase hex chars and resolves directly to bytes32,

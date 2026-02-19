@@ -127,6 +127,12 @@ Canonical registry consumption invariant:
 - Codegen must hard-fail if any operator record lacks `surface`, schema digests, signature digest, side effects, allowed error codes, purity class, or required capabilities.
 - Generated enforcement wrappers must include capability checks for `required_capabilities` and emit deterministic authorization diagnostics.
 
+Deterministic mapping commitments (normative):
+- `template_hash = SHA-256(template_bytes)` (or canonical template bundle bytes).
+- `operator_manifest_hash = SHA-256(CBOR_CANONICAL(["operator_manifest_v1", operators_sorted]))`.
+- `mapping_hash = SHA-256(CBOR_CANONICAL(["codegen_mapping_v1", mapping_version, operator_manifest_hash, template_hash, rules_sorted]))`.
+- If generated code participates in release commitments, include `codegen_output_hash = SHA-256(CBOR_CANONICAL(generated_file_hashes_sorted))` in evidence binding.
+
 ---
 ## 3) Initialization
 1. Load operator manifests.

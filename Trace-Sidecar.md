@@ -20,11 +20,14 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize trace ambiguity and schema drift.
 ### 0.B Reproducibility Contract
-- Replayable given `(schema_version, trace_root_hash, replay_token_formula)`.
+- Replayable given `(schema_version, trace_final_hash, replay_token_formula)`.
 ### 0.C Numeric Policy
 - Field types are explicit; numeric fields use declared scalar kinds.
 ### 0.D Ordering and Tie-Break Policy
-- Record order: canonical total order `(t, rank, operator_seq)`.
+- Canonical record order:
+  - `RUN_HEADER` is always first,
+  - `ITER` records are sorted by `(t, rank, operator_seq)`,
+  - `RUN_END` is always last.
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Multi-rank traces merged in one canonical total order: `(t, rank, operator_seq)`.
 ### 0.F Environment and Dependency Policy
@@ -36,7 +39,7 @@
 ### 0.H Namespacing and Packaging
 - Namespaced schema keys required.
 ### 0.I Outputs and Metric Schema
-- Outputs: `(normalized_trace, trace_tail_hash)`.
+- Outputs: `(normalized_trace, trace_final_hash)`.
 - Metrics: `record_count`, `missing_required_keys`.
 - Completion status: `success | failed`.
 ### 0.J Spec Lifecycle Governance
@@ -88,26 +91,28 @@
   - Whole-run hash chain:
     - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
     - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
-    - `trace_tail_hash = h_last`
+    - `trace_final_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
-  - `trace_tail_hash = h_last`
-- Self-reference rule: when hashing the `run_end` record, `run_end.trace_tail_hash` is omitted from the canonical CBOR map input.
+  - `trace_final_hash = h_last`
+- Self-reference rule: when hashing the `run_end` record, `run_end.trace_final_hash` is omitted from the canonical CBOR map input.
 - Empty-bytes substitution is forbidden for omitted fields in canonical hashing paths.
 - Canonical serialization: `CBOR_CANONICAL` from `Canonical-CBOR-Profile.md`.
-- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_binary_hash:bytes32`, `driver_runtime_fingerprint_hash:bytes32`, `policy_bundle_hash:bytes32`, `monitor_policy_hash:bytes32`, `operator_contracts_root_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
+- `TraceRecord` union (normative):
+  - `kind: enum("RUN_HEADER","ITER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END","ERROR")`.
+- Required `RUN_HEADER` fields/types: `kind:"RUN_HEADER"`, `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_binary_hash:bytes32`, `driver_runtime_fingerprint_hash:bytes32`, `policy_bundle_hash:bytes32`, `monitor_policy_hash:bytes32`, `operator_contracts_root_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
 - Optional `run_header` fields/types: `authz_decision_hash?:bytes32`.
-- Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes32`.
+- Required `ITER` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes32`.
 - `operator_seq` is a per-rank monotone counter.
-- Canonical record ordering:
-  - `run_header` is always first,
-  - all `iter` records are sorted by `(t, rank, operator_seq)`,
-  - `run_end` is always last.
-- Uniqueness invariant: there must be at most one `iter` record for each `(t, rank, operator_seq)` tuple.
-- Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes32`, `functional_fp:bytes32`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
-- Optional `iter` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
-- Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
-- Required `run_end` fields/types: `status:string`, `final_state_fp:bytes32`, `trace_tail_hash:bytes32`.
+- Uniqueness invariant: there must be at most one `ITER` record for each `(t, rank, operator_seq)` tuple.
+- Optional `ITER` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes32`, `functional_fp:bytes32`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
+- Optional `ITER` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
+- Optional `ITER` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
+- Required `POLICY_GATE_VERDICT` fields/types: `t:uint64`, `policy_gate_hash:bytes32`, `transcript_hash:bytes32`.
+- Required `CHECKPOINT_COMMIT` fields/types: `t:uint64`, `checkpoint_hash:bytes32`, `checkpoint_header_hash:bytes32`, `checkpoint_merkle_root:bytes32`, `trace_final_hash_at_checkpoint:bytes32`.
+- Required `CERTIFICATE_INPUTS` fields/types: `t:uint64`, `certificate_inputs_hash:bytes32`.
+- Required `RUN_END` fields/types: `status:string`, `final_state_fp:bytes32`, `trace_final_hash:bytes32`.
+- Required `ERROR` fields/types: `t:uint64`, `failure_code:string`, `failure_operator:string`, `diagnostics_hash:bytes32`.
 - Migration controls:
   - `migration_supported_from: array<string>`
   - `migration_operator: string`
@@ -129,7 +134,7 @@
   - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq]))) mod hash_gate_M < hash_gate_K`.
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with declared priority ordering.
-  - `mandatory_record_kinds = {run_header, policy_gate_verdict, checkpoint_commit, certificate_inputs, run_end}`.
+  - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END"}`.
   - Mandatory records MUST NEVER be sampled out or dropped.
   - If caps force dropping mandatory records: emit `TRACE_CAP_EXCEEDED_MANDATORY` and abort deterministically.
 
@@ -142,9 +147,9 @@
 - `policy_gate_hash` must appear in trace mandatory records and in `Execution-Certificate` signed payload.
 - Atomic commit linkage:
   - trace must include `run_commit_prepare` and `run_commit_record` mandatory records,
-  - `run_commit_record` must bind `trace_tail_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`.
+  - `run_commit_record` must bind `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`.
 - Naming normalization:
-  - `trace_root_hash` and `trace_tail_hash` are the same value for this linear hash-chain model (`h_last`).
+  - `trace_final_hash` is the canonical commitment name for this linear hash-chain model (`h_last`).
 
 ---
 ## 3) Initialization
@@ -181,10 +186,10 @@ Template conformance note (III.A): each operator definition in this section is i
 
 **Operator:** `UML_OS.Trace.ComputeTraceHash_v1`  
 **Category:** IO  
-**Signature:** `(normalized_trace -> trace_tail_hash)`  
+**Signature:** `(normalized_trace -> trace_final_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain_v1` hash-chain rule to emit the whole-run `trace_tail_hash`.
+**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain_v1` hash-chain rule to emit the whole-run `trace_final_hash`.
 
 ---
 ## 6) Procedure
@@ -202,7 +207,7 @@ Trace schema validation itself emits deterministic validation records.
 ### Trace schema
 - `run_header`: schema_version, source_component
 - `iter`: t, operator, validation_status
-- `run_end`: trace_tail_hash, status
+- `run_end`: trace_final_hash, status
 ### Metric schema
 - `record_count`, `missing_required_keys`
 ### Comparability guarantee

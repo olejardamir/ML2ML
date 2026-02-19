@@ -1,14 +1,14 @@
-**# EQC Ecosystem Specification (EQC-ES) v1.10**
+**# EQC Ecosystem Specification (EQC-ES) v1.9**
 
 **EQC Ecosystem Specification (EQC-ES)** is the single master governance layer for any collection (portfolio) of EQC documents. It enforces modularity, versioning, traceability, and fully deterministic, failsafe change propagation across the entire tree exactly as EQC v1.1 does inside one algorithm (see EQC Block 0.G Operator Manifest, Block III.C No hidden globals, Block IX Checkpoint, and Block 0.L Input/Data Provenance).
 
-Version 1.10 (2026-02-19) is the complete, production-ready, self-validating release that closes every remaining logical/architectural edge case and risk: the State Contamination Gap, Dependency Ghost Versioning, Salt-Volatility Loop, and the Layered Architecture reachability paradox. It also adds the requested enhancements to Portfolio Checkpoint (Environment Lockfile and Drift Budget Exhaustion) and separates Functional Hash from Governance Hash to eliminate re-validation storms.
+Version 1.9 (2026-02-19) is the complete, production-ready, self-validating release that closes every logical gap and architectural risk raised in the latest review. It adds the Physical Existence Invariant, explicit RECOGNIZES cycle exemption, Strictest Tolerance Rule for portfolio-wide drift, Trace Purity Requirement for shadow-traces, Strict Path Resolution in the registry, Tolerance Inheritance for higher-layer documents, and Atomic Checkpoint Hash. All four critical gaps and all three suggested additions have been implemented.
 
 ### 0.5 Quick Impact Analysis Procedure v1.0 (how to use this brain – read this first; see §7 for tooling)
 
 When you add a new EQC document or update an existing one, follow these 4 steps (takes less than 60 seconds):
 
-1. Open this single file (EQC-ES-v1.10.md).
+1. Open this single file (EQC-ES-v1.9.md).
 2. Go to Section 5 Change Propagation Protocol and locate the exact row matching your change type.
 3. Open the sidecar ecosystem-graph.yaml (or the registry table in Section 2) and locate your DocID to see its Layer, edges, namespace, and File Path.
 4. The table + graph immediately tells you every file that must be updated, what actions are required in each, and whether this EQC-ES file itself must be edited and version-bumped.
@@ -36,7 +36,7 @@ This procedure (v1.0) is versioned here and will be updated only on MAJOR change
 ### 1. Identity & Purpose (mandatory)
 - Portfolio Name: [e.g. MyMetaheuristicSuite]  
 - Purpose (1 sentence): Single source of truth that makes every EQC document discoverable, version-compatible, and automatically updatable.  
-- Spec Version: EQC-ES-v1.10 | 2026-02-19 | [YourName / Team]  
+- Spec Version: EQC-ES-v1.9 | 2026-02-19 | [YourName / Team]  
 - Root Document: full path/git-ref to the canonical EQC-v1.1 (or later) guidelines that all others descend from (see §2).  
 - Governance Model: central-root (one EQC-ES owns everything) or distributed-with-root (sub-portfolios roll up; see §2.2).
 
@@ -53,21 +53,19 @@ Required columns for every EQC document entry:
 - Status: active | deprecated | frozen | experimental | migrating  
 - Last Updated (YYYY-MM-DD)  
 - Owner (optional)  
-- Functional Hash (SHA-256 of code/logic only – new v1.10)  
-- Governance Hash (SHA-256 of metadata/salt/equivalence – new v1.10)  
+- SHA-256 Hash (includes Validation Salt – see §6)  
 - Tooling Manifest reference (see §7)  
 - Data Provenance reference (see §2.6)
 
-**Strict Path Resolution:**  
-`eqc-es validate` **must** confirm every File Path / Git Ref is resolvable on disk, the target file must exist and be non-empty, and must contain the exact version string declared in the registry.
+**Strict Path Resolution (new v1.9):**  
+`eqc-es validate` **must** confirm every File Path / Git Ref is resolvable on disk, the target file exists and is non-empty, and the file contains the exact version string declared in the registry (e.g. “Spec Version: … v2.1”). Failure is a blocking error.
 
 ### 2.2 Distributed Governance + Aliasing Policy + State-Isolation + Conflict Escalation Protocol
-Each sub-portfolio maintains its own complete EQC-ES-v1.10 file that passes eqc-es validate.  
+Each sub-portfolio maintains its own complete EQC-ES-v1.9 file that passes eqc-es validate.  
 Top-level EQC-ES imports sub-portfolios via ecosystem-imports key in the registry.  
 Version constraints are AND-ed (strictest wins). Empty intersection renders the merged graph invalid.  
 Diamond-dependency resolution: Root may alias (e.g. OpLib_v1.1 AS LegacyOpLib) or enforce strict single-version.  
-Mandatory State-Isolation Check: verifies no overlapping writes to persistent_state or rng_state unless protected by deterministic reduction (EQC Block 0.E).
-
+Mandatory State-Isolation Check: verifies no overlapping writes to persistent_state or rng_state unless protected by deterministic reduction (EQC Block 0.E).  
 Conflict Escalation Protocol: If aliasing or strict-single-version cannot be auto-resolved, escalate to Root Owner who decides within 24 h and documents decision in ecosystem-validation-log.md with rationale and equivalence test results.
 
 ### 2.3 Environment Profiles (mandatory)
@@ -113,11 +111,13 @@ Stored in ecosystem-graph.yaml.
 Edge types (all EQC documents must declare these explicitly):  
 - IMPORTS – Direct binding of exact operator versions / policies.  
 - EXTENDS – Transitive for global policies (Block 0.A–0.K); non-transitive for Operator Manifest (Block 0.G).  
-- REFERENCES – Non-binding citation **that must still carry a min-version constraint in compatibility.yaml** (new v1.10). REFERENCE to a version lower than the current Registry version triggers a LINT WARNING. REFERENCE to a non-existent version is a BLOCKING ERROR.  
+- REFERENCES – Non-binding citation.  
 - PROVIDES – Concrete versioned artifacts.  
 - DERIVES – Auto-generated target.  
 - USES – Fine-grained operator-level.  
-- RECOGNIZES – Metadata-only (may point upward per §2.4 exception; omitted from cycle-detection but included in reachability and impact analysis).
+- RECOGNIZES – Metadata-only (may point upward per §2.4 exception).  
+
+**RECOGNIZES handling (new v1.9):** RECOGNIZES edges are **omitted from cycle-detection algorithms** (to prevent false cycles from metadata flows) but **included in reachability checks (§6.4) and impact analysis (§7)**.
 
 ### 4. Mandatory Compatibility Matrix (YAML template)
 Every EQC document with dependencies must contain (or reference) compatibility.yaml:
@@ -147,13 +147,13 @@ external_compatibility:
 | Change to external dependency / profile  | All that IMPORT it                       | Update registry; run Shadow-Trace Requirement per active profile; attach Drift Report if applicable; update External Compatibility Matrix | MAJOR if any trace not E0 or outside guardrail; else MINOR |
 | Structural graph/registry edit           | Root EQC-ES                              | Re-validate entire portfolio                             | PATCH (unless it breaks compatibility → MAJOR)  |
 
-Legacy Compatibility Shim, Shadow-Trace Requirement + Drift Guardrail, Automated Promotion Path, Portfolio version rule (decision tree) unchanged from v1.9.
+Legacy Compatibility Shim, Shadow-Trace Requirement + Drift Guardrail, Automated Promotion Path, Portfolio version rule (decision tree) unchanged from v1.8.
 
 ### 6. Consistency Invariants (mandatory, lintable)
 1. Every EQC document’s Operator Manifest resolves to existing, non-deprecated operators in the Registry.  
 2. Global semantics (Block 0 of CORE-001) are either imported or explicitly overridden with equivalence declaration (E0–E3).  
 3. Layer constraints satisfied for every IMPORT/EXTEND; upward RECOGNIZES allowed only as metadata.  
-4. **Total Reachability (clarified v1.10):** Every EQC document must be reachable from Root through a path of downward-pointing (Layer N to Layer ≤N) edges (EXTENDS or IMPORTS only). Upward RECOGNIZES edges do **not** satisfy the reachability requirement for Portfolio inclusion.  
+4. Total Reachability: Every EQC document reachable from Root via EXTENDS or IMPORTS chains (RECOGNIZES included).  
 5. Hash Integrity: Each EQC document’s SHA-256 includes (via manifest digest) the hashes of all direct IMPORT targets.  
 6. RECOGNIZES edges are metadata-only.  
 7. Every active environment profile has current shadow-traces.  
@@ -166,9 +166,7 @@ Legacy Compatibility Shim, Shadow-Trace Requirement + Drift Guardrail, Automated
 14. Shadowing Audit, Ghost Document detection, and State-Isolation Check must pass (configurable per §2.5).  
 15. All “other” EQC document types declare edge types and purity class.  
 16. Hash Chain: Each registry entry includes previous SHA-256 for tamper-evident history (signed commits recommended in CI).  
-17. **Physical Existence Invariant:** Every File Path / Git Ref in the Registry must be resolvable on disk, the target file must exist and be non-empty, and must contain the exact version string declared in the registry.  
-18. **Namespace Enforcement Invariant (new v1.10):** Every EQC document must prefix its persistent_state and rng_state variables with its Namespace or DocID unless it explicitly declares a SHARED state-block in its Block I.A (which then requires a deterministic reduction policy per EQC Block 0.E).  
-19. **Functional vs Governance Hash separation (new v1.10):** The Registry tracks Functional Hash (code/logic only) and Governance Hash (metadata/salt/equivalence). A Governance Hash change (e.g. salt update) does **not** require re-running E0/E1 tests if the Functional Hash remains identical.
+17. **Physical Existence Invariant (new v1.9):** Every File Path / Git Ref in the Registry must be resolvable on disk, the target file must exist and be non-empty, and must contain the exact version string declared in the registry.
 
 ### 7. Portfolio Observability & Tooling (mandatory)
 Required sidecars at portfolio root: ecosystem-registry.yaml, ecosystem-graph.yaml, ecosystem-compatibility-aggregate.yaml (includes Profile Compatibility Aggregate), ecosystem-validation-log.md (audit trail), data-registry.yaml, migration-plan-template.yaml, portfolio-release-notes-template.md.
@@ -183,25 +181,23 @@ Tooling Extensibility: Integrate with CI/CD (GitHub Actions hook: fail on non-ze
 
 **7.5 Self-Validation (Golden Ecosystem Traces)**  
 Portfolio must maintain at least one golden ecosystem trace.  
-**Trace Purity Requirement:** Shadow-traces must be executed in a “Clean-Room” state as defined by the Portfolio Checkpoint (§9), ensuring zero interference from previous runs, local caches, or stateful operators (rng_state and persistent cache perfectly reset).
+**Trace Purity Requirement (new v1.9):** Shadow-traces must be executed in a “Clean-Room” state as defined by the Portfolio Checkpoint (§9), ensuring zero interference from previous runs, local caches, or stateful operators (rng_state and persistent cache perfectly reset).
 
 ### 8. Refactoring & Evolution Rules
 Same E0–E3 equivalence levels as core EQC Block VIII, plus:  
 
 E-HW (Hardware Equivalence) tier: Maximum allowable divergence between environment profiles for same seed set, defined per EQC document in Block 0.C as EPS_HW.  
 
-E-PORT (Portfolio Equivalence): Graph/registry changes preserve overall outputs across all algorithms (portfolio-wide shadow-trace diffs required).  
-Strictest Tolerance Rule: When evaluating portfolio-wide drift for a shared operator, the effective EPS_EQ is the minimum of all EPS_EQ values across all consuming EQC documents.  
-Tolerance Inheritance: Higher-layer EQC documents inherit the strictest EPS values of their dependencies for E0/E1 validation.
+**E-PORT (Portfolio Equivalence):** Graph/registry changes preserve overall outputs across all algorithms (portfolio-wide shadow-trace diffs required).  
+**Strictest Tolerance Rule (new v1.9):** When evaluating portfolio-wide drift for a shared operator, the effective EPS_EQ is the minimum of all EPS_EQ values across all consuming EQC documents.  
+**Tolerance Inheritance (new v1.9):** Higher-layer EQC documents inherit the strictest EPS values of their dependencies for E0/E1 validation.
 
 Staged Transition support: Use Migration Plan Template (YAML with steps, affected DocIDs, equivalence tests, timeline). Atomic PR required.
 
 ### 9. Integration with Core EQC Blocks + Portfolio Checkpoint (mandatory)
 Every propagation triggers the changed EQC document’s own Block VII and (if applicable) Block VIII.  
 **Portfolio Checkpoint (extends EQC Block IX):** Snapshots entire graph, registry, active profiles, Data Registry, and hashes for reproducible rollbacks.  
-**Environment Lockfile (new v1.10):** The checkpoint must include the resolved environment_profile manifest (specific container digest, library SHAs, compiler flags), not just the name.  
-**Drift Budget Exhaustion (new v1.10):** If cumulative portfolio drift across PATCH changes exceeds 1.5 × EPS_EQ of any root-referenced EQC document, a MAJOR version bump and new Golden Trace are mandatory.  
-**Atomic Checkpoint Hash:** The checkpoint must include the SHA-256 hash of the current EQC-ES file itself to prevent detached checkpoints.
+**Atomic Checkpoint Hash (new v1.9):** The checkpoint must include the SHA-256 hash of the current EQC-ES file itself to prevent detached checkpoints.
 
 ### 10. Governance & Lifecycle (mandatory)
 Change process: branch → edit → eqc-es validate → eqc-es impact review → update all affected EQC documents → atomic merge.  
@@ -218,7 +214,6 @@ Localization Policy: Registry may declare supported languages; all core sections
 - Validation Salt: Hash component tying equivalence levels for tamper-evident integrity.  
 - E-PORT: Portfolio-wide equivalence preserving all algorithm outputs.  
 - Hardware-Locked: Algorithm that cannot cross profiles within EPS_HW.  
-- Clean-Room state: Portfolio Checkpoint reset with zero interference from previous runs or caches.  
-- Functional Hash: SHA-256 of pure code/logic (unaffected by governance metadata).  
-- Governance Hash: SHA-256 of metadata, salt, and equivalence declarations.
+- Clean-Room state: Portfolio Checkpoint reset with zero interference from previous runs or caches.
+
 

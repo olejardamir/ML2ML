@@ -1,0 +1,135 @@
+# UML_OS Coverage Targets Contract
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Test.CoverageTargets_v1`  
+**Purpose (1 sentence):** Define deterministic test coverage targets and enforcement rules by subsystem and test type.  
+**Spec Version:** `UML_OS.Test.CoverageTargets_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Domain / Problem Class:** Test quality governance.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Test.CoverageTargets_v1`
+- **Purpose (1 sentence):** Deterministic coverage gate contract.
+### 0.A Objective Semantics
+- Optimization sense: `MAXIMIZE`
+- Objective type: `Vector`
+- Primary objective: enforce minimum coverage across required test classes.
+### 0.B Reproducibility Contract
+- Replayable given `(coverage_policy_hash, test_report_hash, source_manifest_hash)`.
+### 0.C Numeric Policy
+- Coverage percentages use binary64; gate checks use exact threshold comparisons.
+### 0.D Ordering and Tie-Break Policy
+- Coverage aggregation order fixed by subsystem id.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- Parallel test execution allowed; coverage reduction deterministic.
+### 0.F Environment and Dependency Policy
+- Coverage tools and configs must be pinned.
+### 0.G Operator Manifest
+- `UML_OS.Test.ComputeCoverage_v1`
+- `UML_OS.Test.ValidateCoverageTargets_v1`
+- `UML_OS.Test.EmitCoverageVerdict_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- Coverage artifacts under `reports/coverage/`.
+### 0.I Outputs and Metric Schema
+- Outputs: `(coverage_report, coverage_verdict)`
+- Metrics: `line_cov`, `branch_cov`, `integration_cov`, `replay_cov`
+### 0.J Spec Lifecycle Governance
+- Required thresholds changes are MAJOR.
+### 0.K Failure and Error Semantics
+- Missing required coverage class fails gate.
+### 0.L Input/Data Provenance
+- Coverage reports must reference exact source and test manifests.
+
+---
+## 2) System Model
+### I.A Persistent State
+- Coverage policy and historical snapshots.
+### I.B Inputs and Hyperparameters
+- Raw coverage reports, thresholds, subsystem map.
+### I.C Constraints and Feasible Set
+- Pass iff all required thresholds pass.
+### I.D Transient Variables
+- normalized coverage metrics and diagnostics.
+### I.E Invariants and Assertions
+- No threshold evaluation on incomplete report sets.
+
+---
+## 3) Initialization
+1. Load coverage policy.
+2. Load and validate coverage inputs.
+3. Normalize coverage schema.
+
+---
+## 4) Operator Manifest
+- `UML_OS.Test.ComputeCoverage_v1`
+- `UML_OS.Test.ValidateCoverageTargets_v1`
+- `UML_OS.Test.EmitCoverageVerdict_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+## 5) Operator Definitions
+**Operator:** `UML_OS.Test.ComputeCoverage_v1`  
+**Signature:** `(raw_reports -> coverage_metrics)`  
+**Purity class:** PURE  
+**Determinism:** deterministic.
+
+**Operator:** `UML_OS.Test.ValidateCoverageTargets_v1`  
+**Signature:** `(coverage_metrics, policy -> validation_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic.
+
+**Operator:** `UML_OS.Test.EmitCoverageVerdict_v1`  
+**Signature:** `(validation_report -> coverage_verdict)`  
+**Purity class:** IO  
+**Determinism:** deterministic.
+
+---
+## 6) Procedure
+```text
+1. ComputeCoverage_v1
+2. ValidateCoverageTargets_v1
+3. EmitCoverageVerdict_v1
+4. Return coverage_report
+```
+
+---
+## 7) Trace & Metrics
+### Logging rule
+- Coverage evaluation emits deterministic metric and gate records.
+### Trace schema
+- `run_header`: coverage_policy_hash, source_manifest_hash
+- `iter`: subsystem_id, metric_name, metric_value
+- `run_end`: coverage_verdict
+### Metric schema
+- `line_cov`, `branch_cov`, `integration_cov`, `replay_cov`
+### Comparability guarantee
+- Comparable iff same policy and source/test manifests.
+
+---
+## 8) Validation
+#### VII.A Lint rules (mandatory)
+- Required coverage classes must be present.
+#### VII.B Operator test vectors (mandatory)
+- Coverage boundary and missing-report fixtures.
+#### VII.C Golden traces (mandatory)
+- Golden coverage-gate traces.
+
+---
+## 9) Refactor & Equivalence
+#### VIII.A Equivalence levels
+- E0 for coverage verdict and normalized metrics.
+#### VIII.B Allowed refactor categories
+- Coverage tooling changes preserving normalized outputs.
+#### VIII.C Equivalence test procedure (mandatory)
+- Exact compare on frozen coverage inputs.
+
+---
+## 10) Checkpoint/Restore
+### Checkpoint contents
+- Coverage aggregation cursor and partial metrics.
+### Serialization
+- Canonical CBOR.
+### Restore semantics
+- Resumed evaluation yields identical verdict and report.

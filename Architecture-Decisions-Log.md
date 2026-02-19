@@ -1,0 +1,135 @@
+# UML_OS Architecture Decisions Log Contract
+**EQC Compliance:** Merged single-file EQC v1.1 Option A.
+
+**Algorithm:** `UML_OS.Architecture.DecisionLog_v1`  
+**Purpose (1 sentence):** Define deterministic recording, hashing, and lifecycle of architecture decisions (ADR-style) for implementation governance.  
+**Spec Version:** `UML_OS.Architecture.DecisionLog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Domain / Problem Class:** Architecture governance and traceability.
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Architecture.DecisionLog_v1`
+- **Purpose (1 sentence):** Deterministic architecture decision contract.
+### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary objective: prevent undocumented architecture divergence.
+### 0.B Reproducibility Contract
+- Replayable given `(decision_log_hash, decision_id, context_hash)`.
+### 0.C Numeric Policy
+- Decision version and sequence fields are exact integers.
+### 0.D Ordering and Tie-Break Policy
+- Decision records sorted by `(decision_seq, decision_id)`.
+### 0.E Parallel, Concurrency, and Reduction Policy
+- Concurrent proposals allowed; accept/reject merge deterministic.
+### 0.F Environment and Dependency Policy
+- Decisions that affect contracts must link affected contract hashes.
+### 0.G Operator Manifest
+- `UML_OS.Arch.DecisionCreate_v1`
+- `UML_OS.Arch.DecisionSupersede_v1`
+- `UML_OS.Arch.DecisionValidateLinks_v1`
+- `UML_OS.Error.Emit_v1`
+### 0.H Namespacing and Packaging
+- `adr/` and `decision_log.cbor` canonical roots.
+### 0.I Outputs and Metric Schema
+- Outputs: `(decision_report, decision_log_hash)`
+- Metrics: `decisions_total`, `superseded_total`
+### 0.J Spec Lifecycle Governance
+- Decision schema changes are MAJOR.
+### 0.K Failure and Error Semantics
+- Broken links or duplicate ids fail deterministically.
+### 0.L Input/Data Provenance
+- Decision records must reference author, context, and affected artifacts.
+
+---
+## 2) System Model
+### I.A Persistent State
+- Architecture decision log.
+### I.B Inputs and Hyperparameters
+- Decision proposal records and supersession links.
+### I.C Constraints and Feasible Set
+- Valid iff decision ids unique and links resolvable.
+### I.D Transient Variables
+- validation diagnostics and link graph.
+### I.E Invariants and Assertions
+- Decision history is append-only.
+
+---
+## 3) Initialization
+1. Load decision log.
+2. Validate schema and link graph.
+3. Build canonical ordered view.
+
+---
+## 4) Operator Manifest
+- `UML_OS.Arch.DecisionCreate_v1`
+- `UML_OS.Arch.DecisionSupersede_v1`
+- `UML_OS.Arch.DecisionValidateLinks_v1`
+- `UML_OS.Error.Emit_v1`
+
+---
+## 5) Operator Definitions
+**Operator:** `UML_OS.Arch.DecisionCreate_v1`  
+**Signature:** `(decision_record -> decision_id)`  
+**Purity class:** IO  
+**Determinism:** deterministic.
+
+**Operator:** `UML_OS.Arch.DecisionSupersede_v1`  
+**Signature:** `(old_decision_id, new_decision_id -> supersede_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic.
+
+**Operator:** `UML_OS.Arch.DecisionValidateLinks_v1`  
+**Signature:** `(decision_log -> validation_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic.
+
+---
+## 6) Procedure
+```text
+1. DecisionCreate_v1
+2. DecisionValidateLinks_v1
+3. Optional DecisionSupersede_v1
+4. Emit decision report
+```
+
+---
+## 7) Trace & Metrics
+### Logging rule
+- Decision operations emit deterministic governance records.
+### Trace schema
+- `run_header`: decision_log_version
+- `iter`: decision_id, action, status
+- `run_end`: decision_log_hash
+### Metric schema
+- `decisions_total`, `superseded_total`
+### Comparability guarantee
+- Comparable iff same decision set and order.
+
+---
+## 8) Validation
+#### VII.A Lint rules (mandatory)
+- Unique ids and valid supersession graph.
+#### VII.B Operator test vectors (mandatory)
+- Create/supersede/link-validation vectors.
+#### VII.C Golden traces (mandatory)
+- Golden decision-log traces.
+
+---
+## 9) Refactor & Equivalence
+#### VIII.A Equivalence levels
+- E0 for decision log hash and validation report.
+#### VIII.B Allowed refactor categories
+- Storage/index refactors preserving log semantics.
+#### VIII.C Equivalence test procedure (mandatory)
+- Exact compare of canonical decision log output.
+
+---
+## 10) Checkpoint/Restore
+### Checkpoint contents
+- Decision cursor and log hash.
+### Serialization
+- Canonical CBOR.
+### Restore semantics
+- Resumed operations preserve identical log state.

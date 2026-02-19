@@ -95,7 +95,7 @@
 
 ### II.G Canonical Tracking Record Schemas (Normative)
 - `RunRecord` (CBOR map):
-  - `tenant_id:string`, `run_id:string`, `replay_token:bytes32`, `manifest_hash:bytes32`, `trace_root_hash:bytes32`, `checkpoint_hash:bytes32`, `execution_certificate_hash:bytes32`, `status:string`, `created_at:string`, `ended_at?:string`.
+  - `tenant_id:string`, `run_id:string`, `replay_token:bytes32`, `manifest_hash:bytes32`, `trace_final_hash:bytes32`, `checkpoint_hash:bytes32`, `execution_certificate_hash:bytes32`, `status:string`, `created_at:string`, `ended_at?:string`.
 - `MetricRecord` (CBOR map):
   - `tenant_id:string`, `run_id:string`, `metric_name:string`, `metric_value:float64`, `metric_step:uint64`, `aggregation:enum(raw|sum|mean|min|max|quantile)`, `quantile_p?:float64`, `window_id?:string`, `recorded_at:string`.
 - `ArtifactRecord` (CBOR map):
@@ -107,6 +107,14 @@
 - Any tracking record used by policy gates must be hash-addressed.
 - If a gate decision depends on tracking evidence, the decision transcript must include the relevant `record_hash` values and bind them through `policy_gate_hash`.
 - For regulated/confidential modes, retention rules must preserve all gate-referenced records until retention expiry.
+
+### II.I Artifact and Index Commitments (Normative)
+- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", artifact_bytes_hash, metadata_hash]))`.
+- `artifact_index_hash` is computed as:
+  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", artifact_id_i, metadata_hash_i, status_i]))`,
+  - sorted by `artifact_id`,
+  - Merkle odd-leaf rule duplicates the last leaf.
+- Idempotency rule: repeated `ArtifactPut_v1` with identical `(run_id, artifact_id)` must return the existing record deterministically.
 
 ---
 ## 3) Initialization

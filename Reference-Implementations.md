@@ -99,13 +99,13 @@
   - for each record in canonical order:
     - `r = SHA-256(CBOR_CANONICAL(record))`
     - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h, r]))`
-  - return `h` as `trace_tail_hash`/`trace_root_hash` in linear-chain mode.
+  - return `h` as `trace_final_hash` in linear-chain mode.
 - `WalChainAndFinalize_v1(records)`:
   - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]))`.
   - terminal `FINALIZE` record hash is `commit_record_hash`.
   - `wal_terminal_hash = commit_record_hash`.
 - `PublishCommitPointer_v1(pointer_payload)`:
-  - payload must include `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+  - payload must include `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
   - publish `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent.
   - if object exists, compare payload hash; mismatch is deterministic failure.
 

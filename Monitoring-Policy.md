@@ -107,6 +107,10 @@
 - `policy_gate_hash` must be emitted as a mandatory trace field and bound to execution certificate evidence in regulated modes.
 - Network calls are forbidden during policy verdict evaluation unless all external inputs are pre-committed by hash.
 
+### II.H Telemetry Window Commitment (Normative)
+- `telemetry_window_hash = SHA-256(CBOR_CANONICAL(["telemetry_window_v1", window_id, start_t, end_t, aggregation_rules_hash, filter_hash]))`.
+- Monitoring transcripts and gate verdicts must reference `telemetry_window_hash` for every evaluated window.
+
 ---
 ## 3) Initialization
 1. Load monitor policy.

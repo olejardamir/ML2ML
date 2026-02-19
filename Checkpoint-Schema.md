@@ -93,7 +93,7 @@
   - `t:uint64`
   - `manifest_hash:bytes32`
   - `ir_hash:bytes32`
-  - `trace_root_hash:bytes32`
+  - `trace_final_hash:bytes32`
   - `sampler_config_hash:bytes32`
   - `tmmu_plan_hash:bytes32`
   - `backend_binary_hash:bytes32`
@@ -109,8 +109,8 @@
   - `lineage_root_hash:bytes32`
   - `tensors_root_hash:bytes32`
   - `optimizer_state_root_hash:bytes32`
-  - `dp_accountant_state_root_hash?:bytes32`
-  - `trace_tail_hash_at_checkpoint:bytes32`
+  - `dp_accountant_state_hash?:bytes32`
+  - `trace_final_hash_at_checkpoint:bytes32`
   - `checkpoint_header_hash:bytes32`
   - `checkpoint_manifest_hash:bytes32`
   - `checkpoint_hash:bytes32`
@@ -144,7 +144,7 @@
   - Binding rule:
     - `weights_manifest_hash` must hash to a manifest whose content-addressed entries jointly hash to `tensors_root_hash`.
     - `optimizer_manifest_hash` must hash to a manifest whose entries jointly hash to `optimizer_state_root_hash`.
-    - `dp_accountant_manifest_hash` must hash to canonical accountant blobs that hash to `dp_accountant_state_root_hash` (when DP enabled).
+    - `dp_accountant_manifest_hash` must hash to canonical accountant blobs that hash to `dp_accountant_state_hash` (when DP enabled).
 - Atomicity protocol:
   - Local FS: write to temp path, `fsync(file)`, `rename(temp, final)`, `fsync(directory)`.
   - Object stores: write immutable checkpoint objects by content hash; finalize via conditional pointer publish (create-if-absent generation precondition).
@@ -160,20 +160,20 @@
 
 ### II.I Trace-Link Integrity (Normative)
 - Checkpoint header must store:
-  - `trace_tail_hash_at_checkpoint`
+  - `trace_final_hash_at_checkpoint`
   - `checkpoint_hash_prev` (if checkpoint chaining enabled)
-- In linear hash-chain mode, `trace_root_hash == trace_tail_hash_at_checkpoint` at checkpoint boundary.
+- In linear hash-chain mode, `trace_final_hash == trace_final_hash_at_checkpoint` at checkpoint boundary.
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
 - Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `Data-Structures.md` `CheckpointHeader`.
-- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
+- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_final_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
 
 ### II.J Run Commit Protocol (Normative)
 - Commit is atomic via immutable-object writes plus a single commit-pointer object:
   1. write immutable content-addressed trace/checkpoint/lineage/certificate objects,
-  2. compute and validate `trace_tail_hash`, `checkpoint_hash`, `lineage_root_hash`, `execution_certificate_hash`,
+  2. compute and validate `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `execution_certificate_hash`,
   3. publish `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent,
-  4. pointer payload binds `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+  4. pointer payload binds `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
 - Recovery rule after crash:
   - if COMMITTED pointer exists, validate referenced objects and finalize,
   - if pointer missing, treat run as uncommitted and recover deterministically from WAL.

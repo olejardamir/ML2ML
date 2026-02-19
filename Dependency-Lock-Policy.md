@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize dependency drift and supply-chain risk.
 ### 0.B Reproducibility Contract
-- Replayable given `(lockfile_hash, toolchain_hash, environment_hash, dependencies_lock_hash)`.
+- Replayable given `(lockfile_hash, toolchain_hash, runtime_env_hash, dependencies_lock_hash)`.
 ### 0.C Numeric Policy
 - Version comparison uses deterministic semantic-version parsing.
 ### 0.D Ordering and Tie-Break Policy
@@ -95,7 +95,7 @@
   - encode with canonical CBOR,
   - `lockfile_hash = SHA-256(canonical_cbor_tuples)`.
 - `DependenciesLockDigest_v1` (normative):
-  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, environment_hash]))`.
+  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`.
 - Canonical identity rule:
   - `lockfile_hash` is the authoritative package-lock identity.
   - `dependencies_lock_hash` is the derived environment-bound dependency commitment used in cross-artifact binding.

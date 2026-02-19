@@ -18,7 +18,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize unsafe/unvetted deployments.
 ### 0.B Reproducibility Contract
-- Replayable given `(eval_manifest_hash, dataset_snapshot_hash, determinism_tier)`.
+- Replayable given `(eval_manifest_hash, dataset_snapshot_id, determinism_tier)`.
 ### 0.C Numeric Policy
 - Metrics in binary64 with explicit thresholds.
 ### 0.D Ordering and Tie-Break Policy
@@ -42,7 +42,7 @@
 ### 0.K Failure and Error Semantics
 - abort on schema mismatch or missing evidence references.
 ### 0.L Input/Data Provenance
-- evaluation must bind `dataset_snapshot_hash` and model version hash.
+- evaluation must bind `dataset_snapshot_id` and model version hash.
 
 ---
 ### 0.Z EQC Mandatory Declarations Addendum
@@ -81,9 +81,9 @@
 
 ### II.F Evidence Bundle (Normative)
 - `eval_manifest_hash`
-- `dataset_snapshot_hash`
+- `dataset_snapshot_id`
 - `metrics_digest`
-- `trace_root_hash`
+- `trace_final_hash`
 - `determinism_tier`
 - `replay_token`
 
@@ -123,7 +123,7 @@
 ### Logging rule
 - evaluation events emit deterministic suite/case metrics.
 ### Trace schema
-- `run_header`: eval_manifest_hash, dataset_snapshot_hash
+- `run_header`: eval_manifest_hash, dataset_snapshot_id
 - `iter`: case_id, metrics, status
 - `run_end`: metrics_digest, evidence_bundle_ref
 ### Metric schema

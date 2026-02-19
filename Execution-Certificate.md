@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize unverifiable releases and non-auditable promotions.
 ### 0.B Reproducibility Contract
-- Replayable given `(manifest_hash, trace_root_hash, checkpoint_hash, determinism_profile_hash, policy_bundle_hash)`.
+- Replayable given `(manifest_hash, trace_final_hash, checkpoint_hash, determinism_profile_hash, policy_bundle_hash)`.
 ### 0.C Numeric Policy
 - Hashes/signatures exact bytes; no tolerance path.
 ### 0.D Ordering and Tie-Break Policy
@@ -75,7 +75,7 @@
 ### I.A Persistent State
 - certificate registry and trust roots.
 ### I.B Inputs and Hyperparameters
-- `tenant_id`, `run_id`, `replay_token`, `manifest_hash`, `trace_root_hash`, `checkpoint_hash`, `policy_bundle_hash`, `security_policy_hash?`, `authz_policy_hash?`, `monitor_policy_hash?`, `dp_policy_hash?`, `redaction_policy_hash?`, `dependencies_lock_hash`, `determinism_profile_hash`, `operator_contracts_root_hash`, `ir_hash`, `lineage_root_hash`, `dp_accountant_state_hash?`, `sampler_config_hash`, `data_access_plan_hash`, `dataset_snapshot_id`, `tmmu_plan_hash`, `backend_binary_hash`, `lockfile_hash`, `toolchain_hash`, `attestation_bundle_hash?`, `attestation_quote_hash?`, `redaction_key_id?`.
+- `tenant_id`, `run_id`, `replay_token`, `manifest_hash`, `trace_final_hash`, `checkpoint_hash`, `policy_bundle_hash`, `security_policy_hash?`, `authz_policy_hash?`, `monitor_policy_hash?`, `dp_policy_hash?`, `redaction_policy_hash?`, `dependencies_lock_hash`, `determinism_profile_hash`, `operator_contracts_root_hash`, `ir_hash`, `lineage_root_hash`, `dp_accountant_state_hash?`, `sampler_config_hash`, `data_access_plan_hash`, `dataset_snapshot_id`, `tmmu_plan_hash`, `backend_binary_hash`, `lockfile_hash`, `toolchain_hash`, `attestation_bundle_hash?`, `attestation_quote_hash?`, `redaction_key_id?`.
 ### I.C Constraints and Feasible Set
 - Registry/deploy actions are invalid without a valid certificate.
 ### I.D Transient Variables
@@ -98,7 +98,7 @@
   - `run_id:string`
   - `replay_token:bytes32`
   - `manifest_hash:bytes32`
-  - `trace_root_hash:bytes32`
+  - `trace_final_hash:bytes32`
   - `checkpoint_hash:bytes32`
   - `policy_bundle_hash:bytes32`
   - `security_policy_hash?:bytes32`

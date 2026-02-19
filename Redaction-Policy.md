@@ -88,7 +88,7 @@
 
 ### II.H Mandatory Unredacted Verification Fields
 - Fields required for replay/certificate validation must remain present and verifiable:
-  - `replay_token`, `record_hash`, `trace_tail_hash`, `policy_bundle_hash`, `authz_decision_hash`, `policy_gate_hash`, `checkpoint_hash`, `execution_certificate_hash`.
+  - `replay_token`, `record_hash`, `trace_final_hash`, `policy_bundle_hash`, `authz_decision_hash`, `policy_gate_hash`, `checkpoint_hash`, `execution_certificate_hash`.
 
 ### II.I Policy Hash Definition
 - `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy_v1", policy_rules, field_classification_map, preimage_format_id, key_policy]))`.
