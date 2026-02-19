@@ -844,3 +844,43 @@
 - Validation:
   - Updated hash (`L1-009`): `4961811e44328492bec4a9c2758c527d8da70572b25de1f4169b17594eb87d90`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: API Interfaces consistency hardening pass.
+- Scope:
+  - Updated `docs/layer1-foundation/API-Interfaces.md` with:
+    - removal of contradictory optimization semantics in `0.A` (validation-only semantics retained),
+    - clarifying note in `0.Z` that stochastic template declarations are non-operative for this deterministic contract,
+    - digest alignment between `II.F` and `II.K` for overlapping operators:
+      - `UML_OS.Data.NextBatch_v2`
+      - `UML_OS.Model.Forward_v2`
+      - `UML_OS.DifferentialPrivacy.Apply_v3`
+      - `UML_OS.Backend.LoadDriver_v1`
+      - `UML_OS.IO.SaveCheckpoint_v1`
+    - clarified operator signatures/definitions:
+      - `ValidateIOShape_v1` returns `ok:bool`,
+      - `ComputeInterfaceHash_v1` explicitly hashes sorted registry map entries.
+  - Updated registry hash for `L1-001` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-001`): `d859b7935143fdba330d7408cbc2e75b780e875064846ea22d6a2b454863431f`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: API Interfaces completeness/clarity closure pass.
+- Scope:
+  - Updated `docs/layer1-foundation/API-Interfaces.md` with:
+    - sidecar mapping schema defined in `0.H`,
+    - explicit numbering-convention note for EQC header/model subsection styles,
+    - added `UML_OS.Error.Emit_v1` row to `II.F` syscall registry,
+    - defined `schema_ast_normalized` in `II.H`,
+    - clarified rendered-table omission of `purity_class` and `required_capabilities` in `II.I`,
+    - clarified `II.K` as kernel subset view and required digest equality with overlapping `II.F` rows,
+    - defined `ValidateAPISignature_v1` `report` output schema.
+  - Updated registry hash for `L1-001` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-001`): `cfb18520eee339edff73426c963d01dd2e170249abbf030ab3df2f875ae0db83`
+  - Ecosystem regressions introduced: 0
