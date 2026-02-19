@@ -212,3 +212,18 @@
   - Edge-type declaration violations: 0
   - Layer violations (`IMPORTS`/`EXTENDS`): 0
   - Reachability from `CORE-MASTER-001`: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Canonical CBOR profile determinism hardening (`L1-002`).
+- Scope:
+  - Updated `docs/layer1-foundation/Canonical-CBOR-Profile.md` to remove context-dependent serialization behavior.
+  - Enforced uniform float policy and uniform NaN/Inf policy.
+  - Clarified map-key ordering wording and added explicit integer shortest-form rule.
+  - Reordered Section 2 normative subsections to `II.F -> II.G -> II.H`.
+  - Updated registry hash for `L1-002` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-002`): `dd39c96d0743fa56b8b08b7ddee74f12e8e916632477e8473fb57c062994e441`
+  - Quick hard-pass wiring check: pass
+  - Ecosystem regressions introduced: 0

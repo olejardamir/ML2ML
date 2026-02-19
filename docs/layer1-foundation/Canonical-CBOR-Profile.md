@@ -19,9 +19,9 @@
 ### 0.B Reproducibility Contract
 - Replayable given `(profile_version, input_object)`.
 ### 0.C Numeric Policy
-- Signed/hash-critical floating values must encode as IEEE-754 binary64.
+- All floating-point values MUST encode as IEEE-754 binary64.
 ### 0.D Ordering and Tie-Break Policy
-- Map keys sorted by `(len(CBOR_ENCODE(key)), CBOR_ENCODE(key))` under this profile.
+- Map keys MUST be sorted in ascending lexicographic order of their canonical encoded key bytes (RFC 8949 canonical ordering).
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Encoding output must be deterministic independent of thread scheduling.
 ### 0.F Environment and Dependency Policy
@@ -58,27 +58,30 @@
 - RFC 8949 canonical CBOR baseline with profile overrides below.
 - Additional restrictions:
   - map keys must be UTF-8 strings,
-  - map-key ordering MUST be canonical CBOR ordering: `(len(encode(key)), encode(key))`,
+  - map-key ordering MUST follow canonical encoded-key byte ordering (RFC 8949 canonical ordering),
+  - integers MUST be encoded in the shortest possible canonical form,
   - disallow duplicate keys,
   - forbid indefinite-length encodings for strings/arrays/maps,
   - forbid CBOR tags unless explicitly enumerated by consuming schema,
-  - disallow NaN/Inf in signed/hash-critical payloads unless explicitly normalized by operator contract,
-  - when NaN is explicitly allowed outside commitment paths, it must use a single declared canonical bit-pattern,
+  - NaN and Inf are disallowed for all payloads under this profile,
+  - every float is encoded as binary64 regardless of usage context,
   - fixed-length digest fields (`bytes32`, `bytes64`) must match required lengths,
   - optional fields absent are encoded by key omission (never null unless schema explicitly requires null).
   - nonconformant CBOR in any commitment/signature path is a deterministic `CONTRACT_VIOLATION`.
-
-### II.H Conformance Vectors (Normative)
-- Implementations MUST pass canonicalization vectors where lexicographic key order differs from canonical length-first order.
-- Minimum required vectors:
-  - mixed key lengths (`"a"`, `"aa"`, `"b"`),
-  - UTF-8 multibyte keys,
-  - nested maps with independently canonicalized key ordering.
 
 ### II.G Commitment Rule (Normative)
 - All signatures and commitment hashes MUST use:
   - `SHA-256(CBOR_CANONICAL([...]))`
 - Domain-separation tag must be the first element in hashed arrays.
+
+### II.H Conformance Vectors (Normative)
+- Implementations MUST pass canonicalization vectors for key ordering, integer shortest-form encoding, and float consistency.
+- Minimum required vectors:
+  - mixed key lengths and UTF-8 multibyte keys,
+  - nested maps with independently canonicalized key ordering,
+  - integer shortest-form cases (e.g., `0`, `23`, `24`, `255`, `256`),
+  - float binary64 encoding stability,
+  - NaN/Inf rejection cases.
 
 ---
 ## 3) Initialization
