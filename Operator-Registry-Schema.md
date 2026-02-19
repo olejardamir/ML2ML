@@ -79,6 +79,17 @@
 ### II.G Registry Hash (Normative)
 - `registry_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", sorted_operator_records]))`.
 
+### II.H SignatureDigest Rule (Normative, Global)
+- Signature digest computation is defined only here and consumed by all interface/mapping/backend docs.
+- Preimage:
+  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig_v1", operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]))`.
+- `request_schema_digest_resolved` and `response_schema_digest_resolved` are resolved bytes32 values after `digest_ref` resolution.
+- Any mismatch with this rule in rendered documentation is a deterministic `CONTRACT_VIOLATION`.
+
+### II.I Operator Registry Root Commitment (Normative)
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(operator_registry_object))`.
+- `operator_registry_root_hash` is the required value bound as `operator_contracts_root_hash` in execution certificates and checkpoint headers.
+
 ---
 ## 3) Initialization
 1. Load `contracts/operator_registry.cbor`.

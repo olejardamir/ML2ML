@@ -92,6 +92,7 @@
   - `replay_token:bytes32`
   - `t:uint64`
   - `manifest_hash:bytes32`
+  - `ir_hash:bytes32`
   - `trace_root_hash:bytes32`
   - `sampler_config_hash:bytes32`
   - `tmmu_plan_hash:bytes32`
@@ -99,6 +100,8 @@
   - `checkpoint_merkle_root:bytes32`
   - `policy_bundle_hash:bytes32`
   - `determinism_profile_hash:bytes32`
+  - `lockfile_hash:bytes32`
+  - `toolchain_hash:bytes32`
   - `dependencies_lock_hash:bytes32`
   - `operator_contracts_root_hash:bytes32`
   - `runtime_env_hash:bytes32`
@@ -116,6 +119,8 @@
   - `checkpoint_header_hash = SHA-256(checkpoint_header_cbor)`
   - `checkpoint_manifest_hash = SHA-256(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
   - `checkpoint_hash = checkpoint_manifest_hash`
+  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
+  - `operator_contracts_root_hash = operator_registry_root_hash` from `Operator-Registry-Schema.md`.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 - Migration controls:
@@ -161,7 +166,7 @@
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
 - Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `Data-Structures.md` `CheckpointHeader`.
-- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_hash, manifest_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
+- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
 
 ### II.J Run Commit Protocol (Normative)
 - Commit is atomic via immutable-object writes plus a single commit-pointer object:

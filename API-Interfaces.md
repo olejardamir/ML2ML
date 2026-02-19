@@ -123,7 +123,8 @@
 Canonical display note:
 - `allowed_error_codes` values in this rendered table are shown in canonical ordered-array form from `contracts/operator_registry.cbor`.
 - Signature computation always uses the canonical ordered array representation.
-| surface | name | version | method | request_schema_hash | response_schema_hash | idempotent | side_effects | allowed_error_codes | signature_digest |
+- `request_schema_digest` and `response_schema_digest` cells are `digest_ref` renderings; canonical signature preimage uses resolved bytes32 values.
+| surface | name | version | method | request_schema_digest | response_schema_digest | idempotent | side_effects | allowed_error_codes | signature_digest |
 |---|---|---|---|---|---|---|---|---|---|
 | `SYSCALL` | `UML_OS.Data.NextBatch_v2` | v2 | syscall | `sha256:b3c93fdc0519e72c27a3203174fbb5ac8b96c760f1bdc739874ea6870ae8a500` | `sha256:a74f659e6edfc9a663a78d148981b27ee46f6685bc6786ed1ca7e5e7763b4fa3` | true | `["NONE"]` | `["BATCH_SIZE_INCONSISTENT","INVALID_DATASET_KEY","CARDINALITY_MISMATCH","GLOBAL_POSITION_EXCEEDS_CARDINALITY","INVALID_STAGE_TYPE"]` | `sha256:67069ace699a580ed23a01168b46d0242002d82f8d429266b195d3a459eb972f` |
 | `SYSCALL` | `UML_OS.Model.Forward_v2` | v2 | syscall | `sha256:82a1c1413fc3fd8176c351bb828315354fb3434760cdb4a47f30408f92f26fa7` | `sha256:d69a39c6e458a4803aff256e848784fddc34f6db4c5a963b5959fbc264076c09` | false | `["ADVANCES_RNG"]` | `["CONTRACT_VIOLATION","PRIMITIVE_UNSUPPORTED"]` | `sha256:17d85435fe2e601fe522b614938ea7853b9c36be14c8feb84f4e70e1e253bc74` |
@@ -137,7 +138,7 @@ Canonical display note:
 ### II.G Service API Registry (Concrete, Authoritative)
 Canonical display note:
 - `allowed_error_codes` values in this rendered table are shown in canonical ordered-array form from `contracts/operator_registry.cbor`.
-| surface | name | version | method | request_schema_hash | response_schema_hash | idempotent | side_effects | allowed_error_codes | signature_digest |
+| surface | name | version | method | request_schema_digest | response_schema_digest | idempotent | side_effects | allowed_error_codes | signature_digest |
 |---|---|---|---|---|---|---|---|---|---|
 | `SERVICE` | `UML_OS.Tracking.RunCreate_v1` | v1 | service | `sha256:79f63d036b91c33bbd5a0a64468f93107f79b755e73810824d3877aeb6561fc1` | `sha256:658a3e66ec1cf259a71244bc535d7d4efa5fc648ca4aedf8686e50e2bfd29dad` | false | `["PERFORMS_IO"]` | `["CONTRACT_VIOLATION"]` | `sha256:f9912032a083a24960b3fce71bef84b6b6669bd4f1455143b793abd46c61d979` |
 | `SERVICE` | `UML_OS.Tracking.RunStart_v1` | v1 | service | `sha256:3c9f675dfcb5deb7de64eecff530e2a0d1ad327714e38b22db4b3a40834a319c` | `sha256:663474fa4ef7f6cbf299ef27426b09a36a57a05cde2af9775ccc470f91edf9c1` | false | `["PERFORMS_IO"]` | `["CONTRACT_VIOLATION"]` | `sha256:3bbc23354e81d350087a3eb11f45db4202d35b2c3a0d789917ce250c67d604ad` |
@@ -160,13 +161,13 @@ Canonical display note:
 
 ### II.H Schema/Signature Digest Rules (Normative)
 - `SchemaDigest_v1 = SHA-256(CBOR_CANONICAL(schema_ast_normalized))`.
-- `SignatureDigest_v1 = SHA-256(CBOR_CANONICAL([operator_id, version, request_schema_digest, response_schema_digest, sorted(side_effects), sorted(allowed_error_codes)]))`.
+- `SignatureDigest_v1` is defined normatively in `Operator-Registry-Schema.md` (`sig_v1` preimage with resolved bytes32 digests).
 - Canonical schema sources must be stored under `schemas/` and used as the single source for digest generation in build/codegen.
 
 ### II.I Canonical Operator Registry Binding (Normative)
 - `contracts/operator_registry.cbor` is authoritative for interface metadata.
 - Every row in syscall/service registries must match the corresponding artifact record exactly for:
-  - `surface`, `request_schema_hash`, `response_schema_hash`, `signature_digest`,
+  - `surface`, `request_schema_digest`, `response_schema_digest`, `signature_digest`,
   - `side_effects`, `allowed_error_codes`, `purity_class`, `required_capabilities`.
 - This document is a rendered view; edits that are not reflected in the artifact are invalid.
 
@@ -180,7 +181,7 @@ Canonical display note:
 ### II.K Kernel Syscall Registry (Authoritative)
 - This table is the authoritative kernel syscall view and must match `UML_OS-Kernel-v3.22-OS.md` section 4 (1:1 operator membership).
 - Each listed operator must resolve to concrete request/response schema digests and signature digest in `contracts/operator_registry.cbor`.
-| name | method | request_schema_hash | response_schema_hash | signature_digest |
+| name | method | request_schema_digest | response_schema_digest | signature_digest |
 |---|---|---|---|---|
 | `UML_OS.OS.Bootstrap_v1` | syscall | `sha256:6b95add4346e37b63e64c7e208a7df8f4965e372878b8b9fd4fed7c5bbd403b7` | `sha256:d9625678d8addcaf15db3e69d1ffa9e954a64bb290d4981087a5837bce2c87af` | `sha256:08c1cb8901ce5f30ec8015c5eed6efd43061269ef899e03f8a493b54f4a335c7` |
 | `UML_OS.OS.ResolvePath_v1` | syscall | `sha256:f82201a6830a4c6d980a9b4b43978c87f7122478d60be2dfbb8a052deb00783b` | `sha256:e647055a824d66af8290fadbe67fad3ca74f8b25c452d2848ed2d427bba80997` | `sha256:d1351c580e2a35476e067c55ed84657c51d716176e24ec14afa9b3e60f9b9a7e` |

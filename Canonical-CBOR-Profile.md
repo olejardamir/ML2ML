@@ -60,9 +60,13 @@
   - map keys must be UTF-8 strings,
   - map-key ordering MUST be canonical CBOR ordering: `(len(encode(key)), encode(key))`,
   - disallow duplicate keys,
+  - forbid indefinite-length encodings for strings/arrays/maps,
+  - forbid CBOR tags unless explicitly enumerated by consuming schema,
   - disallow NaN/Inf in signed/hash-critical payloads unless explicitly normalized by operator contract,
+  - when NaN is explicitly allowed outside commitment paths, it must use a single declared canonical bit-pattern,
   - fixed-length digest fields (`bytes32`, `bytes64`) must match required lengths,
   - optional fields absent are encoded by key omission (never null unless schema explicitly requires null).
+  - nonconformant CBOR in any commitment/signature path is a deterministic `CONTRACT_VIOLATION`.
 
 ### II.H Conformance Vectors (Normative)
 - Implementations MUST pass canonicalization vectors where lexicographic key order differs from canonical length-first order.

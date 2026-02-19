@@ -100,7 +100,8 @@
     - `ExecutionCertificate.signed_payload.trace_root_hash == approved_trace_root_hash`
     - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
     - `ExecutionCertificate.signed_payload.policy_bundle_hash == deployment_policy_bundle_hash`
-    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == lockfile_hash`
+    - `ExecutionCertificate.signed_payload.lockfile_hash == lockfile_hash`
+    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
     - `ExecutionCertificate.signed_payload.determinism_profile_hash == runtime_determinism_profile_hash`
     - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
     - `ExecutionCertificate.signed_payload.lineage_root_hash == expected_lineage_root_hash`

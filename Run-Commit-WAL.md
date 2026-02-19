@@ -34,7 +34,7 @@
 ### 0.H Namespacing and Packaging
 - WAL paths:
   - `wal/run_commit/<tenant_id>/<run_id>/records/<wal_seq>.cbor`
-  - `wal/run_commit/<tenant_id>/<run_id>/commit.cbor` (single terminal commit object)
+  - `runs/<tenant_id>/<run_id>/COMMITTED` (single canonical commit-pointer object)
 ### 0.I Outputs and Metric Schema
 - Outputs: `(commit_status, commit_record_hash, wal_terminal_hash)`.
 ### 0.J Spec Lifecycle Governance

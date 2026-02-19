@@ -100,8 +100,10 @@
 ### II.G Auditable Policy Transcript (Normative)
 - Policy evaluation must emit deterministic transcript entries:
   - `policy_input_hashes`, `rule_id`, `threshold_id`, `verdict`, `reason_code`.
+- Transcript ordering rule (normative):
+  - sort entries by `(t, rule_id, threshold_id, metric_name)`.
 - Transcript hash:
-  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_policy_transcript_v1", ordered_transcript_entries]))`.
+  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_gate_v1", monitor_policy_hash, ordered_transcript_entries]))`.
 - `policy_gate_hash` must be emitted as a mandatory trace field and bound to execution certificate evidence in regulated modes.
 - Network calls are forbidden during policy verdict evaluation unless all external inputs are pre-committed by hash.
 
@@ -141,15 +143,15 @@
 ---
 ## 7) Trace & Metrics
 ### Logging rule
-- monitoring pipeline emits deterministic window and alert events.
+- monitoring pipeline emits deterministic `MonitorEvent` records (schema from `Data-Structures.md`) and optional linked trace entries.
 ### Trace schema
 - `run_header`: monitor_policy_hash, tenant_id
-- `iter`: window_id, drift_score, alert_state
-- `run_end`: monitor_summary_hash
+- `iter`: `MonitorEvent`-compatible fields (`window_id`, `metric_name`, `metric_value`) plus optional `alert_state`
+- `run_end`: monitor_summary_hash, policy_gate_hash
 ### Metric schema
 - `drift_score`, `alert_count`, `false_positive_rate`
 ### Comparability guarantee
-- Comparable iff policy hash, windowing, and telemetry schema are identical.
+- Comparable iff policy hash, windowing, and `MonitorEvent` schema are identical.
 
 ---
 ## 8) Validation

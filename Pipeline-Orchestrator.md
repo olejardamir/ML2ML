@@ -100,6 +100,26 @@
 - Quota checks must be evaluated before state transition commits and emitted into trace with `quota_policy_hash`.
 - Quota violations must map to deterministic error codes and cannot be retried unless policy explicitly allows.
 
+### II.G Supporting Policy Artifacts (Normative)
+- `QuotaPolicy` artifact:
+  - schema fields: `{quota_policy_hash, gpu_time_budget_ms, cpu_time_budget_ms, io_bytes_budget, memory_bytes_budget, evaluation_rule_id}`.
+  - hash: `quota_policy_hash = SHA-256(CBOR_CANONICAL(quota_policy_map))`.
+- `BackoffSchedule` artifact:
+  - schema fields: `{backoff_schedule_id, delays_ms: array<uint64>, jitter_mode: "NONE"}`.
+  - selection rule: retry `k` uses `delays_ms[min(k, len(delays_ms)-1)]`; no random jitter allowed.
+- `LeasePolicy` artifact:
+  - schema fields: `{lease_policy_id, lease_ttl_ticks:uint64, heartbeat_extension_ticks:uint64, expiry_transition:"RUNNING->RETRYING"}`.
+  - lease id: `lease_id = SHA-256(CBOR_CANONICAL([tenant_id, job_id, attempt_id, transition_seq]))`.
+
+### II.H Job State Machine (Closed Set, Normative)
+- States: `QUEUED`, `RUNNING`, `RETRYING`, `SUCCEEDED`, `FAILED`, `CANCELED`.
+- Terminal states: `SUCCEEDED`, `FAILED`, `CANCELED`.
+- Allowed transitions:
+  - `QUEUED -> RUNNING`
+  - `RUNNING -> SUCCEEDED | FAILED | CANCELED | RETRYING`
+  - `RETRYING -> QUEUED`
+- Any other transition is deterministic `CONTRACT_VIOLATION`.
+
 ---
 ## 3) Initialization
 1. Initialize queue and policy checks.

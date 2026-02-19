@@ -75,7 +75,7 @@
 ### I.A Persistent State
 - certificate registry and trust roots.
 ### I.B Inputs and Hyperparameters
-- `tenant_id`, `run_id`, `replay_token`, `manifest_hash`, `trace_root_hash`, `checkpoint_hash`, `policy_bundle_hash`, `security_policy_hash?`, `authz_policy_hash?`, `monitor_policy_hash?`, `dp_policy_hash?`, `redaction_policy_hash?`, `dependencies_lock_hash`, `determinism_profile_hash`, `operator_contracts_root_hash`, `ir_hash`, `lineage_root_hash`, `dp_accountant_state_hash?`, `sampler_config_hash`, `data_access_plan_hash`, `dataset_snapshot_id`, `tmmu_plan_hash`, `backend_binary_hash`, `lockfile_hash`, `toolchain_hash`, `attestation_quote_hash?`, `redaction_key_id?`.
+- `tenant_id`, `run_id`, `replay_token`, `manifest_hash`, `trace_root_hash`, `checkpoint_hash`, `policy_bundle_hash`, `security_policy_hash?`, `authz_policy_hash?`, `monitor_policy_hash?`, `dp_policy_hash?`, `redaction_policy_hash?`, `dependencies_lock_hash`, `determinism_profile_hash`, `operator_contracts_root_hash`, `ir_hash`, `lineage_root_hash`, `dp_accountant_state_hash?`, `sampler_config_hash`, `data_access_plan_hash`, `dataset_snapshot_id`, `tmmu_plan_hash`, `backend_binary_hash`, `lockfile_hash`, `toolchain_hash`, `attestation_bundle_hash?`, `attestation_quote_hash?`, `redaction_key_id?`.
 ### I.C Constraints and Feasible Set
 - Registry/deploy actions are invalid without a valid certificate.
 ### I.D Transient Variables
@@ -88,6 +88,10 @@
   - `signed_payload` (canonical CBOR; this exact payload is signed)
   - `unsigned_metadata` (not signed; informational only)
 - `signed_payload` field set is fixed by this section; no additional implementation-specific fields are allowed in signed bytes.
+- Dependency identity semantics:
+  - `lockfile_hash` = canonical package lock digest (`LockfileDigest_v1`).
+  - `dependencies_lock_hash` = derived environment-bound commitment (`DependenciesLockDigest_v1`).
+  - `operator_contracts_root_hash` = `operator_registry_root_hash` from `Operator-Registry-Schema.md`.
 - `signed_payload` required fields:
   - `certificate_version:string`
   - `tenant_id:string`

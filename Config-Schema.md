@@ -114,6 +114,7 @@
   - `policy_bundle.monitor_policy_hash:bytes32`
   - `policy_bundle.dp_policy_hash?:bytes32`
   - `policy_bundle.redaction_policy_hash?:bytes32`
+  - `environment.env_manifest_hash:bytes32` (as defined in `Environment-Manifest.md`; alias `runtime_env_hash` must resolve identically)
 
 ### II.G Extension Registry (Normative)
 | ext_id | root_prefix | owner_org | signing_key_id | version_range | conflict_policy |

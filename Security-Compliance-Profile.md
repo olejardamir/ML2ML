@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize policy violations and unverifiable execution paths.
 ### 0.B Reproducibility Contract
-- Replayable given `(policy_bundle_hash, attestation_hash, certificate_schema_version)`.
+- Replayable given `(policy_bundle_hash, attestation_bundle_hash, certificate_schema_version)`.
 ### 0.C Numeric Policy
 - Compliance counters/thresholds in exact integer or binary64 as declared.
 ### 0.D Ordering and Tie-Break Policy
@@ -132,6 +132,7 @@
     - `mode`, `ocsp_responses?:array<bytes>`, `crl_blobs?:array<bytes>`, `fetch_metadata_hash:bytes32`, `source_timestamps:array<string>`.
   - `AttestationBundle` CBOR map:
     - `tee_type:string`, `measurements_hash:bytes32`, `quote_blob:bytes`, `verification_report_hash:bytes32`, `tcb_version:string`.
+    - `attestation_quote_hash = SHA-256(quote_blob)` is a component hash; certificate binding is authoritative on `attestation_bundle_hash` (and may additionally include `attestation_quote_hash`).
   - Hash rule for each bundle:
     - `*_hash = SHA-256(CBOR_CANONICAL(bundle_map))`.
 - Verification verdict determinism claim is scoped to identical evidence bundles and `policy_bundle_hash`.

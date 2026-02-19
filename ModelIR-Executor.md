@@ -162,6 +162,15 @@
   - terminal loss/output gradient seed follows declared `seed_rule`,
   - multi-parent gradient contributions are accumulated by sorting contributions on `(consumer_node_pos, edge_id)` and reducing in fixed order.
 
+### II.F IR Identity and Hash Binding (Normative)
+- `ir_hash` definition:
+  - validate `ir_object` against declared IR schema,
+  - canonicalize as `ir_cbor = CBOR_CANONICAL(ir_object)`,
+  - compute `ir_hash = SHA-256(ir_cbor)`.
+- `ir_schema_hash` must be embedded in `ir_object`; therefore `ir_hash` commits both graph content and schema identity.
+- Cross-artifact binding rule:
+  - execution trace, checkpoint header, and execution certificate must carry the same `ir_hash` for a run.
+
 ---
 
 ## 3) Initialization

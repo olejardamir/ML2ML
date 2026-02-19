@@ -101,7 +101,7 @@
 
 ### II.H Backend Signature Lock (Normative)
 - Backend-exposed syscall/primitive bindings must publish `signature_digest`:
-  - `signature_digest = SHA-256(CBOR_CANONICAL([name, version, method, request_schema_hash, response_schema_hash, sorted(side_effects), sorted(allowed_error_codes)]))`.
+- `signature_digest` rule is defined normatively in `Operator-Registry-Schema.md` (`sig_v1` preimage over resolved digest values); backend adapter manifests must match exactly.
 - Cross-file invariant:
   - `API-Interfaces.signature_digest(op) == Code-Generation-Mapping.signature_digest(op) == Backend-Adapter-Guide.signature_digest(op)` for every backend-exposed operator.
 - Minimum backend-exposed digest set:
