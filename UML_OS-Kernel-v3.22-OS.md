@@ -713,7 +713,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(run_state -> execution_certificate.cbor)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** emits canonical `ExecutionCertificate` object (as defined in `Execution-Certificate.md`) containing Merkle trace root, lineage chain (all pipeline stages), fingerprints, manifest hashes, operator contract hashes, cumulative epsilon (regulated), full remote attestation quote (confidential/regulated), and CAS artifact hashes. Legacy `UML_OS.Certificate.WriteExecutionCertificate_v1` is deprecated and must be implemented as a thin alias wrapper to this operator.
+**Definition:** emits canonical `ExecutionCertificate` object (as defined in `Execution-Certificate.md`) containing Merkle trace root, lineage chain (all pipeline stages), fingerprints, manifest hashes, operator contract hashes, cumulative epsilon (regulated), full remote attestation quote (confidential/regulated), and CAS artifact hashes. Legacy `UML_OS.IO.WriteTrainingCertificate_v1` is deprecated and must be implemented as a thin alias wrapper to this operator.
 **Preconditions / Postconditions:** daemon signing key available.  
 **Edge cases:** missing quote in confidential mode.  
 **Numerical considerations:** deterministic digest encoding.  
