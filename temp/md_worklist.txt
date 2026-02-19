@@ -7,15 +7,18 @@ Backend-Feature-Matrix.md
 Build-and-CI-Matrix.md
 CLI-Command-Profiles.md
 Canonical-CBOR-Profile.md
+Canonical-Hashing-Reference.md
 Checkpoint-Schema.md
 Code-Generation-Mapping.md
 Coding-Standards.md
 Command-Reference.md
+Compatibility-Test-Matrix.md
 Config-Schema.md
 Conformance-CI-Pipeline.md
 Conformance-Harness-Guide.md
 Contributing-Workflow.md
 Coverage-Targets.md
+Data-Contract-Fuzzing-Guide.md
 Data-Lineage.md
 Data-NextBatch.md
 Data-Structures.md
@@ -24,10 +27,12 @@ Dependency-Lock-Policy.md
 Deployment-Runbook.md
 Determinism-Debug-Checklist.md
 Determinism-Profiles.md
+Deterministic-RNG-Implementation-Guide.md
 Developer-Setup.md
 Developer-Troubleshooting-FAQ.md
 DifferentialPrivacy-Apply.md
 Digest-Catalog.md
+Distributed-Failure-Recovery-Guide.md
 Environment-Manifest.md
 Error-Codes.md
 Evaluation-Harness.md
@@ -46,74 +51,33 @@ Module-Scaffolding-Guide.md
 Monitoring-Policy.md
 Operator-Conformance-Matrix.md
 Operator-Registry-Schema.md
+Operator-SDK-Scaffold-Template.md
 PR-Review-Checklist.md
 Performance-Plan.md
 Pipeline-Orchestrator.md
 Profiling-and-Optimization-Guide.md
 Redaction-Policy.md
 Reference-Implementations.md
+Release-Evidence-Assembler.md
 Release-Gates.md
 Replay-Determinism.md
 Repo-Layout-and-Interfaces.md
 Run-Commit-WAL.md
 Runtime-State-Machine-Reference.md
 SDK-Usage-Guide.md
+SRE-Incident-Triage-Playbook.md
 Schema-Evolution-Playbook.md
 Security-Coding-Checklist.md
 Security-Compliance-Profile.md
 Spec-Lint-Implementation.md
-SRE-Incident-Triage-Playbook.md
+Storage-Recovery-Test-Matrix.md
+TMMU-Allocation.md
 Test-Harness-Implementation.md
 Test-Plan.md
 Test-Vectors-Catalog.md
-TMMU-Allocation.md
 Trace-Sidecar.md
 UML_OS-Kernel-v3.22-OS.md
 
 ---
 LIKELY TO BE BROKEN INTO MORE SUBDOCUMENTS (priority order)
 
-1) UML_OS-Kernel-v3.22-OS.md
-   - likely splits: scheduler/runtime, namespace/process model, policy engine, distributed semantics, certificate flow
-
-2) DifferentialPrivacy-Apply.md
-   - likely splits: mechanism math, accountant variants, clipping strategies, distributed DP semantics, validation vectors
-
-3) ModelIR-Executor.md
-   - likely splits: IR spec, forward semantics, backward/adjoint semantics, primitive dispatch contract, RNG contract
-
-4) TMMU-Allocation.md
-   - likely splits: planner algorithm, alias/view/in-place rules, dynamic-shape replanning, distributed sharding memory contract
-
-5) Trace-Sidecar.md
-   - likely splits: canonical trace schema, hash-chain/integrity rules, redaction & privacy classes, sampling/caps policy
-
-6) Checkpoint-Schema.md
-   - likely splits: logical schema, shard container format, atomic commit/recovery protocol, migration/compatibility
-
-7) Replay-Determinism.md
-   - likely splits: replay token composition, comparator profiles (E0/E1), backend determinism requirements, divergence policy
-
-8) Security-Compliance-Profile.md
-   - likely splits: threat model, attestation verification, trust/revocation bundles, key governance, transport controls
-
-9) API-Interfaces.md
-   - likely splits: syscall registry, service registry, schema digest rules, RBAC/capability bindings
-
-10) Operator-Registry-Schema.md
-   - likely splits: registry schema, signature digest computation, operator lifecycle/deprecation, conformance rules
-
-11) Config-Schema.md
-   - likely splits: core schema, extension schema framework, canonical defaults, migration rules
-
-12) Pipeline-Orchestrator.md
-   - likely splits: state machine, lease/backoff/quota artifacts, commit semantics, failure/retry policy
-
-13) Deployment-Runbook.md
-   - likely splits: preflight/canary policy, rollback/incident playbooks, secrets/key rotation, DR procedures
-
-14) Monitoring-Policy.md
-   - likely splits: drift algorithm suite, policy transcript hashing, alert lifecycle, privacy-safe telemetry schema
-
-15) Execution-Certificate.md
-   - likely splits: signed payload schema, evidence binding, signature verification, policy gate integration
