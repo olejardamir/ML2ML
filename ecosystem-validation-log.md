@@ -579,3 +579,268 @@
 - Validation:
   - Updated hash (`L1-003`): `cd9fb6b1195bc31ad71457e1ce8b0da63952acfaedc49b61092b1ec327fc8896`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema determinism/composition hardening pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - explicit `digest_ref` grammar + deterministic resolution path to bytes32,
+    - added `method` to canonical operator record schema,
+    - unified hash commitments: `operator_registry_root_hash` authoritative, `registry_hash` alias only,
+    - explicit bytewise UTF-8 sorting/ordering rules for records and sorted arrays,
+    - explicit string constraints and locale-independent comparison semantics,
+    - explicit optional-field omission rule for canonical CBOR,
+    - explicit version-domain-tag bump rule for major schema versions,
+    - explicit `side_effect_enum` value set and `method/surface` compatibility constraints.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `a74d13acd4bac4b520669fe389d4d5f53175344837226504761eb75607e86bd8`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema deeper consistency pass (canonicalization anchor, unknown-field policy, digest-resolution failure semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - explicit `CBOR_CANONICAL` normative anchor to `Canonical-CBOR-Profile.md`,
+    - corrected numeric policy wording to distinguish textual `digest_ref` from resolved `bytes32`,
+    - explicit top-level registry object schema declaration,
+    - explicit unknown-field rejection policy for operator records and top-level object,
+    - explicit deterministic failure behavior for unresolved `digest_ref` values (no placeholders),
+    - explicit NFC normalization requirement for string fields before validation/hashing.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `eac00f7f278d6c6b5889f74cbab8b36766f28ee19df152b5f035e0739dc803dc`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema extended hard pass (validation/report completeness, type constraints, canonical strictness).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - minimum deterministic `validation_report` schema,
+    - mandatory per-record `signature_digest` recomputation check,
+    - explicit `error_code_id:string` typing and existence check,
+    - explicit malformed-CBOR/validation failure code mapping to deterministic contract failures,
+    - explicit prohibition of indefinite-length CBOR and canonical map-key requirement,
+    - explicit array presence-even-if-empty requirement for required arrays,
+    - explicit duplicate rejection in sorted arrays,
+    - top-level `registry_schema_version:uint32` with required value `1` for v1,
+    - constrained `version` format (`^v[0-9]+$`),
+    - constrained capability id format (`^CAP_[A-Z0-9_]{1,64}$`),
+    - deprecation/replacement consistency constraints,
+    - purity/determinism compatibility guard.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `9584f46e9c82aea25a964df7909e79687bb9c9b938ab7eea9afe38164b42a7aa`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema closure pass (remaining critical consistency and implementability clauses).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - canonical-file storage requirement for `contracts/operator_registry.cbor`,
+    - `signature_digest` field type tightened to `bytes32`,
+    - global enum CBOR representation rule (enum symbols encoded as UTF-8 strings),
+    - capability-set validation rule against authoritative security policy catalog,
+    - required referenced-schema existence validation for request/response schema digests,
+    - explicit malformed/non-canonical CBOR initialization failure behavior,
+    - explicit external definition reference for `UML_OS.Error.Emit_v1`.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `54064fd18afba5b305add7c8917209a77ccac7ad8af252645706f0ca57099d73`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema final determinism/inputs pass (enforceability and external-pinning closure).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - enforceable purity/stochastic compatibility via explicit `stochastic_declared:bool`,
+    - explicit `replacement_operator_id` format constraint,
+    - explicit external-catalog hash inputs and validation pinning (`digest/error/capability/schema` catalog hashes),
+    - updated reproducibility tuple to include pinned catalog hashes,
+    - validation operator signature extended to include pinned catalog hashes,
+    - deterministic error-path format defined as RFC 6901 JSON Pointer,
+    - deterministic error sort key clarified (`path`, `code_id`, `message`),
+    - trace status enum defined (`VALID|INVALID`),
+    - diagnostics cursor schema defined for checkpoint/restore.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `6b32d921ee2a6016c6ffec82934f49d1e20eae0d4e6e00c0b1595952238c59af`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema final todo-closure pass (file-order canonicality, version/tag consistency, trace encoding precision).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - explicit requirement that top-level `operator_records` are stored already sorted in-file per `0.D`,
+    - explicit version/tag consistency check between `registry_schema_version` and `operator_registry_vN` domain tag,
+    - explicit sorting-semantics tie-in for signature preimage array sorting,
+    - explicit method/surface compatibility mention in validator definition,
+    - explicit canonical-CBOR trace encoding map shape for section 7 outputs.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `be2df441ce56882e8db2e17a55a3c5d527e89dc25c0623630f242002c3b6f78f`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema final alignment pass (report catalog pins, trace status casing, cursor semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - inclusion of pinned external catalog hashes in `validation_report` schema,
+    - normalized trace status enum values to lowercase (`valid|invalid`),
+    - diagnostics cursor schema changed to explicit 0-based last-processed index with `-1` sentinel.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `9a221d0d133ac34e08b7673976b049396080354df851e6585cbf48ba7b47b20e`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema todo-completion pass (explicit catalog inputs, deterministic report code set, side-effect enum cleanup).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - validation operator signature switched to explicit external catalog blobs as inputs,
+    - catalog-hash pinning now derived from provided blobs and echoed in `validation_report`,
+    - removed `stochastic_declared` field and simplified purity/stochastic rule to enforceable `rng_usage != "NONE"`,
+    - fixed deterministic validation error schema using bounded error-code enum and RFC6901 path ordering by `(path, code_id)`,
+    - trace schema/encoding tightened to explicit typed canonical-CBOR representation,
+    - diagnostics cursor changed to `{last_processed_index:uint64}`,
+    - removed `NONE` from `side_effect_enum` and mandated empty `side_effects` array for no side effects.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `fac2004114f9d18254fe44b4bf14f17912b887c0b6cba60c1b9ef176a0946688`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema final remaining-flaw closure (error taxonomy completeness, catalog pin semantics, cursor semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - expanded deterministic validation `code_id` enum to cover remaining failure classes,
+    - clarified catalog pinning semantics (derive hashes from catalog blobs; optional expected-hash verification with `CATALOG_HASH_MISMATCH`),
+    - validation signature extended with optional expected catalog hashes input,
+    - virtual-root JSON Pointer path namespace for catalog-level and registry-level errors,
+    - canonical-CBOR requirement added for all input catalog blobs,
+    - diagnostics cursor redefined as `{next_record_index:uint64}` for resume determinism,
+    - explicit lint-to-error-code mapping lines for method/surface, purity/determinism, unknown capability/error code, invalid operator reference, schema version mismatch, and catalog mismatch.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `899089ba517935dc5903239942e2b03b05e922bb138a026c6038ac330a3abe67`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema determinism-alignment cleanup (code-id consistency and duplicate-line correction).
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - unified validation failure mapping to deterministic report codes (replaced lingering generic `CONTRACT_VIOLATION` cases with specific codes),
+    - `digest_ref` resolution-cycle and unresolved-reference failures mapped to `DIGEST_RESOLUTION_FAILURE`,
+    - unknown-field failures mapped to `UNKNOWN_FIELD`,
+    - CBOR decode/canonical-form initialization failure mapped to `MALFORMED_CBOR`,
+    - duplicate-array violation mapping set to `DUPLICATE_VALUE`,
+    - removed duplicate stale lines introduced by prior patch overlap.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `68318beaff3aa54eb7dcdd9b4437b41ad9f9f8bbae7d7c3804c0cbc1ee13cc06`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema final wording normalization pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` to remove the last generic `CONTRACT_VIOLATION` wording in §II.H and bind it to explicit deterministic §5 error codes.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `b95dc88cacc8203c389e54ad4f37967ba6aca84601eb15887156795247cd6089`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema replay/input-model completion pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - reproducibility tuple updated to include mandatory `expected_catalog_hashes`,
+    - `I.B` corrected by removing derived catalog hashes from inputs and defining `expected_catalog_hashes` schema,
+    - validator signature changed to require `expected_catalog_hashes` (empty map allowed),
+    - validation report now includes `operators_count` and `schema_errors`,
+    - JSON Pointer catalog-path rules expanded to allow deep paths and deterministic root path for `CATALOG_HASH_MISMATCH`,
+    - procedure updated to include expected hash input,
+    - checkpoint section clarified with optional `last_validated_registry_hash` semantics.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `a93664154fa33af05e6f797e4527b6554741f3a5e83ee5e1205ff11e636011ff`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema final deterministic-catalog/error-path hardening pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - explicit lint rule for `CATALOG_PARSE_ERROR` on catalog decode failures at catalog root paths,
+    - explicit handling of extra keys in `expected_catalog_hashes` (ignored; no validation impact),
+    - explicit catalog-hash computation rule: SHA-256 over provided canonical-CBOR catalog blob bytes,
+    - explicit checkpoint ordering rule: `errors_so_far` sorted by deterministic `(path, code_id)` order from §5.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `ea64f23883da08eec1d8242b543d30b08c2bd958124088f713e381b24301b330`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema checkpoint-semantics closure pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` with:
+    - critical simplification of §10 from resumable incremental validation to final-result checkpoint only,
+    - explicit note that interrupted validation must rerun from the beginning,
+    - removal of redundant external enum cross-reference in `side_effects` field description.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `45318a5fbf4b998be80734d4d687f32c6d2217853b012ee91ca0dd21d0dd082c`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema naming consistency pass for error-codes catalog hash field.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md`:
+    - renamed `error_catalog_hash` to `error_codes_catalog_hash` in validation-report schema and catalog-hash computation wording to align with `error_codes_blob` and `expected_catalog_hashes.error_codes_catalog`.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `56332336219d380e56995fcfd0c736e448273a25f2ac2681ad6a62ce4c6d37f6`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Operator Registry schema catalog-source clarity pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Operator-Registry-Schema.md` wording to make all catalog-dependent checks explicitly use provided input blobs:
+    - digest-label resolution uses `digest_catalog_blob`,
+    - allowed error code existence uses `error_codes_blob`,
+    - capability existence uses `capability_catalog_blob`,
+    - referenced schema existence uses `schema_catalog_blob`.
+  - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-009`): `4961811e44328492bec4a9c2758c527d8da70572b25de1f4169b17594eb87d90`
+  - Ecosystem regressions introduced: 0
