@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize restore divergence and compatibility errors.
 ### 0.B Reproducibility Contract
-- Replayable given `(checkpoint_hash, schema_version, replay_token)`.
+- Replayable given `(checkpoint_hash, checkpoint_header_hash, schema_version, replay_token)`.
 ### 0.C Numeric Policy
 - Binary blobs and scalar metadata are typed and deterministic.
 ### 0.D Ordering and Tie-Break Policy
@@ -89,7 +89,7 @@
   - `run_id:string`
   - `spec_version:string`
   - `checkpoint_schema_version:string`
-  - `replay_token:bytes(32)`
+  - `replay_token:bytes32`
   - `t:uint64`
   - `manifest_hash:bytes32`
   - `trace_root_hash:bytes32`
@@ -97,7 +97,7 @@
   - `tmmu_plan_hash:bytes32`
   - `backend_binary_hash:bytes32`
   - `checkpoint_merkle_root:bytes32`
-  - `policy_hash:bytes32`
+  - `policy_bundle_hash:bytes32`
   - `determinism_profile_hash:bytes32`
   - `dependencies_lock_hash:bytes32`
   - `operator_contracts_root_hash:bytes32`
@@ -108,8 +108,14 @@
   - `optimizer_state_root_hash:bytes32`
   - `dp_accountant_state_root_hash?:bytes32`
   - `trace_tail_hash_at_checkpoint:bytes32`
+  - `checkpoint_header_hash:bytes32`
+  - `checkpoint_manifest_hash:bytes32`
+  - `checkpoint_hash:bytes32`
   - `checkpoint_hash_prev?:bytes32`
-- Serialization: `CBOR_CANONICAL` per `Canonical-CBOR-Profile.md`, then `checkpoint_hash = SHA-256(checkpoint_header_cbor)`.
+- Hash identities (normative):
+  - `checkpoint_header_hash = SHA-256(checkpoint_header_cbor)`
+  - `checkpoint_manifest_hash = SHA-256(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
+  - `checkpoint_hash = checkpoint_manifest_hash`
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 - Migration controls:
@@ -129,14 +135,15 @@
   - `artifacts/artifact_index.cbor`
 - Integrity:
   - `checkpoint_manifest.cbor` includes per-shard hash list and Merkle root.
-  - Full checkpoint hash derives from canonical manifest + shard hash list.
+  - Full checkpoint hash is `checkpoint_manifest_hash`.
   - Binding rule:
     - `weights_manifest_hash` must hash to a manifest whose content-addressed entries jointly hash to `tensors_root_hash`.
     - `optimizer_manifest_hash` must hash to a manifest whose entries jointly hash to `optimizer_state_root_hash`.
     - `dp_accountant_manifest_hash` must hash to canonical accountant blobs that hash to `dp_accountant_state_root_hash` (when DP enabled).
 - Atomicity protocol:
-  - write to temp path, `fsync(file)`, `rename(temp, final)`, `fsync(directory)`.
-  - crash-consistency guarantee: either previous checkpoint remains valid or new checkpoint is fully valid; partial writes are invalid.
+  - Local FS: write to temp path, `fsync(file)`, `rename(temp, final)`, `fsync(directory)`.
+  - Object stores: write immutable checkpoint objects by content hash; finalize via conditional pointer publish (create-if-absent generation precondition).
+  - crash-consistency guarantee: either previous checkpoint remains valid or new checkpoint pointer is fully published; partial writes are invalid.
 - Restore semantics:
   - supports full restore and deterministic partial restore by shard subset when declared by policy.
 
@@ -154,17 +161,17 @@
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
 - Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `Data-Structures.md` `CheckpointHeader`.
-- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_merkle_root, manifest_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash}`.
+- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_hash, manifest_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
 
 ### II.J Run Commit Protocol (Normative)
-- Commit is atomic across trace/checkpoint/lineage/certificate using temp objects:
-  1. write `trace.tmp`, `checkpoint.tmp`, `lineage.tmp`,
-  2. compute `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`,
-  3. build/sign certificate bound to those hashes,
-  4. atomically rename all temp objects to final names and emit `run_commit_record`.
+- Commit is atomic via immutable-object writes plus a single commit-pointer object:
+  1. write immutable content-addressed trace/checkpoint/lineage/certificate objects,
+  2. compute and validate `trace_tail_hash`, `checkpoint_hash`, `lineage_root_hash`, `execution_certificate_hash`,
+  3. publish `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent,
+  4. pointer payload binds `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
 - Recovery rule after crash:
-  - if complete signed certificate and all bound final objects exist, finalize commit,
-  - otherwise roll back temp objects deterministically and emit failure record.
+  - if COMMITTED pointer exists, validate referenced objects and finalize,
+  - if pointer missing, treat run as uncommitted and recover deterministically from WAL.
 
 ### II.K Migration Certificate (Normative)
 - Every schema migration must emit a signed migration certificate:

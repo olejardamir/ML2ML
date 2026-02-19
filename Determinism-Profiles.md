@@ -17,7 +17,7 @@
 - Primary comparison rule: profile-conformant replay verdict.
 - Invalid objective policy: profile violation is deterministic failure.
 ### 0.B Reproducibility Contract
-- Replayable given `(determinism_profile_id, backend_hash, driver_runtime_fingerprint, policy_hash)`.
+- Replayable given `(determinism_profile_id, backend_hash, driver_runtime_fingerprint, policy_bundle_hash)`.
 ### 0.C Numeric Policy
 - `BITWISE` requires fixed reduction order + deterministic kernels.
 - `TOLERANCE` requires explicit per-field tolerance map.

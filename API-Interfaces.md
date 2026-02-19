@@ -173,8 +173,9 @@ Canonical display note:
 ### II.J Capability/RBAC Binding (Normative)
 - Every callable operator must declare `required_capabilities` in the canonical operator registry.
 - Authorization verdict per call must be deterministic:
-  - `authz_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), policy_hash]))`.
-- Denied calls must emit a deterministic failure record and trace event with `authz_hash`.
+  - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+  - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+- Denied calls must emit a deterministic failure record and trace event with `authz_decision_hash`.
 
 ### II.K Kernel Syscall Registry (Authoritative)
 - This table is the authoritative kernel syscall view and must match `UML_OS-Kernel-v3.22-OS.md` section 4 (1:1 operator membership).

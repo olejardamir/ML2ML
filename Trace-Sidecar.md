@@ -95,7 +95,8 @@
 - Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted from the canonical CBOR map input.
 - Empty-bytes substitution is forbidden for omitted fields in canonical hashing paths.
 - Canonical serialization: `CBOR_CANONICAL` from `Canonical-CBOR-Profile.md`.
-- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
+- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes32`, `policy_bundle_hash:bytes32`, `monitor_policy_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
+- Optional `run_header` fields/types: `authz_decision_hash?:bytes32`.
 - Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes32`.
 - `operator_seq` is a per-rank monotone counter.
 - Canonical record ordering:
@@ -141,7 +142,7 @@
 - `policy_gate_hash` must appear in trace mandatory records and in `Execution-Certificate` signed payload.
 - Atomic commit linkage:
   - trace must include `run_commit_prepare` and `run_commit_record` mandatory records,
-  - `run_commit_record` must bind `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`, `certificate_hash`.
+  - `run_commit_record` must bind `trace_tail_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`.
 - Naming normalization:
   - `trace_root_hash` and `trace_tail_hash` are the same value for this linear hash-chain model (`h_last`).
 

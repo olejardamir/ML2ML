@@ -114,7 +114,7 @@
 | `SHAPE_MISMATCH` | 1203 | model | ERROR | false | `t,node_id,shape_in,shape_expected` | `Tensor shape mismatch during dispatch` | Fix model IR shapes or adapter mapping | v1 |
 | `PRIMITIVE_UNSUPPORTED` | 1602 | backend | ERROR | false | `t,node_id,instr,driver_hash` | `Backend primitive unsupported` | Implement primitive or choose compatible backend | v1 |
 | `DISTRIBUTED_COMMUNICATION_FAILURE` | 1803 | distributed | FATAL | true | `t,world_size,collective_id` | `Deterministic collective failed or timed out` | Retry with stable network or fallback topology | v1 |
-| `ATTESTATION_FAILURE` | 1701 | security | FATAL | false | `t,quote_hash,policy_hash` | `Attestation verification failed` | Rotate trust roots/quotes and re-attest | v1 |
+| `ATTESTATION_FAILURE` | 1701 | security | FATAL | false | `t,quote_hash,policy_bundle_hash` | `Attestation verification failed` | Rotate trust roots/quotes and re-attest | v1 |
 | `INVALID_OBJECTIVE` | 1204 | model | FATAL | false | `t,failure_operator,objective_value` | `Objective invalid (NaN/Inf/out-of-contract)` | Fix loss/objective numeric path and policy guards | v1 |
 | `REPLAY_DIVERGENCE` | 1901 | replay | FATAL | false | `t,field_path,replay_token` | `Replay divergence detected` | Re-run with captured profile and inspect first divergence event | v1 |
 | `TRACE_CAP_EXCEEDED_MANDATORY` | 1501 | trace | FATAL | false | `t,run_id,trace_policy_hash` | `Trace cap exceeded for mandatory record kinds` | Raise trace caps or reduce optional sampling load | v1 |

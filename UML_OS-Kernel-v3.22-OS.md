@@ -31,7 +31,7 @@
 - Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_hash, env_manifest_hash, uint64(seed)]))`
+- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`
 - Replay context must also bind:
   - `sampler_config_hash`,
   - `tmmu_plan_hash`,
@@ -930,7 +930,7 @@ Breaking observables require trace schema update + MAJOR version bump.
 - `theta`, optimizer state
 - `loss_hist`, `data_cursors`
 - RNG master state + offsets
-- `policy_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`
+- `policy_bundle_hash`, `env_manifest_hash`, `replay_token`, `backend_hash`
 - latest `state_fp`, `functional_fp`, optional `functional_commitment`
 - pipeline lineage state
 

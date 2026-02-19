@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize policy violations and unverifiable execution paths.
 ### 0.B Reproducibility Contract
-- Replayable given `(policy_hash, attestation_hash, certificate_schema_version)`.
+- Replayable given `(policy_bundle_hash, attestation_hash, certificate_schema_version)`.
 ### 0.C Numeric Policy
 - Compliance counters/thresholds in exact integer or binary64 as declared.
 ### 0.D Ordering and Tie-Break Policy
@@ -109,7 +109,8 @@
   - `breakglass_policy` must be explicit, time-bounded, and fully audited.
   - operator-level capability enforcement is mandatory via `required_capabilities` from canonical operator registry.
   - authorization decision hash:
-    - `authz_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), policy_hash]))`.
+    - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+    - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
   - denied authorization decisions must be recorded as deterministic trace events and included in certificate evidence binding.
 - Registry governance roles:
   - `registry_approver`, `registry_publisher`, `registry_auditor` (least-privilege RBAC mandatory).
@@ -124,7 +125,7 @@
   - `trust_store_hash`,
   - `revocation_bundle_hash` (canonical hash of either online capture bundle or pinned offline bundle),
   - `attestation_bundle_hash`.
-- Verification verdict determinism claim is scoped to identical evidence bundles and policy hash.
+- Verification verdict determinism claim is scoped to identical evidence bundles and `policy_bundle_hash`.
 - Time-policy rule:
   - if verification time affects verdict, it must be frozen as an explicit declared input and included in signed evidence;
   - otherwise verification time is informational only and excluded from deterministic verdict computation.
@@ -195,13 +196,13 @@ Template conformance note (III.A): each operator definition in this section is i
 ### Logging rule
 All security checks emit deterministic audit records.
 ### Trace schema
-- `run_header`: policy_hash, mode
+- `run_header`: policy_bundle_hash, mode
 - `iter`: check_id, result, evidence_hash
 - `run_end`: compliance_status, signature_hash
 ### Metric schema
 - `policy_violations`, `attestation_failures`, `signature_valid`
 ### Comparability guarantee
-Comparable iff policy hash, trust roots, and evidence schema are identical.
+Comparable iff `policy_bundle_hash`, trust roots, and evidence schema are identical.
 
 ---
 ## 8) Validation

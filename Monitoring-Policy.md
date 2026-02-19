@@ -143,7 +143,7 @@
 ### Logging rule
 - monitoring pipeline emits deterministic window and alert events.
 ### Trace schema
-- `run_header`: policy_hash, tenant_id
+- `run_header`: monitor_policy_hash, tenant_id
 - `iter`: window_id, drift_score, alert_state
 - `run_end`: monitor_summary_hash
 ### Metric schema

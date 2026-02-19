@@ -95,6 +95,7 @@
   - `pipeline_stages:array<object>`
   - `model:object`
   - `security:object`
+  - `policy_bundle:object`
 - Required `security.differential_privacy` fields when enabled:
   - `enabled:bool`, `accountant:string`, `target_epsilon:float64`, `target_delta:float64`, `noise_multiplier:float64`.
 - Required `pipeline_stages[i]` fields:
@@ -107,6 +108,12 @@
   - `compute_dtype:enum(float32,float64)` (default `float32`)
   - `backend.name:string`
   - `trace.schema_version:string`
+  - `policy_bundle.policy_bundle_hash:bytes32`
+  - `policy_bundle.security_policy_hash:bytes32`
+  - `policy_bundle.authz_policy_hash:bytes32`
+  - `policy_bundle.monitor_policy_hash:bytes32`
+  - `policy_bundle.dp_policy_hash?:bytes32`
+  - `policy_bundle.redaction_policy_hash?:bytes32`
 
 ### II.G Extension Registry (Normative)
 | ext_id | root_prefix | owner_org | signing_key_id | version_range | conflict_policy |

@@ -36,7 +36,7 @@
   - `wal/run_commit/<tenant_id>/<run_id>/records/<wal_seq>.cbor`
   - `wal/run_commit/<tenant_id>/<run_id>/commit.cbor` (single terminal commit object)
 ### 0.I Outputs and Metric Schema
-- Outputs: `(commit_status, commit_record_hash)`.
+- Outputs: `(commit_status, commit_record_hash, wal_terminal_hash)`.
 ### 0.J Spec Lifecycle Governance
 - WAL record shape changes are MAJOR.
 ### 0.K Failure and Error Semantics
@@ -71,23 +71,27 @@
   - `checkpoint_final_hash?:bytes32`
   - `lineage_final_hash?:bytes32`
   - `certificate_final_hash?:bytes32`
-  - `policy_hash?:bytes32`
+  - `manifest_hash?:bytes32`
+  - `policy_bundle_hash?:bytes32`
   - `operator_registry_hash?:bytes32`
   - `determinism_profile_hash?:bytes32`
   - `trace_tail_hash?:bytes32`
-  - `checkpoint_merkle_root?:bytes32`
+  - `checkpoint_hash?:bytes32`
   - `lineage_root_hash?:bytes32`
   - `certificate_hash?:bytes32`
+  - `commit_pointer_hash?:bytes32`
   - `prev_record_hash:bytes32`
   - `record_hash:bytes32`
 
 WAL hash-chain rule:
-- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_rec_v1", wal_seq_i, prev_record_hash_i, record_type_i, payload_i]))`
+- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", tenant_id_i, run_id_i, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]))`
+- `commit_record_hash = record_hash` of the terminal `FINALIZE` WAL record.
+- `wal_terminal_hash = commit_record_hash`.
 
 Terminal commit record rule:
 - `record_type="FINALIZE"` MUST include:
-  - `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`, `certificate_hash`,
-  - `manifest_hash`, `policy_hash`, `operator_registry_hash`, `determinism_profile_hash`.
+  - `trace_tail_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`,
+  - `manifest_hash`, `policy_bundle_hash`, `operator_registry_hash`, `determinism_profile_hash`.
 
 ### II.G Recovery Rule (Normative)
 - On startup:
@@ -95,13 +99,11 @@ Terminal commit record rule:
   - if only non-terminal records exist, rollback temp objects and emit deterministic failure record.
   - if terminal `ROLLBACK` exists, no final artifacts may be visible.
 
-Backend-specific atomic publish:
-- Local FS:
-  - write temp files, `fsync(file)`, atomic rename, `fsync(directory)`.
-- Object stores (S3/GCS compatible):
-  - write immutable content objects first,
-  - publish `commit.cbor` via conditional write (create-if-absent generation precondition),
-  - commit object is immutable and singular for `(tenant_id, run_id)`.
+Canonical commit barrier:
+- Write immutable content-addressed artifacts first.
+- Publish a single commit-pointer object `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent.
+- Commit pointer payload binds `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+- WAL remains recovery evidence; COMMITTED pointer is the canonical visibility barrier.
 
 ---
 ## 3) Initialization

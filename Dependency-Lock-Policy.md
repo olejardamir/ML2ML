@@ -154,7 +154,7 @@ Template conformance note (III.A): each operator definition in this section is i
 ### Logging rule
 Every dependency verification step emits deterministic records.
 ### Trace schema
-- `run_header`: lockfile_hash, policy_hash
+- `run_header`: lockfile_hash, policy_bundle_hash
 - `iter`: package, check, result
 - `run_end`: status, mismatch_summary
 ### Metric schema

@@ -44,7 +44,7 @@
 ### 0.K Failure and Error Semantics
 - Abort on missing/invalid evidence bundle.
 ### 0.L Input/Data Provenance
-- Every version must bind evidence refs: replay token, trace root, checkpoint Merkle root.
+- Every version must bind evidence refs: replay token, trace root, checkpoint hash.
 
 ---
 ### 0.Z EQC Mandatory Declarations Addendum

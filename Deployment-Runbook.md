@@ -20,7 +20,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize failed rollouts and recovery time.
 ### 0.B Reproducibility Contract
-- Replayable given `(release_manifest_hash, environment_profile, rollout_policy_hash)`.
+- Replayable given `(release_manifest_hash, environment_profile, deployment_policy_bundle_hash)`.
 ### 0.C Numeric Policy
 - SLO/SLA thresholds evaluated in binary64.
 ### 0.D Ordering and Tie-Break Policy
@@ -99,7 +99,7 @@
     - `ExecutionCertificate.signed_payload.manifest_hash == release_manifest_hash`
     - `ExecutionCertificate.signed_payload.trace_root_hash == approved_trace_root_hash`
     - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
-    - `ExecutionCertificate.signed_payload.policy_hash == deployment_policy_hash`
+    - `ExecutionCertificate.signed_payload.policy_bundle_hash == deployment_policy_bundle_hash`
     - `ExecutionCertificate.signed_payload.dependencies_lock_hash == lockfile_hash`
     - `ExecutionCertificate.signed_payload.determinism_profile_hash == runtime_determinism_profile_hash`
     - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
@@ -118,13 +118,12 @@
   - disaster recovery artifacts required: last-good checkpoint manifest hash, restore procedure hash, incident timeline log.
 
 ### II.G Atomic Run Commit Protocol (Normative)
-- Finalization of a run is a deterministic two-phase commit:
-  1. write `trace.tmp`, `checkpoint.tmp`, `lineage.tmp`,
+- Finalization of a run is a deterministic commit-pointer protocol:
+  1. write immutable content-addressed trace/checkpoint/lineage/certificate objects,
   2. compute and validate bound hashes,
-  3. build/sign `certificate.tmp`,
-  4. atomically rename all temp artifacts to final names,
-  5. emit durable `run_commit_record` with final artifact IDs/hashes.
-- Crash recovery must scan temp artifacts and deterministically finalize-or-rollback; partial committed visibility is forbidden.
+  3. emit terminal WAL finalize record,
+  4. publish single COMMITTED pointer object with `{trace_tail_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}` via conditional create-if-absent.
+- Crash recovery validates COMMITTED pointer if present; if absent, run remains uncommitted and recovery proceeds from WAL.
 
 ### II.H CAS Retention and Garbage Collection (Normative)
 - Objects are content-addressed and immutable.

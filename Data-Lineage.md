@@ -18,7 +18,7 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize unverifiable data lineage.
 ### 0.B Reproducibility Contract
-- Replayable given `(dataset_snapshot_id, transform_chain_hash, sampler_config_hash)`.
+- Replayable given `(dataset_snapshot_id, data_access_plan_hash, transform_chain_hash)`.
 ### 0.C Numeric Policy
 - Hashes/IDs exact.
 ### 0.D Ordering and Tie-Break Policy
@@ -35,7 +35,7 @@
 ### 0.H Namespacing and Packaging
 - `UML_OS.Data.*` namespace.
 ### 0.I Outputs and Metric Schema
-- Outputs: `(dataset_snapshot_id, lineage_report)`
+- Outputs: `(dataset_snapshot_id, data_access_plan_hash, lineage_report)`
 - Metrics: `source_count`, `transform_count`, `snapshot_size_bytes`
 ### 0.J Spec Lifecycle Governance
 - snapshot ID and lineage hash semantics changes are MAJOR.
@@ -80,7 +80,12 @@
 - every snapshot ID is content-addressed and deterministic.
 
 ### II.F Snapshot Identifier (Normative)
-- `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, run_id, dataset_root_hash, split_hashes, transform_chain_hash, sampler_config_hash]))`
+- Stable content identity:
+  - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`
+- Run/access-plan identity:
+  - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]))`
+- `dataset_snapshot_id` and `data_access_plan_hash` are distinct and MUST NOT be conflated.
+- Both `dataset_snapshot_id` and `data_access_plan_hash` MUST be emitted in trace and bound in execution certificate payload.
 - Cross-tenant rule: all lineage objects are namespaced by `(tenant_id, object_id)`; cross-tenant references must hard-fail deterministically.
 - CAS retention metadata is mandatory:
   - `retention_class ∈ {golden, certified_release, experimental, ephemeral}`,
@@ -106,7 +111,7 @@
 ## 5) Operator Definitions
 **Operator:** `UML_OS.Data.BuildSnapshot_v1`  
 **Category:** Data  
-**Signature:** `(source_refs, transform_chain, split_defs -> dataset_snapshot_id)`  
+**Signature:** `(source_refs, transform_chain, split_defs, access_plan_inputs -> dataset_snapshot_id, data_access_plan_hash)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** materializes immutable snapshot and canonical lineage metadata.
@@ -117,7 +122,7 @@
 1. ValidateSnapshot_v1(inputs)
 2. ComputeLineageHash_v1
 3. BuildSnapshot_v1
-4. Return dataset_snapshot_id + lineage_report
+4. Return dataset_snapshot_id + data_access_plan_hash + lineage_report
 ```
 
 ---

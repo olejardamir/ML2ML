@@ -143,7 +143,7 @@
 - `ir_dag: UML_Model_IR` (with tensor roles)
 - `execution_order: node[]`
 - `mode: "forward" | "backward" | "inference"`
-- `replay_token: bytes` (32 bytes, SHA-256)
+- `replay_token: bytes32` (32 bytes, SHA-256)
 - `arena_config`: {arena_name → {capacity_bytes, alignment_bytes (default 128), page_size}}
 
 ### I.C Constraints and Feasible Set

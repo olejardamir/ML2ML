@@ -17,7 +17,7 @@
 - Primary comparison rule: deterministic authorization verdict correctness.
 - Invalid objective policy: missing capability mapping is fatal.
 ### 0.B Reproducibility Contract
-- Replayable given `(tenant_id, principal_id, operator_id, policy_hash, capability_matrix_hash)`.
+- Replayable given `(tenant_id, principal_id, operator_id, authz_policy_hash, capability_matrix_hash)`.
 ### 0.C Numeric Policy
 - N/A except deterministic hashing and enum handling.
 ### 0.D Ordering and Tie-Break Policy
@@ -33,11 +33,11 @@
 ### 0.H Namespacing and Packaging
 - Canonical matrix source: `contracts/operator_registry.cbor`.
 ### 0.I Outputs and Metric Schema
-- Outputs: `(authz_verdict, authz_hash, authz_report)`.
+- Outputs: `(authz_verdict, authz_query_hash, authz_decision_hash, authz_report)`.
 ### 0.J Spec Lifecycle Governance
 - Capability changes for existing operator versions are MAJOR.
 ### 0.K Failure and Error Semantics
-- Denied authorization emits deterministic failure with `authz_hash`.
+- Denied authorization emits deterministic failure with `authz_decision_hash`.
 ### 0.L Input/Data Provenance
 - Operator capability mapping must be hash-bound to registry hash.
 
@@ -46,7 +46,7 @@
 ### I.A Persistent State
 - capability matrix and role-policy bindings.
 ### I.B Inputs and Hyperparameters
-- `tenant_id`, `principal_id`, `operator_id`, `policy_hash`.
+- `tenant_id`, `principal_id`, `operator_id`, `authz_policy_hash`, `capability_matrix_hash`.
 ### I.C Constraints and Feasible Set
 - valid iff operator is mapped and policy binding exists.
 ### I.D Transient Variables
@@ -59,7 +59,9 @@
 - Missing `operator_id` mapping is deterministic failure.
 
 ### II.G Deterministic Verdict Hash (Normative)
-- `authz_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), policy_hash]))`.
+- `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+- `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+- Execution certificates MUST bind `authz_decision_hash` (not only query hash).
 
 ---
 ## 3) Initialization
@@ -84,17 +86,17 @@
 
 **Operator:** `UML_OS.Security.EvaluateAuthorization_v1`  
 **Category:** Security  
-**Signature:** `(tenant_id, principal_id, operator_id, policy -> authz_verdict, authz_hash, report)`  
+**Signature:** `(tenant_id, principal_id, operator_id, policy -> authz_verdict, authz_query_hash, authz_decision_hash, report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** evaluates capability grants and emits deterministic authorization hash.
+**Definition:** evaluates capability grants and emits deterministic query/decision hashes.
 
 ---
 ## 6) Procedure
 ```text
 1. ResolveRequiredCapabilities_v1
 2. EvaluateAuthorization_v1
-3. Return verdict + authz_hash + report
+3. Return verdict + authz_query_hash + authz_decision_hash + report
 ```
 
 ---
@@ -102,8 +104,8 @@
 ### Logging rule
 - every authorization decision emits deterministic trace event.
 ### Trace schema
-- `run_header`: tenant_id, policy_hash
-- `iter`: principal_id, operator_id, verdict, authz_hash
+- `run_header`: tenant_id, authz_policy_hash, capability_matrix_hash
+- `iter`: principal_id, operator_id, verdict, authz_query_hash, authz_decision_hash
 - `run_end`: denied_count
 ### Metric schema
 - `allowed_count`, `denied_count`
@@ -122,7 +124,7 @@
 ---
 ## 9) Refactor & Equivalence
 #### VIII.A Equivalence levels
-- E0 for verdict, authz_hash, and report.
+- E0 for verdict, query hash, decision hash, and report.
 #### VIII.B Allowed refactor categories
 - policy engine refactors preserving outputs.
 #### VIII.C Equivalence test procedure (mandatory)
@@ -136,4 +138,3 @@
 - deterministic canonical CBOR.
 ### Restore semantics
 - resumed authorization yields identical outcomes.
-
