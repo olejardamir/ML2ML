@@ -21,7 +21,7 @@
 ### 0.C Numeric Policy
 - Signed/hash-critical floating values must encode as IEEE-754 binary64.
 ### 0.D Ordering and Tie-Break Policy
-- Map keys sorted lexicographically by UTF-8 bytes.
+- Map keys sorted by `(len(CBOR_ENCODE(key)), CBOR_ENCODE(key))` under this profile.
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Encoding output must be deterministic independent of thread scheduling.
 ### 0.F Environment and Dependency Policy
@@ -55,13 +55,21 @@
 - stable bytes for identical object semantics.
 
 ### II.F Canonical Rules (Normative)
-- RFC 8949 canonical CBOR baseline.
+- RFC 8949 canonical CBOR baseline with profile overrides below.
 - Additional restrictions:
   - map keys must be UTF-8 strings,
+  - map-key ordering MUST be canonical CBOR ordering: `(len(encode(key)), encode(key))`,
   - disallow duplicate keys,
   - disallow NaN/Inf in signed/hash-critical payloads unless explicitly normalized by operator contract,
   - fixed-length digest fields (`bytes32`, `bytes64`) must match required lengths,
   - optional fields absent are encoded by key omission (never null unless schema explicitly requires null).
+
+### II.H Conformance Vectors (Normative)
+- Implementations MUST pass canonicalization vectors where lexicographic key order differs from canonical length-first order.
+- Minimum required vectors:
+  - mixed key lengths (`"a"`, `"aa"`, `"b"`),
+  - UTF-8 multibyte keys,
+  - nested maps with independently canonicalized key ordering.
 
 ### II.G Commitment Rule (Normative)
 - All signatures and commitment hashes MUST use:
@@ -143,4 +151,3 @@
 - deterministic canonical CBOR.
 ### Restore semantics
 - identical canonical bytes after restore.
-

@@ -117,6 +117,12 @@
 - Required comparator keys in traces: `t`, `rank`, `operator_seq`, `operator_id`, `status`, `replay_token`, plus optional domain metrics.
 - Canonical compare order is `(t, rank, operator_seq)`.
 - Clarification: `data_replay_t` is a per-step trace token; sampler RNG seed source is `epoch_seed` above.
+- Philox mapping (normative):
+  - `epoch_seed` is 16 raw bytes.
+  - `philox_key = [u32_le(epoch_seed[0:4]), u32_le(epoch_seed[4:8])]`.
+  - `philox_counter_base = [u32_le(epoch_seed[8:12]), u32_le(epoch_seed[12:16]), 0, 0]`.
+  - All `u32_le` conversions are little-endian, unsigned.
+  - Counter advancement is deterministic and tracked by `rng_offset_before/after`.
 - Required environment capture in replay token context:
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),

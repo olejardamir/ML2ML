@@ -114,8 +114,8 @@
 - Authoritative enums:
   - `purity_class = PURE | STATEFUL | IO`
   - `side_effect = NONE | ADVANCES_RNG | ADVANCES_CURSOR | MUTATES_ACCOUNTANT | MUTATES_MODEL_STATE | PERFORMS_IO | NETWORK_COMM | ALLOCATES_MEMORY`
-- `TraceIterRecord` (CBOR map): `{t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL), loss_total?:float64, grad_norm?:float64}`.
-- `TraceRunHeader`: `{schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_hash:bytes32, redaction_mode:enum(NONE|HMAC_SHA256_V1), redaction_key_id?:string, redaction_policy_hash?:bytes32}`.
+- `TraceIterRecord` (CBOR map): `{t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, state_fp?:bytes32, functional_fp?:bytes32, quota_decision?:string, quota_policy_hash?:bytes32, tracking_event_type?:string, artifact_id?:string, metric_name?:string, metric_value?:float64, window_id?:string, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL), loss_total?:float64, grad_norm?:float64}`.
+- `TraceRunHeader`: `{schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_hash:bytes32, redaction_mode:enum(NONE|HMAC_SHA256_V1), redaction_key_id?:string, redaction_policy_hash?:bytes32, hash_gate_M:uint64, hash_gate_K:uint64}`.
 - `CheckpointHeader`: `{tenant_id:string, run_id:string, spec_version:string, replay_token:bytes32, t:uint64, manifest_hash:bytes32, trace_root_hash:bytes32, sampler_config_hash:bytes32, tmmu_plan_hash:bytes32, backend_binary_hash:bytes32, checkpoint_merkle_root:bytes32, policy_hash:bytes32, determinism_profile_hash:bytes32, dependencies_lock_hash:bytes32, operator_contracts_root_hash:bytes32, runtime_env_hash:bytes32, code_commit_hash:bytes32, lineage_root_hash:bytes32, tensors_root_hash:bytes32, optimizer_state_root_hash:bytes32, dp_accountant_state_root_hash?:bytes32}`.
 - `ErrorRecord`: `{code_id:string, numeric_code:uint32, severity:enum(FATAL|ERROR|WARN), subsystem:string, t:uint64, rank:uint32, failure_operator:string, replay_token:bytes32, message:string, retryable:bool, diagnostics?:map<string,scalar|string|bytes>, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `MonitorEvent`: `{tenant_id:string, run_id:string, model_version_id:string, window_id:string, metric_name:string, metric_value:float64, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
@@ -127,7 +127,7 @@
 ### II.G Canonical Serialization v1 (Normative)
 - All contract-critical hashes/signatures must be computed over canonical CBOR bytes only.
 - Canonicalization rules:
-  - map keys sorted lexicographically by UTF-8 bytes,
+  - map keys ordered by `(len(CBOR_ENCODE(key)), CBOR_ENCODE(key))` as defined in `Canonical-CBOR-Profile.md`,
   - integers encoded in shortest canonical form,
   - signed fields must encode floats as IEEE-754 binary64 only,
   - `NaN` and `Inf` are forbidden in signed/hash-critical payloads unless explicitly normalized by operator contract,

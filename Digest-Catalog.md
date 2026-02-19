@@ -62,8 +62,13 @@
   - `domain_tag:string`
 
 ### II.G Resolution Rule (Normative)
-- `sha256:<label>` references are valid only if `<label>` exists in catalog.
-- Signature/hash computations must use resolved `digest_value` bytes, never label string bytes.
+- `digest_ref` supports two forms:
+  - inline: `sha256:<hex64>` where `<hex64>` is exactly 64 lowercase hex chars and resolves directly to bytes32,
+  - catalog label: `sha256:<label>` where `<label>` must exist in catalog and resolve to bytes32.
+- Disambiguation rule:
+  - if tail matches `^[0-9a-f]{64}$`, treat as inline bytes32 digest,
+  - otherwise treat as catalog label and perform lookup.
+- Signature/hash computations must use resolved bytes32 digest bytes, never label string bytes.
 
 ---
 ## 3) Initialization
@@ -133,4 +138,3 @@
 - deterministic canonical CBOR.
 ### Restore semantics
 - identical resolution on resume.
-

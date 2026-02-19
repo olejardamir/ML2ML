@@ -88,7 +88,8 @@
 - Additional authoritative contract artifacts:
   - `contracts/digest_catalog.cbor`
   - `contracts/determinism_profiles.cbor`
-  - `wal/run_commit/<tenant_id>/<run_id>.cbor`
+  - `wal/run_commit/<tenant_id>/<run_id>/records/<wal_seq>.cbor`
+  - `wal/run_commit/<tenant_id>/<run_id>/commit.cbor`
 
 ### II.G Ownership Map (Normative)
 - `data team`: `src/data/*`

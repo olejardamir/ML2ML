@@ -61,13 +61,16 @@
   - `operator_id:string`
   - `version:string`
   - `surface:enum("SYSCALL","SERVICE")`
-  - `request_schema_digest:bytes32`
-  - `response_schema_digest:bytes32`
-  - `signature_digest:bytes32`
-  - `side_effects:array<string>` (sorted, unique)
-  - `allowed_error_codes:array<string>` (sorted, unique)
+  - `request_schema_digest:digest_ref`
+  - `response_schema_digest:digest_ref`
+  - `signature_digest:digest_ref`
+  - `side_effects:array<side_effect_enum>` (sorted, unique; enum from `Data-Structures.md`)
+  - `allowed_error_codes:array<error_code_id>` (sorted, unique; ids from `Error-Codes.md`)
   - `purity_class:enum("PURE","STATEFUL","IO")`
   - `required_capabilities:array<string>` (sorted, unique)
+  - `idempotent:bool`
+  - `rng_usage:enum("NONE","PHILOX4x32_10")`
+  - `determinism_class:enum("DETERMINISTIC","STOCHASTIC","MIXED")`
 - Optional fields:
   - `owner_team:string`
   - `deprecated:bool`

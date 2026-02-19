@@ -85,7 +85,7 @@
 - normalized manifest is canonical and deterministic.
 
 ### II.F Authoritative Manifest Schema (Concrete)
-- Canonical serialization: CBOR map with lexicographically sorted keys.
+- Canonical serialization: `CBOR_CANONICAL` as defined in `Canonical-CBOR-Profile.md`.
 - `manifest_hash = SHA-256(canonical_manifest_cbor)`.
 - `schema_mode: enum("AUTHORITATIVE","MODULAR")` (default `AUTHORITATIVE`).
 - Required top-level fields:

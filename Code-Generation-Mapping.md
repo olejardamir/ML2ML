@@ -159,7 +159,11 @@ Template conformance note (III.A): each operator definition in this section is i
 **Signature:** `(mapping_entry, template -> source_file)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** generates typed stub with signature and TODO markers.
+**Definition:** generates typed stub with signature and deterministic default behavior.
+Default unimplemented-stub behavior (normative):
+- validate input schema deterministically,
+- then emit deterministic `PRIMITIVE_UNSUPPORTED` error payload,
+- no placeholder TODO behavior is allowed in generated contract stubs.
 
 **Operator:** `UML_OS.Implementation.ValidateGeneratedLayout_v1`  
 **Category:** IO  

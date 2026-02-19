@@ -2,7 +2,7 @@
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
 **Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`  
-**Purpose (1 sentence):** Perform static liveness analysis, optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic injective arena-offset logical-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, maximal reuse (provably optimal number of slots = max live tensors), alignment safety, and replayability across 100B+ parameter models.  
+**Purpose (1 sentence):** Perform static liveness analysis, slot-optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic injective arena-offset logical-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, alignment safety, and replayability across large models.  
 **Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)  
 **Domain / Problem Class:** Deterministic, size-aware, multi-arena tensor memory planning via interval-graph register allocation for deep learning computation graphs.
 
@@ -23,6 +23,9 @@
 - Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Not an optimization operator (enables extreme efficiency).
 - Primary guarantee: identical logical slots, logical addresses, and tensor_map for identical `(ir_dag, execution_order, mode, replay_token)`.
+- Optimization scope clarification:
+  - slot count is optimal for interval overlap constraints,
+  - total byte footprint across arenas is heuristic (deterministic, not globally optimal).
 - Comparison rule: exact equality of logical addresses and live ranges.
 
 ### 0.B Reproducibility Contract

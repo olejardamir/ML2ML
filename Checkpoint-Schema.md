@@ -109,7 +109,7 @@
   - `dp_accountant_state_root_hash?:bytes32`
   - `trace_tail_hash_at_checkpoint:bytes32`
   - `checkpoint_hash_prev?:bytes32`
-- Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_header_cbor)`.
+- Serialization: `CBOR_CANONICAL` per `Canonical-CBOR-Profile.md`, then `checkpoint_hash = SHA-256(checkpoint_header_cbor)`.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 - Migration controls:
@@ -150,6 +150,7 @@
 - Checkpoint header must store:
   - `trace_tail_hash_at_checkpoint`
   - `checkpoint_hash_prev` (if checkpoint chaining enabled)
+- In linear hash-chain mode, `trace_root_hash == trace_tail_hash_at_checkpoint` at checkpoint boundary.
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
 - Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `Data-Structures.md` `CheckpointHeader`.

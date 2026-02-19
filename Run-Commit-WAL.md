@@ -32,7 +32,9 @@
 - `UML_OS.Commit.FinalizeRunCommit_v1`
 - `UML_OS.Error.Emit_v1`
 ### 0.H Namespacing and Packaging
-- WAL path: `wal/run_commit/<tenant_id>/<run_id>.cbor`.
+- WAL paths:
+  - `wal/run_commit/<tenant_id>/<run_id>/records/<wal_seq>.cbor`
+  - `wal/run_commit/<tenant_id>/<run_id>/commit.cbor` (single terminal commit object)
 ### 0.I Outputs and Metric Schema
 - Outputs: `(commit_status, commit_record_hash)`.
 ### 0.J Spec Lifecycle Governance
@@ -69,13 +71,37 @@
   - `checkpoint_final_hash?:bytes32`
   - `lineage_final_hash?:bytes32`
   - `certificate_final_hash?:bytes32`
+  - `policy_hash?:bytes32`
+  - `operator_registry_hash?:bytes32`
+  - `determinism_profile_hash?:bytes32`
+  - `trace_tail_hash?:bytes32`
+  - `checkpoint_merkle_root?:bytes32`
+  - `lineage_root_hash?:bytes32`
+  - `certificate_hash?:bytes32`
+  - `prev_record_hash:bytes32`
   - `record_hash:bytes32`
+
+WAL hash-chain rule:
+- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_rec_v1", wal_seq_i, prev_record_hash_i, record_type_i, payload_i]))`
+
+Terminal commit record rule:
+- `record_type="FINALIZE"` MUST include:
+  - `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`, `certificate_hash`,
+  - `manifest_hash`, `policy_hash`, `operator_registry_hash`, `determinism_profile_hash`.
 
 ### II.G Recovery Rule (Normative)
 - On startup:
   - if terminal `FINALIZE` exists and all final artifacts verify, commit is complete.
   - if only non-terminal records exist, rollback temp objects and emit deterministic failure record.
   - if terminal `ROLLBACK` exists, no final artifacts may be visible.
+
+Backend-specific atomic publish:
+- Local FS:
+  - write temp files, `fsync(file)`, atomic rename, `fsync(directory)`.
+- Object stores (S3/GCS compatible):
+  - write immutable content objects first,
+  - publish `commit.cbor` via conditional write (create-if-absent generation precondition),
+  - commit object is immutable and singular for `(tenant_id, run_id)`.
 
 ---
 ## 3) Initialization
@@ -154,4 +180,3 @@
 - deterministic canonical CBOR.
 ### Restore semantics
 - resumed commit/recovery produces identical terminal outcome.
-

@@ -88,6 +88,17 @@
   - execution certificates bound to promoted versions.
 - GC safety invariant: objects reachable from active roots cannot be deleted; tombstoning is append-only and auditable.
 
+### II.G Registry State Machine (Normative)
+- States:
+  - model version lifecycle: `CREATED -> STAGED -> APPROVED -> DEPLOYED | REJECTED | ARCHIVED`.
+- Legal transitions:
+  - `CREATED->STAGED`, `STAGED->APPROVED`, `APPROVED->DEPLOYED`,
+  - `STAGED->REJECTED`, `APPROVED->ARCHIVED`, `DEPLOYED->ARCHIVED`.
+- Transition invariants:
+  - each transition requires valid `evidence_bundle_ref`,
+  - transition writes are append-only and keyed by monotone `transition_seq`,
+  - retries use deterministic `idempotency_key` and must not duplicate state changes.
+
 ---
 ## 3) Initialization
 1. Load registry schema.

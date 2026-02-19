@@ -94,19 +94,19 @@
   - `trace_tail_hash = h_last`
 - Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted from the canonical CBOR map input.
 - Empty-bytes substitution is forbidden for omitted fields in canonical hashing paths.
-- Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
-- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`.
-- Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes`.
+- Canonical serialization: `CBOR_CANONICAL` from `Canonical-CBOR-Profile.md`.
+- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
+- Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes32`.
 - `operator_seq` is a per-rank monotone counter.
 - Canonical record ordering:
   - `run_header` is always first,
   - all `iter` records are sorted by `(t, rank, operator_seq)`,
   - `run_end` is always last.
 - Uniqueness invariant: there must be at most one `iter` record for each `(t, rank, operator_seq)` tuple.
-- Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
+- Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes32`, `functional_fp:bytes32`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Optional `iter` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
 - Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
-- Required `run_end` fields/types: `status:string`, `final_state_fp:bytes`, `final_trace_hash:bytes`.
+- Required `run_end` fields/types: `status:string`, `final_state_fp:bytes32`, `final_trace_hash:bytes32`.
 - Migration controls:
   - `migration_supported_from: array<string>`
   - `migration_operator: string`
@@ -125,7 +125,8 @@
   - `max_bytes_per_step:uint64`
   - `max_record_bytes:uint32`
   - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
-  - HASH_GATED inclusion rule: include iff `SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq])) mod M < K`.
+  - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq]))) mod hash_gate_M < hash_gate_K`.
+  - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with declared priority ordering.
   - `mandatory_record_kinds = {run_header, policy_gate_verdict, checkpoint_commit, certificate_inputs, run_end}`.
   - Mandatory records MUST NEVER be sampled out or dropped.
@@ -141,6 +142,8 @@
 - Atomic commit linkage:
   - trace must include `run_commit_prepare` and `run_commit_record` mandatory records,
   - `run_commit_record` must bind `trace_tail_hash`, `checkpoint_merkle_root`, `lineage_root_hash`, `certificate_hash`.
+- Naming normalization:
+  - `trace_root_hash` and `trace_tail_hash` are the same value for this linear hash-chain model (`h_last`).
 
 ---
 ## 3) Initialization

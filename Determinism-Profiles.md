@@ -60,11 +60,24 @@
   - fixed collective algorithm and rank order,
   - fixed chunk order,
   - fixed accumulation dtype/order,
-  - no nondeterministic atomics.
+  - no nondeterministic atomics,
+  - required runtime flags captured as exact key/value map (e.g., deterministic kernels enabled, TF32 disabled, fixed matmul precision policy),
+  - backend-specific deterministic primitive allowlist hash required.
 - `TOLERANCE` profile:
   - explicit per-field tolerance bands,
   - E1 comparator policy,
-  - acceptable hardware/runtime equivalence set declared.
+  - acceptable hardware/runtime equivalence set declared,
+  - explicit NaN/Inf compare policy per field.
+
+### II.H Machine-Checkable Runtime Capture (Normative)
+- Required environment fingerprint fields:
+  - `gpu_model`, `driver_version`, `cuda_version`, `cudnn_version`, `cublas_version`, `nccl_version`, `os_kernel_version`, `backend_build_hash`.
+- Distributed profile fields:
+  - `collective_algorithm_id`,
+  - `collective_chunking_policy`,
+  - `rank_order_policy`.
+- `TOLERANCE` comparator map schema:
+  - `field_name -> {abs_tol:float64, rel_tol:float64, nan_policy:enum("FORBID","EQUAL_IF_BOTH_NAN")}`.
 
 ### II.G Profile Hash (Normative)
 - `determinism_profile_hash = SHA-256(CBOR_CANONICAL([profile_id, profile_rules, tolerance_map?]))`.
@@ -144,4 +157,3 @@
 - deterministic canonical CBOR.
 ### Restore semantics
 - resumed comparison yields identical verdict.
-
