@@ -1095,3 +1095,252 @@
 - Validation:
   - Updated hash (`L1-005`): `20eb3135ef5aa69c8cffbd8b25d17e89fc3df8aecae8704ed64d547307d52df5`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest determinism/completeness rewrite.
+- Scope:
+  - Rewrote `docs/layer1-foundation/Environment-Manifest.md` to resolve logical and structural gaps:
+    - removed optimization-template leftovers from objective semantics,
+    - defined full normative schema and exact-field closure (no extra keys),
+    - added missing compatibility-critical `hardware_arch` field,
+    - defined canonical capture sources and normalization for OS/kernel/python/arch/adapter versions,
+    - defined all constituent hash constructions (`backend_binary_hash`, `driver_runtime_fingerprint_hash`, `determinism_profile_hash`, `toolchain_hash`, `env_vars_fingerprint_hash`) with SHA-256 and canonical CBOR inputs,
+    - fixed determinism-impacting env var scope with explicit allowlist and null encoding for unset vars,
+    - referenced canonical CBOR determinism source (`RFC 8949` + local canonical profile),
+    - added full operator definition for `ValidateCompatibility_v1` and normative `compatibility_report` schema,
+    - corrected `BuildManifest_v1` signature to no-input capture model,
+    - connected trace and metric schemas to producing operators,
+    - standardized section numbering and explicit `E0` definition,
+    - enforced `schema_version` consistency (`UML_OS.Environment.Manifest_v1`),
+    - clarified restore semantics via content-addressable retrieval by manifest hash.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `f3b68bd39c208bf4aa334db52214f6e823810e3fe1e4c1b0ef9ff2f58043f635`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest deterministic-source and compatibility-semantics hardening pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - explicit normative dependency set and external error-contract linkage,
+    - strict `required_manifest` semantics (same schema as 2.6, complete required fields),
+    - backend adapter definition and deterministic metadata API expectations,
+    - consistent-snapshot requirement for parallel capture (abort on inconsistency),
+    - deterministic command capture constraints (`LC_ALL=C`, absolute command paths),
+    - explicit fallback-failure behavior for `os_version` and normalization-failure abort semantics,
+    - deterministic parser behavior for `python_version` and runtime-interpreter scope,
+    - deterministic backend artifact-set selection via adapter-provided canonical artifact list,
+    - toolchain-hash capture source rules and normalization per tool/version field,
+    - strict env-var fingerprint encoding rules (all allowlisted keys required, UTF-8 or abort, null for unset),
+    - exact compatibility semantics and defined relation `compatibility_failures == len(mismatches)`,
+    - explicit mapping of trace/metric emission to operators,
+    - explicit canonical map-key ordering note in section 2.6,
+    - explicit out-of-scope statement for CAS mechanism with exact-byte retrieval requirement.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `7d84bf30efe18c65b91d38f06d48ee0b8525bf156b6afdfc7d2472b3fb16580b`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest ambiguity-elimination pass (toolchain parsing determinism, compatibility optional-baseline semantics, and trace/report closure).
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - explicit dependency-failure rule for normative referenced documents (fatal `CONTRACT_VIOLATION`),
+    - removed undefined “regulated/managed modes” branch from failure policy,
+    - optional baseline support in `ValidateCompatibility_v1` (`required_manifest?`) and `NOT_CHECKED` compatibility status,
+    - explicit precondition that provided `required_manifest` must be schema-valid,
+    - explicit `is_compatible` truth condition and CBOR-value equality semantics (`null` equality behavior),
+    - deterministic and explicit parser rules for toolchain IDs/versions (`cc`, `c++`, `ld` incl. GNU/LLD patterns, `cmake`),
+    - explicit `os_version` source-failure rule for empty normalized values,
+    - exact `python_version` normalization algorithm via anchored regex capture,
+    - stronger multi-file artifact hashing constraints (snapshot consistency, symlink resolution rules),
+    - explicit constituent-hash computation failure rule (fatal),
+    - explicit env-var map closure semantics and CBOR `null` encoding byte value (`0xf6`),
+    - trace schema closure with `ERROR` iter status and `NOT_CHECKED` run-end status,
+    - bytes32 encoding requirement as CBOR byte strings (major type 2, length 32).
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `fc8fd73d31efb33e1a2cc3d5e606797ddaf2e1fe23a96cc8cf580b01886d41cb`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest portability/runtime-environment pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - optional `required_manifest` handling (`required_manifest?`) and explicit `NOT_CHECKED` compatibility state,
+    - deterministic dependency-failure semantics for referenced normative documents,
+    - removal of undefined “regulated/managed modes” branch,
+    - deterministic `uname` command resolution (`UNAME_CMD` absolute override, `/bin/uname`, `/usr/bin/uname`) under `LC_ALL=C`,
+    - explicit source-failure semantics for empty `os_version` values in fallback chain,
+    - exact Python version extraction algorithm from prefixed numeric triplet,
+    - stronger backend artifact set constraints (UTF-8 relative paths, no traversal, symlink handling, snapshot consistency),
+    - deterministic tool path overrides (`CC`, `CXX`, `LD`, `CMAKE_COMMAND`) and nullable toolchain subfields for runtime-only environments,
+    - expanded deterministic parsing coverage (Apple Clang, two-part version normalization with `.0` padding),
+    - explicit env-var map closure and canonical CBOR null encoding requirement (`0xf6`),
+    - explicit rule that constituent-hash failures are fatal,
+    - trace schema hardening (`ERROR` iter emission required before abort for failed field/hash capture),
+    - explicit bytes32 CBOR representation rule (major type 2, length 32).
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `f36b873bf779d6f6b4435a89150f43d434834f6df360d0f50cf5bd1f255e0db4`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final ambiguity cleanup (path resolution, parsing precision, report rendering semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - explicit, executable-only `UNAME_CMD` resolution algorithm and deterministic fallback order,
+    - removal of non-standard shell-like placeholder notation in source definitions,
+    - concrete mutation-detection procedure for `os_version` fallback flow,
+    - relaxed deterministic Python normalization to support two-part versions (`x.y -> x.y.0`),
+    - explicit canonical `/` separator and normalization constraints for artifact `relative_path`,
+    - explicit Apple Clang version padding rule and compiler-id family canonicalization (`gcc`, `clang`, `apple-clang`),
+    - explicit note that `root_path` resolves files but does not contribute to hash input,
+    - explicit compatibility mismatch value string rendering (`bytes32` lowercase hex, `null` literal),
+    - explicit validation `iter` event mapping semantics for `MISSING`/`MISMATCH`/`ERROR`,
+    - added governance assumption that dependency documents are maintained as a coherent suite.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `02b4839e70494badce42586f934dbd6dd0c14855b183de9de1234cff2f8b9d2a`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final contract-clarity pass (tool override strictness and adapter determinism guarantees).
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - explicit executable-path definition,
+    - strict tool override rule parity with `UNAME_CMD` (`CC`/`CXX`/`LD`/`CMAKE_COMMAND` must be absolute+executable if set; otherwise abort),
+    - explicit deterministic/stable behavior requirements for backend adapter APIs:
+      - `adapter.get_version()`
+      - `adapter.get_canonical_artifact_set()`,
+    - explicit stability requirement for returned artifact path list for identical backend installation/state,
+    - explicit note documenting rule-specific version-width normalization policy across tool types.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `fff7019b8b7a18031f56cdcaf80953f60afe6783c41bcc7d764aa118e13d19c5`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest closure pass (mutation detection algorithm, report rendering disambiguation, and trace ordering determinism).
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - mandatory multi-file mutation detection algorithm (metadata pre/post checks with deterministic abort conditions),
+    - mandatory `os_version` fallback re-read hash check (removed optional wording),
+    - explicit `backend_adapter_version` non-empty requirement,
+    - robust first-match-within-first-5-lines parsing rule for tool `--version` outputs,
+    - compiler family canonicalization enhancement (`g++` -> `gcc`),
+    - compatibility report null rendering changed to `__NULL__` to avoid ambiguity with literal string `null`,
+    - explicit iter-event ordering rule (bytewise manifest-key order),
+    - implementation note for bounded env-var value size handling.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `9f76f73ca6cdb2df941ae8a370adeec78689d65b56f8e7c1c80b8f36e9d908b4`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final deterministic-behavior lock pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - mandatory (non-optional) re-read hash verification in both multi-file mutation detection and `os_version` fallback mutation checks,
+    - symlink-target metadata tracking clarified for mutation detection,
+    - explicit ECMAScript regex dialect declaration,
+    - explicit `relative_path` ban on leading/embedded `./` components,
+    - explicit non-regular-file abort condition after symlink resolution,
+    - default tool path executability behavior clarified (non-executable default treated as absent),
+    - race-window minimization note for `os_version` fallback check sequence,
+    - compiler canonicalization widened from `g++` equals to `g++` contains,
+    - compatibility report null rendering disambiguated as literal `__NULL__` (no quoted marker string).
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `7709d3d62ac5d8dd0a6f958be112f46732e736c51ad668dd7383b9d78cd55b12`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest micro-clarity pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - dependency inconsistency wording tightened to explicit version/section mismatch criterion,
+    - explicit note acknowledging the theoretical undetectable symlink-target replacement edge case,
+    - explicit statement that implementation (not adapter) is responsible for path normalization/validation before artifact hashing.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `f2810cb27019463295da60f6e3c7953224555ac6dcfba64c982f2f002549afb4`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final structural cleanup.
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - explicit absolute-path requirement for `root_path` returned by `adapter.get_canonical_artifact_set()` (relative path => abort),
+    - corrected duplicate numbering in C compiler parse rules (`4. else abort`).
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `60e0a4cffb279b842ac64ab1e6359be07954eb055883537c3b7a796caa42f42c`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final gap closure (path and command failure semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - explicit abort rule for required command execution failure (non-zero exit / missing required output),
+    - clarified multi-file mutation step to read resolved target files,
+    - explicit requirement that `root_path` exists and is a directory,
+    - explicit abort on empty normalized `relative_path`,
+    - explicit prohibition of trailing `/` in `relative_path`.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `e7d4160927622f1d4be77944f2864341a0c5c75afa13508d9dfe5fffe3b3b606`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final algorithmic hardening pass.
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - canonical `root_path` realpath resolution requirement (abort on failure),
+    - symlink-aware `os_version` mutation detection (target-level metadata/hash checks),
+    - fixed env-var size limit to 1 MiB with mandatory abort on exceed,
+    - explicit empty artifact set rejection (`relative_paths[]` must be non-empty),
+    - explicit post-normalization rejection of any remaining `..` path component.
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `0e268f1971eb5cdfa89b5528d59ae6bc00da31137882cae2dd15fd0ecca41b70`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Environment Manifest final correctness patch (remaining algorithmic edge cases).
+- Scope:
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
+    - mandatory symlink re-resolution in multi-file mutation detection step 3 (with resolved-path change abort),
+    - step 5 clarified to re-read current resolved targets,
+    - canonical `root_path` resolution failure wording clarified with concrete broken-symlink example,
+    - env-var maximum size literal normalized to `1048576` bytes (1 MiB).
+  - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `3594284b82dc791d36b5e0ab9a2956171a621ef0c010ef0ebf69e45db4c82637`
+  - Ecosystem regressions introduced: 0
