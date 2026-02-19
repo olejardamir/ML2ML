@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Implementation.DeploymentRunbook_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Release operations and reliability.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize failed rollouts and recovery time.
 ### 0.B Reproducibility Contract
 - Replayable given `(release_manifest_hash, environment_profile, rollout_policy_hash)`.
@@ -91,6 +95,15 @@
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
 - Promotion gate:
   - production promotion requires valid `ExecutionCertificate` and `EvidenceValidate` pass.
+  - Signed-field hash equality checks are mandatory before promotion:
+    - `ExecutionCertificate.signed_payload.manifest_hash == release_manifest_hash`
+    - `ExecutionCertificate.signed_payload.trace_root_hash == approved_trace_root_hash`
+    - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
+    - `ExecutionCertificate.signed_payload.policy_hash == deployment_policy_hash`
+    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == lockfile_hash`
+    - `ExecutionCertificate.signed_payload.determinism_profile_hash == runtime_determinism_profile_hash`
+    - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
+    - `ExecutionCertificate.signed_payload.lineage_root_hash == expected_lineage_root_hash`
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Secrets and keys:
   - secret injection only through managed secret stores,

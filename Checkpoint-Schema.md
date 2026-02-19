@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Deterministic persistence.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize restore divergence and compatibility errors.
 ### 0.B Reproducibility Contract
 - Replayable given `(checkpoint_hash, schema_version, replay_token)`.
@@ -81,17 +85,31 @@
 
 ### II.F Checkpoint Record Layout (Concrete)
 - Required fields:
+  - `tenant_id:string`
+  - `run_id:string`
   - `spec_version:string`
   - `checkpoint_schema_version:string`
   - `replay_token:bytes(32)`
   - `t:uint64`
-  - `theta_hash:bytes`
-  - `optimizer_state:bytes`
-  - `rng_states:map<string,bytes>`
-  - `accountant_state:bytes`
-  - `data_cursor:map<string,object>`
-  - `trace_hash_prefix:bytes`
-- Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_cbor)`.
+  - `manifest_hash:bytes32`
+  - `trace_root_hash:bytes32`
+  - `sampler_config_hash:bytes32`
+  - `tmmu_plan_hash:bytes32`
+  - `backend_binary_hash:bytes32`
+  - `checkpoint_merkle_root:bytes32`
+  - `policy_hash:bytes32`
+  - `determinism_profile_hash:bytes32`
+  - `dependencies_lock_hash:bytes32`
+  - `operator_contracts_root_hash:bytes32`
+  - `runtime_env_hash:bytes32`
+  - `code_commit_hash:bytes32`
+  - `lineage_root_hash:bytes32`
+  - `tensors_root_hash:bytes32`
+  - `optimizer_state_root_hash:bytes32`
+  - `dp_accountant_state_root_hash?:bytes32`
+  - `trace_tail_hash_at_checkpoint:bytes32`
+  - `checkpoint_hash_prev?:bytes32`
+- Serialization: canonical CBOR (sorted keys), then `checkpoint_hash = SHA-256(checkpoint_header_cbor)`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 - Migration controls:
   - `migration_supported_from: array<string>`
@@ -111,6 +129,10 @@
 - Integrity:
   - `checkpoint_manifest.cbor` includes per-shard hash list and Merkle root.
   - Full checkpoint hash derives from canonical manifest + shard hash list.
+  - Binding rule:
+    - `weights_manifest_hash` must hash to a manifest whose content-addressed entries jointly hash to `tensors_root_hash`.
+    - `optimizer_manifest_hash` must hash to a manifest whose entries jointly hash to `optimizer_state_root_hash`.
+    - `dp_accountant_manifest_hash` must hash to canonical accountant blobs that hash to `dp_accountant_state_root_hash` (when DP enabled).
 - Atomicity protocol:
   - write to temp path, `fsync(file)`, `rename(temp, final)`, `fsync(directory)`.
   - crash-consistency guarantee: either previous checkpoint remains valid or new checkpoint is fully valid; partial writes are invalid.
@@ -128,6 +150,8 @@
   - `checkpoint_hash_prev` (if checkpoint chaining enabled)
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
+- Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `Data-Structures.md` `CheckpointHeader`.
+- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_root_hash, checkpoint_merkle_root, manifest_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash}`.
 
 ---
 ## 3) Initialization

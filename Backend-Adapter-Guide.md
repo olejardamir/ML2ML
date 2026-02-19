@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Backend certification.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize contract violations and reproducibility drift.
 ### 0.B Reproducibility Contract
 - Replayable given `(driver_hash, adapter_version, test_manifest_hash)`.
@@ -101,9 +105,9 @@
 - Cross-file invariant:
   - `API-Interfaces.signature_digest(op) == Code-Generation-Mapping.signature_digest(op) == Backend-Adapter-Guide.signature_digest(op)` for every backend-exposed operator.
 - Minimum backend-exposed digest set:
-  - `UML_OS.Model.Forward_v2 -> sha256:sig_forward_v2`
-  - `UML_OS.Model.ModelIR_Executor_v1 -> sha256:sig_modelir_exec_v1`
-  - `UML_OS.Backend.LoadDriver_v1 -> sha256:sig_load_driver_v1`
+  - `UML_OS.Model.Forward_v2 -> sha256:17d85435fe2e601fe522b614938ea7853b9c36be14c8feb84f4e70e1e253bc74`
+  - `UML_OS.Model.ModelIR_Executor_v1 -> sha256:ce1ec3e5cead31a92f46e79847332d3db0fdd824f2f3b6608987c77450a6de70`
+  - `UML_OS.Backend.LoadDriver_v1 -> sha256:708fd111f6fc0a8f85853a4218ff9eba82ffc3da285266b15f6714a450728056`
 - Proof-carrying backend requirements:
   - each primitive declares `primitive_semantics_hash`,
   - backend emits `determinism_compliance_report_hash`,

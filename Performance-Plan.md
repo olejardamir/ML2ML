@@ -69,6 +69,28 @@
 
 ---
 
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 
 ### I.A Persistent State
@@ -89,7 +111,7 @@
 ### II.F Regression Guards (Normative)
 - `peak_memory_bytes` ceiling is mandatory per workload/profile; exceeding ceiling is a hard failure.
 - `tmmu_fragmentation_ratio` is computed deterministically as `1 - (largest_free_block_bytes / total_free_bytes)` at measurement point.
-- Division-by-zero rule: if `total_free_bytes == 0`, set `tmmu_fragmentation_ratio = 0`.
+- Division-by-zero rule: if `total_free_bytes == 0`, set `tmmu_fragmentation_ratio = 1` and emit `memory_pressure_state = "EXHAUSTED"`.
 - Fragmentation regression beyond declared threshold is a hard failure.
 - Gate verdict is computed on frozen snapshot samples only.
 

@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Reproducible dependency management.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize dependency drift and supply-chain risk.
 ### 0.B Reproducibility Contract
 - Replayable given `(lockfile_hash, toolchain_hash, environment_hash)`.
@@ -85,6 +89,11 @@
 - Registry allowlist: explicit host allowlist only; direct URL dependencies forbidden unless signed and pinned.
 - SBOM requirement: CycloneDX JSON emitted per build and hashed into trace.
 - Toolchain hash: `toolchain_hash = SHA-256(CBOR(["toolchain_v1", python_version, pip_version, installer_version]))`.
+- `LockfileDigest_v1` (normative):
+  - parse lockfile into normalized tuples `(name, version, source, integrity_hash)`,
+  - sort tuples by `(name, version, source)`,
+  - encode with canonical CBOR,
+  - `lockfile_hash = SHA-256(canonical_cbor_tuples)`.
 - GPU/runtime pinning requirements:
   - pinned versions for CUDA/runtime, cuDNN, NCCL, and driver stack,
   - capture determinism-impacting environment variables,

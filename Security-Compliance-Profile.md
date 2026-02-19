@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Auditable secure execution.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize policy violations and unverifiable execution paths.
 ### 0.B Reproducibility Contract
 - Replayable given `(policy_hash, attestation_hash, certificate_schema_version)`.
@@ -119,7 +123,9 @@
 - Verification verdict determinism claim is scoped to identical evidence bundles and policy hash.
 - Time-policy rule:
   - if verification time affects verdict, it must be frozen as an explicit run parameter and included in signed evidence;
-  - otherwise time fields are informational and excluded from deterministic verdict computation.
+  - otherwise time fields are informational, stored only in unsigned metadata, and excluded from deterministic verdict computation.
+- Regulated-mode trace redaction binding:
+  - certificate signed payload must include `redaction_policy_hash` and `redaction_key_id` when `redaction_mode != NONE`.
 
 ---
 ## 3) Initialization

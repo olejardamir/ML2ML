@@ -132,6 +132,28 @@
 
 ---
 
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 
 ### I.A Persistent State
@@ -148,6 +170,7 @@
   - `mechanism: "gaussian"`
   - `accountant: "pld" | "moments" | "rdp" | "f_dp" | "gdp"` (default/recommended: `pld`)
   - `subsampling: "POISSON" | "SHUFFLE_WITHOUT_REPLACEMENT" | "NONE"`
+  - `sampling_mode: string` (from `Data-NextBatch.md` sampler metadata)
   - `accountant_granularity: "PER_STEP" | "PER_EPOCH"` (default `PER_STEP`, recommended `PER_STEP`)
   - `clipping.strategy: "per_sample" | "ghost" | "per_layer" | "per_group" | "per_tensor" | "hybrid" | "peft_targeted" | "adaptive"`
   - `clipping.norm: float | "adaptive"`
@@ -455,6 +478,10 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 ```text
 1. PreValidation_v1(dp_config, t) -> abort on invalid.
+1b. Sampling/accountant compatibility check:
+    - if `sampling_mode` starts with `SHUFFLE_WITHOUT_REPLACEMENT` then `subsampling` must be `SHUFFLE_WITHOUT_REPLACEMENT`
+    - if `sampling_mode == "SEQUENTIAL_V1"` then `subsampling` must be `NONE`
+    - otherwise emit `INVALID_DP_CONFIG` and abort.
 2. resolved_cfg <- ConfigResolver_v1(dp_config, accumulation_context)
 2b. sensitivity_map <- SensitivityAnalyzer_v1(...) when allocation/adaptive mode enabled.
 3. allocation_map, clip_norm_map <- PrivacyBudgetAllocator_v1(resolved_cfg, sensitivity_map, norm_history)
@@ -494,7 +521,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 Each DP step emits deterministic trace fields from section 7, including replay token contribution and budget transition.
 
 ### Trace schema (minimum required)
-- `run_header`: `dp_mode`, `accountant`, `clipping_strategy`, `subsampling`, `parallelism.type`, `noise_seed_per_step`, `privacy_allocation_mode`, `fused_kernel`, `safety_budget_reserve`
+- `run_header`: `dp_mode`, `accountant`, `clipping_strategy`, `subsampling`, `sampling_mode`, `sampler_config_hash`, `parallelism.type`, `noise_seed_per_step`, `privacy_allocation_mode`, `fused_kernel`, `safety_budget_reserve`
 - `iter`: `t`, `clip_fraction`, `group_clip_fraction`, `noise_scale_sigma`, `effective_noise_multiplier`, `effective_heterogeneous_multiplier`, `effective_accumulation_factor`, `cumulative_epsilon_before`, `cumulative_epsilon_after`, `projected_final_epsilon`, `norm_p50`, `norm_p95`, `norm_max`, `gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `accountant_type_used`, `pld_epsilon_tight` (if available), `dp_replay_t`
 - `run_end`: final epsilon, budget status, accountant summary hash
 

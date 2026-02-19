@@ -12,6 +12,10 @@
 - **Algorithm:** `UML_OS.Data.Lineage_v1`
 - **Purpose (1 sentence):** Deterministic dataset snapshot provenance.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize unverifiable data lineage.
 ### 0.B Reproducibility Contract
 - Replayable given `(dataset_snapshot_id, transform_chain_hash, sampler_config_hash)`.
@@ -41,11 +45,33 @@
 - lineage includes source hashes and transform chain hash.
 
 ---
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 ### I.A Persistent State
 - snapshot catalog and lineage graph.
 ### I.B Inputs and Hyperparameters
-- source refs, split configs, transform specs.
+- `tenant_id`, `run_id`, source refs, split configs, transform specs, `sampler_config_hash`.
 ### I.C Constraints and Feasible Set
 - snapshot immutable after publish.
 ### I.D Transient Variables
@@ -54,7 +80,8 @@
 - every snapshot ID is content-addressed and deterministic.
 
 ### II.F Snapshot Identifier (Normative)
-- `dataset_snapshot_id = SHA-256(CBOR([dataset_root_hash, split_hashes, transform_chain_hash]))`
+- `dataset_snapshot_id = SHA-256(CBOR([tenant_id, run_id, dataset_root_hash, split_hashes, transform_chain_hash, sampler_config_hash]))`
+- Cross-tenant rule: all lineage objects are namespaced by `(tenant_id, object_id)`; cross-tenant references must hard-fail deterministically.
 
 ---
 ## 3) Initialization

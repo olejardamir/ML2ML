@@ -69,6 +69,28 @@
 
 ---
 
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 
 ### I.A Persistent State
@@ -91,7 +113,7 @@
 - `data_replay_t = SHA-256(CBOR(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
 - `modelir_replay_t = SHA-256(CBOR(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
 - `dp_replay_t = SHA-256(CBOR(["dp_apply_v3", kernel_replay_token, uint64(t), accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`.
-- Required comparator keys in traces: `t`, `rank`, `operator_seq`, `operator_id`, `status`, plus optional domain metrics.
+- Required comparator keys in traces: `t`, `rank`, `operator_seq`, `operator_id`, `status`, `replay_token`, plus optional domain metrics.
 - Canonical compare order is `(t, rank, operator_seq)`.
 - Required environment capture in replay token context:
   - driver/runtime versions,
@@ -103,6 +125,7 @@
   - Data: `sampler_config_hash`, `effective_q`,
   - Memory: `tmmu_plan_hash`,
   - Backend: `backend_binary_hash`, `determinism_profile_hash`, `driver_runtime_fingerprint`.
+  - Supply chain: `lockfile_hash`, `toolchain_hash`.
 
 ### II.G DeterminismProfile (Normative)
 - `tf32: bool`
@@ -121,6 +144,16 @@
 - Determinism conformance governance:
   - certificate must include `determinism_conformance_suite_id`.
   - verifier rejects certificates with unknown or revoked conformance suite IDs.
+
+### II.I Comparison Profiles (Normative)
+- Profile A (`same_world_size_same_rankmap`):
+  - Preconditions: identical `world_size`, identical rank mapping.
+  - E0 fields include per-rank sample indices and per-rank iterator keys.
+- Profile B (`different_world_size`):
+  - Preconditions: dataset snapshot and sampler contract identical, but `world_size` differs.
+  - Per-rank sample indices are marked `NON_COMPARABLE`.
+  - Compare deterministic global fields only: `dataset_snapshot_id`, `sampler_config_hash`, `effective_q`, replay token lineage, and declared aggregate metrics under E1 policy.
+- Verifier must record selected comparison profile in replay report and treat mismatched profile selection as deterministic failure.
 
 ---
 

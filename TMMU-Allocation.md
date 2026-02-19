@@ -17,6 +17,10 @@
 - **Domain / Problem Class:** Scalable, reproducible, alignment-aware tensor memory planning for ML graphs.
 
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Not an optimization operator (enables extreme efficiency).
 - Primary guarantee: identical logical slots, logical addresses, and tensor_map for identical `(ir_dag, execution_order, mode, replay_token)`.
 - Comparison rule: exact equality of logical addresses and live ranges.
@@ -105,6 +109,28 @@
 
 ---
 
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 
 ### I.A Persistent State
@@ -130,7 +156,7 @@
 ### I.E Invariants and Assertions
 - No access before birth or after death.
 - Live tensors in same logical slot never overlap.
-- Addresses unique within arena.
+- Base storage slot offsets are unique within arena; views/aliases may overlap by declared alias contract.
 - Alignment respected.
 - Mathematical guarantee: #logical_slots_per_arena = max simultaneous live tensors in that arena (interval graph optimality).
 
@@ -139,6 +165,9 @@
 - Slot model: each allocation emits `{arena_id, slot_offset, size_bytes, alignment, generation}`.
 - Pointer derivation: `ptr = base_ptr + slot_offset`.
 - Hashes are allowed only for stable tensor identity/fingerprints, never as address source.
+- Backend allocation scope:
+  - backend direct allocations are forbidden for traced tensors and contract-critical buffers;
+  - backend-internal ephemeral scratch is allowed only if it is excluded from trace/certificate semantics and cannot affect deterministic outputs.
 
 ### II.G Alias and In-Place Semantics (Normative)
 - Shared-storage tensors must declare `alias_group_id`.
@@ -343,6 +372,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 - Time: O(N log N) worst-case with heap/interval-tree for active set (N = #tensors)
 - Space: O(max live) 
 - Mathematical optimality: #logical_slots = max live tensors per arena (interval graphs are perfect → greedy coloring is exact)
+- This optimality applies to slot count only; total allocated bytes after slot sizing/alignment are heuristic and may be suboptimal.
 - Memory reuse ratio typically >95% on transformer graphs
 - Physical-byte optimality is not guaranteed for heterogeneous sizes under first-fit; this is an explicit tradeoff for deterministic reproducibility and slot optimality.
 - Supports 100B+ models via compact per-slot backing + huge virtual address space (2^48+)

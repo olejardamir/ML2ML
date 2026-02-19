@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Error taxonomy governance.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize ambiguous or unclassified failures.
 ### 0.B Reproducibility Contract
 - Replayable given `(error_registry_version, failure_context_hash)`.
@@ -81,38 +85,39 @@
 ### II.F Error Registry (Authoritative)
 | code_id | numeric_code | category | severity | retryable | deterministic_fields_required | message_template | remediation | version_introduced |
 |---|---:|---|---|---|---|---|---|---|
-| `CONTRACT_VIOLATION` | 1801 | runtime | critical | false | `t,failure_operator,replay_token` | `Contract violation in {failure_operator}` | Validate manifest/operator contracts | v1 |
-| `INVALID_STAGE_TYPE` | 1802 | runtime | error | false | `t,stage_id,replay_token` | `Invalid pipeline stage type` | Fix manifest pipeline stage type | v1 |
-| `BATCH_SIZE_INCONSISTENT` | 1101 | data | error | false | `t,dataset_key,replay_token` | `global_batch_size % world_size != 0` | Fix manifest batch/world_size | v1 |
-| `INVALID_DATASET_KEY` | 1102 | data | error | false | `t,dataset_key,replay_token` | `Dataset key not found in manifest` | Register dataset and fix key | v1 |
-| `CARDINALITY_MISMATCH` | 1103 | data | critical | false | `t,dataset_key,registered_hash` | `Dataset cardinality does not match registered metadata` | Re-register immutable dataset metadata | v1 |
-| `GLOBAL_POSITION_EXCEEDS_CARDINALITY` | 1104 | data | error | false | `t,dataset_key,global_position,cardinality` | `Global position exceeds dataset cardinality` | Reset cursor or fix cardinality metadata | v1 |
-| `API_SIGNATURE_MISMATCH` | 1001 | config | error | false | `t,interface_id,schema_hash` | `API signature mismatch` | Regenerate bindings from interface contract | v1 |
-| `API_SHAPE_MISMATCH` | 1002 | config | error | false | `t,interface_id,payload_hash` | `API payload shape mismatch` | Fix request/response schema or caller payload | v1 |
-| `API_TYPE_MISMATCH` | 1003 | config | error | false | `t,interface_id,field_path` | `API payload type mismatch` | Align caller and schema scalar/object types | v1 |
-| `PRIVACY_BUDGET_EXCEEDED` | 1401 | dp | critical | false | `t,failure_operator,cumulative_epsilon,target_epsilon` | `DP budget exceeded` | Increase noise/reduce steps | v1 |
-| `INVALID_DP_CONFIG` | 1402 | dp | error | false | `t,accountant,clipping_strategy` | `Invalid differential privacy configuration` | Fix DP hyperparameters and mode compatibility | v1 |
-| `ACCOUNTANT_OVERFLOW` | 1403 | dp | critical | false | `t,accountant_type,state_hash` | `Privacy accountant overflow` | Switch to stable accountant grid or lower horizon | v1 |
-| `ACCOUNTANT_DIVERGENCE` | 1404 | dp | critical | false | `t,accountant_type,state_hash` | `Privacy accountant diverged` | Use validated accountant settings | v1 |
-| `NAN_IN_SIGMA` | 1405 | dp | critical | false | `t,sigma_map_hash` | `Sigma schedule contains NaN/Inf` | Clamp/validate scheduler outputs | v1 |
-| `INVALID_GRADIENT` | 1406 | dp | error | false | `t,grad_hash` | `Gradient tensor invalid for DP path` | Validate backward output and clipping inputs | v1 |
-| `RNG_CONSUMPTION_VIOLATION` | 1407 | dp | critical | false | `t,operator_id,rng_offset_before,rng_offset_after` | `RNG consumption contract violated` | Fix operator RNG declaration/usage | v1 |
-| `ALIGNMENT_VIOLATION` | 1301 | tmmu | critical | false | `t,arena,logical_slot` | `Memory alignment violation` | Increase alignment or remap slot | v1 |
-| `TMMU_ALLOCATION_FAILURE` | 1302 | tmmu | critical | false | `t,arena,peak_required_bytes` | `TMMU allocation failed` | Increase arena capacity or reduce footprint | v1 |
-| `ALLOCATION_OVERFLOW` | 1303 | tmmu | critical | false | `t,arena,offset,size` | `Allocation offset overflow` | Reduce allocation size or split arenas | v1 |
-| `ARENA_TOO_SMALL` | 1304 | tmmu | error | false | `t,arena,capacity,required` | `Arena capacity insufficient` | Increase capacity or enable recomputation | v1 |
-| `LIVENESS_CYCLE` | 1305 | tmmu | error | false | `t,ir_hash,node_id` | `Liveness analysis cycle detected` | Fix IR DAG and liveness metadata | v1 |
-| `INVALID_IR_SHAPES` | 1306 | tmmu | error | false | `t,ir_hash,node_id` | `Invalid static shapes for allocation` | Provide complete static shape metadata | v1 |
-| `ADDRESS_COLLISION` | 1307 | tmmu | critical | false | `t,arena,logical_slot` | `Virtual address collision` | Regenerate plan with valid injective mapping | v1 |
-| `BACKEND_CONTRACT_VIOLATION` | 1601 | backend | critical | false | `t,driver_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
-| `INVALID_IR` | 1201 | model | error | false | `t,ir_hash,node_id` | `Invalid IR structure` | Validate/repair IR before execution | v1 |
-| `CYCLE_DETECTED` | 1202 | model | error | false | `t,ir_hash,node_id` | `Cycle detected in IR DAG` | Fix graph topology | v1 |
-| `SHAPE_MISMATCH` | 1203 | model | error | false | `t,node_id,shape_in,shape_expected` | `Tensor shape mismatch during dispatch` | Fix model IR shapes or adapter mapping | v1 |
-| `PRIMITIVE_UNSUPPORTED` | 1602 | backend | error | false | `t,node_id,instr,driver_hash` | `Backend primitive unsupported` | Implement primitive or choose compatible backend | v1 |
-| `DISTRIBUTED_COMMUNICATION_FAILURE` | 1803 | distributed | critical | true | `t,world_size,collective_id` | `Deterministic collective failed or timed out` | Retry with stable network or fallback topology | v1 |
-| `ATTESTATION_FAILURE` | 1701 | security | critical | false | `t,quote_hash,policy_hash` | `Attestation verification failed` | Rotate trust roots/quotes and re-attest | v1 |
-| `INVALID_OBJECTIVE` | 1204 | model | critical | false | `t,failure_operator,objective_value` | `Objective invalid (NaN/Inf/out-of-contract)` | Fix loss/objective numeric path and policy guards | v1 |
-| `REPLAY_DIVERGENCE` | 1901 | replay | critical | false | `t,field_path,replay_token` | `Replay divergence detected` | Re-run with captured profile and inspect first divergence event | v1 |
+| `CONTRACT_VIOLATION` | 1801 | runtime | FATAL | false | `t,failure_operator,replay_token` | `Contract violation in {failure_operator}` | Validate manifest/operator contracts | v1 |
+| `INVALID_STAGE_TYPE` | 1802 | runtime | ERROR | false | `t,stage_id,replay_token` | `Invalid pipeline stage type` | Fix manifest pipeline stage type | v1 |
+| `BATCH_SIZE_INCONSISTENT` | 1101 | data | ERROR | false | `t,dataset_key,replay_token` | `global_batch_size % world_size != 0` | Fix manifest batch/world_size | v1 |
+| `INVALID_DATASET_KEY` | 1102 | data | ERROR | false | `t,dataset_key,replay_token` | `Dataset key not found in manifest` | Register dataset and fix key | v1 |
+| `CARDINALITY_MISMATCH` | 1103 | data | FATAL | false | `t,dataset_key,registered_hash` | `Dataset cardinality does not match registered metadata` | Re-register immutable dataset metadata | v1 |
+| `GLOBAL_POSITION_EXCEEDS_CARDINALITY` | 1104 | data | ERROR | false | `t,dataset_key,global_position,cardinality` | `Global position exceeds dataset cardinality` | Reset cursor or fix cardinality metadata | v1 |
+| `API_SIGNATURE_MISMATCH` | 1001 | config | ERROR | false | `t,interface_id,schema_hash` | `API signature mismatch` | Regenerate bindings from interface contract | v1 |
+| `API_SHAPE_MISMATCH` | 1002 | config | ERROR | false | `t,interface_id,payload_hash` | `API payload shape mismatch` | Fix request/response schema or caller payload | v1 |
+| `API_TYPE_MISMATCH` | 1003 | config | ERROR | false | `t,interface_id,field_path` | `API payload type mismatch` | Align caller and schema scalar/object types | v1 |
+| `PRIVACY_BUDGET_EXCEEDED` | 1401 | dp | FATAL | false | `t,failure_operator,cumulative_epsilon,target_epsilon` | `DP budget exceeded` | Increase noise/reduce steps | v1 |
+| `INVALID_DP_CONFIG` | 1402 | dp | ERROR | false | `t,accountant,clipping_strategy` | `Invalid differential privacy configuration` | Fix DP hyperparameters and mode compatibility | v1 |
+| `ACCOUNTANT_OVERFLOW` | 1403 | dp | FATAL | false | `t,accountant_type,state_hash` | `Privacy accountant overflow` | Switch to stable accountant grid or lower horizon | v1 |
+| `ACCOUNTANT_DIVERGENCE` | 1404 | dp | FATAL | false | `t,accountant_type,state_hash` | `Privacy accountant diverged` | Use validated accountant settings | v1 |
+| `NAN_IN_SIGMA` | 1405 | dp | FATAL | false | `t,sigma_map_hash` | `Sigma schedule contains NaN/Inf` | Clamp/validate scheduler outputs | v1 |
+| `INVALID_GRADIENT` | 1406 | dp | ERROR | false | `t,grad_hash` | `Gradient tensor invalid for DP path` | Validate backward output and clipping inputs | v1 |
+| `RNG_CONSUMPTION_VIOLATION` | 1407 | dp | FATAL | false | `t,operator_id,rng_offset_before,rng_offset_after` | `RNG consumption contract violated` | Fix operator RNG declaration/usage | v1 |
+| `ALIGNMENT_VIOLATION` | 1301 | tmmu | FATAL | false | `t,arena,logical_slot` | `Memory alignment violation` | Increase alignment or remap slot | v1 |
+| `TMMU_ALLOCATION_FAILURE` | 1302 | tmmu | FATAL | false | `t,arena,peak_required_bytes` | `TMMU allocation failed` | Increase arena capacity or reduce footprint | v1 |
+| `ALLOCATION_OVERFLOW` | 1303 | tmmu | FATAL | false | `t,arena,offset,size` | `Allocation offset overflow` | Reduce allocation size or split arenas | v1 |
+| `ARENA_TOO_SMALL` | 1304 | tmmu | ERROR | false | `t,arena,capacity,required` | `Arena capacity insufficient` | Increase capacity or enable recomputation | v1 |
+| `LIVENESS_CYCLE` | 1305 | tmmu | ERROR | false | `t,ir_hash,node_id` | `Liveness analysis cycle detected` | Fix IR DAG and liveness metadata | v1 |
+| `INVALID_IR_SHAPES` | 1306 | tmmu | ERROR | false | `t,ir_hash,node_id` | `Invalid static shapes for allocation` | Provide complete static shape metadata | v1 |
+| `ADDRESS_COLLISION` | 1307 | tmmu | FATAL | false | `t,arena,logical_slot` | `Virtual address collision` | Regenerate plan with valid injective mapping | v1 |
+| `BACKEND_CONTRACT_VIOLATION` | 1601 | backend | FATAL | false | `t,driver_hash,operator_id` | `Backend failed determinism contract` | Use certified driver build | v1 |
+| `INVALID_IR` | 1201 | model | ERROR | false | `t,ir_hash,node_id` | `Invalid IR structure` | Validate/repair IR before execution | v1 |
+| `CYCLE_DETECTED` | 1202 | model | ERROR | false | `t,ir_hash,node_id` | `Cycle detected in IR DAG` | Fix graph topology | v1 |
+| `SHAPE_MISMATCH` | 1203 | model | ERROR | false | `t,node_id,shape_in,shape_expected` | `Tensor shape mismatch during dispatch` | Fix model IR shapes or adapter mapping | v1 |
+| `PRIMITIVE_UNSUPPORTED` | 1602 | backend | ERROR | false | `t,node_id,instr,driver_hash` | `Backend primitive unsupported` | Implement primitive or choose compatible backend | v1 |
+| `DISTRIBUTED_COMMUNICATION_FAILURE` | 1803 | distributed | FATAL | true | `t,world_size,collective_id` | `Deterministic collective failed or timed out` | Retry with stable network or fallback topology | v1 |
+| `ATTESTATION_FAILURE` | 1701 | security | FATAL | false | `t,quote_hash,policy_hash` | `Attestation verification failed` | Rotate trust roots/quotes and re-attest | v1 |
+| `INVALID_OBJECTIVE` | 1204 | model | FATAL | false | `t,failure_operator,objective_value` | `Objective invalid (NaN/Inf/out-of-contract)` | Fix loss/objective numeric path and policy guards | v1 |
+| `REPLAY_DIVERGENCE` | 1901 | replay | FATAL | false | `t,field_path,replay_token` | `Replay divergence detected` | Re-run with captured profile and inspect first divergence event | v1 |
+| `TRACE_CAP_EXCEEDED_MANDATORY` | 1501 | trace | FATAL | false | `t,run_id,trace_policy_hash` | `Trace cap exceeded for mandatory record kinds` | Raise trace caps or reduce optional sampling load | v1 |
 
 Numeric range reservation:
 - 1000-1099 config/schema

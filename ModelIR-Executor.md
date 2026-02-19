@@ -17,6 +17,10 @@
 - **Domain / Problem Class:** Scalable deterministic ML computation graph execution.
 
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Not an optimization operator.
 - Primary guarantee: deterministic critical-path outputs for identical `(ir_dag, theta, inputs, mode, replay_token, driver_hash)` under a declared adapter/hardware determinism tier.
 - Comparison rule: exact tensor equality on binary64 critical reductions; EPS_EQ tolerance on compute_dtype paths.
@@ -57,16 +61,17 @@
 - Requires loaded compliant backend driver (via UML_OS.Backend.LoadDriver_v1) and active TMMU.
 - Reference runtime: CPU reference driver for E0 verification.
 - Dependencies: UML_Model_IR schema (0.Y of kernel), registered custom operators, TMMU arena.
-- **Backward-mode requirement:** ir_dag contains the same nodes as forward but DispatchPrimitive_v1 uses mode="backward" to invoke gradient kernels; reverse ordering ensures downstream gradients arrive before upstream accumulation.
+- **Backward-mode requirement:** ir_dag contains the same nodes as forward but DispatchPrimitive_v1 uses mode="backward" to invoke gradient kernels; execution order must follow explicit gradient dependency order.
 - Determinism level: `BITWISE` for critical tensors/fingerprints, `TOLERANCE` for non-critical compute_dtype paths.
 
 ### 0.G Operator Manifest
 - `UML_OS.Model.ModelIR_Executor_v1`
 - `UML_OS.Model.TopoSortNodes_v1`
+- `UML_OS.Model.BuildGradDependencyOrder_v1`
 - `UML_OS.Model.DispatchPrimitive_v1`
 - `UML_OS.Model.CollectGradients_v1`
 - `UML_OS.TMMU.PrepareMemory_v2` (includes static liveness + deterministic slot assignment)
-- `UML_OS.StateFingerprint_v1`
+- `UML_OS.Fingerprint.StateFingerprint_v1`
 - `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.Error.Emit_v1`
@@ -99,6 +104,28 @@
 
 ---
 
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 
 ### I.A Persistent State
@@ -124,7 +151,7 @@
 - `execution_order`, `tensor_map`, `grad_map` (backward only), `rng_state_work`
 
 ### I.E Invariants and Assertions
-- Topological order respected (**forward or reversed for backward**).
+- Topological order respected (forward order for forward/infer; explicit gradient dependency order for backward).
 - Every node input available before dispatch.
 - All allocated tensors zeroed by TMMU before first write.
 - Critical reductions performed in binary64 with fixed order.
@@ -141,7 +168,9 @@
 
 1. `Contract.Validate_v1(ir_dag, driver, mode)`
 2. `execution_order ← UML_OS.Model.TopoSortNodes_v1(ir_dag)`
-3. **if mode == "backward": execution_order ← reversed(execution_order)**  *(algorithmic guarantee of correct gradient flow)*
+3. **if mode == "backward":**
+   - **`backward_order, reverse_equivalent_flag ← UML_OS.Model.BuildGradDependencyOrder_v1(ir_dag, execution_order)`**
+   - **if `reverse_equivalent_flag == 1`: `execution_order ← reversed(execution_order)` else `execution_order ← backward_order`**
 4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
 
 ---
@@ -151,10 +180,11 @@
 Active operators:
 - `UML_OS.Model.ModelIR_Executor_v1`
 - `UML_OS.Model.TopoSortNodes_v1`
+- `UML_OS.Model.BuildGradDependencyOrder_v1`
 - `UML_OS.Model.DispatchPrimitive_v1`
 - `UML_OS.Model.CollectGradients_v1`
 - `UML_OS.TMMU.PrepareMemory_v2`
-- `UML_OS.StateFingerprint_v1`
+- `UML_OS.Fingerprint.StateFingerprint_v1`
 - `UML_OS.TMMU.CommitExecution_v1`
 - `UML_OS.Contract.Validate_v1`
 - `UML_OS.Error.Emit_v1`
@@ -170,14 +200,14 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Signature:** `(ir_dag, theta, input_data, mode, tmmu_context, rng_state → outputs, grads?, execution_fp, tmmu_state_next, rng_state_next)`  
 **Purity class:** STATEFUL (TMMU/driver)  
 **Determinism:** deterministic  
-**Definition:** Executes full pass on UML_Model_IR DAG. Guarantees deterministic layout plans and critical outputs within the declared adapter/hardware determinism tier (E0/E1 contract). **Mode-aware scheduling (reverse order for backward).**
+**Definition:** Executes full pass on UML_Model_IR DAG. Guarantees deterministic layout plans and critical outputs within the declared adapter/hardware determinism tier (E0/E1 contract). **Mode-aware scheduling uses explicit gradient dependency order for backward.**
 **Preconditions / Postconditions:** validated IR/driver contract; outputs and optional gradients returned with committed TMMU state.  
 **Edge cases:** empty DAG, single-node DAG, backward on non-differentiable nodes.  
 **Numerical considerations:** binary64 critical-path reductions with deterministic ordering.  
-**Ordering/tie handling:** strict topological order; stable node_id tie-break; backward uses reverse of this order.  
+**Ordering/tie handling:** strict topological order; stable node_id tie-break; backward uses deterministic gradient dependency order (reverse-forward only when proven equivalent).  
 **Complexity note:** O(|nodes| + |edges|) dispatch path after initialization.  
 **Failure behavior:** abort on 0.K failure codes.  
-**Dependencies:** TopoSortNodes_v1, DispatchPrimitive_v1, CollectGradients_v1, PrepareMemory_v2, StateFingerprint_v1, CommitExecution_v1.  
+**Dependencies:** TopoSortNodes_v1, DispatchPrimitive_v1, CollectGradients_v1, PrepareMemory_v2, UML_OS.Fingerprint.StateFingerprint_v1, CommitExecution_v1.  
 **Test vectors:** see VII.B tiny DAG forward/backward/inference checks.
 
 **Operator:** `UML_OS.Model.TopoSortNodes_v1`  
@@ -194,6 +224,13 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Failure behavior:** `CYCLE_DETECTED` abort on non-DAG graph.  
 **Dependencies:** IR schema validation.  
 **Test vectors:** cycle detection and deterministic ordering checks.
+
+**Operator:** `UML_OS.Model.BuildGradDependencyOrder_v1`
+**Category:** Model
+**Signature:** `(ir_dag, forward_execution_order -> backward_execution_order: node[], reverse_equivalent_flag: {0,1})`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Builds a topological order over explicit gradient dependency graph (`grad_edges`). Returns whether `reversed(forward_execution_order)` is exactly equivalent for this IR.
 
 **Operator:** `UML_OS.Model.DispatchPrimitive_v1`  
 **Category:** Model  
@@ -249,7 +286,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Determinism:** deterministic  
 **Definition:** Verifies IR schema, primitive coverage, determinism requirements, and mode constraints before execution.
 
-**Operator:** `UML_OS.StateFingerprint_v1`  
+**Operator:** `UML_OS.Fingerprint.StateFingerprint_v1`  
 **Category:** Observability  
 **Signature:** `(tensor_map -> execution_fp)`  
 **Purity class:** PURE  
@@ -269,7 +306,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 1. Contract.Validate_v1(ir_dag, driver, mode)
 2. execution_order ← TopoSortNodes_v1(ir_dag)
 3. if mode == "backward":
-       execution_order ← reversed(execution_order)   # algorithmic improvement: correct gradient flow order
+       backward_order, reverse_equivalent_flag <- BuildGradDependencyOrder_v1(ir_dag, execution_order)
+       if reverse_equivalent_flag == 1:
+           execution_order <- reversed(execution_order)
+       else:
+           execution_order <- backward_order
 4. tensor_map ← TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)  # static liveness + zeroing + slot reuse (mode-aware)
 
 5. rng_state_work <- rng_state
@@ -280,7 +321,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
        grads ← CollectGradients_v1(tensor_map, ir_dag, theta)  # now explicitly defined operator
 
 8. outputs ← extract_output_nodes(tensor_map, ir_dag)
-9. execution_fp ← StateFingerprint_v1(tensor_map)  # critical tensors only
+9. execution_fp ← UML_OS.Fingerprint.StateFingerprint_v1(tensor_map)  # critical tensors only
 10. TMMU.CommitExecution_v1()  # sync barriers for isolation
 11. return outputs, grads?, execution_fp, tmmu_state_next, rng_state_work
 ```

@@ -17,6 +17,10 @@
 - **Domain / Problem Class:** Scalable deterministic data iteration for any dataset cardinality.
 
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Not an optimization operator.
 - Primary guarantee: identical global virtual sequence for any (world_size, rank) pair given identical manifest/seed/dataset_cardinality.
 - Comparison rule: exact index equality (uint64).
@@ -27,6 +31,7 @@
 - Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
 - Replay guarantee: fully replayable given `(manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
 - Replay token contribution: `data_replay_t = SHA-256(CBOR(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
+- Contract-critical hash primitive: `SHA-256(CBOR_CANONICAL(...))`.
 
 ### 0.C Numeric Policy
 - All indices, cardinalities, positions: uint64 (no wrap-around overflow; explicit bounds checks)
@@ -64,13 +69,15 @@
 - Fully-qualified names: `UML_OS.Data.<Name>_v#`
 
 ### 0.I Outputs and Metric Schema
-- Declared outputs: `(batch_sample_indices: uint64[], data_cursor')`
+- Declared outputs: `(batch_sample_indices: uint64[], cursor_next, sampling_metadata)`
 - Minimum metrics: `epoch`, `global_position`, `is_shuffled`, `effective_batch_size`, `blocks_materialized`
-- DP/accounting metadata output: `subsampling_mode`, `effective_q`, `sampler_block_size`
+- DP/accounting metadata output: `subsampling_mode`, `sampling_mode`, `effective_q`, `sampler_block_size`, `sampler_config_hash`
 - Deterministic definitions:
   - `B_eff = global_batch_size`
   - `effective_q = float64(B_eff) / float64(N)`
   - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
+  - `sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"` in train mode, `"SEQUENTIAL_V1"` in eval/infer mode
+  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))`
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
@@ -92,6 +99,28 @@
 - `streaming_infinite`: wrap-around with epoch seed rotation
 
 ---
+
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
 
 ## 2) System Model
 
@@ -120,16 +149,16 @@
 - Same `(manifest_hash, epoch, global_position)` → identical sample index
 - Eval/infer: sample_indices == [global_pos, global_pos+1, …] % N
 - Train: permutation is a bijection over [0 … N-1]
-- Cursor only advances on successful batch return
+- `NextBatch_v2` is cursor-pure: it consumes `cursor_in` and returns `cursor_next`; persistence is owned by kernel/checkpoint state.
 - DP alignment invariant: emitted `subsampling_mode` must match DP accountant assumption for the same run.
 
 ---
 
 ## 3) Initialization
 
-1. `cursor <- data_cursors.get(dataset_key, {epoch:0, global_index:0})`
+1. `cursor <- cursor_in` (caller-owned persistent cursor; default `{epoch:0, global_index:0}` at first use)
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = BLAKE3(CBOR(["nextbatch_epoch_seed_v2", manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
 
 ---
 
@@ -149,11 +178,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 
 **Operator:** `UML_OS.Data.NextBatch_v2`  
 **Category:** Data  
-**Signature:** `(dataset_key, world_size, rank, stage_type -> batch_sample_indices: uint64[], data_cursor')`  
-**Purity class:** STATEFUL  
+**Signature:** `(dataset_key, world_size, rank, stage_type, cursor_in -> batch_sample_indices: uint64[], cursor_next, sampling_metadata)`  
+**Purity class:** PURE  
 **Determinism:** deterministic (RNG only inside helpers for train shuffling)  
-**Definition:** Computes the next micro-batch of original sample indices according to global virtual order. Guarantees identical sequence across any distributed configuration.
-**Preconditions / Postconditions:** dataset exists and cardinality is known; cursor is advanced exactly once on success.  
+**Definition:** Computes the next micro-batch of original sample indices according to global virtual order from explicit caller-provided cursor state. Guarantees identical sequence across any distributed configuration and deterministic cursor transition.
+**Preconditions / Postconditions:** dataset exists and cardinality is known; `cursor_next` is advanced exactly once on success and must be persisted by caller.  
 **Edge cases:** `N < global_batch_size`, final partial range with `drop_last=true`, `world_size=1`.  
 **Numerical considerations:** uint64-only arithmetic; explicit bounds checks before modulo/division.  
 **Ordering/tie handling:** ascending global virtual positions; contiguous rank shard order.  
@@ -182,7 +211,12 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 **Signature:** `(block_id, local_pos, block_size, epoch_seed, N -> original_index: uint64)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** Computes an explicit affine bijection inside the selected block. Let `block_start = block_id * block_size`, `m = min(block_size, N - block_start)`, and derive `(k0, k1)` from Philox with counter tuple `(epoch_seed, block_id)`. Define `a = 1` if `(k0 & 1) == 0` else `a = m - 1` (for `m > 1`; for `m=1`, return `block_start`). Define `c = k1 mod m`. Then `j = (a * local_pos + c) mod m` and `original_index = block_start + j`. This is bijective because `gcd(1, m) = 1` and `gcd(m-1, m) = 1`.
+**Definition:** Computes an explicit affine bijection inside the selected block. Let `block_start = block_id * block_size`, `m = min(block_size, N - block_start)`, and derive `(k0, k1)` from Philox with counter tuple `(epoch_seed, block_id)`. If `m=1`, return `block_start`. Otherwise choose `a` deterministically from seed material:
+1. `a <- 1 + (k0 mod (m-1))`
+2. while `gcd(a, m) != 1`: `a <- 1 + (a mod (m-1))`
+3. bounded loop upper bound: `m-1` iterations (must terminate because at least one coprime exists)
+Then set `c = k1 mod m`, compute `j = (a * local_pos + c) mod m`, and `original_index = block_start + j`.
+This is bijective because `gcd(a,m)=1` by construction.
 **Preconditions / Postconditions:** `local_pos < m`; output index in `[0, N-1]`; mapping is a permutation over `[block_start, block_start + m - 1]`.  
 **Edge cases:** short final block, `N % block_size != 0`.  
 **Numerical considerations:** integer modular arithmetic only; no float path; all intermediate arithmetic checked for uint64 overflow before modulo.  
@@ -197,21 +231,24 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
 ## 6) Procedure
 
 ```text
-1. cursor = data_cursors[dataset_key] or init {epoch=0, global_index=0}
+1. cursor = cursor_in
 2. N = manifest.datasets[dataset_key].cardinality
 3. global_pos = cursor.global_index
 4. global_batch_size = manifest.global_batch_size
 5. If global_batch_size % world_size != 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
 6. micro_batch_size = global_batch_size // world_size
 7. rank_start = rank * micro_batch_size
+7b. sampler_block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
 
 8. if stage_type in {"eval", "infer"}:
        is_shuffled = false
+       sampling_mode = "SEQUENTIAL_V1"
        batch_positions = [global_pos + rank_start + i for i in 0..micro_batch_size-1]
        batch_indices = [p % N for p in batch_positions]
    else:
        is_shuffled = true
-       block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
+       sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"
+       block_size = sampler_block_size
        num_full_blocks = N // block_size
        has_tail = (N % block_size) != 0
        block_order = SeededBlockPermute_v1(num_full_blocks, epoch_seed) if num_full_blocks > 0 else []
@@ -230,12 +267,12 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `E
            orig_idx = SeededIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
            batch_indices.append(orig_idx)
 
-9. cursor.global_index += global_batch_size
-10. if cursor.global_index >= N:
+9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))
+10. cursor.global_index += global_batch_size
+11. if cursor.global_index >= N:
         cursor.epoch += 1
         cursor.global_index = 0   # start new epoch
-11. data_cursors[dataset_key] = cursor
-12. return batch_indices, cursor
+12. return batch_indices, cursor, {sampling_mode, sampler_config_hash}
 ```
 
 **Scalability & Algorithmic Guarantees (v2):**
@@ -255,7 +292,7 @@ Each invocation emits one deterministic trace record with cursor-before/cursor-a
 
 ### Trace schema (minimum required)
 - `run_header`: `dataset_key`, `cardinality`, `sampler_block_size`, `is_shuffled_per_stage`
-- `iter`: `t`, `epoch`, `global_position`, `is_shuffled`, `micro_batch_size`, `global_batch_size`, `subsampling_mode`, `effective_q`, `epoch_seed_hash`, `data_replay_t`
+- `iter`: `t`, `epoch`, `global_position`, `is_shuffled`, `micro_batch_size`, `global_batch_size`, `subsampling_mode`, `sampling_mode`, `sampler_config_hash`, `effective_q`, `epoch_seed_hash`, `data_replay_t`
 - `run_end`: final epoch count, total_samples_seen
 
 ### Metric schema

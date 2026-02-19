@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Engineering roadmap orchestration.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Objective: minimize delivery risk and integration rework.
 - Comparison: fewer blocked milestones is better; ties by earlier completion date.
 ### 0.B Reproducibility Contract

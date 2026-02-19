@@ -14,6 +14,10 @@
 - **Spec Version:** `UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Unified trace format.
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Minimize trace ambiguity and schema drift.
 ### 0.B Reproducibility Contract
 - Replayable given `(schema_version, trace_root_hash, replay_token_formula)`.
@@ -83,15 +87,15 @@
   - `record_hash_i = SHA-256(CBOR(normalized_record_i))`
   - Whole-run hash chain:
     - `h_0 = SHA-256(CBOR(["trace_chain_v1"]))`
-    - `h_i = SHA-256(h_{i-1} || record_hash_i)` for records in canonical order
+    - `h_i = SHA-256(CBOR(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
     - `final_trace_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
   - `trace_tail_hash = h_last`
 - Self-reference rule: when hashing the `run_end` record, `run_end.final_trace_hash` is omitted (or encoded as empty bytes) in the canonical CBOR input.
 - Canonical serialization: CBOR map with sorted keys (bytewise lexicographic), UTF-8 strings, unsigned integers for counters.
-- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`.
-- Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`.
+- Required `run_header` fields/types: `schema_version:string`, `replay_token:bytes`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_hash:bytes`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`.
+- Required `iter` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes`.
 - `operator_seq` is a per-rank monotone counter.
 - Optional `iter` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes`, `functional_fp:bytes`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Optional `iter` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
@@ -116,6 +120,9 @@
   - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
   - HASH_GATED inclusion rule: include iff `SHA-256(CBOR([replay_token, t, operator_seq])) mod M < K`.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with declared priority ordering.
+  - `mandatory_record_kinds = {run_header, policy_gate_verdict, checkpoint_commit, certificate_inputs, run_end}`.
+  - Mandatory records MUST NEVER be sampled out or dropped.
+  - If caps force dropping mandatory records: emit `TRACE_CAP_EXCEEDED_MANDATORY` and abort deterministically.
 
 ---
 ## 3) Initialization

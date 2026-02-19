@@ -39,6 +39,11 @@
   - `determinism_profile_hash`,
   - backend runtime fingerprint.
 - Canonical hash/input encoding rule (global): all hash inputs are domain-separated CBOR arrays; strings encoded UTF-8; integers encoded as unsigned big-endian logical values via CBOR major type.
+- Hash primitives policy (global, normative):
+  - contract-critical digests MUST use `SHA-256(CBOR_CANONICAL(...))`,
+  - domain-separation tag is required as first CBOR array element,
+  - digest slicing (e.g., `[0:16]`) must use leftmost bytes,
+  - digest-to-uint conversion uses big-endian interpretation.
 
 ### 0.C Numeric Policy
 - Core arithmetic (loss, metrics, termination, fingerprints, gradient norms, DP accounting, critical reductions): IEEE-754 binary64 with deterministic ascending-index order and EPS guards.
@@ -76,6 +81,7 @@ Active operator wiring is declared in section `4) Operator Manifest`.
 ### 0.H Namespacing and Packaging
 - Fully-qualified names: `UML_OS.<Category>.<Name>_v#`
 - Sidecar mapping required: operator -> module/function
+- Normative naming rule: all operators MUST match `UML_OS.<subsystem>.<name>_v<integer>`; flat operators are forbidden.
 
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `theta_final`, `trace`, `checkpoint`, `tape_digest`, `training_certificate`
@@ -106,7 +112,7 @@ Migration: update manifest operator versions and replay_token.
   - Driver (deterministic device primitives)
   - Runtime (pinned dependencies)
   - Module (verified operator packages)
-  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + BLAKE3(CBOR(["daemon_sched_v1", manifest_hash, hardware_attest_id, job_id])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/data_cursor/checkpoints/tapes/lineage) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
+  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + SHA-256(CBOR_CANONICAL(["daemon_sched_v1", manifest_hash, hardware_attest_id, job_id])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/data_cursor/checkpoints/tapes/lineage) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation for traced tensors and contract-critical buffers. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
   - Management (CLI entrypoints)
   - User (manifests only)
 - Filesystem roots:
@@ -180,6 +186,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - `managed`: full enforcement, signed certificate required
 - `confidential`: TEE launch + quote mandatory, full enforcement, signed certificate includes quote
 - `regulated`: daemon mandatory; enforces exact differential-privacy accounting, immutable append-only audit trail, and electronic signatures. Launches inside hardware TEE if present. If Security.AttestTEE_v1 fails at any point, kernel issues immediate termination, executes deterministic best-effort zeroization hooks for owned memory regions, records zeroization evidence, and aborts. Full RNG auditing; produces signed provenance record.
+- Legacy framework import rule: `UML_OS.Import.LegacyFramework_v1` is allowed only on SERVICE surface in `local`/`managed`; forbidden in `confidential`/`regulated`.
 
 ### 0.W CLI and Usability Requirements
 - Required commands (prioritized entrypoints): `umlos quickstart [template: classification|regression|pipeline|regulated]` (creates minimal ready-to-run manifest.yaml + project layout + example pipeline under current dir; runnable in <10 s), `umlos run manifest.yaml`, `umlos validate`, `umlos doctor`, `umlos replay <token>`, `umlos certificate verify`, `umlos migrate <legacy_path> [options] --output-dir .` (analyzes common training scripts/notebooks, generates runnable UML_OS manifest.yaml + IR; runs Contract.Validate_v1 on result), plus `job submit`/`export`/`infer`/`namespace init`/`daemon start`/`dataset register`/`import`/`audit export`/`ps/logs/kill/queue`. All CLI paths perform full Contract.Validate_v1 + manifest validation before any action.
@@ -202,6 +209,28 @@ Neutral declarative ML-ISA (Instruction Set Architecture) used by all Model/* sy
 `UML_OS.IO.WriteTape_v1` serves as the canonical `LogIteration` operator. Every iteration appends a structured trace record containing all required V.B fields (`t`, `state`, `action`, `loss_total`, `grad_norm`, `state_fp`, `functional_fp`, `replay_token`/fingerprint, etc.).
 
 ---
+
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
 
 ## 2) System Model
 
@@ -269,7 +298,7 @@ Active operators (exact wiring table):
 - `UML_OS.Model.ExpandPreset_v1`
 - `UML_OS.Model.ApplyFineTune_v1`
 - `UML_OS.Objective.TotalLoss_v1`
-- `UML_OS.Update_v1`
+- `UML_OS.Optimizer.Update_v1`
 - `UML_OS.Module.RegisterCustom_v1`
 - `UML_OS.Policy.Evaluate_v1`
 - `UML_OS.Contract.Validate_v1`
@@ -278,7 +307,7 @@ Active operators (exact wiring table):
 - `UML_OS.IO.WriteTrainingCertificate_v1`
 - `UML_OS.State.Journal_v1`
 - `UML_OS.Termination.Check_v1`
-- `UML_OS.StateFingerprint_v1`
+- `UML_OS.Fingerprint.StateFingerprint_v1`
 - `UML_OS.Fingerprint.Functional_v1`
 - `UML_OS.Error.Emit_v1`
 - `UML_OS.Distributed.Setup_v1`
@@ -308,7 +337,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(manifest -> persistent_state)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws); parameter init; buffer allocation; data manifest load + ValidateManifest_v1 + ImportAndRegister_v1 if needed; ApplyFineTune_v1 if declared; ExpandPreset_v1 if preset set; Backend.LoadDriver_v1(manifest.backend); Distributed.Setup_v1; policy load; namespace enter; Security.AttestTEE_v1 (confidential mode only); resolve and merge `manifest_inheritance` if declared; apply `profile`-specific defaults and materialize default pipeline_stages if absent per 0.Q profile rule; resolve and merge manifest_inheritance before pipeline materialization; set `hardware_affinity` pinning if specified; if environment.requirements_hash declared and execution_mode != "local": compute current environment BLAKE3 hash from pinned runtime manifest and abort with CONTRACT_VIOLATION on mismatch; in local mode emit deterministic warning record only (no abort); if execution_mode == "local" and manifest.legacy_import_path is present: perform best-effort structural analysis of standard framework training code (PyTorch nn.Module/DataLoader loops, Lightning/HF/JAX equivalents) to emit equivalent UML_Model_IR DAG, pipeline_stages, and minimal manifest; register converted components via RegisterCustom_v1 and ExpandPreset_v1; write conversion report to tape.  
+**Definition:** PRNG master seeded from fixed manifest hash (single Philox + fixed offsets; no draws); parameter init; buffer allocation; data manifest load + ValidateManifest_v1 + ImportAndRegister_v1 if needed; ApplyFineTune_v1 if declared; ExpandPreset_v1 if preset set; Backend.LoadDriver_v1(manifest.backend); Distributed.Setup_v1; policy load; namespace enter; Security.AttestTEE_v1 (confidential mode only); resolve and merge `manifest_inheritance` if declared; apply `profile`-specific defaults and materialize default pipeline_stages if absent per 0.Q profile rule; resolve and merge manifest_inheritance before pipeline materialization; set `hardware_affinity` pinning if specified; if environment.requirements_hash declared and execution_mode != "local": compute current environment SHA-256 hash from pinned runtime manifest and abort with CONTRACT_VIOLATION on mismatch; in local mode emit deterministic warning record only (no abort). Legacy framework import is delegated to `UML_OS.Import.LegacyFramework_v1` on SERVICE surface and forbidden in `confidential`/`regulated` modes.
 **Preconditions / Postconditions:** manifest canonicalized; TEE quote valid in confidential mode.  
 **Edge cases:** missing dataset hash, invalid URI, TEE unavailable.  
 **Numerical considerations:** manifest-hash-derived bytes for theta init (no RNG).  
@@ -373,7 +402,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(dataset_key, world_size, rank -> batch, data_cursor')`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic with declared RNG  
-**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `BLAKE3(CBOR(["nextbatch_epoch_seed_v1", manifest_hash, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
+**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v1", manifest_hash, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). Updates only data_cursors[dataset_key].  
 **Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
 **Edge cases:** world_size=1, final batch boundary.  
 **Numerical considerations:** preprocessing stable in binary64 for reductions.  
@@ -433,7 +462,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Failure behavior:** invalid objective policy from 0.A/0.K.  
 **Dependencies:** 0.A, 0.C.
 
-**Operator:** `UML_OS.Update_v1`  
+**Operator:** `UML_OS.Optimizer.Update_v1`  
 **Category:** Update  
 **Signature:** `(theta, grads, optimizer_cfg -> theta')`  
 **Purity class:** STATEFUL  
@@ -563,7 +592,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Failure behavior:** abort/warn per execution mode.  
 **Dependencies:** 0.V.
 
-**Operator:** `UML_OS.StateFingerprint_v1`  
+**Operator:** `UML_OS.Fingerprint.StateFingerprint_v1`  
 **Category:** Fingerprint  
 **Signature:** `(state -> state_fp)`  
 **Purity class:** PURE  
@@ -646,7 +675,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(event -> journal_state')`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** Write-ahead log: append cryptographically chained record (`BLAKE3(CBOR(["journal_link_v1", previous_hash, event, uint64(t)]))`) to journal before any state mutation is visible.
+**Definition:** Write-ahead log: append cryptographically chained record (`SHA-256(CBOR_CANONICAL(["journal_link_v1", previous_hash, event, uint64(t)]))`) to journal before any state mutation is visible.
 **Preconditions / Postconditions:** journal open; hash chain preserved.
 **Failure behavior:** abort on write failure.
 
@@ -785,7 +814,7 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     if action == "optimize":
       grads = UML_OS.Model.Backward_v1(L_tot, theta)  # unclipped when DP is enabled
       if manifest.execution_mode == "regulated": noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads)
-      theta <- UML_OS.Update_v1(noisy_grads or grads, ...)
+      theta <- UML_OS.Optimizer.Update_v1(noisy_grads or grads, ...)
     else if action == "eval" or current_stage.type == "eval":
       state <- UML_OS.Transition.SwitchState_v1(state, "eval")
       UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)

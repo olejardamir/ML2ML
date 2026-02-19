@@ -17,6 +17,10 @@
 - **Domain / Problem Class:** Runtime type contracts.
 
 ### 0.A Objective Semantics
+- Optimization sense: `MINIMIZE`
+- Objective type: `Scalar`
+- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
+- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
 - Not an optimization algorithm.
 - Primary guarantee: exact type/field consistency across modules.
 
@@ -67,6 +71,28 @@
 
 ---
 
+### 0.Z EQC Mandatory Declarations Addendum
+- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
+- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
+- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
+- Replay token: deterministic per-run token contribution is defined and included in trace records.
+- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
+- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
+- Fast-math policy: forbidden for critical checks and verdict paths.
+- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
+- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
+- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
+- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
+- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
+- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
+- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
+- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
+- Dependency manifest: pinned runtime dependencies and versions are required.
+- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
+- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
+- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+
 ## 2) System Model
 
 ### I.A Persistent State
@@ -85,11 +111,16 @@
 - unique structure names and stable field ordering.
 
 ### II.F Concrete Structure Layouts
+- Authoritative enums:
+  - `purity_class = PURE | STATEFUL | IO`
+  - `side_effect = NONE | ADVANCES_RNG | ADVANCES_CURSOR | MUTATES_ACCOUNTANT | MUTATES_MODEL_STATE | PERFORMS_IO | NETWORK_COMM | ALLOCATES_MEMORY`
 - `TraceIterRecord` (CBOR map): `{t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL), loss_total?:float64, grad_norm?:float64}`.
-- `CheckpointHeader`: `{spec_version:string, replay_token:bytes32, t:uint64, checkpoint_merkle_root:bytes32}`.
+- `TraceRunHeader`: `{schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_hash:bytes32, redaction_mode:enum(NONE|HMAC_SHA256_V1), redaction_key_id?:string, redaction_policy_hash?:bytes32}`.
+- `CheckpointHeader`: `{tenant_id:string, run_id:string, spec_version:string, replay_token:bytes32, t:uint64, manifest_hash:bytes32, trace_root_hash:bytes32, sampler_config_hash:bytes32, tmmu_plan_hash:bytes32, backend_binary_hash:bytes32, checkpoint_merkle_root:bytes32, policy_hash:bytes32, determinism_profile_hash:bytes32, dependencies_lock_hash:bytes32, operator_contracts_root_hash:bytes32, runtime_env_hash:bytes32, code_commit_hash:bytes32, lineage_root_hash:bytes32, tensors_root_hash:bytes32, optimizer_state_root_hash:bytes32, dp_accountant_state_root_hash?:bytes32}`.
 - `ErrorRecord`: `{code_id:string, numeric_code:uint32, severity:enum(FATAL|ERROR|WARN), subsystem:string, t:uint64, rank:uint32, failure_operator:string, replay_token:bytes32, message:string, retryable:bool, diagnostics?:map<string,scalar|string|bytes>, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `MonitorEvent`: `{tenant_id:string, run_id:string, model_version_id:string, window_id:string, metric_name:string, metric_value:float64, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
 - `MetricSchema`: `{metric_name:string, scalar_type:enum(float64|int64|bool|string), aggregation:enum(sum|mean|min|max|quantile), window_policy:string, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
+- `PipelineTransitionRecord`: `{tenant_id:string, job_id:string, attempt_id:uint32, transition_seq:uint64, idempotency_key:bytes32, from_state:string, to_state:string, status:string, diagnostics?:map<string,string>}`.
 - Alignment policy for binary layouts: fields aligned to natural size; packed representation forbidden for cross-language canonical payloads.
 
 ---
