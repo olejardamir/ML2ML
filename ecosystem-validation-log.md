@@ -346,3 +346,65 @@
 - Validation:
   - Updated hash (`L1-002`): `6c9c095a944825ff424256d8bc26d4bfbfcd955775ae8df9dbeffe5326385c58`
   - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog determinism hardening pass (version typing, canonical entry structure, label constraints, resolution semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - explicit `catalog_version:uint32` definition and commitment typing,
+    - canonical catalog object/entry schema with map-form records and no additional fields,
+    - label constraints forbidding 64-hex labels reserved for inline digest refs,
+    - bytewise case-sensitive uniqueness semantics for labels,
+    - explicit lowercase-only inline digest rule and deterministic failure for uppercase hex inline tails,
+    - clarified `domain_tag` role as governance metadata,
+    - procedure alignment so validation is initialization-time, not per lookup.
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `82c8002afeb25250eed9a5b5445ad34307f6cc6e3230b52377c9ae3c622c4178`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog follow-up consistency pass (catalog_version semantics, output contract, inline-hex normalization).
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - explicit positive-integer semantics for `catalog_version` (`uint32`, `>= 1`) and inclusion as catalog metadata,
+    - corrected output section to remove undefined `catalog_report` and split operator outputs by operator,
+    - strengthened entry-record structure wording (exact map fields, no extras/no omissions),
+    - inline digest disambiguation updated to accept mixed-case hex tails with mandatory lowercase normalization before parsing.
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `f444f01adfa7766a3be32c7721b7bca44cad24b40e6726606a3ad9d282ce396a`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog clarity pass (init hash formula binding, canonical encoding reference, validation report contract, trace status enum).
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - explicit Initialization step 4 bound to §II.H catalog-hash formula (not raw file bytes),
+    - explicit authoritative canonical encoding reference to `Canonical-CBOR-Profile.md`,
+    - defined `ValidateDigestCatalog_v1` operator and minimal deterministic `validation_report` schema,
+    - defined trace `status` enum values (`resolved`, `missing`).
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `367d54167a669eaeefbbe107c2627dc69a98e8f655ddb517350d2081857a399e`
+  - Ecosystem regressions introduced: 0
+
+---
+
+- Date: 2026-02-19
+- Action: Digest Catalog editorial-precision pass (lint wording, shared error operator reference, stateless checkpoint semantics).
+- Scope:
+  - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
+    - clarified VII.A lint rules (catalog-internal constraints vs cross-document resolution checks),
+    - explicit note that `UML_OS.Error.Emit_v1` is shared and defined in core error contract,
+    - checkpoint section updated to remove misleading `resolution cursor` state.
+  - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-006`): `3c1ecb9540f8f8a1e2ec0cd49be0112297470c7466a6694493022a2a7c5136b3`
+  - Ecosystem regressions introduced: 0

@@ -1,13 +1,17 @@
 MODULAR WORK ORDER (EXACT SEQUENCE)
 
-PHASE 0 — GOVERNANCE ROOT
+DONE:
 1. document_guidelines/EQC_GUIDELINES.md
 2. document_guidelines/EQC_ECOSYSTEM.md
 3. ecosystem.md
-
-PHASE 1 — FOUNDATION CONTRACTS (LAYER 1)
 4. docs/layer1-foundation/Canonical-CBOR-Profile.md
 5. docs/layer1-foundation/Digest-Catalog.md
+
+PHASE 0 — GOVERNANCE ROOT - DONE
+
+
+PHASE 1 — FOUNDATION CONTRACTS (LAYER 1)
+
 6. docs/layer1-foundation/Error-Codes.md
 7. docs/layer1-foundation/Data-Structures.md
 8. docs/layer1-foundation/Operator-Registry-Schema.md
