@@ -266,6 +266,13 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 - Planning and execution governance: `Implementation-Roadmap.md`, `Code-Generation-Mapping.md`, `Test-Plan.md`, `Performance-Plan.md`.
 - Lifecycle and governance extensions: `Experiment-Tracking.md`, `Model-Registry.md`, `Monitoring-Policy.md`, `Evaluation-Harness.md`, `Data-Lineage.md`, `Pipeline-Orchestrator.md`, `Execution-Certificate.md`.
 - Coding acceleration contracts: `Reference-Implementations.md`, `Test-Vectors-Catalog.md`, `Repo-Layout-and-Interfaces.md`.
+- New contract subdocuments:
+  - `Operator-Registry-Schema.md` (authoritative registry schema),
+  - `Digest-Catalog.md` (digest label/value authority),
+  - `Canonical-CBOR-Profile.md` (single commitment serialization profile),
+  - `Run-Commit-WAL.md` (atomic commit journal + recovery),
+  - `AuthZ-Capability-Matrix.md` (operator capability policy),
+  - `Determinism-Profiles.md` (BITWISE/TOLERANCE runtime profiles).
 - Wiring invariant: all operator names referenced across documents must be fully qualified and versioned. Shared operators may be imported by reference from dedicated contract documents (for example `UML_OS.Error.Emit_v1` in `Error-Codes.md`).
 
 ### II.F Deterministic Runtime Governance (Normative)

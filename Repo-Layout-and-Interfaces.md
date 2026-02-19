@@ -85,6 +85,10 @@
 - `schemas/` for config/trace/checkpoint/api schemas.
 - `tools/spec_lint.py` mandatory linter entrypoint for cross-file contract consistency.
 - `contracts/operator_registry.cbor` canonical machine-readable operator registry artifact.
+- Additional authoritative contract artifacts:
+  - `contracts/digest_catalog.cbor`
+  - `contracts/determinism_profiles.cbor`
+  - `wal/run_commit/<tenant_id>/<run_id>.cbor`
 
 ### II.G Ownership Map (Normative)
 - `data team`: `src/data/*`
