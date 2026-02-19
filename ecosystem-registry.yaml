@@ -69,7 +69,7 @@ records:
     Status: "active"
     LastUpdated: "2026-02-19"
     Owner: "ML2ML"
-    SHA256Hash: "dd39c96d0743fa56b8b08b7ddee74f12e8e916632477e8473fb57c062994e441"
+    SHA256Hash: "6c9c095a944825ff424256d8bc26d4bfbfcd955775ae8df9dbeffe5326385c58"
     PreviousSHA256: "1790dc8c5304d2f2ba14c20b759564d2eee45fb94286cedaa4b775f90b69ebe3"
     MinimumEquivalence: "E0"
     ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
