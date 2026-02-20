@@ -109,8 +109,8 @@
 - `lineage_root_hash:bytes32` (snapshot-at-checkpoint value; MUST match certificate lineage commitment for the finalized run branch that includes this checkpoint)
   - lineage consistency rule: `lineage_root_hash` MUST equal the deterministic lineage root recomputed from checkpoint-scoped lineage objects/artifacts referenced by this checkpoint snapshot.
   - `dp_enabled:bool`
-  - `tensors_root_hash:bytes32`
-  - `optimizer_state_root_hash:bytes32`
+  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `SHA-256(CBOR_CANONICAL([]))` per hash identities below)
+  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `SHA-256(CBOR_CANONICAL([]))` per hash identities below)
   - `rng_state_hash:bytes32`
   - `data_cursors_hash:bytes32`
   - `dp_accountant_state_hash?:bytes32`

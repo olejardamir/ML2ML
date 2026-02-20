@@ -2155,3 +2155,57 @@
     - `State.Journal_v1` storage path resolution explicitly references `UML_OS.OS.ResolvePath_v1`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Operator Signature Alignment (WAL + Policy)
+- Resolved remaining operator/procedure mismatches:
+  - `Run-Commit-WAL.md`: changed `UML_OS.Commit.WALRecover_v1` signature from `(wal_stream, artifact_store -> recovery_report)` to `(() -> recovery_report)` and clarified deterministic resolution of WAL/artifact paths from run context.
+  - `UML_OS-Kernel-v3.22-OS.md`: aligned `UML_OS.Policy.Evaluate_v1` signature to `(state, metrics, policy_bundle -> action)` and updated precondition wording from `rules schema` to `policy_bundle schema`.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Cross-File Manifest + WAL Context Alignment
+- Applied schema and operator consistency updates from final cross-file review:
+  - `Config-Schema.md`:
+    - expanded concrete top-level manifest schema in II.F with kernel-aligned fields (task/execution/runtime/backends/resources/distributed/fine-tune/evaluation/trace),
+    - added explicit required `optimizer:object`,
+    - preserved `policy.rules` as optional runtime policy input and documented coexistence with `policy_bundle`.
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - updated 0.Q to explicitly include `spec_version`, `tenant_id`, `seed`,
+    - kept `policy.rules` as runtime action policy and clarified `policy_bundle` as commitment identity,
+    - aligned WAL procedure calls to include `(tenant_id, run_id)` context,
+    - aligned `UML_OS.Policy.Evaluate_v1` signature/definition with runtime `policy_rules`.
+  - `Run-Commit-WAL.md`:
+    - updated operator signatures to context-aware forms:
+      - `WALAppend_v1(tenant_id, run_id, wal_record)`,
+      - `WALRecover_v1(tenant_id, run_id)`,
+      - `FinalizeRunCommit_v1(tenant_id, run_id)`,
+    - updated procedure examples accordingly.
+  - `Execution-Certificate.md`:
+    - clarified `policy_gate_hash` semantics with explicit reference to `Monitoring-Policy.md` II.G.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Final Signature/Procedure Corrections (Backward + EvidenceValidate)
+- Applied remaining critical signature and call-site corrections:
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - fixed `Backward_v1` return unpacking in procedure:
+      - non-DP path now captures `(grads, grad_norm)`,
+      - DP micro-batch path now captures `(micro_grads, _)` before append.
+    - aligned `UML_OS.Certificate.EvidenceValidate_v1` operator signature to `(manifest, trace, checkpoint, replay_context -> valid, report)`.
+    - aligned termination-sequence call to `UML_OS.Certificate.EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)`.
+  - `Execution-Certificate.md`:
+    - corrected `UML_OS.Certificate.EvidenceValidate_v1` signature by removing circular `execution_certificate` input,
+    - updated procedure step 4 call to the same argument set `(manifest, trace, checkpoint, replay_context)`.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Minor Clarity/Consistency Polish
+- Applied non-critical consistency clarifications:
+  - `Checkpoint-Schema.md`: added explicit empty-set note next to `tensors_root_hash` and `optimizer_state_root_hash` field entries.
+  - `Config-Schema.md`: added explicit II.F note clarifying coexistence/role split between `policy.rules` (runtime control) and `policy_bundle` (security commitments).
+  - `Data-Lineage.md`: clarified split allocation math with explicit `floor(split_fraction_i * total_samples)` wording and remainder-to-final-split rule.
+  - `DifferentialPrivacy-Apply.md`: consolidated procedure step `1b` compatibility checks into a single deterministic validity gate.
+  - `Experiment-Tracking.md`: made `ArtifactTombstone_v1.reason` explicitly required UTF-8.
+  - `Trace-Sidecar.md`: made HASH_GATED invariant enforcement explicit in `UML_OS.Trace.ValidateSchema_v1`.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.

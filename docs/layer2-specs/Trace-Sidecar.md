@@ -140,6 +140,7 @@
   - defaults for `HASH_GATED`: `hash_gate_M=100`, `hash_gate_K=1`.
   - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq]))) mod hash_gate_M < hash_gate_K`.
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
+  - Validation requirement: `UML_OS.Trace.ValidateSchema_v1` MUST enforce `hash_gate_M > 0` and `hash_gate_K <= hash_gate_M`; violation is deterministic schema failure.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with fixed priority ordering:
     - `RUN_HEADER` > `ERROR` > `POLICY_GATE_VERDICT` > `CHECKPOINT_COMMIT` > `CERTIFICATE_INPUTS` > `RUN_END` > `ITER`.
   - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END","ERROR"}`.

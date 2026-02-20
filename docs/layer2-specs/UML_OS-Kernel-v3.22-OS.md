@@ -132,6 +132,9 @@ Migration: update manifest operator versions and replay_token.
 
 ### 0.Q Global Manifest Additions
 - `env_manifest_hash` includes `daemon_concurrency_max=16` and all required runtime fields from `docs/layer1-foundation/Environment-Manifest.md`.
+- `spec_version: string`
+- `tenant_id: string`
+- `seed: uint64`
 - `task_type`: `multiclass | binary | regression`
 - `alpha` (default `1.0`)
 - `execution_mode: "local" | "managed" | "confidential" | "regulated"` (default `managed`)
@@ -141,7 +144,8 @@ Migration: update manifest operator versions and replay_token.
 - `grad_clip_norm`
 - `checkpoint_frequency`
 - `job_priority` (1..10)
-- `policy.rules`
+- `policy.rules` (optional runtime stage/action decision rules)
+- `policy_bundle` (authoritative cryptographic policy commitment input; may coexist with `policy.rules`)
 - `datasets: object` (keys = dataset_keys e.g. "train", "val", "test"; each value = `{id: string, version: string, hash: string}`)
 - `data: {sampler_block_size?: integer (default 1048576)}`
 - `custom_operators[]`
@@ -529,11 +533,11 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Policy.Evaluate_v1`  
 **Category:** Policy  
-**Signature:** `(state, metrics, rules -> action)`  
+**Signature:** `(state, metrics, policy_rules -> action)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** evaluates `policy.rules` in declared order; highest priority wins; ties by lowest index.  
-**Preconditions / Postconditions:** rules schema valid.  
+**Definition:** evaluates canonical policy rules from `manifest.policy.rules` in declared order; highest priority wins; ties by lowest index. Policy-bundle hashes remain independent commitment material and are not the runtime rule source.  
+**Preconditions / Postconditions:** `policy_rules` schema valid.  
 **Edge cases:** no matching rule -> fallback `optimize`.  
 **Numerical considerations:** comparisons in binary64.  
 **Ordering/tie handling:** deterministic rule order.  
@@ -688,10 +692,10 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Certificate.EvidenceValidate_v1`
 **Category:** Security
-**Signature:** `(evidence_bundle -> valid: bool, report: dict)`
+**Signature:** `(manifest, trace, checkpoint, replay_context -> valid: bool, report: dict)`
 **Purity class:** PURE
 **Determinism:** deterministic
-**Definition:** validates pre-sign evidence bundle completeness and consistency (`manifest_hash`, `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `policy_bundle_hash`, `replay_token`, and related run-bound commitments) before certificate signing.
+**Definition:** validates pre-sign evidence coherence and consistency (`manifest_hash`, `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `policy_bundle_hash`, `replay_token`, and related run-bound commitments) before certificate signing.
 
 **Operator:** `UML_OS.Security.VerifyCertificate_v1`
 **Category:** Security
@@ -872,14 +876,15 @@ State transition table (normative):
 
 ```text
 1. UML_OS.OS.Bootstrap_v1(...)
-2. UML_OS.OS.NamespaceEnter_v1(job_id)
+1a. namespace_path <- SHA-256(CBOR_CANONICAL([manifest.tenant_id, replay_token]))-derived deterministic namespace identifier (resolved to canonical path format by `UML_OS.OS.ResolvePath_v1`)
+2. UML_OS.OS.NamespaceEnter_v1(namespace_path)
 3. UML_OS.Backend.LoadDriver_v1(manifest.backend)
-4. WALRecover_v1()  // deterministic crash recovery before new run prepare
+4. WALRecover_v1(manifest.tenant_id, run_id)  // deterministic crash recovery before new run prepare
 5. current_step <- 0
 6. checkpoint_frequency <- manifest.checkpoint_frequency or 0
 7. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
 7a. if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- UML_OS.Config.DeterministicStageMerge_v1(manifest, stage_manifest)
-8. WALAppend_v1(PREPARE)
+8. WALAppend_v1(manifest.tenant_id, run_id, PREPARE)
 9. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
 Loop until Pipeline.Dispatch_v1 returns termination:
@@ -914,14 +919,14 @@ Loop until Pipeline.Dispatch_v1 returns termination:
           for each micro_batch in micro_seq (deterministic order):
               micro_logits <- UML_OS.Model.Forward_v2(theta, micro_batch, ...)
               micro_loss <- UML_OS.Objective.TotalLoss_v1(...)
-              micro_grads <- UML_OS.Model.Backward_v1(micro_loss, theta, ir_graph)  # raw micro-batch gradients
+              micro_grads, _ <- UML_OS.Model.Backward_v1(micro_loss, theta, ir_graph)  # raw micro-batch gradients
               micro_grads_seq.append(micro_grads)
           noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(micro_grads_seq, manifest.security.differential_privacy, t)
           update_grads <- noisy_grads
           cumulative_epsilon <- budget.epsilon
           dp_accountant_state <- budget.accountant_state
       else:
-          grads <- UML_OS.Model.Backward_v1(L_tot, theta, ir_graph)
+          grads, grad_norm <- UML_OS.Model.Backward_v1(L_tot, theta, ir_graph)
           update_grads <- grads
       theta <- UML_OS.Optimizer.Update_v1(update_grads, ...)
     else if action == "eval" or current_stage.type == "eval":
@@ -955,11 +960,11 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
-- UML_OS.Certificate.EvidenceValidate_v1(certificate_evidence_bundle)  // verify assembled evidence bundle before signing
+- UML_OS.Certificate.EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)  // verify assembled evidence bundle before signing
 - UML_OS.Certificate.WriteExecutionCertificate_v1(...)
-- WALAppend_v1(CERT_SIGNED)
-- FinalizeRunCommit_v1
-- WALAppend_v1(FINALIZE)
+- WALAppend_v1(manifest.tenant_id, run_id, CERT_SIGNED)
+- FinalizeRunCommit_v1(manifest.tenant_id, run_id)
+- WALAppend_v1(manifest.tenant_id, run_id, FINALIZE)
 - UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // post-write self-verification of produced certificate
 ```
 

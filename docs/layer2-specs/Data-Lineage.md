@@ -98,7 +98,9 @@
         `shuffle_key = SHA-256(CBOR_CANONICAL([split_seed, sample_index]))`,
       - sort samples lexicographically by `shuffle_key` (tie-break by `sample_index`),
       - use that sorted order as the shuffled dataset order,
-    - assign sequential ranges by split fractions in split order; deterministic floor rounding per split, with any remainder assigned to the final split.
+    - assign sequential ranges by split fractions in split order:
+      - for each split except the last, `split_count_i = floor(split_fraction_i * total_samples)`,
+      - any remaining samples after these assignments are assigned to the final split.
     - validation rule: split fractions must satisfy `abs(sum(split_fraction_i) - 1.0) <= EPS_EQ`; otherwise deterministic validation failure.
   - canonical split entry encoding: `{"split_name":string,"split_fraction":float64,"split_seed?:uint64}` encoded as canonical CBOR map.
   - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`

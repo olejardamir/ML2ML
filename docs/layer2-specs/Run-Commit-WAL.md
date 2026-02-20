@@ -146,26 +146,33 @@ Canonical commit barrier:
 ## 5) Operator Definitions
 **Operator:** `UML_OS.Commit.WALAppend_v1`  
 **Category:** IO  
-**Signature:** `(wal_record -> wal_state')`  
+**Signature:** `(tenant_id, run_id, wal_record -> wal_state')`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** appends canonical record with monotone `wal_seq`.
+**Definition:** resolves run-scoped WAL path from `(tenant_id, run_id)`, then appends canonical record with monotone `wal_seq`.
 
 **Operator:** `UML_OS.Commit.WALRecover_v1`  
 **Category:** IO  
-**Signature:** `(wal_stream, artifact_store -> recovery_report)`  
+**Signature:** `(tenant_id, run_id -> recovery_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** Executes II.G algorithm exactly: validates sequence/hash-chain, then deterministically finalize-or-rollback with idempotent artifact handling and explicit corruption failure.
+**Definition:** Executes II.G algorithm exactly using `(tenant_id, run_id)` to resolve `wal_stream` and `artifact_store` deterministically (tenant/run scoped namespace paths), validates sequence/hash-chain, then deterministically finalize-or-rollback with idempotent artifact handling and explicit corruption failure.
+
+**Operator:** `UML_OS.Commit.FinalizeRunCommit_v1`  
+**Category:** IO  
+**Signature:** `(tenant_id, run_id -> commit_status)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** resolves run-scoped commit context from `(tenant_id, run_id)`, verifies all referenced immutable artifacts and hashes, publishes commit pointer atomically, and returns deterministic terminal commit status.
 
 ---
 ## 6) Procedure
 ```text
-0. WALRecover_v1 on startup/resume
-1. WALAppend_v1(PREPARE)
-2. WALAppend_v1(CERT_SIGNED)
-3. FinalizeRunCommit_v1
-4. WALAppend_v1(FINALIZE)
+0. WALRecover_v1(tenant_id, run_id) on startup/resume
+1. WALAppend_v1(tenant_id, run_id, PREPARE)
+2. WALAppend_v1(tenant_id, run_id, CERT_SIGNED)
+3. FinalizeRunCommit_v1(tenant_id, run_id)
+4. WALAppend_v1(tenant_id, run_id, FINALIZE)
 ```
 
 ---

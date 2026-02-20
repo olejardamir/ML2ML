@@ -205,7 +205,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** appends immutable tombstone metadata; physical deletion is deferred to retention policy. Tombstoned artifacts remain retrievable by `artifact_id` for audit/replay, and are marked as deleted in listing views.
-`reason` MUST be persisted into `tombstone_reason` and therefore committed by `record_hash`.
+`reason` is required and MUST be a valid UTF-8 string; it MUST be persisted into `tombstone_reason` and therefore committed by `record_hash`.
 
 ---
 ## 6) Procedure

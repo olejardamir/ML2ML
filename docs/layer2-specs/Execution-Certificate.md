@@ -109,7 +109,7 @@
   - `monitor_policy_hash?:bytes32`
   - `dp_policy_hash?:bytes32`
   - `policy_gate_hash:bytes32`
-    - semantics: hash of canonical policy-gate evaluation transcript for the certified run context.
+    - semantics: hash of the canonical policy-gate evaluation transcript for the certified run context, as defined in `docs/layer2-specs/Monitoring-Policy.md` (section II.G).
   - `authz_decision_hash:bytes32`
     - provenance note: full authorization context (`authz_query_hash`, verdict, reason, granted set) is carried in trace/audit records; certificate stores `authz_decision_hash` for cryptographic cross-linking.
   - `dependencies_lock_hash:bytes32`
@@ -201,10 +201,10 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 
 **Operator:** `UML_OS.Certificate.EvidenceValidate_v1`  
 **Category:** Security  
-**Signature:** `(execution_certificate, manifest, trace, checkpoint, replay_context -> report)`  
+**Signature:** `(manifest, trace, checkpoint, replay_context -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** validates cross-artifact coherence and rejects mismatched evidence.
+**Definition:** validates pre-sign cross-artifact coherence and rejects mismatched evidence.
 
 ---
 ## 6) Procedure
@@ -212,7 +212,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 1. Build_v1(evidence_bundle)
 2. Sign_v1(payload, signing_key_ref)
 3. Verify_v1(certificate, trust_store)
-4. EvidenceValidate_v1(certificate, manifest, trace, checkpoint, replay_context)
+4. EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)
 5. Return certificate + report
 ```
 

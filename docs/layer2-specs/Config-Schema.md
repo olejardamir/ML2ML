@@ -98,13 +98,65 @@
   - `pipeline_stages:array<object>`
   - `model:object`
   - `security:object`
+  - `optimizer:object`
   - `policy_bundle:object`
+  - policy note: `policy.rules` (runtime stage/action control) is distinct from `policy_bundle` (security/authz/monitor commitment hashes); both may coexist.
 - Optional top-level fields:
-  - `quota:object` with optional numeric fields:
+  - `task_type:enum(multiclass|binary|regression)`
+  - `alpha:float64` (default `1.0`)
+  - `execution_mode:enum(local|managed|confidential|regulated)` (default `managed`)
+  - `fingerprint_frequency:uint64` (default `0`)
+  - `grad_clip_norm:float64`
+  - `checkpoint_frequency:uint64` (default `0`)
+  - `job_priority:uint64` (recommended range `1..10`)
+  - `policy:object` with optional `rules:array<object>` for runtime stage decisions
+  - `data:object` with optional:
+    - `sampler_block_size:uint64` (default `1048576`)
+    - `drop_last:bool` (default `false`)
+  - `custom_operators:array<object>`
+  - `parallelism:object` with optional:
+    - `strategy:string`
+    - `world_size_override:uint64`
+    - `sharding_config:object`
+  - `manifest_inheritance:object` with optional:
+    - `parent_manifest_path:string`
+  - `hardware_affinity:object` with optional:
+    - `gpu_ids:array<uint64>`
+    - `cpu_cores:array<uint64>`
+  - `profile:enum(research|enterprise|regulated)`
+  - `backend:object` with optional/required subfields:
+    - `name:string`
+  - `resource_requests:object` with optional:
+    - `cpus:uint64`
+    - `gpus:uint64`
+    - `memory_gb:float64`
+  - `quota:object` with optional:
     - `memory_bytes_budget:uint64`
     - `gpu_time_ms_budget:uint64`
     - `cpu_time_ms_budget:uint64`
     - `io_bytes_budget:uint64`
+  - `rbac:object` with optional:
+    - `principals:array<object>`
+    - `permissions:map`
+  - `storage:object` with optional:
+    - `backend:string`
+    - `endpoint:string`
+    - `bucket:string`
+    - `credentials_secret:string`
+  - `monitoring_export:object` with optional:
+    - `prometheus_endpoint:string`
+    - `log_sink:string`
+  - `rbac_source:enum(local|ldap|oidc)` (default `local`)
+  - `daemon_mode:enum(standalone|cluster)` (default `standalone`)
+  - `distributed:object` with optional:
+    - `timeout_seconds:uint64` (default `300`)
+  - `fine_tune:object`
+  - `evaluation:object`
+  - `compute_dtype:enum(float32|float64)` (default `float32`)
+  - `trace:object` with optional:
+    - `schema_version:string`
+    - `max_bytes_per_step:uint64`
+    - `sample_policy:string`
 - Required `security.differential_privacy` fields when enabled:
   - `enabled:bool`, `accountant:string`, `target_epsilon:float64`, `target_delta:float64`, `noise_multiplier:float64`.
 - Required `pipeline_stages[i]` fields:
@@ -131,8 +183,9 @@
 
 ### II.F.2 Kernel Manifest Alignment (Normative)
 - To preserve cross-file consistency with `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` section `0.Q`, the following top-level manifest fields are recognized by this schema (required/optional as noted):
-  - required: `task_type`, `execution_mode`, `datasets`, `pipeline_stages`, `model`, `security`, `optimizer`, `compute_dtype`, `environment`.
-  - optional: `alpha`, `fingerprint_frequency`, `grad_clip_norm`, `checkpoint_frequency`, `job_priority`, `policy.rules`, `data`, `custom_operators`, `parallelism`, `manifest_inheritance`, `hardware_affinity`, `profile`, `backend`, `resource_requests`, `quota`, `rbac`, `storage`, `monitoring_export`, `rbac_source`, `daemon_mode`, `distributed`, `fine_tune`, `evaluation`.
+  - required: `spec_version`, `tenant_id`, `seed`, `execution_mode`, `datasets`, `pipeline_stages`, `model`, `security`, `optimizer`, `environment`, `policy_bundle`.
+  - optional: `task_type`, `alpha`, `fingerprint_frequency`, `grad_clip_norm`, `checkpoint_frequency`, `job_priority`, `policy.rules`, `data`, `custom_operators`, `parallelism`, `manifest_inheritance`, `hardware_affinity`, `profile`, `backend`, `resource_requests`, `quota`, `rbac`, `storage`, `monitoring_export`, `rbac_source`, `daemon_mode`, `distributed`, `fine_tune`, `evaluation`, `compute_dtype`, `trace`.
+  - `policy.rules` and `policy_bundle` serve different purposes and MAY coexist: policy rules drive runtime stage/action decisions; `policy_bundle` carries cryptographic policy commitments.
 - `environment` object alignment:
   - required field: `env_manifest_hash:bytes32`,
   - optional fields: `requirements_hash:string`, `container_image:string`.

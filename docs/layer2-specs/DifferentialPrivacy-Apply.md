@@ -513,9 +513,10 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 ```text
 1. PreValidation_v1(dp_config, t) -> abort on invalid.
-1b. Sampling/accountant compatibility check:
-    - if `sampling_mode in {"SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"}` then `subsampling` must be `SHUFFLE_WITHOUT_REPLACEMENT`
-    - if `sampling_mode == "SEQUENTIAL_V1"` then `subsampling` must be `NONE`
+1b. Sampling/accountant compatibility check (single deterministic gate):
+    - valid iff:
+      - (`sampling_mode in {"SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"}` and `subsampling == SHUFFLE_WITHOUT_REPLACEMENT`) OR
+      - (`sampling_mode == "SEQUENTIAL_V1"` and `subsampling == NONE`)
     - otherwise emit `INVALID_DP_CONFIG` and abort.
 2. resolved_cfg <- ConfigResolver_v1(dp_config, accumulation_context)
 2b. sensitivity_map <- SensitivityAnalyzer_v1(...) when allocation/adaptive mode enabled.
