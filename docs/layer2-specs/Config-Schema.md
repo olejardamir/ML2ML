@@ -114,7 +114,7 @@
   - `policy_bundle.monitor_policy_hash:bytes32`
   - `policy_bundle.dp_policy_hash?:bytes32`
   - `policy_bundle.redaction_policy_hash?:bytes32`
-  - `environment.env_manifest_hash:bytes32` (as defined in `docs/layer1-foundation/Environment-Manifest/00-Core.md`; alias `runtime_env_hash` must resolve identically)
+  - `environment.env_manifest_hash:bytes32` (as defined in `docs/layer1-foundation/Environment-Manifest.md`; alias `runtime_env_hash` must resolve identically)
 
 ### II.F.1 Policy Bundle Commitment (Normative)
 - `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]))`.

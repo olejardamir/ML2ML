@@ -1745,3 +1745,104 @@
   - Registry hash alignment for all modified Layer2 records: pass (`17/17` records match file SHA-256).
   - Cross-reference existence checks for touched Layer2->Layer1 links: pass.
   - No unresolved operator-manifest/definition gaps remain in the touched Layer2 set.
+
+---
+
+- Date: 2026-02-20
+- Action: Layer2 residual correctness patch (`L2-005`, `L2-020`).
+- Scope:
+  - Updated `docs/layer2-specs/Data-NextBatch.md` cursor update semantics to avoid over-advancing at epoch tail:
+    - compute `produced_global_count` from remaining epoch capacity,
+    - advance `cursor.global_index` by produced count (not unconditional `global_batch_size`),
+    - preserve deterministic epoch rollover with `epoch_limit_for_advance`.
+  - Updated `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` loop/procedure semantics:
+    - consume `Termination.Check_v1` result with explicit `if terminated: break`,
+    - replaced ambiguous `noisy_grads or grads` with explicit `update_grads` selection,
+    - aligned DP operator signature to include `t`,
+    - persisted returned DP accountant state (`dp_accountant_state <- budget.accountant_state`).
+  - Updated registry hashes for `L2-005` and `L2-020` in `ecosystem-registry.yaml`.
+- Validation:
+  - `L2-005` hash alignment: pass.
+  - `L2-020` hash alignment: pass.
+  - No stale ambiguous DP update expression remains in kernel procedure.
+
+---
+
+- Date: 2026-02-20
+- Action: Layer2 follow-up closure pass for residual definition and wiring gaps.
+- Scope:
+  - Updated `docs/layer2-specs/AuthZ-Capability-Matrix.md`:
+    - added explicit `verdict_enum` values (`ALLOW`, `DENY`) in deterministic verdict-hash section.
+  - Updated `docs/layer2-specs/Checkpoint-Schema.md`:
+    - added explicit computation rules for `weights_manifest_hash`, `optimizer_manifest_hash`, and `dp_accountant_manifest_hash`.
+    - corrected Layer1 data-structure reference path to `docs/layer1-foundation/Data-Structures.md`.
+  - Updated `docs/layer2-specs/Data-Lineage.md`:
+    - defined `world_size_policy` and `epoch_seed_rule` used by `data_access_plan_hash`.
+  - Updated `docs/layer2-specs/Data-NextBatch.md`:
+    - made `drop_last` full-batch framing explicit via `num_full_batches` declaration while preserving strict epoch-limit handling.
+  - Updated `docs/layer2-specs/DifferentialPrivacy-Apply.md`:
+    - added explicit derivation steps for `effective_batch_size` and `dataset_cardinality`.
+    - replaced implicit `derive_stddev_map` helper with explicit per-group formula.
+  - Updated `docs/layer2-specs/TMMU-Allocation.md`:
+    - added explicit definition of `execution_order_hash` used in `tmmu_plan_hash`.
+  - Updated Layer1 wiring references to existing canonical files:
+    - `docs/layer2-specs/Monitoring-Policy.md` (`Data-Structures.md`),
+    - `docs/layer2-specs/Config-Schema.md` (`Environment-Manifest.md`),
+    - `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` (Environment/Data-Structures/Dependency-Lock-Policy canonical paths),
+    - `docs/layer2-specs/Replay-Determinism.md` (`Environment-Manifest.md`).
+  - Refreshed registry hashes for modified Layer2 records (`L2-001`, `L2-002`, `L2-003`, `L2-004`, `L2-005`, `L2-007`, `L2-013`, `L2-015`, `L2-018`, `L2-020`).
+- Validation:
+  - Broken Layer1 `/00-Core.md` reference scan in Layer2 docs: pass (none remain).
+  - Registry hash alignment for modified Layer2 records: pass.
+
+---
+
+- Date: 2026-02-20
+- Action: Layer2 signature/operational consistency hardening pass.
+- Scope:
+  - `docs/layer2-specs/Security-Compliance-Profile.md`:
+    - aligned `VerifyCertificate_v1` input contract to accept canonical certificate object or path (`certificate_input`) with deterministic load semantics.
+  - `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md`:
+    - made pipeline dispatch arguments explicit via `current_step` tracking and explicit `Dispatch_v1(manifest.pipeline_stages, current_step)` calls,
+    - made `checkpoint_due` rule deterministic from `checkpoint_frequency` and stage exit flag,
+    - passed explicit `stage_type` to `NextBatch_v2`,
+    - persisted DP state (`dp_accountant_state`, `cumulative_epsilon`) in persistent state model,
+    - added deterministic per-step resource ledger + quota-abort rule,
+    - integrated WAL commit protocol hooks (`WALAppend_v1(PREPARE/CERT_SIGNED/FINALIZE)`, `FinalizeRunCommit_v1`),
+    - clarified `SaveCheckpoint_v1` payload requirements to include DP/rng/cursor critical state.
+  - `docs/layer2-specs/DifferentialPrivacy-Apply.md`:
+    - replaced heuristic projected-epsilon branch with deterministic abort,
+    - added explicit DP metric formulas,
+    - retained explicit propagation of `amplification_factor` and `delta_eps` into accountant update.
+  - `docs/layer2-specs/Monitoring-Policy.md`:
+    - added explicit PSI formula and deterministic KS tie-order rule.
+  - `docs/layer2-specs/TMMU-Allocation.md`:
+    - added canonical definition for `shard_spec_hash`.
+  - `docs/layer2-specs/Checkpoint-Schema.md`:
+    - added `rng_state_hash` and `data_cursors_hash` commitments and corresponding container/state artifacts.
+  - Refreshed registry hashes for touched Layer2 records (`L2-001`, `L2-002`, `L2-003`, `L2-004`, `L2-005`, `L2-007`, `L2-013`, `L2-015`, `L2-017`, `L2-018`, `L2-020`).
+- Validation:
+  - Layer2 stale `/00-Core.md` reference scan: pass.
+  - Hash alignment for all touched Layer2 records: pass.
+
+---
+
+- Date: 2026-02-20
+- Action: Kernel quota-error code normalization (`L2-020`).
+- Scope:
+  - Updated `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` to use existing canonical error code `CONTRACT_VIOLATION` for quota-breach abort path (replacing non-catalog `QUOTA_EXCEEDED`).
+  - Refreshed `L2-020` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - `L2-020` registry hash alignment: pass.
+
+---
+
+- Date: 2026-02-20
+- Action: Final formula/signature harmonization patch (`L2-004`, `L2-018`, `L2-020`).
+- Scope:
+  - `Data-Lineage.md`: concretized `world_size_policy` and `epoch_seed_rule` literals used by `data_access_plan_hash`.
+  - `TMMU-Allocation.md`: normalized `execution_order_hash`/`shard_spec_hash` formulas to direct canonical-hash forms.
+  - `UML_OS-Kernel-v3.22-OS.md`: aligned `VerifyCertificate_v1` signature semantics with Security profile contract.
+  - Refreshed corresponding registry hashes.
+- Validation:
+  - Hash alignment for `L2-004`, `L2-018`, `L2-020`: pass.

@@ -61,6 +61,9 @@
 ### II.G Deterministic Verdict Hash (Normative)
 - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
 - `granted_capabilities_hash = SHA-256(CBOR_CANONICAL(sorted(granted_capabilities)))`.
+- `verdict_enum` is a required enum from:
+  - `ALLOW`
+  - `DENY`
 - `decision_reason_code` is a required enum from:
   - `ALLOW`
   - `DENY_MISSING_CAPABILITY`

@@ -246,6 +246,13 @@
   - explicitly budgeted adaptation composed into the same accountant state.
 - Adaptation budget consumption (`delta_eps`) must be logged and included in replay/checkpoint accountant state.
 
+### II.I DP Metric Definitions (Normative)
+- `gradient_snr = mean(abs(averaged_clipped)) / (std(noise_step) + EPS_DENOM)`.
+- `fairness_clip_ratio = clipped_group_count / max(1, total_group_count)`.
+- `scaling_law_confidence` is the confidence output from `DPScalingLawProjector_v1` in `[0,1]`.
+- `peft_noise_reduction_factor = sigma_full_model / max(EPS_DENOM, sigma_peft_target)`.
+- `effective_heterogeneous_multiplier = sigma_effective / max(EPS_DENOM, sigma_base)`.
+
 ---
 
 ## 3) Initialization
@@ -499,11 +506,13 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
           (clipped_micro, norms, clip_stats) <- Clip_v1(micro_gradients, resolved_cfg, max_microbatch)
    7b. Accumulate clipped_micro in deterministic order.
 8. averaged_clipped <- deterministic_average(accumulated_clipped_micro, gradient_accumulation_steps)
+8b. effective_batch_size <- global_batch_size * gradient_accumulation_steps
+8c. dataset_cardinality <- sampler_metadata.dataset_cardinality
 9. sigma_map <- PrivacyBudgetScheduler_v1(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
-9b. stddev_map <- derive_stddev_map(sigma_map, clip_norm_map, effective_batch_size)   # stddev_g = sigma_g * C_g / B_eff
+9b. stddev_map[g] <- sigma_map[g] * clip_norm_map[g] / effective_batch_size   # for each group g
 9c. sampling_rate <- effective_batch_size / dataset_cardinality
 10. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
-11. If projected_epsilon > target_epsilon: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
+11. If projected_epsilon > target_epsilon: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
 12. If subsampling == "SHUFFLE_WITHOUT_REPLACEMENT": amplification_factor <- AmplificationByShuffling_v1(...)
 13. (noise_step, rng_dp_state') <- GenerateNoise_v1(shape(averaged_clipped), stddev_map, rng_dp_state, noise.compression)
 14. noisy_binary64 <- averaged_clipped + noise_step

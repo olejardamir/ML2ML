@@ -32,7 +32,7 @@
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
 - Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`
-- `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest/00-Core.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
+- `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
 - Replay context must also bind:
   - `sampler_config_hash`,
   - `tmmu_plan_hash`,
@@ -127,7 +127,7 @@ Migration: update manifest operator versions and replay_token.
 - Performs deterministic initialization, manifest/data validation, module wiring, distributed setup, and namespace entry
 
 ### 0.Q Global Manifest Additions
-- `env_manifest_hash` includes `daemon_concurrency_max=16` and all required runtime fields from `docs/layer1-foundation/Environment-Manifest/00-Core.md`.
+- `env_manifest_hash` includes `daemon_concurrency_max=16` and all required runtime fields from `docs/layer1-foundation/Environment-Manifest.md`.
 - `task_type`: `multiclass | binary | regression`
 - `alpha` (default `1.0`)
 - `execution_mode: "local" | "managed" | "confidential" | "regulated"` (default `managed`)
@@ -240,9 +240,12 @@ Neutral declarative ML-ISA (Instruction Set Architecture) used by all Model/* sy
 - `theta`
 - `state ∈ {S_INIT, S_TRAINING, S_EVALUATING, S_TERMINATED}`
 - `t`
+- `current_step`
 - `loss_hist`
 - `data_cursors: map<string, (epoch: int, global_index: int)>` (key = dataset_key).
 - `rng_master_state` + offsets
+- `dp_accountant_state`, `cumulative_epsilon`
+- `resource_ledger`
 - `tape_state`
 
 ### I.B Inputs and Hyperparameters
@@ -262,9 +265,9 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 
 ### Architecture Overview (Document Wiring)
 - Core execution specs: `docs/layer2-specs/Data-NextBatch.md`, `docs/layer2-specs/ModelIR-Executor.md`, `docs/layer2-specs/TMMU-Allocation.md`, `docs/layer2-specs/DifferentialPrivacy-Apply.md`.
-- Interface and type contracts: `docs/layer1-foundation/API-Interfaces.md`, `docs/layer1-foundation/Data-Structures/00-Core.md`, `docs/layer2-specs/Config-Schema.md`.
+- Interface and type contracts: `docs/layer1-foundation/API-Interfaces.md`, `docs/layer1-foundation/Data-Structures.md`, `docs/layer2-specs/Config-Schema.md`.
 - Reliability and observability contracts: `docs/layer1-foundation/Error-Codes.md`, `docs/layer2-specs/Trace-Sidecar.md`, `docs/layer2-specs/Checkpoint-Schema.md`, `docs/layer2-specs/Replay-Determinism.md`.
-- Delivery and compliance contracts: `docs/layer4-implementation/Backend-Adapter-Guide.md`, `docs/layer2-specs/Security-Compliance-Profile.md`, `docs/layer1-foundation/Dependency-Lock-Policy/00-Core.md`, `docs/layer2-specs/Deployment-Runbook.md`.
+- Delivery and compliance contracts: `docs/layer4-implementation/Backend-Adapter-Guide.md`, `docs/layer2-specs/Security-Compliance-Profile.md`, `docs/layer1-foundation/Dependency-Lock-Policy.md`, `docs/layer2-specs/Deployment-Runbook.md`.
 - Planning and execution governance: `docs/layer4-implementation/Implementation-Roadmap.md`, `docs/layer4-implementation/Code-Generation-Mapping.md`, `docs/layer3-tests/Test-Plan.md`, `docs/layer3-tests/Performance-Plan.md`.
 - Lifecycle and governance extensions: `docs/layer2-specs/Experiment-Tracking.md`, `docs/layer2-specs/Model-Registry.md`, `docs/layer2-specs/Monitoring-Policy.md`, `docs/layer2-specs/Evaluation-Harness.md`, `docs/layer2-specs/Data-Lineage.md`, `docs/layer2-specs/Pipeline-Orchestrator.md`, `docs/layer2-specs/Execution-Certificate.md`.
 - Coding acceleration contracts: `docs/layer4-implementation/Reference-Implementations.md`, `docs/layer3-tests/Test-Vectors-Catalog.md`, `docs/layer4-implementation/Repo-Layout-and-Interfaces.md`.
@@ -340,12 +343,15 @@ Active operators (exact wiring table):
 - `UML_OS.Symbolic.Augment_v1`
 - `UML_OS.Security.VerifyCertificate_v1`
 - `UML_OS.Transition.SwitchState_v1`
+- `UML_OS.Commit.WALAppend_v1`
+- `UML_OS.Commit.FinalizeRunCommit_v1`
 
 ---
 
 ## 5) Operator Definitions
 
 External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `UML_OS.Commit.WALAppend_v1` and `UML_OS.Commit.FinalizeRunCommit_v1` are defined normatively in `docs/layer2-specs/Run-Commit-WAL.md` and imported by reference.
 
 **Kernel System Call Interface**  
 All system calls follow the EQC template and may be invoked **only** through the VI kernel procedure in section 6. No user code may call backend primitives, torch.add, jax ops, or any library function directly. Every tensor allocation, forward/backward step, or state mutation must be a syscall. Violations trigger CONTRACT_VIOLATION abort.
@@ -651,10 +657,10 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Security.VerifyCertificate_v1`
 **Category:** Security
-**Signature:** `(certificate_path, expected_replay_token? -> valid: bool, report: dict)`
+**Signature:** `(certificate_input, trust_roots? -> valid: bool, report: dict)`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** Loads signed CBOR; verifies daemon/HSM/electronic signatures, Merkle trace root, all pipeline lineage hashes, state_fp/functional_fp consistency (within EPS_EQ where applicable), privacy budget <= target (if present), and attestation quote (if confidential/regulated). Returns structured report with per-section pass/fail.
+**Definition:** Accepts canonical certificate object or path as `certificate_input`; if path is provided, deterministic loading is part of this operator. Verifies daemon/HSM/electronic signatures, Merkle trace root, all pipeline lineage hashes, state_fp/functional_fp consistency (within EPS_EQ where applicable), privacy budget <= target (if present), and attestation quote (if confidential/regulated). Returns structured report with per-section pass/fail.
 **Preconditions / Postconditions:** certificate readable and schema-valid.
 **Edge cases:** missing quote, signature mismatch, token mismatch.
 **Numerical considerations:** binary64 EPS_EQ for fingerprint checks.
@@ -702,7 +708,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(state -> checkpoint)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** writes full checkpoint at frequency or termination using deterministic serialization.  
+**Definition:** writes full checkpoint at frequency or termination using deterministic serialization. Checkpoint payload must include `theta`, `data_cursors`, `rng_master_state`/offsets, and `dp_accountant_state` when DP is enabled.
 **Preconditions / Postconditions:** checkpoint path resolved in namespace.  
 **Edge cases:** checkpoint_frequency=0 disables periodic writes.  
 **Numerical considerations:** binary64 for critical values.  
@@ -778,7 +784,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.DifferentialPrivacy.Apply_v3`  
 **Category:** Security  
-**Signature:** `(gradients, security.differential_privacy -> noisy_gradients, updated_budget)`  
+**Signature:** `(gradients, security.differential_privacy, t -> noisy_gradients, updated_budget)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** If enabled (forced true in regulated mode), first clips per-sample gradients to `manifest.grad_clip_norm` (default 1.0 if unset) in binary64, averages with ascending global index order, then adds isotropic Gaussian noise ~ N(0, σ²) using deterministic moments accountant (δ=1e-5 fixed, exact composition per standard reference implementation). RNG for noise drawn from declared stream. Cumulative privacy loss tracked exactly in binary64. Aborts with PRIVACY_BUDGET_EXCEEDED if cumulative ε exceeds target_epsilon. Noise applied to averaged gradients before Update_v1.
@@ -811,11 +817,15 @@ All system calls follow the EQC template and may be invoked **only** through the
 1. UML_OS.OS.Bootstrap_v1(...)
 2. UML_OS.OS.NamespaceEnter_v1(job_id)
 3. UML_OS.Backend.LoadDriver_v1(manifest.backend)
-4. UML_OS.Pipeline.Dispatch_v1(...)  // resolves initial stage
-5. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
+4. current_step <- 0
+5. checkpoint_frequency <- manifest.checkpoint_frequency or 0
+6. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
+7. WALAppend_v1(PREPARE)
+8. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
 Loop until Pipeline.Dispatch_v1 returns termination:
-- UML_OS.Termination.Check_v1(...) (scoped to current stage)
+- terminated <- UML_OS.Termination.Check_v1(...) (scoped to current stage)
+- if terminated: break
 - t <- t + 1
 - UML_OS.Contract.Validate_v1(...)
 - if current_stage.type == "augment":
@@ -825,17 +835,20 @@ Loop until Pipeline.Dispatch_v1 returns termination:
   dataset_key <- current_stage.dataset_key or default-per-type
   if current_stage.type == "train":
     state <- UML_OS.Transition.SwitchState_v1(state, "train")
-    batch, cursor_next <- UML_OS.Data.NextBatch_v2(dataset_key, ..., data_cursors[dataset_key])
+    batch, cursor_next <- UML_OS.Data.NextBatch_v2(dataset_key, world_size, rank, current_stage.type, data_cursors[dataset_key])
     data_cursors[dataset_key] <- cursor_next
     logits <- UML_OS.Model.Forward_v2(...)
     L_tot <- UML_OS.Objective.TotalLoss_v1(...)
     action <- UML_OS.Policy.Evaluate_v1(...)
     if action == "optimize":
       grads = UML_OS.Model.Backward_v1(L_tot, theta)  # unclipped when DP is enabled
+      update_grads <- grads
       if manifest.security.differential_privacy.enabled == true:
           noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads, manifest.security.differential_privacy, t)
+          update_grads <- noisy_grads
           cumulative_epsilon <- budget.epsilon
-      theta <- UML_OS.Optimizer.Update_v1(noisy_grads or grads, ...)
+          dp_accountant_state <- budget.accountant_state
+      theta <- UML_OS.Optimizer.Update_v1(update_grads, ...)
     else if action == "eval" or current_stage.type == "eval":
       state <- UML_OS.Transition.SwitchState_v1(state, "eval")
       UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)
@@ -848,16 +861,23 @@ Loop until Pipeline.Dispatch_v1 returns termination:
   else if current_stage.type == "infer":
     state <- UML_OS.Transition.SwitchState_v1(state, "infer")
     UML_OS.Inference.RunBatch_v1(theta, dataset_key)
-- if checkpoint due: UML_OS.IO.SaveCheckpoint_v1(...)
+- checkpoint_due <- (checkpoint_frequency > 0 and (t % checkpoint_frequency == 0)) or current_stage.checkpoint_on_exit == true
+- if checkpoint_due: UML_OS.IO.SaveCheckpoint_v1(...)
 - if fingerprint due: StateFingerprint_v1, Fingerprint.Functional_v1, Verifiable.CommitFunctional_v1 (if enabled)
 - UML_OS.IO.WriteTape_v1(...) (includes stage transition and usage record)
-- UML_OS.State.Journal_v1(...)
-- current_stage = UML_OS.Pipeline.Dispatch_v1(...)  // advance or terminate
+- resource_ledger <- update deterministic per-step resource counters
+- if resource_ledger exceeds manifest quota policy: Error.Emit_v1(CONTRACT_VIOLATION, ...); abort
+- UML_OS.State.Journal_v1({t, state, action, data_cursors, rng_offsets, dp_accountant_state, resource_ledger})
+- current_step <- current_step + 1
+- current_stage = UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // advance or terminate
 
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
 - UML_OS.Security.VerifyCertificate_v1(certificate_evidence_bundle)  // verify evidence before signing final certificate
 - UML_OS.Certificate.WriteExecutionCertificate_v1(...)
+- WALAppend_v1(CERT_SIGNED)
+- FinalizeRunCommit_v1
+- WALAppend_v1(FINALIZE)
 - UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // post-write self-verification of produced certificate
 ```
 

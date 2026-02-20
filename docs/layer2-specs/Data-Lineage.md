@@ -84,6 +84,8 @@
   - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs_v1", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
   - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`
 - Run/access-plan identity:
+  - `world_size_policy = "rank_contiguous_shard_v1"` (must match `docs/layer2-specs/Data-NextBatch.md`).
+  - `epoch_seed_rule = "epoch_seed_rule_v2"` (must match `docs/layer2-specs/Data-NextBatch.md`).
   - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]))`
 - `dataset_snapshot_id` and `data_access_plan_hash` are distinct and MUST NOT be conflated.
 - Both `dataset_snapshot_id` and `data_access_plan_hash` MUST be emitted in trace and bound in execution certificate payload.

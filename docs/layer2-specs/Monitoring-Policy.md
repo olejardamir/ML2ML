@@ -87,8 +87,11 @@
   - baseline sample and current-window sample over the same feature projection.
   - fixed bin edges computed deterministically from baseline quantiles (10 bins, nearest-rank quantile rule).
 - Metrics:
-  - PSI on binned distributions with zero-probability guard `EPS_DENOM`.
-  - KS statistic on empirical CDFs with deterministic tie handling.
+  - PSI on binned distributions with zero-probability guard `EPS_DENOM`:
+    - `PSI = Σ_i (p_i - q_i) * ln((p_i + EPS_DENOM)/(q_i + EPS_DENOM))`.
+  - KS statistic on empirical CDFs:
+    - `KS = max_x |F_baseline(x) - F_current(x)|`,
+    - ties are resolved by stable ascending tuple order `(value, source_rank, sample_index)` where `source_rank=0` for baseline and `1` for current.
 - Missingness/NaN handling:
   - `NaN`/missing values map to dedicated `MISSING` bin; included in PSI and KS counts.
 - Output:
@@ -175,7 +178,7 @@
 ---
 ## 7) Trace & Metrics
 ### Logging rule
-- monitoring pipeline emits deterministic `MonitorEvent` records (schema from `docs/layer1-foundation/Data-Structures/00-Core.md`) and optional linked trace entries.
+- monitoring pipeline emits deterministic `MonitorEvent` records (schema from `docs/layer1-foundation/Data-Structures.md`) and optional linked trace entries.
 ### Trace schema
 - `run_header`: monitor_policy_hash, tenant_id
 - `iter`: `MonitorEvent`-compatible fields (`window_id`, `metric_name`, `metric_value`) plus optional `alert_state`

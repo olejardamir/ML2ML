@@ -256,6 +256,7 @@ This is bijective because `gcd(a,m)=1` by construction.
        batch_indices = []
        epoch_limit = N
        if manifest.data.drop_last == true:
+           num_full_batches = N // global_batch_size
            epoch_limit = (N // global_batch_size) * global_batch_size
        for i in 0..micro_batch_size-1:
            p = global_pos + rank_start + i
@@ -271,14 +272,21 @@ This is bijective because `gcd(a,m)=1` by construction.
            batch_indices.append(orig_idx)
 
 9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))
-10. cursor.global_index += global_batch_size
-11. epoch_limit_for_advance = N
+10. epoch_limit_for_advance = N
     if stage_type == "train" and manifest.data.drop_last == true:
         epoch_limit_for_advance = (N // global_batch_size) * global_batch_size
-    if cursor.global_index >= epoch_limit_for_advance:
+11. produced_global_count = global_batch_size
+    if stage_type == "train":
+        remaining = epoch_limit_for_advance - global_pos
+        if remaining <= 0:
+            produced_global_count = 0
+        else if remaining < global_batch_size:
+            produced_global_count = remaining
+12. cursor.global_index += produced_global_count
+13. if cursor.global_index >= epoch_limit_for_advance:
         cursor.epoch += 1
         cursor.global_index = 0   # start new epoch
-12. return batch_indices, cursor, {sampling_mode, sampler_config_hash}
+14. return batch_indices, cursor, {sampling_mode, sampler_config_hash}
 ```
 
 **Scalability & Algorithmic Guarantees (v2):**

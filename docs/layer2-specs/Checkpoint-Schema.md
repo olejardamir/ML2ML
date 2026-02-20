@@ -109,6 +109,8 @@
   - `lineage_root_hash:bytes32`
   - `tensors_root_hash:bytes32`
   - `optimizer_state_root_hash:bytes32`
+  - `rng_state_hash:bytes32`
+  - `data_cursors_hash:bytes32`
   - `dp_accountant_state_hash?:bytes32`
   - `weights_manifest_hash?:bytes32`
   - `optimizer_manifest_hash?:bytes32`
@@ -130,6 +132,11 @@
     - `dataset_snapshot_id?:string`
     - `artifact_index_hash?:bytes32`
   - `checkpoint_manifest_hash = SHA-256(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
+  - `weights_manifest_hash = SHA-256(CBOR_CANONICAL(weights_manifest_cbor))`
+  - `optimizer_manifest_hash = SHA-256(CBOR_CANONICAL(optimizer_manifest_cbor))`
+  - `dp_accountant_manifest_hash = SHA-256(CBOR_CANONICAL(dp_accountant_manifest_cbor))`
+  - `rng_state_hash = SHA-256(CBOR_CANONICAL(rng_state_cbor))`
+  - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors_cbor))`
   - `checkpoint_hash = checkpoint_manifest_hash`
   - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
@@ -146,6 +153,7 @@
   - `tensors/rank=<r>/shard=<k>.bin`
   - `optimizer/rank=<r>/state.bin` (optional)
   - `dp/accountant_state.cbor`
+  - `rng/state.cbor`
   - `data/cursors.cbor`
   - `tmmu/plan.cbor`
   - `trace/link.cbor`
@@ -177,7 +185,7 @@
 - In linear hash-chain mode, `trace_final_hash == trace_final_hash_at_checkpoint` at checkpoint boundary.
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
-- Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `docs/layer1-foundation/Data-Structures/00-Core.md` `CheckpointHeader`.
+- Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `docs/layer1-foundation/Data-Structures.md` `CheckpointHeader`.
 - Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_final_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
 
 ### II.J Run Commit Protocol (Normative)

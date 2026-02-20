@@ -180,10 +180,10 @@ Template conformance note (III.A): each operator definition in this section is i
 
 **Operator:** `UML_OS.Security.VerifyCertificate_v1`  
 **Category:** Security  
-**Signature:** `(certificate, trust_roots -> report)`  
+**Signature:** `(certificate_input, trust_roots? -> report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** verifies signature chains and required claims.
+**Definition:** verifies signature chains and required claims. `certificate_input` MAY be either a loaded certificate object or a canonical certificate path; if path is provided, loading/decoding is deterministic and part of this operator.
 
 **Operator:** `UML_OS.Security.SignComplianceRecord_v1`  
 **Category:** Security  

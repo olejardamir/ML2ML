@@ -110,7 +110,7 @@
 
 ### II.F Replay Token Formulas (Authoritative)
 - `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`.
-- `env_manifest_hash` is computed per `docs/layer1-foundation/Environment-Manifest/00-Core.md` (alias `runtime_env_hash` must resolve to same bytes32).
+- `env_manifest_hash` is computed per `docs/layer1-foundation/Environment-Manifest.md` (alias `runtime_env_hash` must resolve to same bytes32).
 - `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))[0:16]`.
 - `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
 - `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
