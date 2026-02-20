@@ -77,6 +77,11 @@
 **Purity class:** IO  
 **Definition:** Executes command steps in declared order.
 
+**Operator:** `UML_OS.Implementation.VerifyCLIOutcome_v1`
+**Signature:** `(results, profile_policy -> outcome_verdict)`
+**Purity class:** PURE
+**Definition:** Applies deterministic required-step and exit-code policy to emit `PASS/FAIL`.
+
 ---
 ## 6) Procedure
 ```text
@@ -84,7 +89,7 @@
 2. results <- ExecuteCLIProfile_v1(plan)
 3. verdict <- VerifyCLIOutcome_v1(results)
 4. if verdict == FAIL: Error.Emit_v1(CONTRACT_VIOLATION)
-5. return outputs
+5. return (execution_plan, command_results, outcome_verdict)
 ```
 
 ---

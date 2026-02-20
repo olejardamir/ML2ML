@@ -91,7 +91,8 @@
 1. ValidateStyle_v1
 2. ValidateDeterminismPatterns_v1
 3. ValidateErrorMapping_v1
-4. Emit merged standards report
+4. Build merged standards report for diagnostics only
+5. return (style_report, determinism_report)
 ```
 
 ---

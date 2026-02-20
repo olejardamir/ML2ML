@@ -74,6 +74,11 @@
 **Purity class:** IO  
 **Definition:** Loads and validates artifact hash links required for replay.
 
+**Operator:** `UML_OS.Replay.RunDeterministicReplay_v1`
+**Signature:** `(replay_inputs -> observed_outputs, replay_report)`
+**Purity class:** IO
+**Definition:** Replays run steps deterministically under the active replay mode and emits canonical replay report.
+
 **Operator:** `UML_OS.Replay.CompareOutputs_v1`  
 **Signature:** `(expected, observed, replay_mode -> diff)`  
 **Purity class:** PURE  
@@ -86,7 +91,7 @@
 2. observed <- RunDeterministicReplay_v1(replay_inputs)
 3. diff <- CompareOutputs_v1(expected, observed, replay_mode)
 4. if diff.has_divergence: Error.Emit_v1(REPLAY_DIVERGENCE)
-5. return replay_report
+5. return (replay_report, divergence_report)
 ```
 
 ---

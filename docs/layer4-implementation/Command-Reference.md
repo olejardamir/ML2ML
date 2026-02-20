@@ -91,7 +91,7 @@
 1. ValidateCommand_v1
 2. ExecuteCommand_v1
 3. ReportCommandResult_v1
-4. Return exit_code
+4. Return (command_report, exit_code)
 ```
 
 ---

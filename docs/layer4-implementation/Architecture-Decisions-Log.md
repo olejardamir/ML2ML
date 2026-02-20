@@ -17,6 +17,7 @@
 - Primary objective: prevent undocumented architecture divergence.
 ### 0.B Reproducibility Contract
 - Replayable given `(decision_log_hash, decision_id, context_hash)`.
+- `context_hash = SHA-256(CBOR_CANONICAL(context_scope))`, where `context_scope` contains repository root hash, active policy profile id, and affected subsystem set.
 ### 0.C Numeric Policy
 - Decision version and sequence fields are exact integers.
 ### 0.D Ordering and Tie-Break Policy
@@ -48,6 +49,21 @@
 - Architecture decision log.
 ### I.B Inputs and Hyperparameters
 - Decision proposal records and supersession links.
+
+### II.F Decision Record Schema (Normative)
+- `decision_record = {`
+  - `decision_id:string`,
+  - `decision_seq:uint64`,
+  - `title:string`,
+  - `author:string`,
+  - `created_at_utc:string`,
+  - `context_scope:map`,
+  - `affected_artifacts:array<string>`,
+  - `status:enum("PROPOSED","ACCEPTED","REJECTED","SUPERSEDED")`,
+  - `supersedes?:string`,
+  - `rationale_hash:bytes32`
+- `}`
+- `created_at_utc` must be ISO 8601 UTC (`YYYY-MM-DDTHH:MM:SSZ`), no fractional seconds.
 ### I.C Constraints and Feasible Set
 - Valid iff decision ids unique and links resolvable.
 ### I.D Transient Variables
@@ -91,7 +107,9 @@
 1. DecisionCreate_v1
 2. DecisionValidateLinks_v1
 3. Optional DecisionSupersede_v1
-4. Emit decision report
+4. Build canonical decision report
+5. decision_log_hash <- SHA-256(CBOR_CANONICAL(decision_log))
+6. return (decision_report, decision_log_hash)
 ```
 
 ---
