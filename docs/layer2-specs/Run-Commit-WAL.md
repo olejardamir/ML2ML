@@ -150,6 +150,7 @@ Canonical commit barrier:
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** resolves run-scoped WAL path from `(tenant_id, run_id)`, then appends canonical record with monotone `wal_seq`.
+Caller contract: `wal_record` MUST contain at least `record_type` plus required payload fields for that type; caller MUST NOT provide `wal_seq`, `prev_record_hash`, `record_hash`, `record_length_u32`, or `record_crc32c` (these are deterministically filled by the operator).
 
 **Operator:** `UML_OS.Commit.WALRecover_v1`  
 **Category:** IO  
@@ -169,10 +170,10 @@ Canonical commit barrier:
 ## 6) Procedure
 ```text
 0. WALRecover_v1(tenant_id, run_id) on startup/resume
-1. WALAppend_v1(tenant_id, run_id, PREPARE)
-2. WALAppend_v1(tenant_id, run_id, CERT_SIGNED)
+1. WALAppend_v1(tenant_id, run_id, {record_type:"PREPARE"})
+2. WALAppend_v1(tenant_id, run_id, {record_type:"CERT_SIGNED", certificate_tmp_hash})
 3. FinalizeRunCommit_v1(tenant_id, run_id)
-4. WALAppend_v1(tenant_id, run_id, FINALIZE)
+4. WALAppend_v1(tenant_id, run_id, {record_type:"FINALIZE", trace_final_hash, checkpoint_hash, lineage_root_hash, certificate_hash, manifest_hash, policy_bundle_hash, operator_registry_hash, determinism_profile_hash})
 ```
 
 ---

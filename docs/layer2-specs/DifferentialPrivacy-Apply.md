@@ -539,7 +539,8 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 9b. stddev_map[g] <- sigma_map[g] * clip_norm_map[g] / effective_batch_size   # for each group g
 9c. sampling_rate <- effective_batch_size / dataset_cardinality
 10. remaining_steps <- (target_steps is defined) ? max(0, target_steps - t) : 0
-10b. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)  # pass configured accountant string as accountant_hint
+10a. model_scale_arg <- (resolved_cfg.model_scale is defined) ? resolved_cfg.model_scale : null
+10b. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale_arg, accountant)  # pass configured accountant string as accountant_hint
 11. If projected_epsilon > target_epsilon: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
 12. If subsampling == "SHUFFLE_WITHOUT_REPLACEMENT":
       sampling_metadata <- {effective_q: sampling_rate, local_epsilon_hint: cumulative_epsilon}

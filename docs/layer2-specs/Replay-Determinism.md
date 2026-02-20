@@ -241,6 +241,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 - E0 fields: exact byte equality (`replay_token`, hashes, `operator_id`, `operator_seq`, state fingerprints, decision/status codes),
 - E1 fields: tolerance comparisons as declared by profile/field policy (for example numeric metrics), using
   `|a-b| <= max(abs_tol, rel_tol * max(|a|, |b|))` with deterministic per-field `abs_tol`/`rel_tol`,
+  where `abs_tol` and `rel_tol` are sourced from the active determinism profile (or field overrides). If unspecified, defaults are `abs_tol = EPS_EQ` and `rel_tol = 0`.
 - key-space and record ordering must match exactly in canonical `(t, rank, operator_seq)` order.
 - profile mismatch rule: if `comparison_profile` is missing, unknown, or inconsistent with trace preconditions, return deterministic divergence failure (`REPLAY_DIVERGENCE`) with explicit reason in diagnostics.
 **Preconditions / Postconditions:** identical schema keys/types.  

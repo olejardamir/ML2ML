@@ -121,9 +121,9 @@ Migration: update manifest operator versions and replay_token.
   - User (manifests only)
 - Filesystem roots:
   - `/datasets/<id-version-hash>/`
-  - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/`
+  - `/namespaces/<tenant_id>/<run_id>/`
   - `/jobs/queue/`
-- Namespace path: `/org/unit/project/experiment/job_id`, `job_id = replay_token[0:8]`
+- Namespace path: `/<tenant_id>/<run_id>` where `run_id = hex(SHA-256(CBOR_CANONICAL([tenant_id, replay_token]))[0:8])` (16 hex chars).
 - `UML_OS_ROOT` is a required immutable run-scoped root URI/path (`file://`, `s3://`, `gcs://`, or absolute local path), fixed at daemon startup.
 
 ### 0.P Bootstrap
@@ -157,6 +157,7 @@ Migration: update manifest operator versions and replay_token.
 - `backend: "pytorch" | "jax" | "custom"` (default `"pytorch"`)
 - `pipeline_stages: array` of objects `{step_id: string, type: "train"|"eval"|"infer"|"augment", manifest_path?: string, depends_on?: array of step_id, dataset_key?: string}`
 - `resource_requests: {cpus: int, gpus: int, memory_gb: float} (global or per-stage in pipeline_stages objects; daemon scheduler enforces)`
+- `memory_arena_config: object` (optional deterministic arena configuration for TMMU initialization/planning; per-arena entries may include `capacity_bytes`, `alignment_bytes`)
 - `quota: {memory_bytes_budget?: uint64, gpu_time_ms_budget?: uint64, cpu_time_ms_budget?: uint64, io_bytes_budget?: uint64}` (optional runtime enforcement thresholds consumed by kernel resource_ledger checks)
 - `resource_ledger_schema` (fixed): `{flops:uint64, bytes_allocated:uint64, peak_bytes:uint64, gpu_time_ns:uint64, cpu_time_ns:uint64}`; kernel updates counters each step by summing operator-declared resource contributions (declared in operator contract metadata; this version assumes fixed per-operator costs).
 - `rbac: {principals: array, permissions: map}` (optional; daemon enforces on NamespaceEnter_v1 and critical ops).
@@ -256,11 +257,15 @@ Neutral declarative ML-ISA (Instruction Set Architecture) used by all Model/* sy
 - `theta`
 - `state ∈ {S_INIT, S_TRAINING, S_EVALUATING, S_TERMINATED}`
 - `t`
+- `replay_token`
+- `run_id`
 - `current_step`
 - `loss_hist`
 - `data_cursors: map<string, (epoch: int, global_index: int)>` (key = dataset_key).
 - `rng_master_state` + offsets
 - `dp_accountant_state`, `cumulative_epsilon`
+- `tmmu_context`
+- `operator_contracts_root_hash`
 - `resource_ledger`
 - `tape_state`
 
@@ -314,9 +319,10 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 3. `canonical_manifest <- UML_OS.Data.Manifest_v1(manifest)` then `UML_OS.Data.ValidateManifest_v1(canonical_manifest)`
 4. `active_namespace <- UML_OS.OS.NamespaceEnter_v1(namespace_path)`
 5. `driver <- UML_OS.Backend.LoadDriver_v1(manifest.backend)` then `dist_state <- UML_OS.Distributed.Setup_v1(...)`
-6. Initialize `theta` deterministically from manifest/seed contract
-7. Initialize `state <- S_TRAINING`, `loss_hist`, `data_cursors`, tape, fingerprints, and RNG offsets
-8. Run `UML_OS.Contract.Validate_v1(...)` before entering the main procedure loop
+6. `arena_config <- manifest.memory_arena_config or deterministic default policy` then `tmmu_context <- UML_OS.TMMU.Init_v1(ir_graph, "train", replay_token, arena_config)`
+7. Initialize `theta` deterministically from manifest/seed contract
+8. Initialize `state <- S_TRAINING`, `loss_hist`, `data_cursors`, tape, fingerprints, and RNG offsets
+9. Run `UML_OS.Contract.Validate_v1(...)` before entering the main procedure loop
 
 ---
 
@@ -358,6 +364,7 @@ Active operators (exact wiring table):
 - `UML_OS.Config.DeterministicStageMerge_v1`
 - `UML_OS.Inference.RunBatch_v1`
 - `UML_OS.Model.Backward_v1`
+- `UML_OS.TMMU.Init_v1`
 - `UML_OS.Symbolic.Augment_v1`
 - `UML_OS.Security.VerifyCertificate_v1`
 - `UML_OS.Certificate.EvidenceValidate_v1`
@@ -481,7 +488,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Model.Forward_v2`  
 **Category:** Model  
-**Signature:** `(theta, batch, uml_model_ir_dag -> logits)`  
+**Signature:** `(theta, batch, uml_model_ir_dag, replay_token, tmmu_context -> logits)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** dispatches to active backend driver; executes UML_Model_IR DAG (custom layers via registry); all reductions in binary64 with ascending-index order.  
@@ -559,7 +566,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Inference.RunBatch_v1`  
 **Category:** Inference  
-**Signature:** `(theta, dataset_key -> outputs)`  
+**Signature:** `(theta, dataset_key, replay_token, tmmu_context -> outputs)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** uses manifest.datasets[dataset_key]; dispatches driver for inference (full pass or per-batch as configured); writes outputs and fingerprint material.  
@@ -572,7 +579,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Model.Backward_v1`
 **Category:** Model
-**Signature:** `(L_tot, theta, ir_graph -> grads, grad_norm)`
+**Signature:** `(L_tot, theta, ir_graph, replay_token, tmmu_context -> grads, grad_norm)`
 **Purity class:** STATEFUL
 **Determinism:** deterministic
 **Definition:** Compute partial derivatives following ir_graph in reverse topological order. For each instruction the driver executes the corresponding gradient kernel; if the backend instruction is non-deterministic, driver falls back to binary64 CPU reference path. Global gradient norm computed with Kahan summation in binary64 (ascending index). If DP is disabled and `grad_clip_norm` is declared, apply `g = g * min(1, clip_norm / (norm + EPS_EQ))`; if DP is enabled, return unclipped gradients and perform clipping only inside `UML_OS.DifferentialPrivacy.Apply_v3`.
@@ -617,6 +624,16 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Ordering/tie handling:** N/A.  
 **Failure behavior:** abort `BACKEND_CONTRACT_VIOLATION`.  
 **Dependencies:** manifest `backend`.
+
+**Operator:** `UML_OS.TMMU.Init_v1`
+**Category:** Memory
+**Signature:** `(ir_dag, mode, replay_token, arena_config -> tmmu_context)`
+**Purity class:** STATEFUL
+**Determinism:** deterministic
+**Definition:** initializes deterministic TMMU run context from IR + mode + replay token, validates arena capacities/alignments, and creates memory handles used by model executor operators.
+**Preconditions / Postconditions:** backend loaded; `arena_config` resolved from manifest/default policy.
+**Failure behavior:** abort on invalid arena config or TMMU init failure.
+**Dependencies:** `docs/layer2-specs/TMMU-Allocation.md`.
 
 **Operator:** `UML_OS.Pipeline.Dispatch_v1`  
 **Category:** Pipeline  
@@ -876,15 +893,20 @@ State transition table (normative):
 
 ```text
 1. UML_OS.OS.Bootstrap_v1(...)
-1a. namespace_path <- SHA-256(CBOR_CANONICAL([manifest.tenant_id, replay_token]))-derived deterministic namespace identifier (resolved to canonical path format by `UML_OS.OS.ResolvePath_v1`)
+1a. run_id <- hex(SHA-256(CBOR_CANONICAL([manifest.tenant_id, replay_token]))[0:8])  # deterministic 16-char hex run id
+1b. namespace_path <- "/" + manifest.tenant_id + "/" + run_id
+1c. operator_contracts_root_hash <- manifest.operator_contracts_root_hash
 2. UML_OS.OS.NamespaceEnter_v1(namespace_path)
 3. UML_OS.Backend.LoadDriver_v1(manifest.backend)
+3a. arena_config <- (manifest.memory_arena_config is defined) ? manifest.memory_arena_config : derive_default_arena_config(manifest.hardware_affinity, manifest.backend)
+3b. tmmu_context <- UML_OS.TMMU.Init_v1(ir_graph, "train", replay_token, arena_config)
 4. WALRecover_v1(manifest.tenant_id, run_id)  // deterministic crash recovery before new run prepare
 5. current_step <- 0
 6. checkpoint_frequency <- manifest.checkpoint_frequency or 0
 7. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
 7a. if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- UML_OS.Config.DeterministicStageMerge_v1(manifest, stage_manifest)
-8. WALAppend_v1(manifest.tenant_id, run_id, PREPARE)
+8. wal_prepare_record <- {record_type: "PREPARE"}
+8a. WALAppend_v1(manifest.tenant_id, run_id, wal_prepare_record)
 9. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
 Loop until Pipeline.Dispatch_v1 returns termination:
@@ -906,7 +928,7 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     if len(batch) == 0:
       UML_OS.IO.WriteTape_v1({t, stage_id: current_stage.step_id, status:"batch_empty", dataset_key})
       continue
-    logits <- UML_OS.Model.Forward_v2(...)
+    logits <- UML_OS.Model.Forward_v2(theta, batch, ir_graph, replay_token, tmmu_context)
     L_tot <- UML_OS.Objective.TotalLoss_v1(...)
     action <- UML_OS.Policy.Evaluate_v1(...)
     if action == "optimize":
@@ -917,16 +939,16 @@ Loop until Pipeline.Dispatch_v1 returns termination:
           micro_seq <- deterministic_split(batch, manifest.security.differential_privacy.max_microbatch)
           micro_grads_seq <- []
           for each micro_batch in micro_seq (deterministic order):
-              micro_logits <- UML_OS.Model.Forward_v2(theta, micro_batch, ...)
+              micro_logits <- UML_OS.Model.Forward_v2(theta, micro_batch, ir_graph, replay_token, tmmu_context)
               micro_loss <- UML_OS.Objective.TotalLoss_v1(...)
-              micro_grads, _ <- UML_OS.Model.Backward_v1(micro_loss, theta, ir_graph)  # raw micro-batch gradients
+              micro_grads, _ <- UML_OS.Model.Backward_v1(micro_loss, theta, ir_graph, replay_token, tmmu_context)  # raw micro-batch gradients
               micro_grads_seq.append(micro_grads)
           noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(micro_grads_seq, manifest.security.differential_privacy, t)
           update_grads <- noisy_grads
           cumulative_epsilon <- budget.epsilon
           dp_accountant_state <- budget.accountant_state
       else:
-          grads, grad_norm <- UML_OS.Model.Backward_v1(L_tot, theta, ir_graph)
+          grads, grad_norm <- UML_OS.Model.Backward_v1(L_tot, theta, ir_graph, replay_token, tmmu_context)
           update_grads <- grads
       theta <- UML_OS.Optimizer.Update_v1(update_grads, ...)
     else if action == "eval" or current_stage.type == "eval":
@@ -934,13 +956,13 @@ Loop until Pipeline.Dispatch_v1 returns termination:
       UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)
     else if action == "infer":
       state <- UML_OS.Transition.SwitchState_v1(state, "infer")
-      UML_OS.Inference.RunBatch_v1(theta, dataset_key)
+      UML_OS.Inference.RunBatch_v1(theta, dataset_key, replay_token, tmmu_context)
   else if current_stage.type == "eval":
     state <- UML_OS.Transition.SwitchState_v1(state, "eval")
     UML_OS.Evaluation.Run_v1(theta, dataset_key, ...)
   else if current_stage.type == "infer":
     state <- UML_OS.Transition.SwitchState_v1(state, "infer")
-    UML_OS.Inference.RunBatch_v1(theta, dataset_key)
+    UML_OS.Inference.RunBatch_v1(theta, dataset_key, replay_token, tmmu_context)
 - checkpoint_due <- (checkpoint_frequency > 0 and (t % checkpoint_frequency == 0)) or current_stage.checkpoint_on_exit == true
 - if checkpoint_due:
     if world_size == 1 or rank == 0: UML_OS.IO.SaveCheckpoint_v1(...)
@@ -961,10 +983,24 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
 - UML_OS.Certificate.EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)  // verify assembled evidence bundle before signing
-- UML_OS.Certificate.WriteExecutionCertificate_v1(...)
-- WALAppend_v1(manifest.tenant_id, run_id, CERT_SIGNED)
+- execution_certificate <- UML_OS.Certificate.WriteExecutionCertificate_v1(...)
+- certificate_hash <- SHA-256(CBOR_CANONICAL(execution_certificate))
+- wal_cert_signed_record <- {record_type: "CERT_SIGNED", certificate_tmp_hash: certificate_hash}
+- WALAppend_v1(manifest.tenant_id, run_id, wal_cert_signed_record)
 - FinalizeRunCommit_v1(manifest.tenant_id, run_id)
-- WALAppend_v1(manifest.tenant_id, run_id, FINALIZE)
+- operator_registry_hash <- operator_contracts_root_hash  # same commitment in this contract suite
+- wal_finalize_record <- {
+    record_type: "FINALIZE",
+    trace_final_hash,
+    checkpoint_hash,
+    lineage_root_hash,
+    certificate_hash,
+    manifest_hash,
+    policy_bundle_hash,
+    operator_registry_hash,
+    determinism_profile_hash
+  }
+- WALAppend_v1(manifest.tenant_id, run_id, wal_finalize_record)
 - UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // post-write self-verification of produced certificate
 ```
 

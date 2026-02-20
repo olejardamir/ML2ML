@@ -2209,3 +2209,49 @@
   - `Trace-Sidecar.md`: made HASH_GATED invariant enforcement explicit in `UML_OS.Trace.ValidateSchema_v1`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Final Determinism Tail Fixes (run_id/WAL/DP/E1 defaults)
+- Applied remaining procedural consistency fixes:
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - added deterministic `run_id` derivation after namespace construction (`deterministic_run_id(tenant_id, replay_token)`),
+    - replaced bare WAL stage tokens with explicit WAL record maps (`wal_prepare_record`, `wal_cert_signed_record`, `wal_finalize_record`),
+    - added explicit `operator_registry_hash <- operator_contracts_root_hash` binding for FINALIZE payload.
+  - `Run-Commit-WAL.md`:
+    - clarified `WALAppend_v1` caller contract: caller supplies payload fields only; operator injects `wal_seq`, chain/hash/framing fields,
+    - updated procedure examples to pass explicit `wal_record` maps per record type.
+  - `DifferentialPrivacy-Apply.md`:
+    - added optional-safe `model_scale_arg` derivation before projector call (`null` when absent).
+  - `Replay-Determinism.md`:
+    - defined fallback E1 tolerance defaults when not profile-specified: `abs_tol = EPS_EQ`, `rel_tol = 0`.
+  - `Data-Lineage.md`:
+    - tightened split-derivation text to explicitly tie fraction-sum validation to post-count computation step.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Namespace/Run-ID and Certificate Hash Finalization
+- Applied final procedural consistency adjustments in kernel:
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - switched namespace policy to `/<tenant_id>/<run_id>` and aligned 0.N filesystem/namespace description,
+    - defined deterministic `run_id` as `hex(SHA-256(CBOR_CANONICAL([tenant_id, replay_token]))[0:8])`,
+    - added bootstrap-time capture of `operator_contracts_root_hash` from manifest into procedure state for later FINALIZE use,
+    - in termination sequence, captured `execution_certificate` output and computed `certificate_hash = SHA-256(CBOR_CANONICAL(execution_certificate))` before WAL `CERT_SIGNED`/`FINALIZE` records.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Executor/TMMU Wiring Completion
+- Completed remaining cross-file execution wiring updates:
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - extended persistent state with `replay_token`, `run_id`, `tmmu_context`, and `operator_contracts_root_hash`,
+    - added optional manifest field `memory_arena_config` in 0.Q,
+    - added `UML_OS.TMMU.Init_v1` to operator manifest and full operator definition,
+    - updated kernel procedure to resolve `arena_config`, initialize `tmmu_context`, and pass `replay_token`/`tmmu_context` into `Forward_v2`, `Backward_v1`, and `Inference.RunBatch_v1`.
+  - `ModelIR-Executor.md`:
+    - added `replay_token` to executor input contracts and `ModelIR_Executor_v1` signature,
+    - aligned `TMMU.PrepareMemory_v2` signature/call sites to include `replay_token`.
+  - `Config-Schema.md`:
+    - added optional top-level `memory_arena_config:object` and included it in kernel-alignment optional fields.
+  - `Experiment-Tracking.md`:
+    - replaced `artifact_digest:digest_ref` with `artifact_digest:bytes32`,
+    - added alias note that external `digest_ref` resolves to `bytes32`.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.

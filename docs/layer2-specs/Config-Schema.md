@@ -130,6 +130,7 @@
     - `cpus:uint64`
     - `gpus:uint64`
     - `memory_gb:float64`
+  - `memory_arena_config:object` (optional deterministic TMMU arena configuration)
   - `quota:object` with optional:
     - `memory_bytes_budget:uint64`
     - `gpu_time_ms_budget:uint64`
@@ -184,7 +185,7 @@
 ### II.F.2 Kernel Manifest Alignment (Normative)
 - To preserve cross-file consistency with `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` section `0.Q`, the following top-level manifest fields are recognized by this schema (required/optional as noted):
   - required: `spec_version`, `tenant_id`, `seed`, `execution_mode`, `datasets`, `pipeline_stages`, `model`, `security`, `optimizer`, `environment`, `policy_bundle`.
-  - optional: `task_type`, `alpha`, `fingerprint_frequency`, `grad_clip_norm`, `checkpoint_frequency`, `job_priority`, `policy.rules`, `data`, `custom_operators`, `parallelism`, `manifest_inheritance`, `hardware_affinity`, `profile`, `backend`, `resource_requests`, `quota`, `rbac`, `storage`, `monitoring_export`, `rbac_source`, `daemon_mode`, `distributed`, `fine_tune`, `evaluation`, `compute_dtype`, `trace`.
+  - optional: `task_type`, `alpha`, `fingerprint_frequency`, `grad_clip_norm`, `checkpoint_frequency`, `job_priority`, `policy.rules`, `data`, `custom_operators`, `parallelism`, `manifest_inheritance`, `hardware_affinity`, `profile`, `backend`, `resource_requests`, `memory_arena_config`, `quota`, `rbac`, `storage`, `monitoring_export`, `rbac_source`, `daemon_mode`, `distributed`, `fine_tune`, `evaluation`, `compute_dtype`, `trace`.
   - `policy.rules` and `policy_bundle` serve different purposes and MAY coexist: policy rules drive runtime stage/action decisions; `policy_bundle` carries cryptographic policy commitments.
 - `environment` object alignment:
   - required field: `env_manifest_hash:bytes32`,

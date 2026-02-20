@@ -100,7 +100,8 @@
   - `tenant_id:string`, `run_id:string`, `metric_name:string`, `metric_value:float64`, `metric_step:uint64`, `aggregation:enum(raw|sum|mean|min|max|quantile)`, `quantile_p?:float64`, `window_id?:string`, `recorded_at:string`.
   - semantics: each metric record stores one scalar observation; `aggregation` denotes producer-side semantic label and does not trigger query-time aggregation by itself.
 - `ArtifactRecord` (CBOR map):
-  - `tenant_id:string`, `run_id:string`, `artifact_id:string`, `artifact_digest:digest_ref`, `artifact_size_bytes:uint64`, `storage_locator:string`, `artifact_class:string`, `created_at:string`, `tombstoned_at?:string`, `tombstone_reason?:string`.
+  - `tenant_id:string`, `run_id:string`, `artifact_id:string`, `artifact_digest:bytes32`, `artifact_size_bytes:uint64`, `storage_locator:string`, `artifact_class:string`, `created_at:string`, `tombstoned_at?:string`, `tombstone_reason?:string`.
+- Type alias note: `digest_ref` (when used externally) resolves to `bytes32` in this contract version.
 - Record hash rule:
   - `record_hash = SHA-256(CBOR_CANONICAL(record_map))`.
   - For `MetricRecord`, the canonical `record_map` used for hashing omits `recorded_at`; `recorded_at` remains stored metadata for human/audit readability only.
