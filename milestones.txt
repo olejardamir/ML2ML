@@ -49,6 +49,53 @@ Milestone 1: Machine-Readable Contract Layer
 		- No undocumented fields or implicit defaults remain in prose-only form.
 		- CI passes schema completeness, reference integrity, and hash determinism checks.
 		- A code generator can consume schemas without reading prose for structural typing decisions.
+	- First-task execution plan (actionable):
+		- Phase 1: Format decision
+			- Select one canonical schema format (or a governed pair) and freeze it in writing.
+			- Define canonical encoding and digest rule for schema artifacts.
+			- Deliverable: `Schema-Format-Decision` note with examples.
+		- Phase 2: Meta-schema
+			- Create a meta-schema describing required fields for every contract schema artifact.
+			- Include typing rules, nullability, defaults, constraints, and version fields.
+			- Deliverable: versioned meta-schema file + validator.
+		- Phase 3: Conventions
+			- Define naming conventions for schema IDs, field paths, enum names, and operator I/O references.
+			- Define cross-file reference format and unresolved-reference failure behavior.
+			- Deliverable: conventions document with canonical examples.
+		- Phase 4: Pilot conversion
+			- Convert 2-3 representative contracts (one per layer) to validate the format.
+			- Compare converted schemas against prose to confirm no information loss.
+			- Deliverable: pilot schema artifacts + parity report.
+		- Phase 5: CI gate bootstrap
+			- Add initial CI checks: schema parse, meta-schema validation, and stable hash computation.
+			- Fail on missing required metadata in schema artifacts.
+			- Deliverable: green CI on pilot set with strict failure conditions.
+	- Acceptance criteria for first task:
+		- Canonical format is frozen and documented.
+		- Meta-schema validates pilot artifacts without exceptions.
+		- Pilot artifacts preserve all contract fields and constraints from source docs.
+		- CI gate enforces format validity and deterministic schema hashing.
+	- DONE (so far):
+		- Format decision frozen in `schemas/SCHEMA_FORMAT_DECISION.txt`.
+		- Meta-schema created in `schemas/contract_schema_meta_v1.json`.
+		- Conventions documented in `schemas/SCHEMA_CONVENTIONS.txt`.
+		- Pilot artifacts created:
+			- `schemas/pilot/l1_error_codes.schema.json`
+			- `schemas/pilot/l2_config_schema.schema.json`
+			- `schemas/pilot/l3_test_plan.schema.json`
+		- Bootstrap schema gate implemented and executed:
+			- `tools/schema_gate.py`
+			- Result: `PASS: validated 3 schema artifacts`.
+		- Pilot coverage expanded to all Layer1 contracts:
+			- Added 9 additional Layer1 pilot schema artifacts under `schemas/pilot/`.
+			- Total validated pilot artifacts: 12.
+		- Cross-reference gate hardened:
+			- `tools/schema_gate.py` now verifies each operator ID in a pilot artifact appears in its `source_doc`.
+			- `tools/schema_gate.py` now also verifies declared outputs/procedure return names are present in source docs (prose drift check).
+			- Result: `PASS: validated 12 schema artifacts`.
+		- CI integration completed:
+			- Added `.github/workflows/schema-gate.yml` to run schema gate on schema/docs/workflow changes.
+		- First-task execution plan status: COMPLETE.
 2. Convert every Markdown contract into machine-readable artifacts (CBOR schema/JSON schema/IDL).
 3. Add schema validation CI gate: no prose-schema drift allowed.
 4. Version all schemas with strict compatibility rules (MAJOR/MINOR/PATCH).
