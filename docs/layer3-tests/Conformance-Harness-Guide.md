@@ -15,6 +15,7 @@
 - minimize conformance failures and unresolved contract drift.
 ### 0.B Reproducibility Contract
 - same suite set + same inputs produce same verdict.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - binary64 for score aggregation and thresholds.
 ### 0.D Ordering and Tie-Break Policy
@@ -25,7 +26,10 @@
 - harness executes in locked environment.
 ### 0.G Operator Manifest
 - `UML_OS.Test.RunSchemaConformanceSuite_v1`
+- `UML_OS.Test.RunInterfaceSuite_v1`
 - `UML_OS.Test.RunReplayConformanceSuite_v1`
+- `UML_OS.Test.RunCheckpointConformanceSuite_v1`
+- `UML_OS.Test.RunSecurityConformanceSuite_v1`
 - `UML_OS.Test.RunEvidenceIntegritySuite_v1`
 - `UML_OS.Test.AggregateHarnessVerdict_v1`
 - `UML_OS.Error.Emit_v1`
@@ -39,13 +43,21 @@
 - mandatory suite failure aborts release gate.
 ### 0.L Input/Data Provenance
 - inputs from test vectors catalog and artifact fixtures.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: `uint64` (suite-level stochastic tests must consume deterministic seeds).
+- PRNG family: `Philox4x32-10` for stochastic harness suites.
+- replay guarantee: identical `(target_profile, suite_selection, strictness_level)` and identical fixture hashes produce identical `harness_verdict`.
+- floating-point format: IEEE-754 binary64; rounding mode `roundTiesToEven`.
+- NaN/Inf policy: invalid for verdict-bearing aggregates; emit deterministic failure.
+- default tolerances: `abs_tol=EPS_EQ`, `rel_tol=0` unless suite profile specifies stricter/looser bounds.
+- determinism target: E0 for `harness_verdict` and failing vector ids.
 
 ---
 ## 2) System Model
 ### I.A Persistent State
 - suite results store and history.
 ### I.B Inputs and Hyperparameters
-- target profile, suite selection, strictness level.
+- target profile id (`profile_hash`), suite selection, strictness level.
 ### I.C Constraints and Feasible Set
 - required baseline vectors must exist.
 ### I.D Transient Variables
@@ -62,22 +74,57 @@
 ---
 ## 4) Operator Manifest
 - `UML_OS.Test.RunSchemaConformanceSuite_v1`
+- `UML_OS.Test.RunInterfaceSuite_v1`
 - `UML_OS.Test.RunReplayConformanceSuite_v1`
+- `UML_OS.Test.RunCheckpointConformanceSuite_v1`
+- `UML_OS.Test.RunSecurityConformanceSuite_v1`
 - `UML_OS.Test.RunEvidenceIntegritySuite_v1`
 - `UML_OS.Test.AggregateHarnessVerdict_v1`
 - `UML_OS.Error.Emit_v1`
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Test.RunSchemaConformanceSuite_v1`
+**Signature:** `(schema_vectors, profile -> suite_report)`
+**Purity class:** IO
+**Definition:** Executes schema conformance vectors in deterministic order.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `VECTOR_LOAD_FAILURE`, `SCHEMA_MISMATCH`.
+
+**Operator:** `UML_OS.Test.RunInterfaceSuite_v1`
+**Signature:** `(interface_vectors, profile -> suite_report)`
+**Purity class:** IO
+**Definition:** Verifies API/signature and interface digest conformance.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `SIGNATURE_MISMATCH`, `INTERFACE_MISMATCH`.
+
 **Operator:** `UML_OS.Test.RunReplayConformanceSuite_v1`  
 **Signature:** `(vectors, profile -> suite_report)`  
 **Purity class:** IO  
 **Definition:** Executes replay vectors and validates E0/E1 policies.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `REPLAY_DIVERGENCE`.
+
+**Operator:** `UML_OS.Test.RunCheckpointConformanceSuite_v1`
+**Signature:** `(checkpoint_vectors, profile -> suite_report)`
+**Purity class:** IO
+**Definition:** Validates checkpoint/restore invariants and replay continuity.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `CHECKPOINT_INTEGRITY_FAILURE`, `RESTORE_IDENTITY_MISMATCH`.
+
+**Operator:** `UML_OS.Test.RunSecurityConformanceSuite_v1`
+**Signature:** `(security_vectors, profile -> suite_report)`
+**Purity class:** IO
+**Definition:** Validates certificate/authz/policy-evidence integrity paths.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `CERTIFICATE_INVALID`, `AUTHZ_CONTEXT_MISSING`.
+
+**Operator:** `UML_OS.Test.RunEvidenceIntegritySuite_v1`
+**Signature:** `(evidence_vectors, profile -> suite_report)`
+**Purity class:** IO
+**Definition:** Validates cross-artifact hash-link and evidence-bundle integrity.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `EVIDENCE_HASH_MISMATCH`.
 
 **Operator:** `UML_OS.Test.AggregateHarnessVerdict_v1`  
 **Signature:** `(suite_reports, policy -> verdict)`  
 **Purity class:** PURE  
 **Definition:** Aggregates suite outcomes into deterministic final verdict.
+**allowed_error_codes:** `CONTRACT_VIOLATION`.
 
 ---
 ## 6) Procedure
@@ -85,9 +132,11 @@
 1. run schema suite
 2. run interface/signature suite
 3. run replay suite
-4. run evidence-integrity suite
-5. aggregate deterministic verdict
-6. abort on required-suite failure
+4. run checkpoint suite
+5. run security suite
+6. run evidence-integrity suite
+7. aggregate deterministic verdict
+8. abort on required-suite failure
 ```
 
 ---
@@ -106,5 +155,5 @@
 
 ---
 ## 10) Checkpoint/Restore
-- checkpoint stores completed suite ids and partial reports hash.
+- checkpoint stores: `completed_suite_ids[]`, `pending_suite_queue`, `partial_suite_reports_hash`, `harness_context_hash`.
 - restore resumes deterministically at next suite.

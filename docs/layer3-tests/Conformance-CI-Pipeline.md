@@ -15,6 +15,7 @@
 - minimize false passes and nondeterministic gate outcomes.
 ### 0.B Reproducibility Contract
 - pipeline verdict reproducible from `(commit_hash, lockfile_hash, ci_policy_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - binary64 for aggregate timing and score metrics.
 ### 0.D Ordering and Tie-Break Policy
@@ -38,13 +39,21 @@
 - required stage failure aborts pipeline.
 ### 0.L Input/Data Provenance
 - CI artifacts are content-addressed and hash-bound.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: N/A (pipeline control flow is deterministic and non-stochastic).
+- PRNG family: N/A.
+- replay guarantee: identical `(commit_hash, lockfile_hash, ci_policy_hash)` yields identical `gate_verdict`.
+- floating-point format: IEEE-754 binary64 for informational timing metrics.
+- NaN/Inf policy: invalid in gate-affecting metrics.
+- default tolerances: `abs_tol=EPS_EQ`, `rel_tol=0` unless stage policy overrides.
+- determinism target: E0 for stage pass/fail sequence and gate verdict.
 
 ---
 ## 2) System Model
 ### I.A Persistent State
 - CI policy and stage graph definitions.
 ### I.B Inputs and Hyperparameters
-- commit refs, target profile, stage toggles.
+- commit refs, `lockfile_hash`, target profile, stage toggles.
 ### I.C Constraints and Feasible Set
 - required stages cannot be skipped.
 ### I.D Transient Variables
@@ -72,19 +81,34 @@
 **Purity class:** IO  
 **Determinism:** deterministic inputs/result schema  
 **Definition:** Executes CI stage and emits canonical report object.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `CI_STAGE_FAILURE`, `ARTIFACT_MISSING`.
+
+**Operator:** `UML_OS.CI.AggregateStageResults_v1`
+**Signature:** `(stage_reports, ci_policy -> gate_report, artifact_bundle_hash)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Aggregates stage reports in fixed stage order and computes `artifact_bundle_hash` over canonical artifact manifest.
+**allowed_error_codes:** `CONTRACT_VIOLATION`.
+
+**Operator:** `UML_OS.CI.EmitGateVerdict_v1`
+**Signature:** `(gate_report, artifact_bundle_hash -> gate_verdict, ci_report)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** Emits canonical gate verdict and finalized CI report.
+**allowed_error_codes:** `CONTRACT_VIOLATION`.
 
 ---
 ## 6) Procedure
 ```text
 1. Run required stages in fixed order
 2. Collect stage reports
-3. Aggregate deterministic gate verdict
-4. Publish artifact bundle hash and report
+3. Aggregate deterministic gate report and compute `artifact_bundle_hash`
+4. Emit deterministic gate verdict and publish report
 ```
 
 ---
 ## 7) Trace & Metrics
-- Metrics: `stages_total`, `stages_passed`, `stages_failed`, `pipeline_duration_s`.
+- Metrics: `stages_total`, `stages_passed`, `stages_failed`, `pipeline_duration_s` (informational only; excluded from deterministic gate decision).
 - Trace includes stage ids, stage hashes, and final gate decision.
 
 ---
@@ -98,5 +122,5 @@
 
 ---
 ## 10) Checkpoint/Restore
-- checkpoint stores completed stage set and partial reports.
+- checkpoint stores `completed_stage_ids[]`, `stage_cursor`, `partial_stage_reports_hash`, and `artifact_bundle_hash` (if already materialized).
 - restore resumes from next unfinished stage deterministically.

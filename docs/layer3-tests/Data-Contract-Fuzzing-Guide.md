@@ -15,6 +15,7 @@
 - minimize parser crashes, undefined behavior, and non-deterministic parse outcomes.
 ### 0.B Reproducibility Contract
 - fuzz outcomes reproducible from `(fuzz_seed, harness_version, target_schema_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - exact counters for crashes and unique findings.
 ### 0.D Ordering and Tie-Break Policy
@@ -38,6 +39,14 @@
 - crash or sanitizer violation is a deterministic failing finding.
 ### 0.L Input/Data Provenance
 - fuzz corpora and generated inputs are hash-addressed.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: `uint64`.
+- PRNG family: `Philox4x32-10`.
+- replay guarantee: identical `(fuzz_seed, harness_version, target_schema_hash, iteration_budget)` yields identical `findings_catalog_hash` and deterministic finding identities.
+- floating-point format: IEEE-754 binary64 only for summary metrics; verdict path is hash/counter based.
+- NaN/Inf policy: prohibited in metric outputs; deterministic failure if produced.
+- default tolerances: N/A for crash/violation verdicts.
+- determinism target: E0 for `findings_catalog_hash` and unique finding set.
 
 ---
 ## 2) System Model
@@ -67,11 +76,27 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Test.GenerateFuzzInput_v1`
+**Signature:** `(target_id, fuzz_seed, corpus_cursor -> input_bytes, corpus_cursor_next)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** deterministically generates fuzz input bytes from seed+corpus state.
+**allowed_error_codes:** `CONTRACT_VIOLATION`.
+
 **Operator:** `UML_OS.Test.RunFuzzTarget_v1`  
 **Signature:** `(target_id, input_bytes -> target_result)`  
 **Purity class:** IO  
 **Determinism:** deterministic for identical input bytes  
 **Definition:** Executes one fuzz target invocation and records verdict/crash metadata.
+**Preconditions / Postconditions:** target exists; input bytes are bounded by target contract.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `FUZZ_TARGET_CRASH`, `SANITIZER_VIOLATION`.
+
+**Operator:** `UML_OS.Test.DeduplicateFindings_v1`
+**Signature:** `(findings -> deduped_findings, findings_catalog_hash)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** deduplicates findings by canonical key and emits `findings_catalog_hash`.
+**allowed_error_codes:** `CONTRACT_VIOLATION`.
 
 ---
 ## 6) Procedure
@@ -79,7 +104,8 @@
 1. Generate deterministic fuzz inputs
 2. Execute selected target(s)
 3. Capture crashes/violations
-4. Deduplicate findings and emit report
+4. Deduplicate findings and compute `findings_catalog_hash`
+5. Emit report `(fuzz_report, findings_catalog_hash)`
 ```
 
 ---
@@ -98,5 +124,5 @@
 
 ---
 ## 10) Checkpoint/Restore
-- checkpoint stores corpus cursor and findings hash.
+- checkpoint stores `corpus_cursor`, `iterations_completed`, `dedup_state_hash`, and current `findings_catalog_hash`.
 - restore resumes fuzzing deterministically.

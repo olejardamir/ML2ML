@@ -26,6 +26,7 @@
 - PRNG family: Philox4x32-10.
 - Randomness locality: only stochastic test operators.
 - Replay guarantee: replayable given `(test_manifest_hash, seed_set, runtime_env_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 
 ### 0.C Numeric Policy
 - Critical verdicts are boolean/integer exact.
@@ -250,6 +251,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Failure behavior:** abort on malformed integration manifest; otherwise deterministic failure records in report.  
 **Dependencies:** kernel/component contracts and trace schema.  
 **Test vectors:** mixed pass/fail integration matrices.
+`integration_manifest` schema (normative): `{suite_id:string, scenarios:array<string>, fixtures_hash:bytes32, comparison_profile:object}`.
 
 **Operator:** `UML_OS.Test.RunReplaySuite_v1`  
 **Category:** Test  
@@ -269,11 +271,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ## 6) Procedure
 
 ```text
-1. RunUnitSuite_v1
-2. RunIntegrationSuite_v1
-3. RunGoldenTraceSuite_v1
-4. RunReplaySuite_v1
-5. AggregateResults_v1
+1. RunUnitSuite_v1(suite_config)
+2. RunIntegrationSuite_v1(integration_manifest)
+3. RunGoldenTraceSuite_v1(golden_config)
+4. RunReplaySuite_v1(replay_manifest)
+5. AggregateResults_v1(suite_reports)
 6. Return report + verdict
 ```
 
@@ -285,7 +287,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 Every executed test emits deterministic result records.
 
 ### Trace schema
-- `run_header`: manifest_hash, runtime_env_hash
+- `run_header`: manifest_hash, runtime_env_hash, replay_token
 - `iter`: suite, test_id, result
 - `run_end`: verdict, aggregate counts
 
