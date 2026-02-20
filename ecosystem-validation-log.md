@@ -1681,3 +1681,48 @@
   - Updated hash (`L1-007`): `d45ec11545ee1509743505c0506b33fb36a7860120466b74aab7892530f14a82`
   - Previous hash (`L1-007`): `3594284b82dc791d36b5e0ab9a2956171a621ef0c010ef0ebf69e45db4c82637`
   - Required EQC heading presence check across all 10 Layer1 docs: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Layer1 cross-document wiring reconciliation (requested 10-file EQC consistency pass).
+- Scope:
+  - Audited target Layer1 contracts:
+    - `docs/layer1-foundation/Canonical-CBOR-Profile.md`
+    - `docs/layer1-foundation/Digest-Catalog.md`
+    - `docs/layer1-foundation/Error-Codes.md`
+    - `docs/layer1-foundation/Data-Structures.md`
+    - `docs/layer1-foundation/Operator-Registry-Schema.md`
+    - `docs/layer1-foundation/API-Interfaces.md`
+    - `docs/layer1-foundation/Determinism-Profiles.md`
+    - `docs/layer1-foundation/Environment-Manifest.md`
+    - `docs/layer1-foundation/Dependency-Lock-Policy.md`
+    - `docs/layer1-foundation/Redaction-Policy.md`
+  - Reconciled ecosystem wiring and path consistency:
+    - fixed root guideline path references in `ecosystem.md` to `document_guidelines/EquationCode/ECOSYSTEM.md`,
+    - fixed core guideline node paths in `ecosystem-graph.yaml` (`CORE-ES-001`, `CORE-BASE-001`),
+    - added missing `REFERENCES` edges in `ecosystem-graph.yaml` for Layer1 cross-doc links inferred from normative references,
+    - corrected registry hash drift for `L1-006` (`Digest-Catalog.md`),
+    - corrected registry paths/hashes for core guideline entries (`CORE-ES-001`, `CORE-BASE-001`).
+- Validation:
+  - Missing-edge check for target Layer1 set vs graph: pass (`NO_MISSING_EDGES_FOR_LAYER1_TARGET_SET`).
+  - Required EQC heading presence for target Layer1 set: pass.
+  - Target Layer1 registry hash alignment (10/10): pass.
+
+---
+
+- Date: 2026-02-20
+- Action: Full docs-portfolio wiring reconciliation and contradiction sweep.
+- Scope:
+  - Audited all registered documents and sidecars for path existence, registry-hash integrity, and graph-reference wiring consistency.
+  - Reconciled ecosystem root/core guideline paths to actual files:
+    - `document_guidelines/EquationCode/ECOSYSTEM.md`
+    - `document_guidelines/EquationCode/EQC.md`
+  - Normalized ecosystem references in `ecosystem.md` to the same canonical core path.
+  - Added missing `REFERENCES` edges in `ecosystem-graph.yaml` for unresolved cross-document references (including Layer1 set and broader portfolio references).
+  - Refreshed `ecosystem-registry.yaml` hash chain values (`SHA256Hash`/`PreviousSHA256`) to actual file hashes for all resolvable records.
+- Validation:
+  - Registry file existence check: pass (no missing registered file paths).
+  - Registry hash integrity check: pass (no mismatches after reconciliation).
+  - Reference-to-edge wiring check (all registered docs): pass (`PASS_ALL_REFERENCES_WIRED`).
+  - Layer import rule check (`IMPORTS`/`EXTENDS` upward disallowed): pass (`PASS_LAYER_IMPORT_RULES`).
