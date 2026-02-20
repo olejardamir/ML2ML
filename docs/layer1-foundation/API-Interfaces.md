@@ -17,11 +17,8 @@
 - **Domain / Problem Class:** Typed API contracts.
 
 ### 0.A Objective Semantics
-- Optimization sense: `MINIMIZE`
-- Objective type: `Scalar`
-- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
-- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
-- Not an optimization algorithm.
+- This algorithm performs deterministic validation only; no optimization is involved.
+- Objective type: N/A.
 - Primary comparison rule: exact schema and signature equality.
 - Invalid objective policy: schema mismatch is failure.
 
@@ -60,6 +57,9 @@
 ### 0.H Namespacing and Packaging
 - Fully-qualified names required.
 - Sidecar mapping (`operator -> module/function`) required.
+- Sidecar mapping schema (normative): canonical CBOR map
+  - key: `operator_fqn:string`
+  - value: `{module:string, function:string}`.
 
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(validation_report, interface_hash)`.
@@ -81,6 +81,7 @@
 ---
 
 ### 0.Z EQC Mandatory Declarations Addendum
+- Note: This contract is deterministic; stochastic declarations below are non-operative placeholders for EQC template completeness.
 - Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
 - PRNG family: `Philox4x32-10` for declared stochastic operators.
 - Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
@@ -104,6 +105,11 @@
 
 ## 2) System Model
 
+Numbering convention note:
+- Section 1 uses EQC header field labels (`0.*`).
+- Section 2 uses model partitions (`I.*`, `II.*`).
+- This split is intentional and normative for EQC compatibility.
+
 ### I.A Persistent State
 - `interface_registry: map<operator, signature>`.
 
@@ -124,6 +130,7 @@ Canonical display note:
 - `allowed_error_codes` values in this rendered table are shown in canonical ordered-array form from `contracts/operator_registry.cbor`.
 - Signature computation always uses the canonical ordered array representation.
 - `request_schema_digest` and `response_schema_digest` cells are `digest_ref` renderings; canonical signature preimage uses resolved bytes32 values.
+- `UML_OS.Error.Emit_v1` is included as a syscall operator because it is callable and listed in the operator manifest.
 | surface | name | version | method | request_schema_digest | response_schema_digest | idempotent | side_effects | allowed_error_codes | signature_digest |
 |---|---|---|---|---|---|---|---|---|---|
 | `SYSCALL` | `UML_OS.Data.NextBatch_v2` | v2 | syscall | `sha256:b3c93fdc0519e72c27a3203174fbb5ac8b96c760f1bdc739874ea6870ae8a500` | `sha256:a74f659e6edfc9a663a78d148981b27ee46f6685bc6786ed1ca7e5e7763b4fa3` | true | `["NONE"]` | `["BATCH_SIZE_INCONSISTENT","INVALID_DATASET_KEY","CARDINALITY_MISMATCH","GLOBAL_POSITION_EXCEEDS_CARDINALITY","INVALID_STAGE_TYPE"]` | `sha256:67069ace699a580ed23a01168b46d0242002d82f8d429266b195d3a459eb972f` |
@@ -134,6 +141,7 @@ Canonical display note:
 | `SYSCALL` | `UML_OS.Backend.LoadDriver_v1` | v1 | syscall | `sha256:b9d299c7e1cd2bd04e499b1458b2bb935f47de74daf18652356fc36f117f76b1` | `sha256:c2a0b76a20abbe89e02cd7626c77e300d0f0373d6b47b9e437eec408727c9768` | false | `["PERFORMS_IO","NETWORK_COMM"]` | `["BACKEND_CONTRACT_VIOLATION"]` | `sha256:708fd111f6fc0a8f85853a4218ff9eba82ffc3da285266b15f6714a450728056` |
 | `SYSCALL` | `UML_OS.IO.SaveCheckpoint_v1` | v1 | syscall | `sha256:47d294c74846623fdf009597597bfc131190727f15959b846520ccc3162494df` | `sha256:ef98d3bdf59fafb396766c343ffd67b730175f43c34d7d7b64903993132ff430` | false | `["PERFORMS_IO"]` | `["CONTRACT_VIOLATION"]` | `sha256:7500cd45013f340439c196a8119f1da650f325f9b9fb22567574df80a78c5d77` |
 | `SYSCALL` | `UML_OS.Checkpoint.Restore_v1` | v1 | syscall | `sha256:87e869485275faea2aecf8a8cf8398ecb7452cb0c6df60327b4a1671c8948caf` | `sha256:1ac5f1b5313af3eeba05b0aa2e6df19358d7ee51f957fe07dcd29f4faca2c28a` | false | `["PERFORMS_IO","MUTATES_MODEL_STATE"]` | `["CONTRACT_VIOLATION"]` | `sha256:2ad8fce88d166dfbfd042dfd9e91e1e282e4f549cea088b141872d53a863ef89` |
+| `SYSCALL` | `UML_OS.Error.Emit_v1` | v1 | syscall | `sha256:fe80f62ef86ec79731ec8bf913a336651d0326851760667ed1e06c1adbf4bc6e` | `sha256:83e2decc3c6e418f3a61404f91c88cec96b5a2fb573d77fe3db98ffc548622d1` | false | `["PERFORMS_IO"]` | `["CONTRACT_VIOLATION"]` | `sha256:0cb1f29e7f28d98dc020d74fdac09b1d56e18e137e6a5f445447480bd450785c` |
 
 ### II.G Service API Registry (Concrete, Authoritative)
 Canonical display note:
@@ -163,6 +171,11 @@ Canonical display note:
 - `SchemaDigest_v1 = SHA-256(CBOR_CANONICAL(schema_ast_normalized))`.
 - `SignatureDigest_v1` is defined normatively in `docs/layer1-foundation/Operator-Registry-Schema.md` (`sig_v1` preimage with resolved bytes32 digests).
 - Canonical schema sources must be stored under `schemas/` and used as the single source for digest generation in build/codegen.
+- `schema_ast_normalized` (normative):
+  - schema parsed into AST with resolved type aliases,
+  - canonical field ordering (bytewise UTF-8 lexicographic by field name),
+  - explicit optionality/default annotations materialized,
+  - no implementation-specific metadata fields.
 
 ### II.I Canonical Operator Registry Binding (Normative)
 - `contracts/operator_registry.cbor` is authoritative for interface metadata.
@@ -170,6 +183,8 @@ Canonical display note:
   - `surface`, `request_schema_digest`, `response_schema_digest`, `signature_digest`,
   - `side_effects`, `allowed_error_codes`, `purity_class`, `required_capabilities`.
 - This document is a rendered view; edits that are not reflected in the artifact are invalid.
+- Rendered-table note:
+  - `purity_class` and `required_capabilities` are authoritative in `contracts/operator_registry.cbor` but omitted in rendered tables here for readability.
 
 ### II.J Capability/RBAC Binding (Normative)
 - Every callable operator must declare `required_capabilities` in the canonical operator registry.
@@ -178,8 +193,9 @@ Canonical display note:
   - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
 - Denied calls must emit a deterministic failure record and trace event with `authz_decision_hash`.
 
-### II.K Kernel Syscall Registry (Authoritative)
-- This table is the authoritative kernel syscall view and must match `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` section 4 (1:1 operator membership).
+### II.K Kernel Syscall Registry (Kernel Subset View)
+- This table is the kernel syscall subset view and must match `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` section 4 (1:1 operator membership).
+- For any operator also present in `II.F`, digest fields MUST be byte-identical to `II.F`.
 - Each listed operator must resolve to concrete request/response schema digests and signature digest in `contracts/operator_registry.cbor`.
 | name | method | request_schema_digest | response_schema_digest | signature_digest |
 |---|---|---|---|---|
@@ -188,10 +204,10 @@ Canonical display note:
 | `UML_OS.OS.NamespaceEnter_v1` | syscall | `sha256:2a87e448ed17daf1a91417ecf6bb467a1d379b6c85b0299f5d882d6065620633` | `sha256:8d28371559d3bd93aa1dc4db75b922db61ab64789ccb1b3a468c9e252f6117d9` | `sha256:edd3f2c3428542cf0bfe2eef09c0189da81eb4cbeda72dec97880474d3088682` |
 | `UML_OS.Data.Manifest_v1` | syscall | `sha256:3654426af7930039cad3d1dc0369450f7f18066c718f9a186867c1a9f619c3e2` | `sha256:78a4b828924c20cfd65a2112f2ddefeee17c7a60cdffa4a3d3061f8888aa81e1` | `sha256:a6ed8cf76086a6ac859048e40f5980c02c797917039b4f85539169c2a2a60a71` |
 | `UML_OS.Data.ValidateManifest_v1` | syscall | `sha256:c1f88fca6f77de2cc6bd833f478e774d2a7430ffbad7367f03f4aeffded23e26` | `sha256:b8d90fedcca9d9ffbce84a11c1c2a48e5722ac3499116d893f94a55e8296239d` | `sha256:6a7868616da975c611ac763a815fe897481b70ad8b888f8bff209233c89b6bf8` |
-| `UML_OS.Data.NextBatch_v2` | syscall | `sha256:cbe6b06b50937993c867007b5d7b2f02865cec893615a08ac1d90df12074536e` | `sha256:e3402033c9a6830ce4ae42526a26333bacc8c07b01d1da51643d1107bc95744a` | `sha256:9725e7a22f95e63167799fb626e886fa455ca30ad2498d696b8de1f8e7fe72cc` |
+| `UML_OS.Data.NextBatch_v2` | syscall | `sha256:b3c93fdc0519e72c27a3203174fbb5ac8b96c760f1bdc739874ea6870ae8a500` | `sha256:a74f659e6edfc9a663a78d148981b27ee46f6685bc6786ed1ca7e5e7763b4fa3` | `sha256:67069ace699a580ed23a01168b46d0242002d82f8d429266b195d3a459eb972f` |
 | `UML_OS.Data.RegisterDataset_v1` | syscall | `sha256:8e46cc4203902d52e8543728f848463fe1147a106349fe55c251fc9900371b20` | `sha256:8c69578f99e296e93a31b23a15be300c9a1e4e8c16afe55923b8f8054c999aca` | `sha256:fa4fca34ee532474b5ebb5cdbfba175fed2eaadbe4d5e99cbbd4a47387420989` |
 | `UML_OS.Data.ImportAndRegister_v1` | syscall | `sha256:d7d5be587bcdcc3459b7873757323b45818a9a0881b4603f8d3a8e5994a13839` | `sha256:caca94241bc539142fabc502bdcb3153aa1592f9c241335397b392076e506adc` | `sha256:a69a029f9fed4e9f654c6d54a3bc2e54285f01285b8d556cf339742ec81eb5ef` |
-| `UML_OS.Model.Forward_v2` | syscall | `sha256:5b53b2ebd3a814e5b5f9bfd8a953b969fd830cd501ff9d72713626287b32fc43` | `sha256:618a7157adb5061045a557cbee5f1e1a80ed7a3f1ca11676652a91e191e9a6f6` | `sha256:f616248f2d59ffc41dddcfc7d67934d7d4606b64a5d9141711ac8b892f079e6e` |
+| `UML_OS.Model.Forward_v2` | syscall | `sha256:82a1c1413fc3fd8176c351bb828315354fb3434760cdb4a47f30408f92f26fa7` | `sha256:d69a39c6e458a4803aff256e848784fddc34f6db4c5a963b5959fbc264076c09` | `sha256:17d85435fe2e601fe522b614938ea7853b9c36be14c8feb84f4e70e1e253bc74` |
 | `UML_OS.Model.ExpandPreset_v1` | syscall | `sha256:a29fb645799b57ea4a4032a9a29697bf51ff20ee2469af83098973c2e1fb0826` | `sha256:662de6db6e9b14bf13168b79137682e783b60eb605d9e5610210766195e331e7` | `sha256:8b58dca0a2345b5d115d81187589ec0d61388a19d8d94f3b5cdd5c2334534f83` |
 | `UML_OS.Model.ApplyFineTune_v1` | syscall | `sha256:ab5fec71b1c0ed85d7def95b9ca4a93512bfadc76694ad56380c947a88ce4679` | `sha256:f7bfe9be3307d5cf1eb847c5a4908ee959686c238a0903e2e490e3898b77a643` | `sha256:840971d67ece4e5b7eef6eb5d68c1fb5bcac5b61181798a966ba527f5291272a` |
 | `UML_OS.Objective.TotalLoss_v1` | syscall | `sha256:9b83b6707b2fa85f58f49ff5a1c66114b1bd8997d89e7402c1146f9d871ea736` | `sha256:1a712c624d506411a4f89b0c50817a7d6fa2aebd7bc960886fc5e00e21c19ddc` | `sha256:2d7e17c8b906d090f7edb238571f68d6f36409a2e886bc80bdc41cdaa33c77d3` |
@@ -200,7 +216,7 @@ Canonical display note:
 | `UML_OS.Policy.Evaluate_v1` | syscall | `sha256:bdaeefcfdafff6ba8d79ee757f08f9d5c5ef9cd4c34110ae9a3c73ec245e4da2` | `sha256:ee125a4968ba99cea329a14b95948b8b27d4cd3d7b63752c8957ecd98609d4dc` | `sha256:d3deb27e807de01491da8f3286a03aa2a95e36c66525cefdc7d08f455396fb34` |
 | `UML_OS.Contract.Validate_v1` | syscall | `sha256:0ff020e0e3a53351c77cb0879226c6d51ee5b871027cae906bbfb99e3df1b4c4` | `sha256:43d29709c190ba8f50bad8e0cdf6e473a7a6c7c81ef5fc1c8b3377e3534601df` | `sha256:a29d999bcd747ce0a666e965492bec241a58c0e476a3dcaddf345f64c3740132` |
 | `UML_OS.IO.WriteTape_v1` | syscall | `sha256:9f05a18d391747a0fc91def1097592cb2d73d5214650ad37ad48382de2f7be28` | `sha256:c194ac7ca5ed44b138e0a5833d8345d531853f0621e85bd837ee2559de133a62` | `sha256:3f8e9fa6f43b5b95b55806068e662c63669df472a6f2fb9f11be9a6af7ec80b9` |
-| `UML_OS.IO.SaveCheckpoint_v1` | syscall | `sha256:9d50ac305e26f410d174d57773b5a0b736407a082da769e04afe45c6bd5f2975` | `sha256:490a36bfc1021118d9ddbd7b7c7a06363e3321527ad0add34228a41ee8767f3d` | `sha256:eefd269b3f1b8ecbbb2b84dc081767942faf58da936658bb0aaf68a7d7db4801` |
+| `UML_OS.IO.SaveCheckpoint_v1` | syscall | `sha256:47d294c74846623fdf009597597bfc131190727f15959b846520ccc3162494df` | `sha256:ef98d3bdf59fafb396766c343ffd67b730175f43c34d7d7b64903993132ff430` | `sha256:7500cd45013f340439c196a8119f1da650f325f9b9fb22567574df80a78c5d77` |
 | `UML_OS.Certificate.WriteExecutionCertificate_v1` | syscall | `sha256:5d67c20d00f6b0c3a6b8e0f3617eebdfc5eca398aed4539b7a63427be372b772` | `sha256:ffcda8c4913eba63cdb31a4b0fd3e79d9e790cb02a29129f551a5ea35de4e0c7` | `sha256:e2b8389dc808da6e631f4d6365ca256c4c0005bf756674b8357c519b3b067514` |
 | `UML_OS.State.Journal_v1` | syscall | `sha256:73d6f8f0a2ed2405131cd52a1e8cdd7ac5cdb77391a14054a35ed5a6d66ed0ec` | `sha256:968806f83eb4ec37d8c9f3f76d7a9207ecd1547b7cbf6522582dff57ef29467d` | `sha256:77af6f21db7ad774735a92323cf0635d3576bcdd943abe316aa084540d1dde34` |
 | `UML_OS.Termination.Check_v1` | syscall | `sha256:ef7d9d1d2378d1acbf85fd86af5596ecc360fb7a79e63e5c7f220f04150dce7d` | `sha256:2e764c0500e07cc3465e9fa5e71158d9151409bd12d5439414c88831ceaafefc` | `sha256:ec35105bda624ff9d225c800f34e93fdf51c82ad67e928b2c78cfc1a16ef31ef` |
@@ -211,8 +227,8 @@ Canonical display note:
 | `UML_OS.Evaluation.Run_v1` | syscall | `sha256:290a073ce9830f68151186bffe02bf6711e79949c4b9871decb3ed1fe9237d8b` | `sha256:bd29a04ed4a4297f712751d5ea1760ae79c5eb16d666708cf8e50bb3cf49b3a5` | `sha256:07d194d0b634a85eef1ca7b6fe4bd1786037a0e6b8a8504850af6533735e95f5` |
 | `UML_OS.Security.AttestTEE_v1` | syscall | `sha256:c6f8eada24a2482866d5bae0149c6707851aa7d94b886876ea849a59e55c2889` | `sha256:690253b660f5956bd6f38d5cd16b2f5ddb6a860cdf0053ac3d1b24f5d0233d30` | `sha256:ab930860204463c24c2df98764c6410f6207062a23238448ec3ea84f08148927` |
 | `UML_OS.Verifiable.CommitFunctional_v1` | syscall | `sha256:5f7682174b5ff972d570acc219ff07197bd49120980d087993ed42e12053572b` | `sha256:93e5ba69c82f516cd9806b8f9be68e8ae048c102e45ebd8cefea33a7be4ac6b0` | `sha256:8a6eedab6cf4a79fec3a17a23b4c47e91f6bfce1e979ae69210de6ae93b3862c` |
-| `UML_OS.DifferentialPrivacy.Apply_v3` | syscall | `sha256:aef5b17f48a8c3e4b4a2693f0876a55ed4aea49a867498dcca484fd423abda02` | `sha256:f76fc8f971494ae402eed935cc7e9f39e7ac252ca9d497eed0ed4063144e0312` | `sha256:753f91f4cdd8a6e913bb2c5831546e4e4e3243680b437e34fdb91e547e0a58bf` |
-| `UML_OS.Backend.LoadDriver_v1` | syscall | `sha256:88fae56da03febc3c65bdfb2c51f9ceb439f6fc18e9ad84acdf56407074f6af9` | `sha256:3ef78d17d9b988c756f89513c652945086c59e77236c4afb6784aa4c47a829fc` | `sha256:c31e6680a4e0d80db2edb41ce24bfb626e0a3f0171eeca9e4c90cbb73fad9564` |
+| `UML_OS.DifferentialPrivacy.Apply_v3` | syscall | `sha256:c788135091bca6dda0dfa6be1903fe534aba3ce8aba22802338f4557c2f62b2c` | `sha256:e4511aa77256d2b3984b25381f8a14e780a0f701bfeb5db134f06143607cb7d6` | `sha256:df574eb8b39a83a8107bce17dbcddbd3c1751aa51ccd6f9dcdd0e95ddab6b52f` |
+| `UML_OS.Backend.LoadDriver_v1` | syscall | `sha256:b9d299c7e1cd2bd04e499b1458b2bb935f47de74daf18652356fc36f117f76b1` | `sha256:c2a0b76a20abbe89e02cd7626c77e300d0f0373d6b47b9e437eec408727c9768` | `sha256:708fd111f6fc0a8f85853a4218ff9eba82ffc3da285266b15f6714a450728056` |
 | `UML_OS.Pipeline.Dispatch_v1` | syscall | `sha256:c4ba86ac3ba9f9e0c322771914848eb72e9c5e36c5a9c8828f8d6f55d3de44bb` | `sha256:451c011e029b5d115e95092cc1952c36a8000a72b65e119bd1dda15d77ce18ca` | `sha256:5c3541f522edf71475ad465ea07303273dbb301db258baa63d4b6d7e25fe911d` |
 | `UML_OS.Inference.RunBatch_v1` | syscall | `sha256:413088da6e718570c050892c3e272823a4bc3be2bd85638d228fbeca14306d0f` | `sha256:d7eb4aa78a41d586676f1eb67ac4e3e7404d91648a8c2002b3caf7b899c08cba` | `sha256:d8c6c6c790701ea9f9e8e1a370549e0e059e4520a7414bbb404a56efdf3483be` |
 | `UML_OS.Model.Backward_v1` | syscall | `sha256:bc7e0699d6f8a6c778f0cf4dbbaa73cc0f9389682de1512c979608262d11d725` | `sha256:b631a6ac19ba9aa0612db577717dff96a6eebf3fe25aacd3230744b444d78858` | `sha256:703bd22df1f08ac39226c51b08bce7c73396b484c440737497dc79bda672e7af` |
@@ -249,6 +265,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** exact field/type/order validation.  
+**Output schema (`report`, normative):** `{success:bool, mismatches:array<string>}` where each mismatch is a deterministic field-path string.
 **Preconditions / Postconditions:** inputs canonicalized.  
 **Edge cases:** missing optional fields.  
 **Numerical considerations:** N/A.  
@@ -260,7 +277,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 **Operator:** `UML_OS.Implementation.ValidateIOShape_v1`  
 **Category:** IO  
-**Signature:** `(signature, sample_payload -> ok)`  
+**Signature:** `(signature, sample_payload -> ok:bool)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** validates payload type/shape contracts.  
@@ -278,7 +295,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Signature:** `(registry -> interface_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** canonical hash over ordered signatures.  
+**Definition:** canonical hash over a registry map (`operator_fqn -> signature`) after deterministic sort by operator_fqn (bytewise UTF-8 lexicographic).  
 **Preconditions / Postconditions:** unique registry keys.  
 **Edge cases:** empty registry.  
 **Numerical considerations:** N/A.  

@@ -17,17 +17,18 @@
 - **Domain / Problem Class:** Runtime type contracts.
 
 ### 0.A Objective Semantics
-- Optimization sense: `MINIMIZE`
-- Objective type: `Scalar`
-- Primary comparison rule: deterministic total preorder over declared primary metric tuple with `EPS_EQ` tie handling.
-- Invalid objective policy: `NaN/Inf` ranked as worst-case and handled deterministically per 0.K.
-- Not an optimization algorithm.
+- This contract defines canonical structure schemas and validation rules (not an optimization objective).
 - Primary guarantee: exact type/field consistency across modules.
+- Scope split (normative):
+  - **Schema layer:** declaration language and schema-registry validation.
+  - **Instance layer:** validation and canonical serialization of runtime data records against declared schemas.
 
 ### 0.B Reproducibility Contract
 - Seed space/PRNG inherited by consuming operators.
 - Randomness locality: none in structure contract.
 - Replay guarantee: structure version + canonical schema hash sufficient for replay compatibility.
+- `replay_token` is constrained in this contract as opaque `bytes32`; generation is defined by replay/runtime contracts.
+- Hash primitive for all `bytes32` commitment fields in this document is `SHA-256` over canonical CBOR preimages unless a field definition explicitly overrides it.
 
 ### 0.C Numeric Policy
 - Numeric scalar kinds are explicit (`uint64`, `float64`, etc.).
@@ -46,7 +47,9 @@
 - Determinism level: `BITWISE` for serialized schema hash.
 
 ### 0.G Operator Manifest
-- `UML_OS.Implementation.ValidateStruct_v1`
+- `UML_OS.Implementation.ValidateSchemaDecl_v1`
+- `UML_OS.Implementation.ValidateInstance_v1`
+- `UML_OS.Implementation.ValidateStruct_v1` (compat alias to schema validation)
 - `UML_OS.Implementation.SerializeCanonical_v1`
 - `UML_OS.Implementation.ComputeStructHash_v1`
 - `UML_OS.Error.Emit_v1`
@@ -55,13 +58,16 @@
 - Structure names are namespaced by subsystem.
 
 ### 0.I Outputs and Metric Schema
-- Outputs: `(validated_structs, struct_hash)`.
+- Outputs:
+  - schema path: `(schema_validation_report, schema_canonical_bytes, schema_hash)`
+  - instance path: `(instance_validation_report, instance_canonical_bytes, instance_hash)`
 - Metrics: `struct_count`, `field_count`, `violations`.
 - Completion status: `success | failed`.
 
 ### 0.J Spec Lifecycle Governance
 - Breaking field deletion/rename/type change => MAJOR.
 - Additive backward-compatible field => MINOR.
+- Structure evolution policy: compatibility decisions are made at this contract version level; per-structure `StructDecl.version` is metadata for migrations and tooling.
 
 ### 0.K Failure and Error Semantics
 - Abort-only; deterministic failure records.
@@ -72,26 +78,11 @@
 ---
 
 ### 0.Z EQC Mandatory Declarations Addendum
-- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
-- PRNG family: `Philox4x32-10` for declared stochastic operators.
-- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
-- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
-- Replay token: deterministic per-run token contribution is defined and included in trace records.
-- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
-- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
-- Fast-math policy: forbidden for critical checks and verdict paths.
-- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
-- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
-- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
-- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
-- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
-- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
-- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
-- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
-- Dependency manifest: pinned runtime dependencies and versions are required.
-- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
-- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
-- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+- Seed/PRNG declarations: N/A in this contract (inherited from consuming operators).
+- Numeric-kernel/transcendental declarations: N/A in this contract (inherited from consuming operators).
+- Determinism declaration: BITWISE for canonical bytes/hash outputs in this contract.
+- Error-trace declaration: inherited from `Error-Codes.md` and consuming operators.
+- Scope declaration: this document is limited to structure typing, canonical serialization, and deterministic validation.
 
 ## 2) System Model
 
@@ -110,28 +101,82 @@
 ### I.E Invariants and Assertions
 - unique structure names and stable field ordering.
 
+### II.E Structure Declaration Language (Normative)
+- Canonical declaration meta-model:
+  - `StructDecl = {struct_name:string, version:string, fields:array<FieldDecl>, required_fields:array<string>, allow_additional_fields:bool}`
+  - `FieldDecl = {name:string, type:string, required:bool, default?:diagnostics_scalar, constraints?:map<string,string>}`
+- Type grammar (closed set for this contract):
+  - primitive: `uint32|uint64|int64|float64|bool|string|bytes|bytes32|bytes64`
+  - composed: `array<T> | map<string,T> | enum(...)`
+- `diagnostics_scalar = bool|int64|uint64|float64|string|bytes`
+- Enum representation rule:
+  - `enum(...)` values are serialized as UTF-8 strings equal to the declared symbol names.
+  - allowed symbols are exactly those listed inside `enum(...)` (or explicitly referenced by external enum contract).
+- Validation rules:
+  - each `required_fields` entry MUST match a declared field name,
+  - per-field `required` is normative for instance-validation requiredness; `required_fields` is metadata and MUST equal the set of fields with `required=true`,
+  - unknown type tokens are invalid,
+  - when `allow_additional_fields=false`, undeclared fields are invalid,
+  - default compatibility checks:
+    - numeric primitive defaults MUST be representable in the declared numeric type/range,
+    - `bytes32`/`bytes64` defaults MUST have exact required length,
+    - `enum(...)` defaults MUST match a declared symbol,
+    - fields with composed types (`array<T>`, `map<string,T>`) MUST NOT declare defaults.
+- Instance validation rule:
+  - every instance validation MUST identify the target `StructDecl.struct_name` + `version` and validate required fields/types/constraints against that declaration.
+- Optionality encoding rule:
+  - `FieldDecl.required` is the sole optionality indicator.
+  - absent optional fields MUST be omitted (not encoded as `null`).
+  - backward-compat declarations using `optional<T>` type aliases MUST be normalized to `required=false` + base type `T`; conflicting declarations are invalid.
+- Default semantics:
+  - `FieldDecl.default` MAY be applied by instantiation tooling for convenience.
+  - validators and canonical serializers MUST NOT auto-materialize omitted fields from defaults in commitment paths.
+- Constraints semantics:
+  - `constraints` defaults to empty map when omitted.
+  - recognized keys are schema-defined validation keys (for example `min`, `max`, `regex`, `max_len`); unknown keys are invalid unless explicitly allowed by consuming mode.
+
 ### II.F Concrete Structure Layouts
-- Authoritative enums:
-  - `purity_class = PURE | STATEFUL | IO`
-  - `side_effect = NONE | ADVANCES_RNG | ADVANCES_CURSOR | MUTATES_ACCOUNTANT | MUTATES_MODEL_STATE | PERFORMS_IO | NETWORK_COMM | ALLOCATES_MEMORY`
-- `TraceIterRecord` (CBOR map): `{kind:"ITER", t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, state_fp?:bytes32, functional_fp?:bytes32, quota_decision?:string, quota_policy_hash?:bytes32, tracking_event_type?:string, artifact_id?:string, metric_name?:string, metric_value?:float64, window_id?:string, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL), loss_total?:float64, grad_norm?:float64}`.
-- `TraceRunHeader`: `{kind:"RUN_HEADER", schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_binary_hash:bytes32, driver_runtime_fingerprint_hash:bytes32, policy_bundle_hash:bytes32, monitor_policy_hash:bytes32, operator_contracts_root_hash:bytes32, policy_gate_hash?:bytes32, authz_decision_hash?:bytes32, redaction_mode:enum(NONE|HMAC_SHA256_V1), redaction_key_id?:string, redaction_policy_hash?:bytes32, hash_gate_M:uint64, hash_gate_K:uint64}`.
+- Operator-level enums (`purity_class`, `side_effect`) are authoritative in `docs/layer1-foundation/Operator-Registry-Schema.md` and `docs/layer1-foundation/API-Interfaces.md` and are intentionally not redefined here.
+- `privacy_class = PUBLIC | INTERNAL | CONFIDENTIAL`
+- `redaction_mode = NONE | HMAC_SHA256_V1`
+- `metric_aggregation = sum | mean | min | max | quantile`
+- `TraceIterRecord` (CBOR map): `{kind:"ITER", t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, state_fp?:bytes32, functional_fp?:bytes32, trace_extensions?:map<string,diagnostics_scalar>, privacy_class:privacy_class}`.
+- `TraceRunHeader`: `{kind:"RUN_HEADER", schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_binary_hash:bytes32, driver_runtime_fingerprint_hash:bytes32, policy_bundle_hash:bytes32, monitor_policy_hash:bytes32, operator_contracts_root_hash:bytes32, policy_gate_hash?:bytes32, authz_decision_hash?:bytes32, redaction_mode:redaction_mode, redaction_key_id?:string, redaction_policy_hash?:bytes32, hash_gate_M:uint64, hash_gate_K:uint64}`.
+  - `hash_gate_M`/`hash_gate_K` define deterministic hash-gated trace sampling parameters; invariant `0 < M` and `0 <= K <= M`.
+  - `H` is the unsigned big-endian integer interpretation of `SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq, rank]))`.
 - `TracePolicyGateVerdictRecord`: `{kind:"POLICY_GATE_VERDICT", t:uint64, policy_gate_hash:bytes32, transcript_hash:bytes32}`.
 - `TraceCheckpointCommitRecord`: `{kind:"CHECKPOINT_COMMIT", t:uint64, checkpoint_hash:bytes32, checkpoint_header_hash:bytes32, checkpoint_merkle_root:bytes32, trace_final_hash_at_checkpoint:bytes32}`.
 - `TraceCertificateInputsRecord`: `{kind:"CERTIFICATE_INPUTS", t:uint64, certificate_inputs_hash:bytes32}`.
 - `TraceRunEndRecord`: `{kind:"RUN_END", status:string, final_state_fp:bytes32, trace_final_hash:bytes32}`.
-- `TraceErrorRecord`: `{kind:"ERROR", t:uint64, failure_code:string, failure_operator:string, diagnostics_hash:bytes32}`.
+- `TraceErrorRecord`: `{kind:"ERROR", t:uint64, rank:uint32, failure_code:string, failure_operator:string, replay_token:bytes32, diagnostics_hash:bytes32}`.
 - `TraceRecord`: tagged union of `TraceRunHeader` + `TraceIterRecord` + `TracePolicyGateVerdictRecord` + `TraceCheckpointCommitRecord` + `TraceCertificateInputsRecord` + `TraceRunEndRecord` + `TraceErrorRecord`.
 - `CheckpointHeader`: `{tenant_id:string, run_id:string, spec_version:string, replay_token:bytes32, t:uint64, manifest_hash:bytes32, ir_hash:bytes32, trace_final_hash:bytes32, sampler_config_hash:bytes32, data_access_plan_hash?:bytes32, tmmu_plan_hash:bytes32, backend_binary_hash:bytes32, checkpoint_merkle_root:bytes32, checkpoint_header_hash:bytes32, checkpoint_manifest_hash:bytes32, checkpoint_hash:bytes32, policy_bundle_hash:bytes32, determinism_profile_hash:bytes32, lockfile_hash:bytes32, toolchain_hash:bytes32, dependencies_lock_hash:bytes32, operator_contracts_root_hash:bytes32, runtime_env_hash:bytes32, code_commit_hash:bytes32, lineage_root_hash:bytes32, tensors_root_hash:bytes32, optimizer_state_root_hash:bytes32, dp_accountant_state_hash?:bytes32}`.
-- `ErrorRecord`: `{code_id:string, numeric_code:uint32, severity:enum(FATAL|ERROR|WARN), subsystem:string, t:uint64, rank:uint32, failure_operator:string, replay_token:bytes32, message:string, retryable:bool, diagnostics?:map<string,scalar|string|bytes>, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
-- `MonitorEvent`: `{tenant_id:string, run_id:string, model_version_id:string, window_id:string, metric_name:string, metric_value:float64, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
-- `MetricSchema`: `{metric_name:string, scalar_type:enum(float64|int64|bool|string), aggregation:enum(sum|mean|min|max|quantile), window_policy:string, privacy_class:enum(PUBLIC|INTERNAL|CONFIDENTIAL)}`.
-- `PipelineTransitionRecord`: `{tenant_id:string, job_id:string, attempt_id:uint32, transition_seq:uint64, idempotency_key:bytes32, from_state:string, to_state:string, status:string, diagnostics?:map<string,string>}`.
+- `ErrorRecord`: `{code_id:string, numeric_code:uint32, severity:enum(FATAL|ERROR|WARN), subsystem:string, t:uint64, rank:uint32, failure_operator:string, replay_token:bytes32, message:string, retryable:bool, diagnostics?:map<string,diagnostics_scalar>, privacy_class:privacy_class}`.
+- `diagnostics` scalar contract (normative):
+  - allowed scalar leaves are `bool|int64|uint64|float64|string|bytes`,
+  - `float64` values in diagnostics MUST be finite (`NaN/Inf` forbidden),
+  - keys are UTF-8 strings and MUST be unique.
+- `MonitorEvent`: `{tenant_id:string, run_id:string, model_version_id:string, window_id:string, metric_name:string, metric_value:float64, privacy_class:privacy_class}`.
+- `MetricSchema`: `{metric_name:string, scalar_type:enum(float64|int64|bool|string), aggregation:metric_aggregation, quantile_p?:float64, window_policy:string, privacy_class:privacy_class}`.
+  - `quantile_p` is required iff `aggregation=quantile` and MUST satisfy `0 < quantile_p <= 1`.
+- `PipelineTransitionRecord`: `{tenant_id:string, job_id:string, attempt_id:uint32, transition_seq:uint64, idempotency_key:bytes32, from_state:string, to_state:string, status:string, diagnostics?:map<string,diagnostics_scalar>}`.
 - `ResourceLedgerRecord`: `{tenant_id:string, run_id:string, t:uint64, bytes_allocated:uint64, peak_bytes:uint64, io_bytes_read:uint64, io_bytes_written:uint64, gpu_time_ms:uint64, cpu_time_ms:uint64, quota_decision:string, quota_policy_hash:bytes32}`.
-- Alignment policy for binary layouts: fields aligned to natural size; packed representation forbidden for cross-language canonical payloads.
+- Scope partitioning:
+  - **Core structure set (required):** `Trace*Record`, `CheckpointHeader`, `ErrorRecord`, `StructDecl`, `FieldDecl`.
+  - **Extension structure set (optional modules):** `MonitorEvent`, `MetricSchema`, `PipelineTransitionRecord`, `ResourceLedgerRecord`.
+  - If extension structures are used, they are contract-bound by this same canonical serialization profile.
+- Alignment policy for binary layouts: applies to in-memory/native struct layouts only; it does not affect canonical CBOR wire encoding. Fields should align to natural size for native runtime efficiency; packed representation is forbidden for cross-language in-memory ABI payloads.
+- Registry format (normative): `struct_registry: map<string, StructDecl>`; `ValidateSchemaDecl_v1` validates declarations against this meta-model.
+- Checkpoint hash preimage rule (normative):
+  - `checkpoint_header_hash = SHA-256(CBOR_CANONICAL(CheckpointHeader excluding fields {checkpoint_header_hash, checkpoint_hash}))`
+  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit_v1", checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]))`
+  - Stored `checkpoint_header_hash` and `checkpoint_hash` are derived outputs, never recursive inputs.
 
 ### II.G Canonical Serialization v1 (Normative)
 - All contract-critical hashes/signatures must be computed over canonical CBOR bytes only.
+- Serialization domains:
+  - **Schema serialization:** canonical CBOR of `StructDecl` / registry objects.
+  - **Instance serialization:** canonical CBOR of runtime records conforming to a declared `StructDecl`.
 - Canonicalization rules:
   - map keys ordered by `(len(CBOR_ENCODE(key)), CBOR_ENCODE(key))` as defined in `docs/layer1-foundation/Canonical-CBOR-Profile.md`,
   - integers encoded in shortest canonical form,
@@ -140,6 +185,15 @@
   - strings must be valid UTF-8; non-normalized forms are invalid for signed payloads,
   - fixed-length digests (`bytes32`) must be exactly 32 bytes.
 - Domain separation labels (for chained hashes/signatures) must be explicit CBOR string tags in the hashed tuple.
+- Redaction determinism rule:
+  - redaction is applied before canonical serialization when enabled by consuming contracts,
+  - redacted values MUST be deterministic transforms defined by `redaction_mode`/policy (e.g., keyed HMAC digest replacement),
+  - resulting redacted structure is the committed/serialized payload.
+
+### II.H Replay Token Binding (Normative in this contract)
+- `replay_token` type is `bytes32`.
+- Inclusion rule: when a structure includes `replay_token`, it MUST be present and serialized exactly as 32-byte CBOR byte string.
+- Generation rule is defined in `docs/layer2-specs/Replay-Determinism.md`; this document does not redefine token derivation.
 
 ---
 
@@ -153,7 +207,9 @@
 
 ## 4) Operator Manifest
 
-- `UML_OS.Implementation.ValidateStruct_v1`
+- `UML_OS.Implementation.ValidateSchemaDecl_v1`
+- `UML_OS.Implementation.ValidateInstance_v1`
+- `UML_OS.Implementation.ValidateStruct_v1` (compat alias to `ValidateSchemaDecl_v1`)
 - `UML_OS.Implementation.SerializeCanonical_v1`
 - `UML_OS.Implementation.ComputeStructHash_v1`
 - `UML_OS.Error.Emit_v1`
@@ -169,27 +225,57 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Signature:** `(registry -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** validates required fields, types, and ordering rules.  
+**Definition:** compatibility alias for `UML_OS.Implementation.ValidateSchemaDecl_v1`.  
 **Preconditions / Postconditions:** registry loaded.  
 **Edge cases:** optional fields and nested maps.  
 **Numerical considerations:** N/A.  
-**Ordering/tie handling:** lexical key order.  
+**Ordering/tie handling:** N/A.  
 **Complexity note:** O(total_fields).  
 **Failure behavior:** deterministic schema failures.  
 **Dependencies:** canonical schema parser.  
 **Test vectors:** valid/invalid schema fixtures.
 
-**Operator:** `UML_OS.Implementation.SerializeCanonical_v1`  
+**Operator:** `UML_OS.Implementation.ValidateSchemaDecl_v1`  
 **Category:** IO  
-**Signature:** `(registry -> bytes)`  
+**Signature:** `(registry -> schema_validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** deterministic canonical encoding for hashing and checkpointing.  
-**Preconditions / Postconditions:** validated registry.  
-**Edge cases:** empty registry.  
+**Definition:** validates schema declarations (`StructDecl`/`FieldDecl`) and registry invariants.  
+**Preconditions / Postconditions:** registry loaded.  
+**Edge cases:** optional fields and nested maps.  
+**Numerical considerations:** N/A.  
+**Ordering/tie handling:** N/A.  
+**Complexity note:** O(total_fields).  
+**Failure behavior:** deterministic schema failures.  
+**Dependencies:** canonical schema parser.  
+**Test vectors:** valid/invalid schema fixtures.
+
+**Operator:** `UML_OS.Implementation.ValidateInstance_v1`  
+**Category:** IO  
+**Signature:** `(instance, struct_name, struct_version, registry -> instance_validation_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** validates runtime instance payload against a declared schema in the registry.
+**Preconditions / Postconditions:** target schema exists and is valid.
+**Edge cases:** optional-field omission, unknown fields, constraint violations.
+**Numerical considerations:** finite-float checks where required by target schema.
+**Ordering/tie handling:** N/A.
+**Complexity note:** O(instance_fields + schema_fields).
+**Failure behavior:** deterministic validation failure with stable diagnostics.
+**Dependencies:** canonical schema parser.
+**Test vectors:** valid/invalid instance fixtures.
+
+**Operator:** `UML_OS.Implementation.SerializeCanonical_v1`  
+**Category:** IO  
+**Signature:** `(object -> canonical_bytes)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** deterministic canonical encoding for hashing and checkpointing (schema objects or runtime instances).  
+**Preconditions / Postconditions:** input object validated in its domain (schema or instance).  
+**Edge cases:** empty registry/object.  
 **Numerical considerations:** N/A.  
 **Ordering/tie handling:** sorted names then fields.  
-**Complexity note:** O(registry_size).  
+**Complexity note:** O(object_size).  
 **Failure behavior:** abort on serialization mismatch.  
 **Dependencies:** serializer backend.  
 **Test vectors:** golden serialized bytes.
@@ -214,10 +300,17 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ## 6) Procedure
 
 ```text
-1. ValidateStruct_v1(registry)
+Schema path:
+1. ValidateSchemaDecl_v1(registry)
 2. SerializeCanonical_v1(registry)
-3. ComputeStructHash_v1(bytes)
-4. Return report + hash
+3. ComputeStructHash_v1(schema_canonical_bytes)
+4. Return schema_validation_report + schema_canonical_bytes + schema_hash
+
+Instance path:
+1. ValidateInstance_v1(instance, struct_name, struct_version, registry)
+2. SerializeCanonical_v1(instance)
+3. ComputeStructHash_v1(instance_canonical_bytes)
+4. Return instance_validation_report + instance_canonical_bytes + instance_hash
 ```
 
 ---
@@ -228,9 +321,10 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 Emit deterministic structure validation and hash records.
 
 ### Trace schema
-- `run_header`: struct_count
-- `iter`: struct_name, result
-- `run_end`: status, struct_hash
+- `run_header`: `TraceRunHeader`
+- `iter`: `TraceIterRecord` (and optional typed records from `TraceRecord` union)
+- `run_end`: `TraceRunEndRecord`
+- `error`: `TraceErrorRecord`
 
 ### Metric schema
 - `struct_count`, `field_count`, `violations`
@@ -242,26 +336,35 @@ Comparable iff schema definitions and canonical serializer are identical.
 
 ## 8) Validation
 
-#### VII.A Lint rules (mandatory)
+#### A. Lint rules (mandatory)
 Passes determinism, completeness, ordering, no hidden globals.
 
-#### VII.B Operator test vectors (mandatory)
+#### B. Operator test vectors (mandatory)
 Schema fixtures and canonical serialization vectors.
+- Minimum vector classes:
+  - optional-field omission vs explicit null (when schema permits),
+  - duplicate-key rejection,
+  - finite/non-finite diagnostics scalar checks,
+  - checkpoint hash derivation preimage exclusion (`checkpoint_header_hash`, `checkpoint_hash`),
+  - trace extension map canonical ordering.
 
-#### VII.C Golden traces (mandatory)
+#### C. Golden traces (mandatory)
 Golden hashes for canonical registries.
+- Authoritative vector index: `docs/layer3-tests/Test-Vectors-Catalog.md`.
+- Missing or stale vectors are a contract violation for release builds.
 
 ---
 
 ## 9) Refactor & Equivalence
 
-#### VIII.A Equivalence levels
+#### A. Equivalence levels
 - E0 required.
+- `E0` means byte-identical canonical bytes and identical hash outputs for identical logical structure declarations (aligned with `docs/layer2-specs/Replay-Determinism.md`).
 
-#### VIII.B Allowed refactor categories
+#### B. Allowed refactor categories
 - Parser/serializer refactor with identical bytes/hash output.
 
-#### VIII.C Equivalence test procedure (mandatory)
+#### C. Equivalence test procedure (mandatory)
 Compare report and final hash exactly.
 
 ---
@@ -272,7 +375,28 @@ Compare report and final hash exactly.
 - canonical schema bytes + hash.
 
 ### Serialization
-- deterministic CBOR/JSON.
+- deterministic canonical CBOR.
 
 ### Restore semantics
 - identical restored registry and hash.
+
+### Normative dependencies
+- `docs/layer1-foundation/Canonical-CBOR-Profile.md`
+- `docs/layer1-foundation/Error-Codes.md`
+- `docs/layer1-foundation/Operator-Registry-Schema.md`
+- `docs/layer1-foundation/API-Interfaces.md`
+- `docs/layer2-specs/Replay-Determinism.md`
+- `docs/layer3-tests/Test-Vectors-Catalog.md`
+- Release gate: all normative dependency documents above MUST exist in the same versioned artifact bundle for conformance.
+
+### Embedded example fixture (illustrative, non-authoritative)
+```yaml
+StructDecl:
+  struct_name: "ExampleRecord"
+  version: "v1"
+  fields:
+    - { name: "id", type: "string", required: true }
+    - { name: "count", type: "uint64", required: false, default: 0 }
+  required_fields: ["id"]
+  allow_additional_fields: false
+```
