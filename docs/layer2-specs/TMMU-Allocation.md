@@ -274,9 +274,9 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 **Operator:** `UML_OS.TMMU.AssignLogicalSlots_v1` (new)  
 **Category:** Memory  
-**Signature:** `(live_ranges, arena_config → logical_slot_assignment: dict[tensor_id → (arena, logical_slot_id)] )`  
+**Signature:** `(live_ranges, arena_config -> logical_slot_assignment: dict[tensor_id -> (arena, logical_slot_id)], slot_size_map: dict[(arena, logical_slot_id) -> uint64], slot_alignment_map: dict[(arena, logical_slot_id) -> uint64])`  
 **Purity class:** PURE  
-**Definition:** Optimal greedy linear-scan on interval graph per arena (optimal slot count). Each logical slot backing is sized to max tensor assigned to it.
+**Definition:** Optimal greedy linear-scan on interval graph per arena (optimal slot count). Each logical slot backing is sized to max tensor assigned to it and emits deterministic `slot_size_map` / `slot_alignment_map` required by virtual mapping.
 **Preconditions / Postconditions:** intervals are valid and non-negative; output has no overlapping intervals per slot.  
 **Edge cases:** equal birth/death times and sparse arenas.  
 **Numerical considerations:** integer interval endpoints only.  
@@ -350,13 +350,13 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 1. live_ranges ← AnalyzeLiveness_v1(ir_dag, execution_order, mode)
    # Mode-aware lifetime extension for backward activations/gradients
 
-2. logical_slots ← AssignLogicalSlots_v1(live_ranges, arena_config)
+2. logical_slots, slot_size_map, slot_alignment_map ← AssignLogicalSlots_v1(live_ranges, arena_config)
    # Per-arena linear-scan (optimal for interval graphs):
    #   - Sort tensors by birth time, then size descending
    #   - Maintain active_slots set (bitset or min-heap of used slots)
    #   - For each tensor: expire ended slots, assign lowest unused logical_slot
-   #   - Record max_size_per_slot for backing buffer sizing
-   #   - Record slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
+   #   - Emit slot_size_map[(arena, slot)] = max(required_tensor_bytes for tensors in slot)
+   #   - Emit slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
 
 3. logical_map ← MapToVirtualAddresses_v1(logical_slots, arena_config, slot_size_map, slot_alignment_map)
    # Per arena: deterministic slot order by logical_slot_id

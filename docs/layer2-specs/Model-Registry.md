@@ -128,6 +128,13 @@
 ## 5) Operator Definitions
 External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/Error-Codes.md`.
 
+**Operator:** `UML_OS.Registry.ModelCreate_v1`  
+**Category:** Governance  
+**Signature:** `(tenant_id, model_spec -> model_id)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** creates immutable model namespace anchor and canonical metadata record.
+
 **Operator:** `UML_OS.Registry.VersionCreate_v1`  
 **Category:** Governance  
 **Signature:** `(model_id, artifact_ref, evidence_bundle_ref -> model_version_id)`  
@@ -141,6 +148,20 @@ External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/E
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** evaluates policy gates including certificate/evidence coherence.
+
+**Operator:** `UML_OS.Registry.ApprovalRecord_v1`  
+**Category:** Governance  
+**Signature:** `(model_version_id, approver_principal, decision, decision_reason_code -> approval_record_id)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends immutable approval decision record with deterministic reason code and authz bindings.
+
+**Operator:** `UML_OS.Registry.StageTransition_v1`  
+**Category:** Governance  
+**Signature:** `(model_version_id, from_stage, to_stage, policy_gate_hash, authz_decision_hash -> transition_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** performs validated stage transition only after gate pass and required approvals.
 
 ---
 ## 6) Procedure

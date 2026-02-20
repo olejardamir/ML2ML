@@ -91,6 +91,11 @@
   - error_rate <= 0.5%
   - p95_latency_delta <= 10%
   - replay_determinism_failures == 0
+- Gate metric definitions (normative):
+  - `error_rate` = `failed_requests / total_requests` over the fixed canary evaluation window declared in rollout policy.
+  - `p95_latency_delta` = `(p95_latency_canary - p95_latency_baseline) / p95_latency_baseline * 100`, with baseline from the last approved production release bound by `baseline_release_hash`.
+  - `replay_determinism_failures` = count of E0 replay-check failures over the same fixed window.
+  - All gate metrics are computed from a frozen, canonicalized telemetry snapshot committed as `metrics_snapshot_hash`.
 - Gate verdict determinism: verdict is computed from a frozen metrics snapshot (`metrics_snapshot_hash`) captured at each canary stage; real-time telemetry ordering is not used directly for final verdict computation.
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
 - Promotion gate:

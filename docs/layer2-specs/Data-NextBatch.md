@@ -254,9 +254,12 @@ This is bijective because `gcd(a,m)=1` by construction.
        block_order = SeededBlockPermute_v1(num_full_blocks, epoch_seed) if num_full_blocks > 0 else []
 
        batch_indices = []
+       epoch_limit = N
+       if manifest.data.drop_last == true:
+           epoch_limit = (N // global_batch_size) * global_batch_size
        for i in 0..micro_batch_size-1:
            p = global_pos + rank_start + i
-           if p >= N:  # strict no-wrap train epoch policy
+           if p >= epoch_limit:  # strict no-wrap train epoch policy
                break
            block_id_global = p // block_size
            if has_tail and block_id_global == num_full_blocks:
@@ -269,7 +272,10 @@ This is bijective because `gcd(a,m)=1` by construction.
 
 9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))
 10. cursor.global_index += global_batch_size
-11. if cursor.global_index >= N:
+11. epoch_limit_for_advance = N
+    if stage_type == "train" and manifest.data.drop_last == true:
+        epoch_limit_for_advance = (N // global_batch_size) * global_batch_size
+    if cursor.global_index >= epoch_limit_for_advance:
         cursor.epoch += 1
         cursor.global_index = 0   # start new epoch
 12. return batch_indices, cursor, {sampling_mode, sampler_config_hash}

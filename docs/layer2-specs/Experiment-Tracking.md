@@ -145,6 +145,20 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Determinism:** deterministic  
 **Definition:** creates immutable run metadata anchor.
 
+**Operator:** `UML_OS.Tracking.RunStart_v1`  
+**Category:** IO  
+**Signature:** `(run_id, start_metadata -> ok)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends deterministic run-start event and transitions run lifecycle to ACTIVE.
+
+**Operator:** `UML_OS.Tracking.RunEnd_v1`  
+**Category:** IO  
+**Signature:** `(run_id, end_metadata -> ok)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends deterministic run-end event and seals the run event stream.
+
 **Operator:** `UML_OS.Tracking.MetricLog_v1`  
 **Category:** IO  
 **Signature:** `(run_id, metric_event -> ok)`  
@@ -158,6 +172,20 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** stores content-addressed artifact and updates index.
+
+**Operator:** `UML_OS.Tracking.ArtifactGet_v1`  
+**Category:** IO  
+**Signature:** `(run_id, artifact_id -> artifact_bytes, metadata)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** resolves artifact by content-addressed identifier and returns immutable bytes + metadata.
+
+**Operator:** `UML_OS.Tracking.ArtifactList_v1`  
+**Category:** IO  
+**Signature:** `(run_id, filter? -> artifact_index)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** lists artifacts in canonical order (artifact_id ascending) with deterministic filtering.
 
 **Operator:** `UML_OS.Tracking.ArtifactTombstone_v1`
 **Category:** IO

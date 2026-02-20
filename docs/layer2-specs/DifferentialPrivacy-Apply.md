@@ -222,7 +222,9 @@
 - `stddev_map_t[g]` is derived deterministically as `stddev_map_t[g] = sigma_map_t[g] * C_g / B_eff`.
 - Group composition at a step uses the selected accountant (`PLD` default, `RDP`/`moments`/`f_dp`/`gdp` fallback) with explicit `sampling_rate`, `subsampling`, and optional `amplification_factor`.
 - Normative heterogeneous composition rule:
-  - For each Renyi order `alpha` in a fixed declared grid, compute `RDP_step(alpha) = sum_g RDP_g(alpha; q_eff, sigma_g)`.
+  - Fixed declared Renyi-order grid for this contract version:
+    - `alpha_grid = [1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16, 24, 32, 48, 64]`.
+  - For each Renyi order `alpha` in `alpha_grid`, compute `RDP_step(alpha) = sum_g RDP_g(alpha; q_eff, sigma_g)`.
   - Compose across optimizer steps by summation in deterministic step order.
   - Convert to `(epsilon, delta)` via deterministic minimization over the fixed `alpha` grid.
   - PLD path is allowed as primary implementation only when configured discretization/truncation error bound is declared and included in trace.
@@ -349,7 +351,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 **Operator:** `UML_OS.DifferentialPrivacy.FlashEfficientClip_v1`  
 **Category:** Security  
 **Signature:** `(gradients, clip_norm_map, fused_cfg -> clipped_or_averaged, norms, stats)`  
-**Purity class:** STATEFUL  
+**Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** fused memory-efficient clip-and-average path for structured large-model parameter layouts. Noise generation is not performed here and remains exclusively in `GenerateNoise_v1`.
 
@@ -499,6 +501,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 8. averaged_clipped <- deterministic_average(accumulated_clipped_micro, gradient_accumulation_steps)
 9. sigma_map <- PrivacyBudgetScheduler_v1(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
 9b. stddev_map <- derive_stddev_map(sigma_map, clip_norm_map, effective_batch_size)   # stddev_g = sigma_g * C_g / B_eff
+9c. sampling_rate <- effective_batch_size / dataset_cardinality
 10. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale, accountant)
 11. If projected_epsilon > target_epsilon: apply proactive sigma upscale per policy or abort (heuristic safeguard only).
 12. If subsampling == "SHUFFLE_WITHOUT_REPLACEMENT": amplification_factor <- AmplificationByShuffling_v1(...)

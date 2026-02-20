@@ -81,6 +81,7 @@
 
 ### II.F Snapshot Identifier (Normative)
 - Stable content identity:
+  - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs_v1", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
   - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`
 - Run/access-plan identity:
   - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]))`
@@ -118,6 +119,20 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Data.ValidateSnapshot_v1`  
+**Category:** Data  
+**Signature:** `(source_refs, transform_chain, split_defs, access_plan_inputs -> validation_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** validates source immutability, split-def consistency, transform-chain integrity, and namespace constraints before snapshot build.
+
+**Operator:** `UML_OS.Data.ComputeLineageHash_v1`  
+**Category:** Data  
+**Signature:** `(tenant_id, source_refs, transform_chain, split_defs -> transform_chain_hash, split_hashes, lineage_root_hash)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** computes canonical lineage commitments (`transform_chain_hash`, `split_hashes`, and `lineage_root_hash`) from sorted canonical inputs.
+
 **Operator:** `UML_OS.Data.BuildSnapshot_v1`  
 **Category:** Data  
 **Signature:** `(source_refs, transform_chain, split_defs, access_plan_inputs -> dataset_snapshot_id, data_access_plan_hash)`  

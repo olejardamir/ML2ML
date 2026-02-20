@@ -91,6 +91,11 @@ Terminal commit record rule:
 - `record_type="FINALIZE"` MUST include:
   - `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`,
   - `manifest_hash`, `policy_bundle_hash`, `operator_registry_hash`, `determinism_profile_hash`.
+- `CERT_SIGNED` record payload rule:
+  - `record_type="CERT_SIGNED"` MUST include at least one of:
+    - `certificate_tmp_hash` (pre-final certificate artifact), or
+    - `certificate_final_hash` (finalized certificate artifact),
+  - and SHOULD include `policy_bundle_hash` + `determinism_profile_hash` to bind signing context.
 
 ### II.G Recovery Rule (Normative)
 - On startup:

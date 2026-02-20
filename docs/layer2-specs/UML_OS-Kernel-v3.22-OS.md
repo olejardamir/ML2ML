@@ -32,7 +32,7 @@
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
 - Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`
-- `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
+- `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest/00-Core.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
 - Replay context must also bind:
   - `sampler_config_hash`,
   - `tmmu_plan_hash`,
@@ -127,7 +127,7 @@ Migration: update manifest operator versions and replay_token.
 - Performs deterministic initialization, manifest/data validation, module wiring, distributed setup, and namespace entry
 
 ### 0.Q Global Manifest Additions
-- `env_manifest_hash` includes `daemon_concurrency_max=16` and all required runtime fields from `docs/layer1-foundation/Environment-Manifest.md`.
+- `env_manifest_hash` includes `daemon_concurrency_max=16` and all required runtime fields from `docs/layer1-foundation/Environment-Manifest/00-Core.md`.
 - `task_type`: `multiclass | binary | regression`
 - `alpha` (default `1.0`)
 - `execution_mode: "local" | "managed" | "confidential" | "regulated"` (default `managed`)
@@ -262,9 +262,9 @@ Unconstrained optimization problem. All runtime contracts (driver determinism, p
 
 ### Architecture Overview (Document Wiring)
 - Core execution specs: `docs/layer2-specs/Data-NextBatch.md`, `docs/layer2-specs/ModelIR-Executor.md`, `docs/layer2-specs/TMMU-Allocation.md`, `docs/layer2-specs/DifferentialPrivacy-Apply.md`.
-- Interface and type contracts: `docs/layer1-foundation/API-Interfaces.md`, `docs/layer1-foundation/Data-Structures.md`, `docs/layer2-specs/Config-Schema.md`.
+- Interface and type contracts: `docs/layer1-foundation/API-Interfaces.md`, `docs/layer1-foundation/Data-Structures/00-Core.md`, `docs/layer2-specs/Config-Schema.md`.
 - Reliability and observability contracts: `docs/layer1-foundation/Error-Codes.md`, `docs/layer2-specs/Trace-Sidecar.md`, `docs/layer2-specs/Checkpoint-Schema.md`, `docs/layer2-specs/Replay-Determinism.md`.
-- Delivery and compliance contracts: `docs/layer4-implementation/Backend-Adapter-Guide.md`, `docs/layer2-specs/Security-Compliance-Profile.md`, `docs/layer1-foundation/Dependency-Lock-Policy.md`, `docs/layer2-specs/Deployment-Runbook.md`.
+- Delivery and compliance contracts: `docs/layer4-implementation/Backend-Adapter-Guide.md`, `docs/layer2-specs/Security-Compliance-Profile.md`, `docs/layer1-foundation/Dependency-Lock-Policy/00-Core.md`, `docs/layer2-specs/Deployment-Runbook.md`.
 - Planning and execution governance: `docs/layer4-implementation/Implementation-Roadmap.md`, `docs/layer4-implementation/Code-Generation-Mapping.md`, `docs/layer3-tests/Test-Plan.md`, `docs/layer3-tests/Performance-Plan.md`.
 - Lifecycle and governance extensions: `docs/layer2-specs/Experiment-Tracking.md`, `docs/layer2-specs/Model-Registry.md`, `docs/layer2-specs/Monitoring-Policy.md`, `docs/layer2-specs/Evaluation-Harness.md`, `docs/layer2-specs/Data-Lineage.md`, `docs/layer2-specs/Pipeline-Orchestrator.md`, `docs/layer2-specs/Execution-Certificate.md`.
 - Coding acceleration contracts: `docs/layer4-implementation/Reference-Implementations.md`, `docs/layer3-tests/Test-Vectors-Catalog.md`, `docs/layer4-implementation/Repo-Layout-and-Interfaces.md`.
@@ -832,7 +832,9 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     action <- UML_OS.Policy.Evaluate_v1(...)
     if action == "optimize":
       grads = UML_OS.Model.Backward_v1(L_tot, theta)  # unclipped when DP is enabled
-      if manifest.execution_mode == "regulated": noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads)
+      if manifest.security.differential_privacy.enabled == true:
+          noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads, manifest.security.differential_privacy, t)
+          cumulative_epsilon <- budget.epsilon
       theta <- UML_OS.Optimizer.Update_v1(noisy_grads or grads, ...)
     else if action == "eval" or current_stage.type == "eval":
       state <- UML_OS.Transition.SwitchState_v1(state, "eval")
@@ -854,8 +856,9 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
-- UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // self-verify before signing final certificate
+- UML_OS.Security.VerifyCertificate_v1(certificate_evidence_bundle)  // verify evidence before signing final certificate
 - UML_OS.Certificate.WriteExecutionCertificate_v1(...)
+- UML_OS.Security.VerifyCertificate_v1(output_certificate_path)  // post-write self-verification of produced certificate
 ```
 
 ---

@@ -1726,3 +1726,22 @@
   - Registry hash integrity check: pass (no mismatches after reconciliation).
   - Reference-to-edge wiring check (all registered docs): pass (`PASS_ALL_REFERENCES_WIRED`).
   - Layer import rule check (`IMPORTS`/`EXTENDS` upward disallowed): pass (`PASS_LAYER_IMPORT_RULES`).
+
+---
+
+- Date: 2026-02-20
+- Action: Layer2 spec reconciliation and wiring completion pass (`L2-001`, `L2-002`, `L2-003`, `L2-004`, `L2-005`, `L2-006`, `L2-007`, `L2-008`, `L2-009`, `L2-010`, `L2-011`, `L2-013`, `L2-014`, `L2-015`, `L2-016`, `L2-018`, `L2-020`).
+- Scope:
+  - Implemented the requested logical/structural fixes across Layer2 docs, including:
+    - AuthZ: defined `granted_capabilities_hash`, reason-code enum, and explicit capability-resolution inputs.
+    - Checkpoint schema: defined `checkpoint_manifest_cbor` contract and normalized optional manifest-hash fields.
+    - Config/Data loader: added `data.drop_last` canonical default and aligned Data.NextBatch epoch-end behavior for `drop_last=true`.
+    - Data lineage / evaluation / tracking / registry / monitoring / orchestrator: added missing operator definitions referenced by manifests.
+    - DP contract: added deterministic `sampling_rate` derivation, fixed RDP alpha-grid declaration, and corrected `FlashEfficientClip_v1` purity to `PURE`.
+    - Replay/WAL/TMMU/kernel: fixed `VerifyRestore_v1` signature usage, defined `CERT_SIGNED` payload requirements, propagated slot size/alignment outputs, corrected DP application condition/args/state update, and fixed certificate verification/write order.
+    - Layer1 wiring references in touched Layer2 docs were normalized to current canonical paths where needed.
+  - Refreshed registry digests for modified Layer2 records in `ecosystem-registry.yaml` and updated `LastUpdated` to `2026-02-20` for all changed records.
+- Validation:
+  - Registry hash alignment for all modified Layer2 records: pass (`17/17` records match file SHA-256).
+  - Cross-reference existence checks for touched Layer2->Layer1 links: pass.
+  - No unresolved operator-manifest/definition gaps remain in the touched Layer2 set.

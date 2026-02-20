@@ -128,12 +128,40 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Monitor.Register_v1`  
+**Category:** Monitoring  
+**Signature:** `(monitor_policy, telemetry_schema -> registration_report)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** registers monitored metrics, windows, and thresholds under canonical policy hash.
+
+**Operator:** `UML_OS.Monitor.Emit_v1`  
+**Category:** Monitoring  
+**Signature:** `(monitor_event -> ok)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends typed `MonitorEvent` to the deterministic telemetry stream.
+
 **Operator:** `UML_OS.Monitor.DriftCompute_v1`  
 **Category:** Monitoring  
 **Signature:** `(windowed_metrics, baseline -> drift_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** computes drift metrics under fixed deterministic aggregation windows.
+
+**Operator:** `UML_OS.Monitor.AlertCreate_v1`  
+**Category:** Monitoring  
+**Signature:** `(drift_report, threshold_policy -> alert_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** emits deterministic alert when threshold policy is breached.
+
+**Operator:** `UML_OS.Monitor.AlertAck_v1`  
+**Category:** Monitoring  
+**Signature:** `(alert_id, principal_id, ack_reason -> ack_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends deterministic acknowledgement state transition for an existing alert.
 
 ---
 ## 6) Procedure
@@ -147,7 +175,7 @@
 ---
 ## 7) Trace & Metrics
 ### Logging rule
-- monitoring pipeline emits deterministic `MonitorEvent` records (schema from `docs/layer1-foundation/Data-Structures.md`) and optional linked trace entries.
+- monitoring pipeline emits deterministic `MonitorEvent` records (schema from `docs/layer1-foundation/Data-Structures/00-Core.md`) and optional linked trace entries.
 ### Trace schema
 - `run_header`: monitor_policy_hash, tenant_id
 - `iter`: `MonitorEvent`-compatible fields (`window_id`, `metric_name`, `metric_value`) plus optional `alert_state`

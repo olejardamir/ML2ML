@@ -60,6 +60,14 @@
 
 ### II.G Deterministic Verdict Hash (Normative)
 - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+- `granted_capabilities_hash = SHA-256(CBOR_CANONICAL(sorted(granted_capabilities)))`.
+- `decision_reason_code` is a required enum from:
+  - `ALLOW`
+  - `DENY_MISSING_CAPABILITY`
+  - `DENY_POLICY`
+  - `DENY_PRINCIPAL_NOT_BOUND`
+  - `DENY_OPERATOR_UNREGISTERED`
+  - `DENY_TENANT_SCOPE`
 - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
 - Execution certificates MUST bind `authz_decision_hash` (not only query hash).
 
@@ -94,8 +102,8 @@
 ---
 ## 6) Procedure
 ```text
-1. ResolveRequiredCapabilities_v1
-2. EvaluateAuthorization_v1
+1. ResolveRequiredCapabilities_v1(operator_id, operator_registry)
+2. EvaluateAuthorization_v1(tenant_id, principal_id, operator_id, authz_policy)
 3. Return verdict + authz_query_hash + authz_decision_hash + report
 ```
 

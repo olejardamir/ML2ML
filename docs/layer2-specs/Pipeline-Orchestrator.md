@@ -137,6 +137,13 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Pipeline.JobSubmit_v1`  
+**Category:** Orchestration  
+**Signature:** `(job_manifest, priority, idempotency_key -> job_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** validates submission policy and enqueues a new job deterministically.
+
 **Operator:** `UML_OS.Pipeline.JobTransition_v1`  
 **Category:** Orchestration  
 **Signature:** `(tenant_id, job_id, attempt_id, expected_transition_seq, from_state, to_state, evidence_ref -> transition_record)`  
@@ -150,6 +157,20 @@
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** extends lease if `lease_id` matches active running attempt.
+
+**Operator:** `UML_OS.Pipeline.JobCancel_v1`  
+**Category:** Orchestration  
+**Signature:** `(job_id, principal_id, reason -> cancel_record)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** requests deterministic cancellation and records authorized terminal/cancel transition.
+
+**Operator:** `UML_OS.Pipeline.JobQuery_v1`  
+**Category:** Orchestration  
+**Signature:** `(job_id -> job_status_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** returns canonical current state and transition summary for a job.
 
 ---
 ## 6) Procedure

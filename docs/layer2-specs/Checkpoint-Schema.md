@@ -110,6 +110,9 @@
   - `tensors_root_hash:bytes32`
   - `optimizer_state_root_hash:bytes32`
   - `dp_accountant_state_hash?:bytes32`
+  - `weights_manifest_hash?:bytes32`
+  - `optimizer_manifest_hash?:bytes32`
+  - `dp_accountant_manifest_hash?:bytes32`
   - `trace_final_hash_at_checkpoint:bytes32`
   - `checkpoint_header_hash:bytes32`
   - `checkpoint_manifest_hash:bytes32`
@@ -117,6 +120,15 @@
   - `checkpoint_hash_prev?:bytes32`
 - Hash identities (normative):
   - `checkpoint_header_hash = SHA-256(checkpoint_header_cbor)`
+  - `checkpoint_manifest_cbor` is a canonical CBOR map with keys:
+    - `manifest_version:string`
+    - `checkpoint_merkle_root:bytes32`
+    - `shards:array<{path:string, sha256:bytes32, size_bytes:uint64}>` sorted by `path`
+    - `weights_manifest_hash?:bytes32`
+    - `optimizer_manifest_hash?:bytes32`
+    - `dp_accountant_manifest_hash?:bytes32`
+    - `dataset_snapshot_id?:string`
+    - `artifact_index_hash?:bytes32`
   - `checkpoint_manifest_hash = SHA-256(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
   - `checkpoint_hash = checkpoint_manifest_hash`
   - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
@@ -165,7 +177,7 @@
 - In linear hash-chain mode, `trace_final_hash == trace_final_hash_at_checkpoint` at checkpoint boundary.
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
-- Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `docs/layer1-foundation/Data-Structures.md` `CheckpointHeader`.
+- Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `docs/layer1-foundation/Data-Structures/00-Core.md` `CheckpointHeader`.
 - Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_final_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
 
 ### II.J Run Commit Protocol (Normative)

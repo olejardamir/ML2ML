@@ -102,6 +102,20 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Eval.RunSuite_v1`  
+**Category:** Governance  
+**Signature:** `(eval_manifest, model_ref, dataset_snapshot_ref -> suite_run_report)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** executes the declared evaluation suite in deterministic case order and emits per-case results.
+
+**Operator:** `UML_OS.Eval.AggregateMetrics_v1`  
+**Category:** Governance  
+**Signature:** `(suite_run_report, aggregation_policy -> eval_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** aggregates per-case metrics into canonical summary outputs and threshold verdicts.
+
 **Operator:** `UML_OS.Eval.BuildEvidenceBundle_v1`  
 **Category:** Governance  
 **Signature:** `(eval_report, trace_ref, dataset_snapshot_ref -> evidence_bundle_ref)`  
