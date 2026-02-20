@@ -17,6 +17,7 @@
 - Primary objective: enforce minimum coverage across required test classes.
 ### 0.B Reproducibility Contract
 - Replayable given `(coverage_policy_hash, test_report_hash, source_manifest_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - Coverage percentages use binary64; gate checks use exact threshold comparisons.
 ### 0.D Ordering and Tie-Break Policy
@@ -35,19 +36,29 @@
 ### 0.I Outputs and Metric Schema
 - Outputs: `(coverage_report, coverage_verdict)`
 - Metrics: `line_cov`, `branch_cov`, `integration_cov`, `replay_cov`
+  - `integration_cov`: coverage over integration-suite-tagged source/test mappings.
+  - `replay_cov`: coverage over replay/restore determinism code paths and assertions.
 ### 0.J Spec Lifecycle Governance
 - Required thresholds changes are MAJOR.
 ### 0.K Failure and Error Semantics
 - Missing required coverage class fails gate.
 ### 0.L Input/Data Provenance
 - Coverage reports must reference exact source and test manifests.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: N/A (coverage aggregation is deterministic and non-stochastic).
+- PRNG family: N/A.
+- replay guarantee: identical `(coverage_policy_hash, test_report_hash, source_manifest_hash)` yields identical `(coverage_report, coverage_verdict)`.
+- floating-point format: IEEE-754 binary64; rounding mode `roundTiesToEven`.
+- NaN/Inf policy: invalid in coverage metrics; deterministic failure if encountered.
+- default tolerances: `abs_tol=EPS_EQ`, `rel_tol=0` for threshold boundary checks.
+- determinism target: E0 for coverage verdict and normalized metric set.
 
 ---
 ## 2) System Model
 ### I.A Persistent State
 - Coverage policy and historical snapshots.
 ### I.B Inputs and Hyperparameters
-- Raw coverage reports, thresholds, subsystem map.
+- Raw coverage reports, thresholds, subsystem map, `test_report_hash` (or deterministic derivation `SHA-256(CBOR_CANONICAL(raw_reports))`), and `source_manifest_hash`.
 ### I.C Constraints and Feasible Set
 - Pass iff all required thresholds pass.
 ### I.D Transient Variables
@@ -74,16 +85,19 @@
 **Signature:** `(raw_reports -> coverage_metrics)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `COVERAGE_REPORT_INVALID`.
 
 **Operator:** `UML_OS.Test.ValidateCoverageTargets_v1`  
 **Signature:** `(coverage_metrics, policy -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `COVERAGE_THRESHOLD_INVALID`.
 
 **Operator:** `UML_OS.Test.EmitCoverageVerdict_v1`  
 **Signature:** `(validation_report -> coverage_verdict)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `COVERAGE_GATE_FAILED`.
 
 ---
 ## 6) Procedure
@@ -128,7 +142,7 @@
 ---
 ## 10) Checkpoint/Restore
 ### Checkpoint contents
-- Coverage aggregation cursor and partial metrics.
+- Coverage aggregation cursor, per-subsystem partial reductions, and `partial_coverage_report_hash`.
 ### Serialization
 - Canonical CBOR.
 ### Restore semantics

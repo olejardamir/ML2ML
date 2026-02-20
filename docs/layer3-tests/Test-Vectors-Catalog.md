@@ -19,6 +19,8 @@
 - Minimize ambiguous test expectations across implementations.
 ### 0.B Reproducibility Contract
 - vectors and expected outputs are content-addressed and immutable.
+- replayable given `(vector_id, operator_id, implementation_version)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - expected numeric outputs include explicit dtype and tolerance class.
 ### 0.D Ordering and Tie-Break Policy
@@ -134,12 +136,29 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Test.VectorLoad_v1`
+**Category:** Test
+**Signature:** `(operator_id, vector_id -> expected_vector)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** loads canonical vector payload and expected outputs/errors by id.
+**allowed_error_codes:** `VECTOR_NOT_FOUND`, `CONTRACT_VIOLATION`.
+
+**Operator:** `UML_OS.Test.VectorExecute_v1`
+**Category:** Test
+**Signature:** `(implementation, input_payload -> actual_output)`
+**Purity class:** IO
+**Determinism:** deterministic for identical implementation+input payload
+**Definition:** executes the implementation against vector input payload.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `PRIMITIVE_UNSUPPORTED`, `EXECUTION_FAILURE`.
+
 **Operator:** `UML_OS.Test.VectorVerify_v1`  
 **Category:** Test  
 **Signature:** `(actual_output, expected_vector -> verify_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** verifies outputs/errors against canonical vector expectations.
+**allowed_error_codes:** `VECTOR_MISMATCH`, `EXPECTED_ERROR_MISMATCH`, `CONTRACT_VIOLATION`.
 
 ---
 ## 6) Procedure

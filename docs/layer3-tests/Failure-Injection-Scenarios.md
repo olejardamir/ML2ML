@@ -17,6 +17,7 @@
 - Primary objective: verify deterministic recovery under defined fault classes.
 ### 0.B Reproducibility Contract
 - Replayable given `(scenario_id, injection_point, seed, evidence_bundle_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - Scenario timing and counters use exact deterministic tick values.
 ### 0.D Ordering and Tie-Break Policy
@@ -41,13 +42,21 @@
 - Unexpected recovery outcomes are deterministic failures.
 ### 0.L Input/Data Provenance
 - Scenario definitions and expected outcomes must be hash-addressed.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: `uint64`.
+- PRNG family: `Philox4x32-10` for stochastic fault payload generation.
+- replay guarantee: identical `(scenario_id, injection_point, seed, evidence_bundle_hash, runtime_profile)` yields identical `(fault_report, recovery_verdict)`.
+- floating-point format: IEEE-754 binary64 for informational metrics only.
+- NaN/Inf policy: invalid in recorded metrics.
+- default tolerances: N/A for pass/fail recovery verdicts.
+- determinism target: E0 for `recovery_verdict` and evidence identities.
 
 ---
 ## 2) System Model
 ### I.A Persistent State
 - Scenario registry and expected recovery matrix.
 ### I.B Inputs and Hyperparameters
-- scenario id, fault point, runtime profile.
+- scenario id, fault point, `seed`, runtime profile, and evidence bundle (with `evidence_bundle_hash` commitment).
 ### I.C Constraints and Feasible Set
 - Valid iff scenario has declared expected deterministic outcome.
 ### I.D Transient Variables
@@ -74,16 +83,19 @@
 **Signature:** `(scenario_id, runtime_state -> faulted_state)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `FAULT_POINT_INVALID`.
 
 **Operator:** `UML_OS.Test.RunRecovery_v1`  
 **Signature:** `(faulted_state, recovery_policy -> recovery_state)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `RECOVERY_FAILURE`.
 
 **Operator:** `UML_OS.Test.ValidateRecoveryOutcome_v1`  
 **Signature:** `(recovery_state, expected_outcome -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `RECOVERY_OUTCOME_MISMATCH`.
 
 ---
 ## 6) Procedure
@@ -103,7 +115,7 @@
 - `iter`: injection_point, status
 - `run_end`: recovery_verdict, outcome_hash
 ### Metric schema
-- `scenarios_total`, `recovery_passed`, `recovery_failed`
+- `scenarios_total`, `recovery_passed`, `recovery_failed`, `recovery_time_ms` (informational only; excluded from deterministic verdict logic)
 ### Comparability guarantee
 - Comparable iff same scenario and profile.
 
@@ -128,7 +140,7 @@
 ---
 ## 10) Checkpoint/Restore
 ### Checkpoint contents
-- Scenario cursor and partial recovery diagnostics.
+- `scenario_cursor`, `injection_log_hash`, `partial_recovery_diagnostics_hash`, `current_outcome_hash`.
 ### Serialization
 - Canonical CBOR.
 ### Restore semantics

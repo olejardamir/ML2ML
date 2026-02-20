@@ -2255,3 +2255,40 @@
     - added alias note that external `digest_ref` resolves to `bytes32`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Layer3 Test-Spec Consistency Pass
+- Applied comprehensive `docs/layer3-tests/` consistency fixes across all test-spec files:
+  - added missing operator definitions where manifests referenced undefined operators (compatibility, CI, conformance harness, fuzzing, storage recovery, vectors catalog),
+  - resolved reproducibility/input mismatches (added/clarified required hash commitments and seeds/test-report references),
+  - aligned procedure steps with declared outputs and operator signatures,
+  - added explicit hash policy notes (`SHA-256(CBOR_CANONICAL(...))` unless overridden),
+  - clarified timing metrics as informational-only where they are not part of deterministic verdict logic,
+  - added missing schema clarifications (`comparison_profile`, `integration_manifest`),
+  - completed vector and gate/report hashing semantics (`artifact_bundle_hash`, `findings_catalog_hash`, etc.),
+  - added missing error-code declaration blocks for newly introduced operators.
+- Additional cross-file completion in support of recent kernel changes:
+  - threaded replay-token/TMMU context alignment into ModelIR-related test contracts,
+  - added `memory_arena_config` alignment in Config schema for TMMU init/planning references,
+  - normalized digest typing in experiment tracking (`artifact_digest:bytes32` with alias note).
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.
+
+## 2026-02-20 — Layer3 EQC Determinism/Consistency Completion Pass
+- Scope: `docs/layer3-tests/*` deterministic completeness and cross-file alignment hardening.
+- Changes applied:
+  - Added missing `0.Z EQC Mandatory Declarations Addendum` blocks to all previously missing Layer3 test specs (`L3-001`, `L3-002`, `L3-003`, `L3-004`, `L3-005`, `L3-006`, `L3-007`, `L3-009`, `L3-010`).
+  - Reproducibility/input alignment fixes:
+    - `Conformance-CI-Pipeline.md`: `lockfile_hash` aligned in inputs.
+    - `Coverage-Targets.md`: `source_manifest_hash` aligned in inputs.
+    - `Failure-Injection-Scenarios.md`: added explicit `seed` in inputs.
+    - `Integration-Test-Matrix.md`: aligned `integration_matrix_hash` and `test_manifest_hash` in inputs.
+    - `Storage-Recovery-Test-Matrix.md`: aligned `fixtures_hash` in inputs.
+  - Added/normalized `allowed_error_codes` for operator definitions where missing (conformance harness, coverage, failure injection, integration, storage recovery).
+  - Clarified required-case semantics and canonical profile form in integration/conformance docs.
+  - Made checkpoint/restore payloads concrete (explicit cursors/hash accumulators) in updated specs.
+- Registry updates:
+  - Refreshed `ecosystem-registry.yaml` hashes and `LastUpdated` for modified Layer3 records:
+    - `L3-001`, `L3-002`, `L3-003`, `L3-004`, `L3-005`, `L3-006`, `L3-007`, `L3-009`, `L3-010`.
+- Validation:
+  - Re-ran Layer3 structural checks (operator-manifest coverage, `0.Z` coverage).
+  - Re-ran registry/file digest parity validation.

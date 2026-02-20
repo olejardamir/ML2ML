@@ -17,6 +17,7 @@
 - Primary objective: prevent non-compliant builds from release/promotion.
 ### 0.B Reproducibility Contract
 - Replayable given `(release_manifest_hash, gate_policy_hash, evidence_bundle_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - Threshold checks use deterministic binary64/integer rules.
 ### 0.D Ordering and Tie-Break Policy
@@ -41,13 +42,21 @@
 - Any required gate failure is deterministic release block.
 ### 0.L Input/Data Provenance
 - Release decision must cite all evidence hashes.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: N/A (gate evaluation is deterministic and non-stochastic).
+- PRNG family: N/A.
+- replay guarantee: identical `(release_manifest_hash, gate_policy_hash, evidence_bundle_hash)` yields identical `release_verdict`.
+- floating-point format: IEEE-754 binary64 for threshold math; rounding mode `roundTiesToEven`.
+- NaN/Inf policy: invalid in gate metrics; deterministic failure.
+- default tolerances: `abs_tol=EPS_EQ`, `rel_tol=0` unless gate policy overrides.
+- determinism target: E0 for `release_verdict` and failing gate ids.
 
 ---
 ## 2) System Model
 ### I.A Persistent State
 - Release gate policy and historical verdict ledger.
 ### I.B Inputs and Hyperparameters
-- CI report, test report, replay report, cert report, perf report, security report.
+- CI report, test report, replay report, cert report, perf report, security report, and derived `evidence_bundle_hash`.
 ### I.C Constraints and Feasible Set
 - Release allowed iff all required gates pass.
 ### I.D Transient Variables
@@ -71,19 +80,23 @@
 ---
 ## 5) Operator Definitions
 **Operator:** `UML_OS.Release.CollectEvidence_v1`  
-**Signature:** `(release_candidate_id -> evidence_bundle)`  
+**Signature:** `(release_candidate_id -> evidence_bundle, evidence_bundle_hash)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
+**Definition:** Collects canonical release evidence and emits deterministic `evidence_bundle_hash`.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `EVIDENCE_MISSING`, `ARTIFACT_MISSING`.
 
 **Operator:** `UML_OS.Release.EvaluateGates_v1`  
 **Signature:** `(evidence_bundle, gate_policy -> gate_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `GATE_POLICY_INVALID`.
 
 **Operator:** `UML_OS.Release.EmitVerdict_v1`  
 **Signature:** `(gate_report -> release_verdict)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `RELEASE_BLOCKED`.
 
 ---
 ## 6) Procedure
@@ -128,7 +141,7 @@
 ---
 ## 10) Checkpoint/Restore
 ### Checkpoint contents
-- Gate evaluation cursor and partial reports.
+- `gate_cursor`, `completed_gate_ids[]`, `partial_gate_report_hash`, and `evidence_bundle_hash`.
 ### Serialization
 - Canonical CBOR.
 ### Restore semantics

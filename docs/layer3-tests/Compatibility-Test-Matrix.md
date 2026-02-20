@@ -15,6 +15,7 @@
 - minimize unsupported version pairings and migration regressions.
 ### 0.B Reproducibility Contract
 - matrix verdict reproducible from `(matrix_version, migration_rules_hash, vectors_catalog_hash)`.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 ### 0.C Numeric Policy
 - counters and version indices are exact.
 ### 0.D Ordering and Tie-Break Policy
@@ -38,13 +39,21 @@
 - missing migration path is deterministic failure.
 ### 0.L Input/Data Provenance
 - all test artifacts are content-addressed.
+### 0.Z EQC Mandatory Declarations Addendum
+- seed space: `uint64` (only if stochastic fixture generation is enabled by matrix policy).
+- PRNG family: `Philox4x32-10` when stochastic generation is enabled; otherwise N/A.
+- replay guarantee: same `(matrix_version, migration_rules_hash, vectors_catalog_hash)` yields identical `(compatibility_report, compatibility_verdict, unsupported_pairs)`.
+- floating-point format: IEEE-754 binary64; rounding mode `roundTiesToEven`.
+- NaN/Inf policy: prohibited in verdict-bearing metrics; encountering either is deterministic failure.
+- default tolerances: `abs_tol=EPS_EQ`, `rel_tol=0` unless explicitly overridden by case profile.
+- determinism target: E0 for final verdict and unsupported pair identities.
 
 ---
 ## 2) System Model
 ### I.A Persistent State
 - compatibility matrix definition and migration registry.
 ### I.B Inputs and Hyperparameters
-- schema families, version ranges, profile id.
+- schema families, version ranges, profile id, and the vectors catalog commitment (`vectors_catalog_hash`) used for fixtures.
 ### I.C Constraints and Feasible Set
 - only declared migration paths are allowed.
 ### I.D Transient Variables
@@ -72,6 +81,21 @@
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Executes one compatibility test with deterministic pass/fail criteria.
+**allowed_error_codes:** `CONTRACT_VIOLATION`, `MIGRATION_PATH_MISSING`, `VECTOR_LOAD_FAILURE`.
+
+**Operator:** `UML_OS.Test.VerifyMigrationPath_v1`
+**Signature:** `(artifact_type, from_version, to_version, migration_rules_hash -> migration_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Verifies that a declared deterministic migration path exists and is admissible for the version pair.
+**allowed_error_codes:** `MIGRATION_PATH_MISSING`, `CONTRACT_VIOLATION`.
+
+**Operator:** `UML_OS.Test.AggregateCompatibilityVerdict_v1`
+**Signature:** `(case_results, migration_reports -> compatibility_report, compatibility_verdict, unsupported_pairs)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Deterministically aggregates per-pair outcomes into final report, verdict, and unsupported pair list.
+**allowed_error_codes:** `CONTRACT_VIOLATION`.
 
 ---
 ## 6) Procedure
@@ -79,7 +103,7 @@
 1. Enumerate compatibility pairs
 2. Validate migration path per pair
 3. Execute compatibility case
-4. Aggregate matrix verdict
+4. Aggregate matrix verdict and emit `(compatibility_report, compatibility_verdict, unsupported_pairs)`
 ```
 
 ---

@@ -23,6 +23,7 @@
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` for stochastic workloads.
 - PRNG family: inherited from tested operators.
+- hash policy: all hashes are `SHA-256(CBOR_CANONICAL(...))` unless explicitly overridden.
 - Randomness locality: benchmark harness does not sample except workload generation operators.
 - Replay guarantee: benchmark replayable given `(workload_manifest, runtime_env_hash, seeds, commit_hash)`.
 - Determinism scope: metric sampling is physical-world variable; aggregation and verdict are deterministic given a frozen metric snapshot hash.
@@ -54,7 +55,7 @@
 - Fully-qualified performance operators required.
 
 ### 0.I Outputs and Metric Schema
-- Outputs: `(perf_report, gate_verdict)`.
+- Outputs: `(perf_report, gate_verdict, metric_snapshot_hash)`.
 - Metrics: `p50`, `p95`, `p99`, `peak_memory`, `throughput`, `regression_count`, `peak_memory_bytes`, `tmmu_fragmentation_ratio`.
 - Completion status: `success | failed`.
 
@@ -71,7 +72,7 @@
 
 ### 0.Z EQC Mandatory Declarations Addendum
 - Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
-- PRNG family: `Philox4x32-10` for declared stochastic operators.
+- PRNG family: inherited from tested operators (must match each operator contract’s declared PRNG family).
 - Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
 - Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
 - Replay token: deterministic per-run token contribution is defined and included in trace records.
@@ -220,9 +221,9 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 Each workload emits deterministic benchmark records.
 
 ### Trace schema
-- `run_header`: runtime_env_hash, baseline_hash
+- `run_header`: runtime_env_hash, baseline_hash, replay_token
 - `iter`: workload_id, sample_stats
-- `run_end`: aggregate_metrics, gate_verdict
+- `run_end`: aggregate_metrics, metric_snapshot_hash, gate_verdict
 
 ### Metric schema
 - `p50`, `p95`, `p99`, `peak_memory`, `throughput`, `regression_count`
