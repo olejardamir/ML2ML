@@ -21,10 +21,34 @@ What is missing:
 4. Production-grade codegen templates and end-to-end generator pipeline.
 5. Verified one-command build/test/deploy generation path.
 
-
 Milestone 1: Machine-Readable Contract Layer
 --------------------------------------------
 1. Define canonical IDL/schema format for all contracts (types, enums, required/optional fields, defaults).
+	- Scope:
+		- Every contract in layers 1-4 that defines inputs, outputs, state, operators, trace records, checkpoints, and evidence hashes.
+		- All referenced shared types (hashes, ids, enums, profile objects, manifests, records, operator payloads).
+	- Required schema contents:
+		- Field names, types, nullability, required/optional status.
+		- Default values and defaulting rules.
+		- Numeric constraints (ranges, precision, tolerance defaults).
+		- String/bytes constraints (encoding, length, normalization, format).
+		- Enum domains and unknown-value handling.
+		- Ordering/canonicalization rules (sorting keys, tie-breakers, stable iteration order).
+		- Hash preimage definitions (exact canonical object used for each hash).
+		- Validation errors mapped to concrete error codes.
+		- Version tag and compatibility policy (MAJOR/MINOR/PATCH behavior).
+	- Execution sub-steps:
+		- Choose one authoritative machine-readable format (or tightly governed pair) and freeze it.
+		- Generate a schema file for each existing Markdown contract.
+		- Add cross-file references using stable schema IDs/digests.
+		- Build a linter that detects prose-schema drift.
+		- Add CI gate: fail on missing schema, unresolved reference, or digest mismatch.
+	- Definition of done:
+		- 100% contract coverage by machine-readable schemas.
+		- Every operator input/output and record type resolves to a schema ID.
+		- No undocumented fields or implicit defaults remain in prose-only form.
+		- CI passes schema completeness, reference integrity, and hash determinism checks.
+		- A code generator can consume schemas without reading prose for structural typing decisions.
 2. Convert every Markdown contract into machine-readable artifacts (CBOR schema/JSON schema/IDL).
 3. Add schema validation CI gate: no prose-schema drift allowed.
 4. Version all schemas with strict compatibility rules (MAJOR/MINOR/PATCH).
@@ -55,7 +79,50 @@ Deliverable:
 - Fully unambiguous execution semantics for codegen.
 
 
-Milestone 4: Codegen Target Architecture
+Milestone 4: Test Case and Vector Definition (TDD First)
+---------------------------------------------------------
+1. Define full deterministic test inventory before code generation:
+	- unit tests per operator contract,
+	- integration matrix cases,
+	- replay/checkpoint cases,
+	- evidence/hash-link integrity cases,
+	- failure-injection and storage-recovery cases.
+2. Freeze canonical test vectors and expected outputs/hashes.
+3. Define red/green criteria per test class and equivalence profile (E0/E1).
+4. Add CI checks that validate test completeness against contract/operator inventory.
+
+Deliverable:
+- Frozen contract-driven test suite and vector catalog that serve as the executable spec.
+
+
+Milestone 5: Conformance and Gate Pipeline (Before Codegen)
+------------------------------------------------------------
+1. Implement mandatory verification pipeline over tests/spec artifacts:
+	- schema conformance,
+	- interface/signature conformance,
+	- replay determinism,
+	- checkpoint/restore,
+	- evidence integrity.
+2. Enforce registry parity and hash-chain integrity checks in CI.
+3. Enforce release-gate policies over test evidence.
+4. Block implementation/codegen milestones until this pipeline is green on reference fixtures.
+
+Deliverable:
+- Policy-enforced CI proving tests/specs are complete and deterministic before implementation.
+
+
+Milestone 6: Reference Implementations for Critical Operators
+--------------------------------------------------------------
+1. Implement minimal reference operators/stubs to execute the frozen tests.
+2. Prioritize high-risk deterministic paths first.
+3. Verify outputs against golden vectors under required profiles.
+4. Lock canonical behavior for sensitive operators.
+
+Deliverable:
+- Verified reference baseline that passes contract-driven tests.
+
+
+Milestone 7: Codegen Target Architecture
 ----------------------------------------
 1. Decide primary generation targets (language, runtime, storage, transport).
 2. Define generated project layout (modules, package boundaries, config loading).
@@ -66,7 +133,7 @@ Deliverable:
 - Approved target architecture profile for generation.
 
 
-Milestone 5: Generator + Templates
+Milestone 8: Generator + Templates
 ----------------------------------
 1. Build generator pipeline that consumes schemas + operator registry.
 2. Implement templates for:
@@ -75,41 +142,14 @@ Milestone 5: Generator + Templates
    - validation layers
    - error handling
    - trace/checkpoint/WAL bindings
-3. Generate deterministic test scaffolding from contract vectors.
+3. Require generated code to run the already-frozen test suite unchanged.
 4. Add idempotent regeneration workflow (safe re-run without manual edits loss).
 
 Deliverable:
-- First end-to-end code generator producing compilable service skeletons.
+- End-to-end code generator producing compilable projects validated by pre-defined tests.
 
 
-Milestone 6: Reference Implementations for Critical Operators
---------------------------------------------------------------
-1. Implement high-risk operators manually or with constrained templates first.
-2. Add golden vectors for each critical operator and cross-file hash commitments.
-3. Verify generated and reference outputs are equivalent under required profiles.
-4. Lock canonical implementations where deterministic behavior is most sensitive.
-
-Deliverable:
-- Verified core operator set with reproducible outputs.
-
-
-Milestone 7: End-to-End Verification Gates
-------------------------------------------
-1. Add mandatory conformance pipeline for generated code:
-   - schema conformance
-   - interface/signature conformance
-   - replay determinism
-   - checkpoint/restore
-   - evidence integrity
-2. Enforce release gates against generated artifacts only.
-3. Require registry parity and hash-chain integrity in CI.
-4. Fail build on any spec/code drift.
-
-Deliverable:
-- Policy-enforced CI proving generated code obeys contracts.
-
-
-Milestone 8: Deployment-Ready Generation
+Milestone 9: Deployment-Ready Generation
 ----------------------------------------
 1. Generate deployment artifacts (container, runtime configs, policy bindings).
 2. Generate environment-specific manifests with deterministic defaults.
@@ -120,8 +160,8 @@ Deliverable:
 - One-command generation + deployable artifact bundle.
 
 
-Milestone 9: Push-Button Production Readiness
----------------------------------------------
+Milestone 10: Push-Button Production Readiness
+----------------------------------------------
 Exit criteria:
 1. One command generates code, tests, manifests, and release evidence.
 2. Generated system passes all conformance and release gates without manual patching.
