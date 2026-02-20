@@ -86,6 +86,8 @@
 - Inputs:
   - baseline sample and current-window sample over the same feature projection.
   - fixed bin edges computed deterministically from baseline quantiles (10 bins, nearest-rank quantile rule).
+  - quantile cutpoints are `p ∈ {0.1, 0.2, ..., 0.9}` with index `k = floor(p * (n-1))` over baseline sorted ascending.
+  - baseline is selected from monitor state by `baseline_ref` declared in monitor policy (fixed reference window hash).
 - Metrics:
   - PSI on binned distributions with zero-probability guard `EPS_DENOM`:
     - `PSI = Σ_i (p_i - q_i) * ln((p_i + EPS_DENOM)/(q_i + EPS_DENOM))`.
@@ -104,7 +106,7 @@
 - Policy evaluation must emit deterministic transcript entries:
   - `policy_input_hashes`, `rule_id`, `threshold_id`, `verdict`, `reason_code`.
 - Transcript ordering rule (normative):
-  - sort entries by `(t, rule_id, threshold_id, metric_name)`.
+  - sort entries by `(window_id, rule_id, threshold_id, metric_name)`.
 - Transcript hash:
   - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_gate_v1", monitor_policy_hash, ordered_transcript_entries]))`.
 - `policy_gate_hash` must be emitted as a mandatory trace field and bound to execution certificate evidence in regulated modes.
@@ -113,6 +115,8 @@
 ### II.H Telemetry Window Commitment (Normative)
 - `telemetry_window_hash = SHA-256(CBOR_CANONICAL(["telemetry_window_v1", window_id, start_t, end_t, aggregation_rules_hash, filter_hash]))`.
 - Monitoring transcripts and gate verdicts must reference `telemetry_window_hash` for every evaluated window.
+- Alert ID rule: `alert_id = SHA-256(CBOR_CANONICAL(["alert_v1", drift_report, threshold_policy]))`.
+- Alert lifecycle state machine (normative): `OPEN -> ACKNOWLEDGED -> RESOLVED` with deterministic transition validation.
 
 ---
 ## 3) Initialization
@@ -164,7 +168,7 @@
 **Signature:** `(alert_id, principal_id, ack_reason -> ack_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** appends deterministic acknowledgement state transition for an existing alert.
+**Definition:** appends deterministic acknowledgement state transition for an existing alert (`OPEN -> ACKNOWLEDGED` only).
 
 ---
 ## 6) Procedure

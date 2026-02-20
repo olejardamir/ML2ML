@@ -81,7 +81,14 @@
 
 ### II.F Snapshot Identifier (Normative)
 - Stable content identity:
+  - `dataset_root_hash` is computed over dataset files as:
+    - enumerate files under dataset root with normalized relative paths sorted lexicographically,
+    - `file_hash_i = SHA-256(file_bytes_i)`,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf_v1", relative_path_i, file_hash_i]))`,
+    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node_v1", left, right]))` with odd-leaf duplication,
+    - root is `dataset_root_hash`.
   - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs_v1", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
+  - canonical split entry encoding: `{"split_name":string,"split_fraction":float64,"split_seed?:uint64,"split_filter_hash?:bytes32}` encoded as canonical CBOR map.
   - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`
 - Run/access-plan identity:
   - `world_size_policy = "rank_contiguous_shard_v1"` (must match `docs/layer2-specs/Data-NextBatch.md`).
@@ -95,6 +102,7 @@
   - `pin_root_refs` (certificate/model-release roots),
   - `gc_eligible_after_utc`.
 - GC invariant: lineage objects reachable from active certificate/release roots are not collectible.
+- default retention rule: if unspecified, `retention_class = experimental`.
 - Commit binding: finalized lineage objects must participate in the atomic run commit protocol and be referenced by `lineage_root_hash` in the execution certificate.
 
 ### II.G Lineage Commitments (Normative)

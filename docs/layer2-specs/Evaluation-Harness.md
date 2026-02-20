@@ -85,7 +85,12 @@
 - `metrics_digest`
 - `trace_final_hash`
 - `determinism_tier`
+  - allowed values: `E0 | E1` as defined in `docs/layer2-specs/Replay-Determinism.md`.
 - `replay_token`
+- `aggregation_policy` schema (normative):
+  - map `metric_name -> {agg: enum("mean","sum","min","max","quantile"), quantile_p?:float64}`.
+- `evidence_bundle_ref` points to canonical CBOR payload:
+  - `{eval_manifest_hash, dataset_snapshot_id, metrics_digest, trace_final_hash, determinism_tier, replay_token, eval_report_hash}`.
 
 ---
 ## 3) Initialization
@@ -121,7 +126,7 @@
 **Signature:** `(eval_report, trace_ref, dataset_snapshot_ref -> evidence_bundle_ref)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** builds content-addressed evidence bundle for downstream policy gates.
+**Definition:** builds content-addressed evidence bundle for downstream policy gates, with `trace_final_hash` computed from the actual evaluation trace referenced by `trace_ref`.
 
 ---
 ## 6) Procedure

@@ -142,10 +142,13 @@
 - Signature scheme (normative):
   - canonical payload serialization: canonical CBOR of `signed_payload`
   - signature algorithm: Ed25519
+  - Ed25519 implementation MUST follow RFC 8032 deterministic signing behavior (no external nonce randomness).
 - Trust/revocation commitment definitions:
   - `trust_store_hash = SHA-256(CBOR_CANONICAL(trust_store_bundle))`, where `trust_store_bundle` is the canonical root/intermediate key set used for verification.
   - `revocation_bundle_hash = SHA-256(CBOR_CANONICAL(revocation_bundle))`, where `revocation_bundle` is the canonical CRL/OCSP capture (online) or pinned offline revocation set.
   - Normative source definitions are aligned with `docs/layer2-specs/Security-Compliance-Profile.md`.
+  - Time-sensitive verification checks MUST use signed `verification_time_utc` as the evaluation time anchor (not verifier wall-clock time).
+  - `key_id` MUST be globally unique within trust-store scope and map to exactly one public key at verification time.
 
 ---
 ## 3) Initialization

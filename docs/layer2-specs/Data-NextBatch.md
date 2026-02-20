@@ -141,6 +141,7 @@
 - Train epoch policy (normative): strict bijection without replacement over `[0..N-1]` per epoch; no intra-epoch wrap in train mode.
 - If `drop_last=true`, train epoch size is `floor(N/global_batch_size) * global_batch_size`.
 - If `drop_last=false`, final train step may be partial; no repeated samples are allowed within the same epoch.
+- For `stage_type in {"eval","infer"}`, `drop_last` is ignored; final partial batch MUST be emitted.
 
 ### I.D Transient Variables
 - `N`, `epoch_seed`, `block_order`, `current_block_perms` (lazy map)
@@ -213,8 +214,8 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Determinism:** deterministic  
 **Definition:** Computes an explicit affine bijection inside the selected block. Let `block_start = block_id * block_size`, `m = min(block_size, N - block_start)`, and derive `(k0, k1)` from Philox with counter tuple `(epoch_seed, block_id)`. If `m=1`, return `block_start`. Otherwise choose `a` deterministically from seed material:
 1. `a <- 1 + (k0 mod (m-1))`
-2. while `gcd(a, m) != 1`: `a <- 1 + (a mod (m-1))`
-3. bounded loop upper bound: `m-1` iterations (must terminate because at least one coprime exists)
+2. for `i in [0..m-2]`: let `cand = 1 + ((a - 1 + i) mod (m-1))`; choose first `cand` with `gcd(cand, m) == 1`
+3. if none found (unreachable for `m>1`), abort with deterministic failure code `CONTRACT_VIOLATION`
 Then set `c = k1 mod m`, compute `j = (a * local_pos + c) mod m`, and `original_index = block_start + j`.
 This is bijective because `gcd(a,m)=1` by construction.
 **Preconditions / Postconditions:** `local_pos < m`; output index in `[0, N-1]`; mapping is a permutation over `[block_start, block_start + m - 1]`.  
@@ -243,6 +244,7 @@ This is bijective because `gcd(a,m)=1` by construction.
 8. if stage_type in {"eval", "infer"}:
        is_shuffled = false
        sampling_mode = "SEQUENTIAL_V1"
+       # eval/infer ignore drop_last and always emit terminal partial ranges
        batch_positions = [global_pos + rank_start + i for i in 0..micro_batch_size-1]
        batch_indices = [p % N for p in batch_positions]
    else:

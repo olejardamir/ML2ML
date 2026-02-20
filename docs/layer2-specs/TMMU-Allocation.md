@@ -53,6 +53,7 @@
 - Tensors ordered by first definition node_id (earliest wins on ties).
 - Logical slots assigned in ascending order (lowest available first).
 - Within same birth time: larger tensors first (size-descending heuristic for better packing).
+- Secondary tie-break for equal birth and equal size: `tensor_id` lexicographic ascending.
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Allocation is purely sequential and deterministic.
@@ -179,6 +180,10 @@
   - `alias_group_refcount == 1`,
   - `saved_for_backward == false`,
   - liveness constraints remain valid for the base storage.
+- Alias refcount lifecycle:
+  - increment on alias/view creation bound to `alias_group_id`,
+  - decrement on deterministic end-of-liveness event for each alias member,
+  - storage reuse allowed only when refcount reaches zero.
 
 ### II.H Dynamic Shapes and Replan Policy (Normative)
 - Dynamic dimensions must declare `shape_envelope` bounds.
@@ -265,6 +270,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Signature:** `(ir_dag, execution_order, mode → live_ranges)`  
 **Purity class:** PURE  
 **Definition:** Linear pass; backward extends activation lifetimes until gradient use.
+If `saved_for_backward=true`, death time is extended through the last backward consumer of the saved tensor/view.
 **Preconditions / Postconditions:** valid execution_order and IR references; returns complete live intervals for all tensors.  
 **Edge cases:** branched DAG fan-out/fan-in and backward retention boundaries.  
 **Numerical considerations:** N/A (graph interval computation).  

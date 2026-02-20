@@ -31,7 +31,7 @@
 - Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`
+- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`
 - `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
 - Replay context must also bind:
   - `sampler_config_hash`,
@@ -69,6 +69,7 @@
 - Parallel reductions: fixed 256-element chunks in ascending global index
 - Rank aggregation: ascending rank order
 - `world_size > 1` requires deterministic collectives and fixed ordering
+- Collective algorithm rule (normative): ring all-reduce with ascending-rank send/recv order and fixed chunk partitioning; reduction accumulation uses binary64 Kahan summation in deterministic chunk order.
 
 ### 0.F Environment and Dependency Policy
 - Each backend driver (loaded via `UML_OS.Backend.LoadDriver_v1`) must implement deterministic forward/backward passes with fixed ascending-index reduction order, deterministic collectives (all-reduce, broadcast) using ascending-rank ring topology, RNG forwarding from kernel master streams with declared offsets, exact operator contracts for all dispatched primitives, and must pass the mandatory ReproducibilityTest suite. The suite requires E0 equivalence within a declared backend/hardware equivalence class (same build/profile), and E1 vs certified CPU reference on larger workloads. Driver verification (including binary/manifest hash check) is mandatory inside `Contract.Validate_v1` before any dispatch.
@@ -121,6 +122,7 @@ Migration: update manifest operator versions and replay_token.
   - `/namespaces/<org>/<unit>/<project>/<experiment>/<job_id>/`
   - `/jobs/queue/`
 - Namespace path: `/org/unit/project/experiment/job_id`, `job_id = replay_token[0:8]`
+- `UML_OS_ROOT` is a required immutable run-scoped root URI/path (`file://`, `s3://`, `gcs://`, or absolute local path), fixed at daemon startup.
 
 ### 0.P Bootstrap
 - Single entrypoint: `UML_OS.OS.Bootstrap_v1`
@@ -163,6 +165,8 @@ Migration: update manifest operator versions and replay_token.
 - `model.architecture` supports `type: "custom"`
 
 Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18`, `resnet50`, `vit_tiny`, `bert_tiny`, `gpt2_small`. LoRA insertion is deterministic from checkpoint hash.
+- `fingerprint_frequency` semantics (normative): `0` disables periodic fingerprints; otherwise fingerprints run when `t % fingerprint_frequency == 0`.
+- Default dataset keys per stage (if `pipeline_stages[i].dataset_key` omitted): `train -> "train"`, `eval -> "val"`, `infer -> "test"`.
 
 ### 0.R Distributed and Multi-tenancy Policy
 - Deterministic rank ordering and deterministic collective primitives
@@ -700,6 +704,8 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Write-ahead log: append cryptographically chained record (`SHA-256(CBOR_CANONICAL(["journal_link_v1", previous_hash, event, uint64(t)]))`) to journal before any state mutation is visible.
+Required event fields: `{t, stage_id, operator_seq_max, state_delta_hash, data_cursors_hash, rng_offsets_hash, dp_accountant_state_hash?, resource_ledger_hash}`.
+Canonical journal event shape: CBOR map with at least `{t:uint64, stage_id:string, state_fp:bytes32, action:string, state_delta_hash:bytes32}`.
 **Preconditions / Postconditions:** journal open; hash chain preserved.
 **Failure behavior:** abort on write failure.
 
@@ -735,6 +741,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** evaluates manifest termination criteria.  
+`limits` schema (normative): `{max_steps_per_stage?:uint64, max_epochs?:uint64, max_wall_time_seconds?:uint64}`; check order is fixed by key order above.
 **Preconditions / Postconditions:** criteria declared.  
 **Edge cases:** max_steps=0.  
 **Numerical considerations:** EPS_EQ comparisons.  
@@ -748,6 +755,14 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** transitions among declared lifecycle states for evaluate/train/terminate paths.  
+State transition table (normative):
+- `S_INIT + train -> S_TRAINING`
+- `S_TRAINING + optimize -> S_TRAINING`
+- `S_TRAINING + eval -> S_EVALUATING`
+- `S_EVALUATING + optimize -> S_TRAINING`
+- `S_TRAINING|S_EVALUATING|S_INFERENCING + infer -> S_INFERENCING`
+- `ANY + terminate -> S_TERMINATED`
+- other transitions are invalid and abort with `CONTRACT_VIOLATION`.
 **Preconditions / Postconditions:** valid action-state pair.  
 **Edge cases:** invalid transition.  
 **Numerical considerations:** N/A.  
@@ -817,14 +832,16 @@ All system calls follow the EQC template and may be invoked **only** through the
 1. UML_OS.OS.Bootstrap_v1(...)
 2. UML_OS.OS.NamespaceEnter_v1(job_id)
 3. UML_OS.Backend.LoadDriver_v1(manifest.backend)
-4. current_step <- 0
-5. checkpoint_frequency <- manifest.checkpoint_frequency or 0
-6. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
-7. WALAppend_v1(PREPARE)
-8. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
+4. WALRecover_v1()  // deterministic crash recovery before new run prepare
+5. current_step <- 0
+6. checkpoint_frequency <- manifest.checkpoint_frequency or 0
+7. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
+8. WALAppend_v1(PREPARE)
+9. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
 Loop until Pipeline.Dispatch_v1 returns termination:
 - terminated <- UML_OS.Termination.Check_v1(...) (scoped to current stage)
+- terminated <- terminated OR check_global_termination_limits(manifest, t, state)
 - if terminated: break
 - t <- t + 1
 - UML_OS.Contract.Validate_v1(...)
@@ -863,10 +880,13 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     UML_OS.Inference.RunBatch_v1(theta, dataset_key)
 - checkpoint_due <- (checkpoint_frequency > 0 and (t % checkpoint_frequency == 0)) or current_stage.checkpoint_on_exit == true
 - if checkpoint_due: UML_OS.IO.SaveCheckpoint_v1(...)
-- if fingerprint due: StateFingerprint_v1, Fingerprint.Functional_v1, Verifiable.CommitFunctional_v1 (if enabled)
+- if manifest.fingerprint_frequency > 0 and (t % manifest.fingerprint_frequency == 0): StateFingerprint_v1, Fingerprint.Functional_v1(theta, manifest.evaluation.probe_set), Verifiable.CommitFunctional_v1 (if enabled)
 - UML_OS.IO.WriteTape_v1(...) (includes stage transition and usage record)
-- resource_ledger <- update deterministic per-step resource counters
-- if resource_ledger exceeds manifest quota policy: Error.Emit_v1(CONTRACT_VIOLATION, ...); abort
+- resource_ledger <- update deterministic per-step resource counters `{flops, bytes_allocated, peak_bytes, gpu_time_ns, cpu_time_ns}`
+- if resource_ledger exceeds manifest quota policy:
+    Error.Emit_v1(CONTRACT_VIOLATION, ...)
+    UML_OS.IO.WriteTape_v1(error_record_sync)
+    abort
 - UML_OS.State.Journal_v1({t, state, action, data_cursors, rng_offsets, dp_accountant_state, resource_ledger})
 - current_step <- current_step + 1
 - current_stage = UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // advance or terminate
@@ -887,6 +907,7 @@ On full termination:
 
 ### Logging rule
 Each iteration must emit one canonical trace record via `UML_OS.IO.WriteTape_v1` with required V.B fields for the active task type.
+- `operator_seq` is initialized to `0` at the beginning of each step and incremented for each operator call in procedure order.
 
 ### Trace schema (minimum required)
 - `run_header`: metadata, hashes, replay_token, task_type, world_size, backend_binary_hash, driver_runtime_fingerprint_hash

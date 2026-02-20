@@ -55,6 +55,9 @@
 - one deterministic verdict per authorization query.
 
 ### II.F Capability Resolution Rule (Normative)
+- `principal_id` format is canonical tenant-scoped UTF-8 text: `tenant_id "/" principal_local_id`.
+- `principal_id` comparisons are bytewise and case-sensitive.
+- `capability_matrix` MUST include immutable `matrix_version:string`; updates publish a new matrix object and `capability_matrix_hash`.
 - `required_capabilities` is read from canonical operator registry for `operator_id`.
 - Missing `operator_id` mapping is deterministic failure.
 

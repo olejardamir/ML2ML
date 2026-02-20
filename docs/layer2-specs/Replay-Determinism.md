@@ -109,7 +109,7 @@
 - deterministic comparator order and complete reporting.
 
 ### II.F Replay Token Formulas (Authoritative)
-- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`.
+- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`.
 - `env_manifest_hash` is computed per `docs/layer1-foundation/Environment-Manifest.md` (alias `runtime_env_hash` must resolve to same bytes32).
 - `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))[0:16]`.
 - `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
@@ -123,7 +123,8 @@
   - `philox_key = [u32_le(epoch_seed[0:4]), u32_le(epoch_seed[4:8])]`.
   - `philox_counter_base = [u32_le(epoch_seed[8:12]), u32_le(epoch_seed[12:16]), 0, 0]`.
   - All `u32_le` conversions are little-endian, unsigned.
-  - Counter advancement is deterministic and tracked by `rng_offset_before/after`.
+- Counter advancement is deterministic and tracked by `rng_offset_before/after`.
+  - counter increment rule: each RNG draw increments the 128-bit counter by 1 (little-endian word carry propagation across four u32 words).
 - Required environment capture in replay token context:
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
@@ -146,7 +147,11 @@
 - `reduction_ordering: enum("ASCENDING_INDEX","ASCENDING_RANK_RING")`
 - `atomic_reductions_allowed: bool` (`false` required for E0)
 - `env_vars_fingerprint: bytes32`
+  - computed as `SHA-256(CBOR_CANONICAL(sorted([(name,value)])))` over determinism-critical environment allowlist:
+    - `CUBLAS_WORKSPACE_CONFIG`, `CUDA_VISIBLE_DEVICES`, `NCCL_ALGO`, `NCCL_PROTO`, `OMP_NUM_THREADS`, `PYTHONHASHSEED`.
 - `driver_versions: map<string,string>`
+- `determinism_class_map: map<string, enum("E0","E1","NON_COMPARABLE")>`:
+  - declares per-field comparator class used by `CompareTrace_v1`.
 - Tier binding:
   - `BITWISE`: fixed collective algorithm/chunk order/accumulation dtype-order and `atomic_reductions_allowed=false`.
   - `TOLERANCE`: explicit per-field tolerance bands and E1 comparator profile.

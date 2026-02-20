@@ -113,7 +113,8 @@
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Artifact commitment formulas:
   - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", image_digest, code_commit_hash, lockfile_hash, toolchain_hash]))`.
-  - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` uses pinned canonical SBOM export format.
+  - `image_digest` is the immutable OCI manifest digest (`sha256:<hex>`) resolved from registry manifest bytes.
+  - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` is canonical SPDX JSON (UTF-8, lexicographically sorted object keys, no insignificant whitespace).
 - Secrets and keys:
   - secret injection only through managed secret stores,
   - key rotation procedure and rotation audit record required before promotion.

@@ -1846,3 +1846,42 @@
   - Refreshed corresponding registry hashes.
 - Validation:
   - Hash alignment for `L2-004`, `L2-018`, `L2-020`: pass.
+
+---
+
+- Date: 2026-02-20
+- Action: Layer2 final ambiguity-closure pass (trace/cert/eval/tracking/replay/kernel).
+- Scope:
+  - `Trace-Sidecar.md`: made `operator_seq` assignment fully normative (per-step/per-rank reset and increment) and fixed cap-drop priority order list.
+  - `Execution-Certificate.md`: fixed deterministic time-anchor rule for verification (`verification_time_utc` governs all time-sensitive checks).
+  - `Evaluation-Harness.md`: formalized `aggregation_policy` schema and canonical `evidence_bundle_ref` payload structure.
+  - `Experiment-Tracking.md`: clarified metric aggregation semantics and tombstone visibility/retrievability behavior.
+  - `Model-Registry.md`: added deterministic `idempotency_key` formula.
+  - `ModelIR-Executor.md`: clarified gradient dependency derivation fallback and deterministic multi-contributor gradient accumulation order.
+  - `Monitoring-Policy.md`: added exact quantile cutpoint algorithm and baseline selection source (`baseline_ref` from policy state).
+  - `Replay-Determinism.md`: defined `env_vars_fingerprint` allowlist + canonical hashing rule.
+  - `Checkpoint-Schema.md`: added explicit Merkle construction for `checkpoint_merkle_root`.
+  - `Data-Lineage.md`: added concrete deterministic `dataset_root_hash` construction.
+  - `UML_OS-Kernel-v3.22-OS.md`: added explicit global termination co-check, `operator_seq` trace note, and required journal event field set.
+  - Refreshed registry hashes for touched records (`L2-002`, `L2-004`, `L2-008`, `L2-009`, `L2-010`, `L2-011`, `L2-012`, `L2-013`, `L2-015`, `L2-019`, `L2-020`).
+- Validation:
+  - Hash alignment for all touched records: pass.
+  - No unresolved stale path references in touched Layer2 files: pass.
+
+- Date: 2026-02-20
+- Scope: Layer2 cross-document determinism and wiring hardening pass (authz/checkpoint/config/lineage/nextbatch/dp/eval/cert/tracking/registry/modelir/monitor/replay/tmmu/trace/kernel).
+- Changes:
+  - closed remaining replay-token, hash-definition, alert-state, and algorithmic edge-case ambiguities;
+  - aligned operator semantics and deterministic formulas across affected specs;
+  - refreshed ecosystem registry hashes for all touched artifacts.
+- Validation: targeted hash parity checks passed for updated records.
+
+- Date: 2026-02-20
+- Scope: Layer2 determinism hardening (follow-up pass).
+- Changes:
+  - Added deterministic security/attestation/revocation schema constraints.
+  - Added checkpoint RNG state canonical serialization tuple.
+  - Clarified eval/infer `drop_last` behavior and monitoring transcript sort key.
+  - Tightened kernel deterministic collective, fingerprint-frequency, dataset-key defaults, journal/termination/state-transition semantics, and synchronous error trace emission before abort.
+  - Added deployment definitions for image digest and canonical SPDX SBOM hash input.
+- Validation: targeted hash parity checks completed for updated records.

@@ -107,6 +107,7 @@
   - `runtime_env_hash:bytes32`
   - `code_commit_hash:bytes32`
   - `lineage_root_hash:bytes32`
+  - `dp_enabled:bool`
   - `tensors_root_hash:bytes32`
   - `optimizer_state_root_hash:bytes32`
   - `rng_state_hash:bytes32`
@@ -136,10 +137,17 @@
   - `optimizer_manifest_hash = SHA-256(CBOR_CANONICAL(optimizer_manifest_cbor))`
   - `dp_accountant_manifest_hash = SHA-256(CBOR_CANONICAL(dp_accountant_manifest_cbor))`
   - `rng_state_hash = SHA-256(CBOR_CANONICAL(rng_state_cbor))`
+  - `rng_state_cbor` canonical schema (normative):
+    - `["rng_state_v1", key_u32_0, key_u32_1, ctr_u32_0, ctr_u32_1, ctr_u32_2, ctr_u32_3]`
+    - where key is Philox key `[u32;2]` and counter is `[u32;4]` in little-endian logical word order.
   - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors_cbor))`
   - `checkpoint_hash = checkpoint_manifest_hash`
   - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
+  - `checkpoint_merkle_root` construction over shard payloads:
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))` with shards ordered by `shard_path`,
+    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", left, right]))`,
+    - odd-leaf rule duplicates the last leaf.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
 - Migration controls:
@@ -174,9 +182,10 @@
 
 ### II.H Partial Restore Matrix (Normative)
 - Training restore requires: model params, optimizer state, RNG states, data cursors, TMMU plan.
-- If `dp_enabled=true` in committed manifest/config, DP accountant state is additionally required; if `dp_enabled=false`, DP accountant fields must be absent (not null).
+- If `dp_enabled=true` in checkpoint header and committed manifest/config, DP accountant state is additionally required; if `dp_enabled=false`, DP accountant fields must be absent (not null).
 - Eval/infer partial restore may use: model params + minimal runtime config.
 - Any partial restore must emit `restore_profile_id` and trace record.
+- Restore precondition: manifest DP enablement MUST match checkpoint `dp_enabled`; mismatch is deterministic failure.
 
 ### II.I Trace-Link Integrity (Normative)
 - Checkpoint header must store:

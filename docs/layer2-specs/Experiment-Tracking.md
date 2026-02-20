@@ -98,6 +98,7 @@
   - `tenant_id:string`, `run_id:string`, `replay_token:bytes32`, `manifest_hash:bytes32`, `trace_final_hash:bytes32`, `checkpoint_hash:bytes32`, `execution_certificate_hash:bytes32`, `status:string`, `created_at:string`, `ended_at?:string`.
 - `MetricRecord` (CBOR map):
   - `tenant_id:string`, `run_id:string`, `metric_name:string`, `metric_value:float64`, `metric_step:uint64`, `aggregation:enum(raw|sum|mean|min|max|quantile)`, `quantile_p?:float64`, `window_id?:string`, `recorded_at:string`.
+  - semantics: each metric record stores one scalar observation; `aggregation` denotes producer-side semantic label and does not trigger query-time aggregation by itself.
 - `ArtifactRecord` (CBOR map):
   - `tenant_id:string`, `run_id:string`, `artifact_id:string`, `artifact_digest:digest_ref`, `artifact_size_bytes:uint64`, `storage_locator:string`, `artifact_class:string`, `created_at:string`, `tombstoned_at?:string`.
 - Record hash rule:
@@ -115,6 +116,9 @@
   - sorted by `artifact_id`,
   - Merkle odd-leaf rule duplicates the last leaf.
 - Idempotency rule: repeated `ArtifactPut_v1` with identical `(run_id, artifact_id)` must return the existing record deterministically.
+- `tracking_store_hash` definition (normative):
+  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", run_record_hash, metric_stream_hash, artifact_index_hash]))`,
+  - `metric_stream_hash` is computed as a deterministic hash-chain over `MetricRecord` hashes sorted by `(metric_step, metric_name, recorded_at, record_hash)`.
 
 ---
 ## 3) Initialization
@@ -192,7 +196,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Signature:** `(run_id, artifact_id, reason -> tombstone_id)`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** appends immutable tombstone metadata; physical deletion is deferred to retention policy.
+**Definition:** appends immutable tombstone metadata; physical deletion is deferred to retention policy. Tombstoned artifacts remain retrievable by `artifact_id` for audit/replay, and are marked as deleted in listing views.
 
 ---
 ## 6) Procedure

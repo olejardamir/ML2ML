@@ -30,6 +30,7 @@
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
 - Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`
 - `noise_seed_per_step: bool` (default `false`); when true, counter derivation is `counter = t * 2^40 + param_index_hash`
+  - `param_index_hash` is the lower 40 bits of `U64_BE(SHA-256(CBOR_CANONICAL(["dp_param_v1", param_fqn])))`.
 
 ### 0.C Numeric Policy
 - Critical arithmetic (norms, clipping scales, means, sigma schedules/maps, accountant state): IEEE-754 binary64
@@ -230,6 +231,7 @@
   - PLD path is allowed as primary implementation only when configured discretization/truncation error bound is declared and included in trace.
 - Step composition: accountant composes optimizer steps in deterministic order; `(epsilon, delta)` reported from accountant conversion per optimizer step.
 - Ghost clipping: when enabled, accountant input uses `sampling_rate' = min(1.0, accounting_adjustment_factor * sampling_rate)` and requires audited bound artifact in regulated mode.
+- zero-sensitivity rule: groups with sensitivity `0` MUST set `sigma_g=0`, `stddev_g=0`, and contribute zero privacy cost in accountant updates.
 
 ### II.G Subsampling/Accounting Alignment (Normative)
 - `subsampling` must be one of `POISSON`, `SHUFFLE_WITHOUT_REPLACEMENT`, or `NONE`.

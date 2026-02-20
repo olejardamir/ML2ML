@@ -133,6 +133,8 @@ Normative checks in `MODULAR` mode:
 - `schema_extensions[ext_id].owner == manifest.extensions[ext_id].owner`
 - `manifest.extensions[ext_id].version` must satisfy `version_range`
 - two extensions cannot claim overlapping `root_prefix` (`FAIL`)
+- `version_range` is interpreted using SemVer 2.0.0 comparison rules (deterministic parser; prerelease ordering per SemVer spec).
+- extension signature validation must use `signing_key_id` resolved from trust-store metadata with validity-window and revocation checks at manifest creation time.
 
 ### II.H Field Access Rule (Normative)
 - Define `MANIFEST_FIELD_ACCESS_SET`: exact set of manifest key paths referenced by kernel, executor, sampler, DP, checkpoint, trace, backend adapter, and deployment operators.

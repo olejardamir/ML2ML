@@ -126,15 +126,18 @@
   - `revocation_bundle_hash` (canonical hash of either online capture bundle or pinned offline bundle),
   - `attestation_bundle_hash`.
 - Normative evidence schemas:
-  - `TrustStore` CBOR map:
+- `TrustStore` CBOR map:
     - `trust_roots: array<bytes>`, `version:string`, `issuer_policies_hash:bytes32`.
-  - `RevocationBundle` CBOR map:
+    - `trust_roots` MUST be sorted lexicographically by raw byte value.
+- `RevocationBundle` CBOR map:
     - `mode`, `ocsp_responses?:array<bytes>`, `crl_blobs?:array<bytes>`, `fetch_metadata_hash:bytes32`, `source_timestamps:array<string>`.
-  - `AttestationBundle` CBOR map:
+    - `ocsp_responses`, `crl_blobs`, and `source_timestamps` MUST be sorted deterministically by bytewise lexicographic order.
+- `AttestationBundle` CBOR map:
     - `tee_type:string`, `measurements_hash:bytes32`, `quote_blob:bytes`, `verification_report_hash:bytes32`, `tcb_version:string`.
     - `attestation_quote_hash = SHA-256(quote_blob)` is a component hash; certificate binding is authoritative on `attestation_bundle_hash` (and may additionally include `attestation_quote_hash`).
   - Hash rule for each bundle:
     - `*_hash = SHA-256(CBOR_CANONICAL(bundle_map))`.
+  - `ONLINE_CAPTURE` revocation mode requires that OCSP/CRL artifacts are captured at signing time and bound into `revocation_bundle_hash`; verifiers MUST use this captured bundle for verdict evaluation.
 - Verification verdict determinism claim is scoped to identical evidence bundles and `policy_bundle_hash`.
 - Time-policy rule:
   - if verification time affects verdict, it must be frozen as an explicit declared input and included in signed evidence;
@@ -177,6 +180,7 @@ Template conformance note (III.A): each operator definition in this section is i
 **Purity class:** STATEFUL  
 **Determinism:** deterministic protocol path  
 **Definition:** collects and validates TEE quote.
+Validation is deterministic against policy-declared expected measurements (`expected_measurements_hash`) and pinned verifier trust roots; mismatch aborts with `ATTESTATION_FAILURE`.
 
 **Operator:** `UML_OS.Security.VerifyCertificate_v1`  
 **Category:** Security  
