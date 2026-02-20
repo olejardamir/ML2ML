@@ -111,6 +111,7 @@
   - authorization decision hash:
     - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
     - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+    - definitions and canonical field semantics are normative as specified in `docs/layer2-specs/AuthZ-Capability-Matrix.md` section II.G.
   - denied authorization decisions must be recorded as deterministic trace events and included in certificate evidence binding.
 - Registry governance roles:
   - `registry_approver`, `registry_publisher`, `registry_auditor` (least-privilege RBAC mandatory).
@@ -134,6 +135,7 @@
     - `ocsp_responses`, `crl_blobs`, and `source_timestamps` MUST be sorted deterministically by bytewise lexicographic order.
 - `AttestationBundle` CBOR map:
     - `tee_type:string`, `measurements_hash:bytes32`, `quote_blob:bytes`, `verification_report_hash:bytes32`, `tcb_version:string`.
+    - `measurements_hash` computation (normative): `SHA-256(CBOR_CANONICAL(["measurements_v1", pcr_values_sorted_by_index]))`.
     - `attestation_quote_hash = SHA-256(quote_blob)` is a component hash; certificate binding is authoritative on `attestation_bundle_hash` (and may additionally include `attestation_quote_hash`).
   - Hash rule for each bundle:
     - `*_hash = SHA-256(CBOR_CANONICAL(bundle_map))`.
@@ -142,8 +144,11 @@
 - Time-policy rule:
   - if verification time affects verdict, it must be frozen as an explicit declared input and included in signed evidence;
   - otherwise verification time is informational only and excluded from deterministic verdict computation.
+  - canonical timestamp format for verification-related fields (including `verification_time_utc` and revocation `source_timestamps`) is UTC ISO 8601 without fractional seconds: `YYYY-MM-DDTHH:MM:SSZ`.
 - Regulated-mode trace redaction binding:
   - certificate signed payload must include `redaction_policy_hash` and `redaction_key_id` when `redaction_mode != NONE`.
+  - `redaction_key_id` definition (normative): UTF-8 string key identifier that uniquely resolves to the HMAC redaction key material in the active trust/key store.
+  - presence rule: `redaction_key_id` is required when `redaction_mode != NONE` and must be absent when `redaction_mode == NONE`.
   - field-level transformation rules must conform to `docs/layer1-foundation/Redaction-Policy.md`.
 
 ---

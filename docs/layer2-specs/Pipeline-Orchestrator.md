@@ -76,12 +76,14 @@
 - job manifest, priority, policy constraints.
 - lease policy (`lease_ttl_ticks`, `max_retries`).
 - transition controls: `attempt_id`, `transition_seq:uint64`, `backoff_schedule_id`.
+  - `attempt_id` is `uint64`, starts at `0` for the initial attempt, and increments by `1` for each retry attempt of the same `job_id`.
 - resource quota policy (`gpu_time_budget_ms`, `cpu_time_budget_ms`, `io_bytes_budget`, `memory_bytes_budget`).
 ### I.C Constraints and Feasible Set
 - allowed transitions:
   - `QUEUED -> RUNNING`
+  - `QUEUED -> CANCELED`
   - `RUNNING -> SUCCEEDED|FAILED|CANCELED|RETRYING`
-  - `RETRYING -> QUEUED`
+  - `RETRYING -> QUEUED|FAILED`
 - Multi-scheduler determinism:
   - single authoritative scheduler per queue partition,
   - deterministic partitioning rule: `partition_id = SHA-256(job_id) mod P`,
@@ -116,8 +118,9 @@
 - Terminal states: `SUCCEEDED`, `FAILED`, `CANCELED`.
 - Allowed transitions:
   - `QUEUED -> RUNNING`
+  - `QUEUED -> CANCELED`
   - `RUNNING -> SUCCEEDED | FAILED | CANCELED | RETRYING`
-  - `RETRYING -> QUEUED`
+  - `RETRYING -> QUEUED | FAILED` (when retry budget exhausted)
 - Any other transition is deterministic `CONTRACT_VIOLATION`.
 
 ---
@@ -149,7 +152,8 @@
 **Signature:** `(tenant_id, job_id, attempt_id, expected_transition_seq, from_state, to_state, evidence_ref -> transition_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** validates transition against state machine and writes signed transition record atomically; accepted iff stored `transition_seq == expected_transition_seq`, then increments sequence.
+**Definition:** validates transition against state machine and writes signed transition record atomically; accepted iff stored `transition_seq == expected_transition_seq`, then increments sequence. If `from_state=="RETRYING"` and retry budget is exhausted, only `to_state=="FAILED"` is allowed.
+`evidence_ref` format (normative): nullable `bytes32` hash of canonical transition evidence payload (`null` allowed for transitions that require no external evidence).
 
 **Operator:** `UML_OS.Pipeline.JobHeartbeat_v1`
 **Category:** Orchestration
@@ -157,6 +161,7 @@
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** extends lease if `lease_id` matches active running attempt.
+`tick` semantics (normative): monotonically increasing `uint64` logical progress counter for the running attempt (for example, step counter or deterministic heartbeat sequence).
 
 **Operator:** `UML_OS.Pipeline.JobCancel_v1`  
 **Category:** Orchestration  

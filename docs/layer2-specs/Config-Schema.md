@@ -90,16 +90,29 @@
 - `schema_mode: enum("AUTHORITATIVE","MODULAR")` (default `AUTHORITATIVE`).
 - Required top-level fields:
   - `spec_version:string`
+  - `tenant_id:string`
   - `seed:uint64`
   - `global_batch_size:uint64 (>=1)`
+  - `datasets:object`
+  - `environment:object`
   - `pipeline_stages:array<object>`
   - `model:object`
   - `security:object`
   - `policy_bundle:object`
+- Optional top-level fields:
+  - `quota:object` with optional numeric fields:
+    - `memory_bytes_budget:uint64`
+    - `gpu_time_ms_budget:uint64`
+    - `cpu_time_ms_budget:uint64`
+    - `io_bytes_budget:uint64`
 - Required `security.differential_privacy` fields when enabled:
   - `enabled:bool`, `accountant:string`, `target_epsilon:float64`, `target_delta:float64`, `noise_multiplier:float64`.
 - Required `pipeline_stages[i]` fields:
   - `step_id:string`, `type:enum(train|eval|infer|augment)`, `depends_on:array<string>`.
+- Pipeline-stage validation rules (normative):
+  - `step_id` values MUST be unique within the manifest.
+  - every `depends_on` entry MUST reference an existing `step_id`.
+  - forward-order requirement: each dependency MUST reference a stage declared earlier in the array; otherwise validation fails with deterministic `CONTRACT_VIOLATION`.
 - Unknown keys policy:
   - In `AUTHORITATIVE` mode: unknown key paths are fatal (`CONTRACT_VIOLATION`).
   - In `MODULAR` mode: unknown keys allowed only under registered extension roots and only when ownership/version checks in II.G pass.
@@ -116,9 +129,20 @@
   - `policy_bundle.redaction_policy_hash?:bytes32`
   - `environment.env_manifest_hash:bytes32` (as defined in `docs/layer1-foundation/Environment-Manifest.md`; alias `runtime_env_hash` must resolve identically)
 
+### II.F.2 Kernel Manifest Alignment (Normative)
+- To preserve cross-file consistency with `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` section `0.Q`, the following top-level manifest fields are recognized by this schema (required/optional as noted):
+  - required: `task_type`, `execution_mode`, `datasets`, `pipeline_stages`, `model`, `security`, `optimizer`, `compute_dtype`, `environment`.
+  - optional: `alpha`, `fingerprint_frequency`, `grad_clip_norm`, `checkpoint_frequency`, `job_priority`, `policy.rules`, `data`, `custom_operators`, `parallelism`, `manifest_inheritance`, `hardware_affinity`, `profile`, `backend`, `resource_requests`, `quota`, `rbac`, `storage`, `monitoring_export`, `rbac_source`, `daemon_mode`, `distributed`, `fine_tune`, `evaluation`.
+- `environment` object alignment:
+  - required field: `env_manifest_hash:bytes32`,
+  - optional fields: `requirements_hash:string`, `container_image:string`.
+
 ### II.F.1 Policy Bundle Commitment (Normative)
 - `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]))`.
 - `policy_hash` references in other contracts are aliases of `policy_bundle_hash` and must resolve to the same bytes32 value.
+- Presence rule:
+  - if `policy_bundle_hash` is present and individual component hashes are also present, they MUST match the `policy_bundle_v1` decomposition exactly;
+  - if only `policy_bundle_hash` is present, verifiers treat it as an opaque commitment identifier.
 
 ### II.G Extension Registry (Normative)
 | ext_id | root_prefix | owner_org | signing_key_id | version_range | conflict_policy |
@@ -161,7 +185,6 @@ Normative checks in `MODULAR` mode:
 | `backend.determinism_profile_id` | `gpu_determinism_v1` |
 | `tracking.store_uri` | `cas://tracking/default` |
 | `tracking.retention_days` | `90` |
-| `tracking.tenant_id` | `default_tenant` |
 | `security.trust_mode` | `SOFTWARE_ONLY` |
 
 ### II.J Deterministic Migration Framework (Normative)
@@ -200,7 +223,10 @@ Template conformance note (III.A): each operator definition in this section is i
 **Signature:** `(manifest, schema -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** checks required keys and nested objects.
+**Definition:** checks required keys and nested objects, including pipeline structural constraints:
+  - unique `pipeline_stages[].step_id`,
+  - every `depends_on` reference exists,
+  - each dependency references an earlier stage index.
 
 **Operator:** `UML_OS.Config.ValidateTypes_v1`  
 **Category:** IO  
@@ -222,6 +248,13 @@ Template conformance note (III.A): each operator definition in this section is i
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** fills defaults and produces canonical ordering.
+
+**Operator:** `UML_OS.Config.ManifestMigrate_v1`
+**Category:** IO
+**Signature:** `(manifest, from_version, to_version -> migrated_manifest)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** migrates manifest schema deterministically between declared compatible versions while preserving logical semantics.
 
 ---
 ## 6) Procedure

@@ -139,6 +139,7 @@
 - `loss_outputs: array<(node_id, output_idx)>` (required in backward mode)
 - `seed_rule: "UNIT_SCALAR" | "PROVIDED_GRADIENTS"`
 - `tmmu_context`
+- `arena_config` (deterministic memory arena configuration passed to TMMU)
 - `rng_state` (kernel-provided deterministic RNG stream state)
 
 ### I.C Constraints and Feasible Set
@@ -180,7 +181,7 @@
 3. **if mode == "backward":**
    - **`backward_order, reverse_equivalent_flag ← UML_OS.Model.BuildGradDependencyOrder_v1(ir_dag, execution_order)`**
    - **if `reverse_equivalent_flag == 1`: `execution_order ← reversed(execution_order)` else `execution_order ← backward_order`**
-4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
+4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode, arena_config)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
 
 ---
 
@@ -239,7 +240,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Signature:** `(ir_dag, forward_execution_order -> backward_execution_order: node[], reverse_equivalent_flag: {0,1})`
 **Purity class:** PURE
 **Determinism:** deterministic
-**Definition:** Builds a topological order over explicit gradient dependency graph (`grad_edges`, or default reverse forward-order edges when `grad_edges` absent). Returns whether `reversed(forward_execution_order)` is exactly equivalent for this IR.
+**Definition:** Builds a topological order over explicit gradient dependency graph (`grad_edges`, or default reverse forward-order edges when `grad_edges` absent). `reverse_equivalent_flag` is `1` only when `reversed(forward_execution_order)` is a valid topological order for the gradient dependency graph; otherwise `0` and `backward_execution_order` MUST be used.
 
 **Operator:** `UML_OS.Model.DispatchPrimitive_v1`  
 **Category:** Model  
@@ -248,6 +249,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Determinism:** deterministic (driver contract)  
 **Definition:** Resolves input handles, dispatches driver primitive for `node.instr` **(fwd or grad variant based on mode)**, writes output to TMMU-allocated slot, validates shapes, and forwards a deterministic RNG sub-stream for primitives/custom ops that declare randomness.
 Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invocation`); if zero, `rng_state_next == rng_state`.
+`tmmu_context` is an opaque runtime handle provided by the TMMU layer for deterministic memory access/slot resolution.
 **Preconditions / Postconditions:** all input handles exist; output handle written with validated shape/dtype; RNG state advanced only by declared primitive RNG consumption.  
 **Edge cases:** unsupported primitive, custom op fallback, zero-size tensors.  
 **Numerical considerations:** primitive-specific binary64 critical paths enforced by driver contract.  
@@ -259,7 +261,7 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
 
 **Operator:** `UML_OS.Model.CollectGradients_v1`  
 **Category:** Model  
-**Signature:** `(tensor_map, ir_dag, theta → grads: tensor_map)`  
+**Signature:** `(tensor_map, ir_dag -> grads: tensor_map)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** After backward pass, aggregates all parameter gradients (from dedicated grad slots or accumulated in-place) into a clean grads dict. When multiple contributors exist, accumulation order is deterministic by `producer_node_id` ascending using binary64 compensated summation.
@@ -274,7 +276,7 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
 
 **Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
 **Category:** Memory  
-**Signature:** `(ir_dag, execution_order, mode → tensor_map)`  
+**Signature:** `(ir_dag, execution_order, mode, arena_config -> tensor_map)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** Performs static liveness analysis on IR; delegates virtual addressing to the versioned TMMU allocation contract; zeros all tensors; prepares reuse schedule. **Mode-aware: reserves extra slots for activations only when backward is requested.**
@@ -321,14 +323,14 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
            execution_order <- reversed(execution_order)
        else:
            execution_order <- backward_order
-4. tensor_map ← TMMU.PrepareMemory_v2(ir_dag, execution_order, mode)  # static liveness + zeroing + slot reuse (mode-aware)
+4. tensor_map ← TMMU.PrepareMemory_v2(ir_dag, execution_order, mode, arena_config)  # static liveness + zeroing + slot reuse (mode-aware)
 
 5. rng_state_work <- rng_state
 6. for node in execution_order:
        tensor_map, rng_state_work <- DispatchPrimitive_v1(node, tensor_map, theta, mode, tmmu_context, rng_state_work)
 
 7. if mode == "backward":
-       grads ← CollectGradients_v1(tensor_map, ir_dag, theta)  # now explicitly defined operator
+       grads ← CollectGradients_v1(tensor_map, ir_dag)  # now explicitly defined operator
 
 8. outputs ← extract_output_nodes(tensor_map, ir_dag)
 9. execution_fp ← UML_OS.Fingerprint.StateFingerprint_v1(tensor_map)  # critical tensors only

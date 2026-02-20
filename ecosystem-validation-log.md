@@ -1919,3 +1919,239 @@
   - `Execution-Certificate.md`: added signed `signature_algorithm` and `valid_until_utc`; verifier enforces expiry; Sign_v1 clarified for HSM/KMS key refs with deterministic signing behavior.
   - `Run-Commit-WAL.md`: added record framing integrity (`record_length_u32`, `record_crc32c`) and recovery validation for checksum/torn writes.
 - Validation: refreshed registry hashes for `L2-002`, `L2-009`, `L2-015`, `L2-016`, `L2-020`.
+
+- Date: 2026-02-20
+- Scope: Seventh-pass targeted correctness fixes (authz/data/tracking/wal/kernel-dp alignment).
+- Changes:
+  - `AuthZ-Capability-Matrix.md`: constrained `tenant_id` to disallow `/` so `principal_id = tenant_id/principal_local_id` parsing is unambiguous.
+  - `Data-NextBatch.md`: added normative validation guard to reject `train && drop_last && global_batch_size > N`; added lint rule for the same.
+  - `Experiment-Tracking.md`: removed wall-clock `recorded_at` from `metric_stream_hash` ordering key to preserve determinism.
+  - `Run-Commit-WAL.md`: specified little-endian encoding for `record_length_u32` and `record_crc32c`; fixed CRC to CRC-32C Castagnoli.
+  - `UML_OS-Kernel-v3.22-OS.md`: aligned DP call path with micro-batch semantics (deterministic micro-batch split, per-micro forward/backward sequence passed to `DifferentialPrivacy.Apply_v3`), and clarified Journal vs commit WAL roles.
+  - `DifferentialPrivacy-Apply.md`: clarified `Apply_v3` input is deterministic micro-batch gradient sequence (not pre-aggregated full batch gradient).
+- Validation: refreshed registry hashes for `L2-001`, `L2-005`, `L2-007`, `L2-010`, `L2-016`, `L2-020`.
+
+- Date: 2026-02-20
+- Scope: Additional cross-platform determinism and metadata-completeness fixes.
+- Changes:
+  - `Checkpoint-Schema.md`: added normative shard path normalization (POSIX relative paths; no dot segments/redundant separators).
+  - `Data-Lineage.md`: strengthened `dataset_root_hash` file-path normalization to explicit POSIX canonicalization before sorting/hashing.
+  - `DifferentialPrivacy-Apply.md`: added `pld_discretization_bins` and `pld_truncation_bound` to DP config schema with defaults and config-hash inclusion requirement when PLD is selected.
+  - `Execution-Certificate.md`: added canonical timestamp format requirement for `verification_time_utc` and `valid_until_utc` (`YYYY-MM-DDTHH:MM:SSZ`).
+  - `Run-Commit-WAL.md`: clarified CRC spec as CRC-32C Castagnoli per RFC 3720 (LE framing already normative).
+  - `Security-Compliance-Profile.md`: added canonical verification timestamp format requirement.
+  - `Pipeline-Orchestrator.md`: defined `attempt_id` semantics (`uint64`, starts at 0, increments per retry).
+- Validation: refreshed registry hashes for `L2-002`, `L2-004`, `L2-007`, `L2-009`, `L2-014`, `L2-016`, `L2-017`.
+
+- Date: 2026-02-20
+- Scope: Additional cross-file determinism/completeness pass (post-review).
+- Changes:
+  - `Checkpoint-Schema.md` + `Trace-Sidecar.md`: renamed checkpoint trace commitment field to `trace_snapshot_hash` and aligned schema references.
+  - `Config-Schema.md`: removed risky default `tracking.tenant_id`; added required top-level `tenant_id`.
+  - `Data-Lineage.md`: added normative `object_type`/`object_id` domain definitions for lineage commitments.
+  - `Deployment-Runbook.md`: tied `replay_determinism_failures` gate metric to replay comparator contract (`Replay-Determinism.md`).
+  - `DifferentialPrivacy-Apply.md`: removed unsupported `POISSON` subsampling mode; specified deterministic adaptive clipping update formula and fixed `delta_eps`; added normative `dp_accountant_state_hash` definition.
+  - `Evaluation-Harness.md`: defined `eval_report_hash = SHA-256(CBOR_CANONICAL(eval_report))`.
+  - `Execution-Certificate.md`: clarified inclusive semantics of `step_start`/`step_end`; linked `dp_accountant_state_hash` to DP canonical hash definition.
+  - `Experiment-Tracking.md`: added missing `run_record_hash` definition.
+  - `Monitoring-Policy.md` + `Error-Codes.md`: defined deterministic failure behavior/code for missing baseline (`BASELINE_MISSING`).
+  - `Pipeline-Orchestrator.md`: expanded state machine with `QUEUED->CANCELED` and `RETRYING->FAILED`; added retry-budget precondition in `JobTransition_v1`.
+  - `Replay-Determinism.md`: clarified env var fingerprint inclusion as set-only variables sorted by name.
+  - `Security-Compliance-Profile.md`: added deterministic `measurements_hash` computation rule.
+  - `TMMU-Allocation.md`: defined `tensor_intervals_sorted` deterministically by `tensor_id`.
+  - `UML_OS-Kernel-v3.22-OS.md`: strengthened `world_size_override` semantics and deterministic stage-manifest merge constraints; linked quota schema authority to orchestrator contract.
+  - `Data-Structures.md`: aligned shared trace schema field to `trace_snapshot_hash`.
+- Validation: refreshed `ecosystem-registry.yaml` hashes for all currently modified docs and rechecked parity.
+
+## 2026-02-20 — Pass 7/8 Determinism Completeness Patch Set
+- Scope:
+  - Applied remaining cross-file determinism/contract-completeness fixes from latest review notes.
+- Layer2 spec updates:
+  - `AuthZ-Capability-Matrix.md`: constrained `principal_id` components to UTF-8 and max 1024-byte composed length.
+  - `Checkpoint-Schema.md`: added explicit lineage consistency rule for checkpoint-scoped lineage recomputation.
+  - `Config-Schema.md`: clarified policy bundle presence/decomposition semantics.
+  - `Data-Lineage.md`: required explicit `seq:uint64` for transform ordering.
+  - `Data-NextBatch.md`: fixed UTF-8 encoding rule for mode strings used in sampler hashing.
+  - `Deployment-Runbook.md`: defined `rollout_success_rate` formula.
+  - `DifferentialPrivacy-Apply.md`: defined `accountant_hint` derivation and `fused_cfg` derivation from `resolved_cfg`.
+  - `Evaluation-Harness.md`: defined E0 vs E1 enforcement behavior.
+  - `Execution-Certificate.md`: clarified `authz_decision_hash` provenance linkage to trace/audit context.
+  - `Experiment-Tracking.md`: added `tombstone_reason` to artifact record schema and hash commitment.
+  - `Monitoring-Policy.md`: deterministic handling for non-unique quantile cutpoints / low distinct-value baselines.
+  - `Pipeline-Orchestrator.md`: defined `evidence_ref` as canonical `bytes32` evidence hash.
+  - `Replay-Determinism.md`: added explicit E1 absolute/relative tolerance comparator formula.
+  - `Security-Compliance-Profile.md`: added explicit normative reference to AuthZ hash definitions.
+  - `UML_OS-Kernel-v3.22-OS.md`: added top-level `quota` manifest object and explicit `NamespaceEnter_v1` path-resolution dependency.
+  - `ModelIR-Executor.md`: clarified `tmmu_context` as opaque handle; corrected `CollectGradients_v1` signature/call.
+- Layer1 alignment updates:
+  - Hash registry synced for modified Layer1 docs affected by this pass.
+- Registry maintenance:
+  - Updated `ecosystem-registry.yaml` `SHA256Hash`/`PreviousSHA256` for all currently modified `docs/*` entries.
+
+## 2026-02-20 — Final Determinism Corrections (AuthZ/Config/Eval/Kernel)
+- Applied final reproducibility fixes:
+  - `AuthZ-Capability-Matrix.md`: `granted_capabilities` duplicate prohibition before hashing.
+  - `Config-Schema.md`: pipeline validation now requires unique `step_id`, valid `depends_on`, and forward dependency ordering.
+  - `Evaluation-Harness.md`: quantile aggregation method fixed to nearest-rank (`k=floor(p*(n-1))`).
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - `Termination.Check_v1` explicitly marks wall-time limits as non-E0/E1 reproducible.
+    - `State.Journal_v1` signature/definition aligned with loop usage: raw objects are accepted and hashed internally; canonical event shape updated.
+    - main loop journal call updated to pass explicit arguments matching revised signature.
+- Registry maintenance:
+  - Re-synced hash chain entries in `ecosystem-registry.yaml` for modified docs in this pass.
+
+## 2026-02-20 — Remaining Determinism/Completeness Fixes
+- Applied additional cross-file deterministic-contract fixes:
+  - `AuthZ-Capability-Matrix.md`: defined canonical capability matrix structure and `capability_matrix_hash` derivation.
+  - `Checkpoint-Schema.md`: defined empty-shard Merkle root (`SHA-256(CBOR_CANONICAL([]))`).
+  - `Config-Schema.md`: `ValidateRequiredFields_v1` now normatively enforces pipeline stage uniqueness/dependency validity/order.
+  - `Data-NextBatch.md`: added distributed sizing guard `global_batch_size >= world_size` when `world_size > 1`.
+  - `Deployment-Runbook.md`: threshold comparisons now explicitly use `<= threshold + EPS_EQ`.
+  - `DifferentialPrivacy-Apply.md`: aligned accountant signatures with procedure call (`subsampling`, `amplification_factor?`, `delta_eps?`) and dispatcher behavior.
+  - `Execution-Certificate.md`: added zero-step convention (`step_start=0`, `step_end=0`).
+  - `Monitoring-Policy.md`: fixed concrete constants for `binning_rule` and `nan_rule` used in `drift_algorithm_hash`.
+  - `Pipeline-Orchestrator.md`: defined `tick` semantics for `JobHeartbeat_v1`.
+  - `ModelIR-Executor.md`: aligned `PrepareMemory_v2` usage/signature with `arena_config` requirement.
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - replaced pre-sign certificate verification call with `UML_OS.Certificate.EvidenceValidate_v1`,
+    - added deterministic stage merge operator (`UML_OS.Config.DeterministicStageMerge_v1`) with explicit override constraints,
+    - replaced undefined checkpoint barrier helper with `UML_OS.Distributed.Barrier_v1`,
+    - added explicit resource ledger schema/update rule.
+- Registry maintenance:
+  - Re-synced `ecosystem-registry.yaml` hash chain entries for all docs modified in this pass.
+
+## 2026-02-20 — Consistency Closeout Patch (Hash Naming / Migration / DP Seed / Kernel)
+- Applied final cross-file consistency updates:
+  - `Checkpoint-Schema.md`: standardized commit-pointer naming to `certificate_hash` (replacing `execution_certificate_hash`) and added explicit `source_hash`/`target_hash` semantics in migration certificate section.
+  - `Run-Commit-WAL.md` and `Deployment-Runbook.md`: aligned COMMITTED pointer payload naming to `certificate_hash`.
+  - `Execution-Certificate.md`: added explicit `certificate_hash = SHA-256(certificate_cbor)` definition.
+  - `Config-Schema.md`: added missing `UML_OS.Config.ManifestMigrate_v1` operator definition.
+  - `DifferentialPrivacy-Apply.md`: updated `noise_seed_per_step` counter derivation to 128-bit arithmetic; added explicit `norm_history_state` persistent-state definition.
+  - `Pipeline-Orchestrator.md`: clarified `evidence_ref` is nullable `bytes32` for transitions that require no evidence.
+  - `UML_OS-Kernel-v3.22-OS.md`: normalized `Distributed.Barrier_v1` signature to `() -> ok`, updated checkpoint barrier call accordingly, and added journal storage-location note.
+- Previously requested items confirmed already present and unchanged where already compliant:
+  - capability matrix canonical hash structure,
+  - transform `seq` ordering in data lineage,
+  - accountant signatures including subsampling/amplification,
+  - stage merge/evidence validation operators,
+  - resource ledger schema and deterministic update rule.
+- Registry maintenance:
+  - Re-synced `ecosystem-registry.yaml` hash chain entries for all modified docs.
+
+## 2026-02-20 — Residual Clarifications Pass
+- Added remaining deterministic clarifications and cross-file consistency updates:
+  - `AuthZ-Capability-Matrix.md`: explicit `authz_policy_hash` definition.
+  - `Checkpoint-Schema.md`: explicit `checkpoint_header_cbor` self-exclusion semantics and added `UML_OS.Checkpoint.Migrate_v1` operator definition.
+  - `Data-Lineage.md`: defined deterministic split derivation algorithm and explicit `payload` semantics in lineage object hash.
+  - `Deployment-Runbook.md`: defined `metrics_snapshot_hash = SHA-256(CBOR_CANONICAL(metrics_snapshot_map))`.
+  - `DifferentialPrivacy-Apply.md`: deterministic `AmplificationByShuffling_v1` behavior clarified (default conservative factor + policy-bound audited override).
+  - `UML_OS-Kernel-v3.22-OS.md`: added `grad_edges` to UML_Model_IR schema and aligned `Backward_v1` call sites to `(L_tot, theta, ir_graph)` signature.
+- Registry maintenance:
+  - Re-synced `ecosystem-registry.yaml` hash chain entries for docs updated in this pass.
+
+## 2026-02-20 — Residual Closeout + Registry Resync
+- Applied residual determinism clarifications from final review pass:
+  - `AuthZ-Capability-Matrix.md`: added explicit `DENY_TENANT_SCOPE` semantics text.
+  - `Data-NextBatch.md`: added strict `sampler_block_size > 0` validation and runtime guard for zero.
+  - `Execution-Certificate.md`: defined `policy_gate_hash` meaning as canonical policy-transcript commitment.
+  - `ModelIR-Executor.md`: tightened `reverse_equivalent_flag` contract so reverse-forward is used only when it is a valid gradient-topology order.
+  - `TMMU-Allocation.md`: clarified default `slot_alignment_map` behavior (falls back to arena alignment).
+  - `UML_OS-Kernel-v3.22-OS.md`: defined `probe_outputs_bytes` as canonical CBOR serialization in deterministic probe order.
+- Registry maintenance:
+  - Re-synced `ecosystem-registry.yaml` hash chain entries for all currently modified governed docs and `AUX-LOG-001`.
+  - Also corrected one pre-existing stale registry digest for `L4-042` (`docs/layer4-implementation/EQC-CI-Policy.md`) to restore full parity.
+- Validation:
+  - Executed full registry/file digest parity check and confirmed `REGISTRY_PARITY_OK`.
+
+## 2026-02-20 — Final Determinism Gap Closure (Splits/DP/Replay/Roots)
+- Scope: closed remaining subtle determinism/spec-completeness gaps from latest review.
+- Changes:
+  - `Data-Lineage.md`: replaced ambiguous “natural order” with canonical multi-file dataset ordering (normalized POSIX path order + in-file physical record order), deterministic seeded shuffle note, and split-fractions sum validation (`abs(sum-1.0) <= EPS_EQ`).
+  - `DifferentialPrivacy-Apply.md`: defined deterministic default formula for `AmplificationByShuffling_v1` with conservative fallback and policy-bound stricter override.
+  - `Monitoring-Policy.md`: formalized alert state machine transitions (`OPEN->ACKNOWLEDGED->RESOLVED`), terminal `RESOLVED`, and deterministic invalid-transition failure.
+  - `Checkpoint-Schema.md`: defined normative derivation formulas for `tensors_root_hash` and `optimizer_state_root_hash` from filtered shard-leaf sets.
+  - `Experiment-Tracking.md`: defined explicit `metric_stream_hash` chain formula (`h_0`, iterative `h_i`, final `h_n`).
+  - `Replay-Determinism.md`: wired comparison profile into `CompareTrace_v1` signature/definition and procedure invocation; deterministic failure on profile/precondition mismatch.
+  - `Security-Compliance-Profile.md`: defined `redaction_key_id` semantics and presence rule by redaction mode.
+- Registry maintenance:
+  - Re-synced `ecosystem-registry.yaml` hash chain entries for modified docs and `AUX-LOG-001`.
+- Validation:
+  - Full registry/file digest parity check passed (`REGISTRY_PARITY_OK`).
+
+## 2026-02-20 — Final Cross-File Consistency Patch (15-file review)
+- Scope: resolved remaining determinism and cross-spec consistency gaps from final review.
+- Changes:
+  - `Checkpoint-Schema.md`:
+    - replaced required `trace_final_hash` with `trace_snapshot_hash` in the checkpoint required-field list,
+    - removed duplicate `lineage_root_hash` listing,
+    - removed duplicate secondary `trace_snapshot_hash` listing in the same required-field section.
+  - `Config-Schema.md`: added optional top-level `quota` object with optional fields `memory_bytes_budget`, `gpu_time_ms_budget`, `cpu_time_ms_budget`, `io_bytes_budget` to align with kernel schema.
+  - `Experiment-Tracking.md`: made record-hash rule explicit that `MetricRecord.recorded_at` is omitted from canonical hash map while retained as stored metadata.
+  - `DifferentialPrivacy-Apply.md`:
+    - clarified heterogeneous-group composition uses one global sampling rate `q = effective_batch_size/dataset_cardinality` for all groups,
+    - replaced fragile prefix test with explicit `sampling_mode` enumeration in procedure step `1b`.
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - clarified resource-ledger assumption ties to operator contract metadata fixed per-operator costs,
+    - formalized deterministic micro-batch split behavior as contiguous chunks preserving batch order (last chunk may be smaller).
+  - `Data-Lineage.md`: defined optional `split_filter_hash` semantics as hash of canonical split-filter expression (filter semantics out of scope).
+- Registry maintenance:
+  - Re-synced `ecosystem-registry.yaml` hash chain entries for modified docs and `AUX-LOG-001`.
+- Validation:
+  - Full registry/file digest parity check passed (`REGISTRY_PARITY_OK`).
+
+## 2026-02-20 — Final Tail Fixes (restore identity / split encoding / ledger note)
+- Applied final targeted corrections:
+  - `Checkpoint-Schema.md`: restore identity rule now matches checkpoint field set by using `trace_snapshot_hash` (replacing `trace_final_hash`).
+  - `Data-Lineage.md`: removed undefined `split_filter_hash` from canonical split entry encoding.
+  - `UML_OS-Kernel-v3.22-OS.md`: added explicit parenthetical note on resource-ledger contribution source (operator metadata; fixed per-operator costs in this version).
+- Validation:
+  - Re-synced registry hashes and re-ran full parity check.
+
+## 2026-02-20 — Final Determinism Tightening (seeded split / DP schema / trace hashes)
+- Scope: addressed remaining implementation-ambiguity issues from latest review.
+- Changes:
+  - `Data-Lineage.md`: specified deterministic seeded split shuffle algorithm using `shuffle_key = SHA-256(CBOR_CANONICAL([split_seed, sample_index]))` and lexicographic key sort (tie-break by `sample_index`).
+  - `DifferentialPrivacy-Apply.md`:
+    - added optional DP config fields `adaptive_clip_window` and `model_scale`,
+    - added DP config hash-commitment rule for behavior-affecting optional fields,
+    - defined `sampling_metadata` schema for `AmplificationByShuffling_v1`,
+    - clarified projector call passes configured `accountant` string as `accountant_hint`.
+  - `Trace-Sidecar.md`:
+    - defined `transcript_hash` for `POLICY_GATE_VERDICT`,
+    - defined `certificate_inputs_hash` for `CERTIFICATE_INPUTS`.
+  - `UML_OS-Kernel-v3.22-OS.md`: clarified DP-enabled micro-batch path owns accumulation/noise/accounting inside `Apply_v3` and does not directly use `gradient_accumulation_steps` in loop.
+- Validation:
+  - Re-synced registry hashes and re-ran full parity check.
+
+## 2026-02-20 — Kernel Env Hash Alignment
+- Added explicit `environment.env_manifest_hash: bytes32` in `UML_OS-Kernel-v3.22-OS.md` section 0.Q manifest additions to align with `Config-Schema.md` required cross-doc field semantics.
+- Re-synced registry hashes and re-ran full parity verification.
+
+## 2026-02-20 — Final Schema Consistency Tail Fixes
+- `UML_OS-Kernel-v3.22-OS.md`:
+  - tightened `0.Q` manifest additions so `environment.env_manifest_hash` is required (non-optional) to align with Config schema/replay-token inputs.
+- `Model-Registry.md`:
+  - defined `evidence_bundle_ref` semantics in `VersionCreate_v1` as `bytes32` hash of canonical CBOR evidence bundle.
+- Validation:
+  - Re-synced registry hashes and re-ran full parity verification.
+
+## 2026-02-20 — Final Open-Gap Resolution Pass
+- Applied remaining determinism/consistency fixes:
+  - `AuthZ-Capability-Matrix.md`: defined canonical schema for `authz_policy_document` (sorted map of principal -> sorted/duplicate-free capability array).
+  - `Config-Schema.md`:
+    - added `datasets` and `environment` to required top-level fields,
+    - added kernel-alignment subsection (`II.F.2`) enumerating recognized manifest fields and environment object requirements.
+  - `Data-Lineage.md`: added split-name uniqueness constraint.
+  - `DifferentialPrivacy-Apply.md`:
+    - added `clip_norm_map` completeness rule,
+    - defined `remaining_steps` computation in procedure,
+    - made step 12 construct `sampling_metadata` with `{effective_q, local_epsilon_hint=cumulative_epsilon}` before `AmplificationByShuffling_v1`.
+  - `Experiment-Tracking.md`:
+    - defined `metadata_hash_i` for artifact index leaves,
+    - added `RunRecord` mutability/finality note for `run_record_hash`.
+  - `Evaluation-Harness.md`: clarified source of “designated critical outputs” via active determinism profile class map.
+  - `UML_OS-Kernel-v3.22-OS.md`:
+    - `Distributed.Barrier_v1` now explicitly uses `manifest.distributed.timeout_seconds` and fails with `DISTRIBUTED_COMMUNICATION_FAILURE`,
+    - `State.Journal_v1` storage path resolution explicitly references `UML_OS.OS.ResolvePath_v1`.
+- Validation:
+  - Re-synced registry hash chain entries and re-ran full parity verification.

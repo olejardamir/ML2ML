@@ -99,6 +99,7 @@
 | `REPLAY_DIVERGENCE` | 1901 | replay | FATAL | false | `t,field_path,replay_token` | `Replay divergence detected` | Re-run with captured profile and inspect first divergence event | v1 |
 | `TRACE_CAP_EXCEEDED_MANDATORY` | 1501 | trace | FATAL | false | `t,run_id,trace_policy_hash` | `Trace cap exceeded for mandatory record kinds` | Raise trace caps or reduce optional sampling load | v1 |
 | `WAL_CORRUPTION` | 1502 | trace | FATAL | false | `t,run_id,wal_seq,record_hash` | `WAL chain corrupted or non-contiguous` | Rebuild WAL from durable snapshot or rollback run | v1 |
+| `BASELINE_MISSING` | 1503 | trace | ERROR | false | `t,window_id,baseline_ref` | `Monitoring baseline artifact/window missing or invalid` | Register/fix baseline artifact and retry deterministic drift evaluation | v1 |
 
 Numeric range reservation:
 - 1000-1099 config/schema

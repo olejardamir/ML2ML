@@ -92,6 +92,8 @@ WAL hash-chain rule:
 - `wal_terminal_hash = commit_record_hash`.
 - WAL framing integrity rule:
   - records are persisted as `[record_length_u32 | record_cbor_bytes | record_crc32c]`,
+  - `record_length_u32` and `record_crc32c` are encoded in little-endian byte order,
+  - `record_crc32c` uses CRC-32C (Castagnoli polynomial, RFC 3720),
   - `record_crc32c` is computed over `record_cbor_bytes`,
   - recovery MUST reject checksum mismatches and truncated trailing records as `WAL_CORRUPTION`.
 
@@ -124,7 +126,7 @@ Terminal commit record rule:
 Canonical commit barrier:
 - Write immutable content-addressed artifacts first.
 - Publish a single commit-pointer object `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent.
-- Commit pointer payload binds `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+- Commit pointer payload binds `{trace_final_hash, checkpoint_hash, lineage_root_hash, certificate_hash, wal_terminal_hash}`.
 - WAL remains recovery evidence; COMMITTED pointer is the canonical visibility barrier.
 
 ---

@@ -87,11 +87,15 @@
 - `trace_final_hash`
 - `determinism_tier`
   - allowed values: `E0 | E1` as defined in `docs/layer2-specs/Replay-Determinism.md`.
+  - enforcement rule: `E0` requires bitwise equality for designated critical outputs; `E1` uses tolerance-based comparators from the active determinism profile/eval config.
+  - critical-output source of truth: designated critical outputs are those marked `E0` by the active determinism profile/class map for the evaluation suite.
 - `replay_token`
 - `aggregation_policy` schema (normative):
   - map `metric_name -> {agg: enum("mean","sum","min","max","quantile"), quantile_p?:float64}`.
+  - quantile rule (normative): when `agg="quantile"`, compute nearest-rank quantile on ascending sorted values with index `k = floor(p * (n-1))` (0-based), value=`sorted[k]`.
 - `evidence_bundle_ref` points to canonical CBOR payload:
   - `{eval_manifest_hash, dataset_snapshot_id, metrics_digest, trace_final_hash, determinism_tier, replay_token, eval_report_hash}`.
+  - `eval_report_hash = SHA-256(CBOR_CANONICAL(eval_report))`, where `eval_report` is the output of `AggregateMetrics_v1`.
 
 ---
 ## 3) Initialization

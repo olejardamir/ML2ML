@@ -93,7 +93,7 @@
   - `t:uint64`
   - `manifest_hash:bytes32`
   - `ir_hash:bytes32`
-  - `trace_final_hash:bytes32`
+  - `trace_snapshot_hash:bytes32`
   - `sampler_config_hash:bytes32`
   - `tmmu_plan_hash:bytes32`
   - `backend_binary_hash:bytes32`
@@ -106,8 +106,8 @@
   - `operator_contracts_root_hash:bytes32`
   - `runtime_env_hash:bytes32`
   - `code_commit_hash:bytes32`
-- `lineage_root_hash:bytes32`
-  - `lineage_root_hash:bytes32` (snapshot-at-checkpoint value; MUST match certificate lineage commitment for the finalized run branch that includes this checkpoint)
+- `lineage_root_hash:bytes32` (snapshot-at-checkpoint value; MUST match certificate lineage commitment for the finalized run branch that includes this checkpoint)
+  - lineage consistency rule: `lineage_root_hash` MUST equal the deterministic lineage root recomputed from checkpoint-scoped lineage objects/artifacts referenced by this checkpoint snapshot.
   - `dp_enabled:bool`
   - `tensors_root_hash:bytes32`
   - `optimizer_state_root_hash:bytes32`
@@ -117,17 +117,18 @@
   - `weights_manifest_hash?:bytes32`
   - `optimizer_manifest_hash?:bytes32`
   - `dp_accountant_manifest_hash?:bytes32`
-  - `trace_final_hash_at_checkpoint:bytes32`
   - `checkpoint_header_hash:bytes32`
   - `checkpoint_manifest_hash:bytes32`
   - `checkpoint_hash:bytes32`
   - `checkpoint_hash_prev?:bytes32`
 - Hash identities (normative):
+  - `checkpoint_header_cbor` is the canonical CBOR map of checkpoint header fields excluding `checkpoint_header_hash` itself.
   - `checkpoint_header_hash = SHA-256(checkpoint_header_cbor)`
   - `checkpoint_manifest_cbor` is a canonical CBOR map with keys:
     - `manifest_version:string`
     - `checkpoint_merkle_root:bytes32`
     - `shards:array<{path:string, sha256:bytes32, size_bytes:uint64}>` sorted by `path`
+      - `path` normalization rule (normative): POSIX-style relative path only, forward slashes (`/`), no `.` or `..` segments, no repeated separators, and no leading slash.
     - `weights_manifest_hash?:bytes32`
     - `optimizer_manifest_hash?:bytes32`
     - `dp_accountant_manifest_hash?:bytes32`
@@ -142,6 +143,12 @@
     - `["rng_state_v1", key_u32_0, key_u32_1, ctr_u32_0, ctr_u32_1, ctr_u32_2, ctr_u32_3]`
     - where key is Philox key `[u32;2]` and counter is `[u32;4]` in little-endian logical word order.
   - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors_cbor))`
+  - `tensors_root_hash` and `optimizer_state_root_hash` derivation (normative):
+    - shard-leaf encoding shared with checkpoint Merkle leaves:
+      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))`,
+    - `tensors_root_hash = SHA-256(CBOR_CANONICAL(["tensors_root_v1", tensor_leaves_sorted]))` where `tensor_leaves_sorted` contains leaves for shards with normalized path prefix `tensors/`, sorted by `shard_path`,
+    - `optimizer_state_root_hash = SHA-256(CBOR_CANONICAL(["optimizer_root_v1", optimizer_leaves_sorted]))` where `optimizer_leaves_sorted` contains leaves for shards with normalized path prefix `optimizer/`, sorted by `shard_path`,
+    - empty-set rule: if the filtered shard set is empty, root is `SHA-256(CBOR_CANONICAL([]))`.
   - `checkpoint_hash = checkpoint_manifest_hash`
   - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
@@ -149,6 +156,7 @@
     - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))` with shards ordered by `shard_path`,
     - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", left, right]))`,
     - odd-leaf rule duplicates the last leaf.
+    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL([]))`.
     - for streaming writes, root is computed only after all shard hashes are finalized; placeholder roots are invalid.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
@@ -193,20 +201,20 @@
 
 ### II.I Trace-Link Integrity (Normative)
 - Checkpoint header must store:
-  - `trace_final_hash_at_checkpoint`
+  - `trace_snapshot_hash`
   - `checkpoint_hash_prev` (if checkpoint chaining enabled)
-- In linear hash-chain mode, `trace_final_hash == trace_final_hash_at_checkpoint` at checkpoint boundary.
+- In linear hash-chain mode, `trace_final_hash == trace_snapshot_hash` at checkpoint boundary.
 - `trace/link.cbor` binds checkpoint to trace hash chain for tamper-evident replay.
 - checkpoint manifest must include `dataset_snapshot_id` and `artifact_index_hash`.
 - Canonical contract rule: the checkpoint header in this file is the authoritative shape and must match `docs/layer1-foundation/Data-Structures.md` `CheckpointHeader`.
-- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_final_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
+- Restore identity rule: restore must abort deterministically on any mismatch in `{tenant_id, run_id, replay_token, trace_snapshot_hash, checkpoint_hash, manifest_hash, ir_hash, sampler_config_hash, tmmu_plan_hash, backend_binary_hash, determinism_profile_hash, policy_bundle_hash}`.
 
 ### II.J Run Commit Protocol (Normative)
 - Commit is atomic via immutable-object writes plus a single commit-pointer object:
   1. write immutable content-addressed trace/checkpoint/lineage/certificate objects,
-  2. compute and validate `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `execution_certificate_hash`,
+  2. compute and validate `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `certificate_hash`,
   3. publish `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent,
-  4. pointer payload binds `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
+  4. pointer payload binds `{trace_final_hash, checkpoint_hash, lineage_root_hash, certificate_hash, wal_terminal_hash}`.
 - Recovery rule after crash:
   - if COMMITTED pointer exists, validate referenced objects and finalize,
   - if pointer missing, treat run as uncommitted and recover deterministically from WAL.
@@ -216,6 +224,9 @@
   - `from_schema_version`, `to_schema_version`,
   - `source_hash`, `target_hash`,
   - `migration_operator`, `migration_policy_hash`.
+- Hash semantics:
+  - `source_hash` = content hash of source object before migration,
+  - `target_hash` = content hash of migrated output object after migration.
 - Migration output must hash identically across conforming implementations.
 
 ---
@@ -259,6 +270,13 @@ Template conformance note (III.A): each operator definition in this section is i
 **Determinism:** deterministic  
 **Definition:** validates hash/schema and reconstructs subsystem state.
 If `checkpoint_schema_version` is older and listed in `migration_supported_from`, restore MUST apply deterministic `migration_operator` before state reconstruction.
+
+**Operator:** `UML_OS.Checkpoint.Migrate_v1`
+**Category:** IO
+**Signature:** `(old_checkpoint, from_version, to_version -> new_checkpoint)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** performs deterministic format migration while preserving logical checkpoint semantics and emitting migration certificate inputs.
 
 ---
 ## 6) Procedure

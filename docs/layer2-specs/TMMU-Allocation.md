@@ -299,7 +299,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 **Category:** Memory  
 **Signature:** `(logical_slot_assignment, arena_config, slot_size_map, slot_alignment_map -> logical_map)`  
 **Purity class:** PURE  
-**Definition:** For each arena independently, sort slots by `logical_slot_id` ascending and compute aligned offsets by prefix sum: `offset_0=0`, `offset_{k+1}=align_up(offset_k + slot_size_k, align_{k+1})`, where `align_k = max(slot_alignment_map[arena, slot_k], arena_config[arena].alignment_bytes)`. Emit logical addresses as `(arena_id, offset_bytes)`; runtime resolves to physical pointers out-of-band.
+**Definition:** For each arena independently, sort slots by `logical_slot_id` ascending and compute aligned offsets by prefix sum: `offset_0=0`, `offset_{k+1}=align_up(offset_k + slot_size_k, align_{k+1})`, where `align_k = max(slot_alignment_map[arena, slot_k], arena_config[arena].alignment_bytes)`. If `slot_alignment_map` entry is missing, default alignment is `arena_config[arena].alignment_bytes`. Emit logical addresses as `(arena_id, offset_bytes)`; runtime resolves to physical pointers out-of-band.
 **Preconditions / Postconditions:** logical slots assigned; output addresses unique per `(arena, slot)`.  
 **Edge cases:** large slot cardinality and arena name collisions (disallowed).  
 **Numerical considerations:** uint64 offset arithmetic with overflow checks; no hash truncation/collision path.  
@@ -373,6 +373,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
    # va(slot_k) = arena_base[arena] + offset_k
 
 4. tensor_map ← {}
+   tensor_intervals_sorted ← tensors sorted deterministically by `tensor_id` ascending
    for tensor in tensor_intervals_sorted:   # tensors, not nodes
        (arena, slot) ← logical_slots[tensor.id]
        logical_addr ← logical_map[(arena, slot)]  # (arena_id, offset_bytes)

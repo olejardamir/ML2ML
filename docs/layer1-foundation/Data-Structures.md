@@ -145,7 +145,7 @@
   - `hash_gate_M`/`hash_gate_K` define deterministic hash-gated trace sampling parameters; invariant `0 < M` and `0 <= K <= M`.
   - `H` is the unsigned big-endian integer interpretation of `SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq, rank]))`.
 - `TracePolicyGateVerdictRecord`: `{kind:"POLICY_GATE_VERDICT", t:uint64, policy_gate_hash:bytes32, transcript_hash:bytes32}`.
-- `TraceCheckpointCommitRecord`: `{kind:"CHECKPOINT_COMMIT", t:uint64, checkpoint_hash:bytes32, checkpoint_header_hash:bytes32, checkpoint_merkle_root:bytes32, trace_final_hash_at_checkpoint:bytes32}`.
+- `TraceCheckpointCommitRecord`: `{kind:"CHECKPOINT_COMMIT", t:uint64, checkpoint_hash:bytes32, checkpoint_header_hash:bytes32, checkpoint_merkle_root:bytes32, trace_snapshot_hash:bytes32}`.
 - `TraceCertificateInputsRecord`: `{kind:"CERTIFICATE_INPUTS", t:uint64, certificate_inputs_hash:bytes32}`.
 - `TraceRunEndRecord`: `{kind:"RUN_END", status:string, final_state_fp:bytes32, trace_final_hash:bytes32}`.
 - `TraceErrorRecord`: `{kind:"ERROR", t:uint64, rank:uint32, failure_code:string, failure_operator:string, replay_token:bytes32, diagnostics_hash:bytes32}`.

@@ -146,17 +146,20 @@ Migration: update manifest operator versions and replay_token.
 - `data: {sampler_block_size?: integer (default 1048576)}`
 - `custom_operators[]`
 - `parallelism: {strategy: "none" | "ddp" | "fsdp" | "tensor_parallel" | "pipeline_parallel" | "hybrid", world_size_override?, sharding_config?: object}`
+  - `world_size_override` semantics (normative): if provided, it MUST equal the actual initialized `world_size`; mismatch is deterministic failure (`CONTRACT_VIOLATION`).
 - `manifest_inheritance: {parent_manifest_path?: string}` (resolved and merged by daemon in Bootstrap_v1; child may override only non-security fields; security parameters inherited strictly)
 - `hardware_affinity: {gpu_ids?: array of int, cpu_cores?: array of int}` (optional; daemon pins for deterministic scheduling)
 - `profile: "research" | "enterprise" | "regulated"` (Bootstrap_v1 expands to execution_mode-appropriate defaults for security, quotas, evaluation metrics, pipeline_stages, and pipeline checks). If pipeline_stages absent, default is: research = [{step_id:"train",type:"train"},{step_id:"eval",type:"eval",depends_on:["train"]}], enterprise = [{step_id:"train",type:"train"},{step_id:"eval",type:"eval",depends_on:["train"]},{step_id:"infer",type:"infer",depends_on:["eval"]}], regulated = same as enterprise plus DP-forced augment stage if augment_config present.
 - `backend: "pytorch" | "jax" | "custom"` (default `"pytorch"`)
 - `pipeline_stages: array` of objects `{step_id: string, type: "train"|"eval"|"infer"|"augment", manifest_path?: string, depends_on?: array of step_id, dataset_key?: string}`
 - `resource_requests: {cpus: int, gpus: int, memory_gb: float} (global or per-stage in pipeline_stages objects; daemon scheduler enforces)`
+- `quota: {memory_bytes_budget?: uint64, gpu_time_ms_budget?: uint64, cpu_time_ms_budget?: uint64, io_bytes_budget?: uint64}` (optional runtime enforcement thresholds consumed by kernel resource_ledger checks)
+- `resource_ledger_schema` (fixed): `{flops:uint64, bytes_allocated:uint64, peak_bytes:uint64, gpu_time_ns:uint64, cpu_time_ns:uint64}`; kernel updates counters each step by summing operator-declared resource contributions (declared in operator contract metadata; this version assumes fixed per-operator costs).
 - `rbac: {principals: array, permissions: map}` (optional; daemon enforces on NamespaceEnter_v1 and critical ops).
 - `storage: {backend: "local" | "s3-compatible" | "gcs", endpoint?: string, bucket?: string, credentials_secret?: string}` (daemon uses for all CAS reads/writes; credentials_secret resolved securely by daemon only)
 - `monitoring_export: {prometheus_endpoint?: string, log_sink?: string}` (daemon pushes deterministic metrics, audit summaries, and usage records; optional)
 - `rbac_source: "local" | "ldap" | "oidc"` (default "local"; daemon integrates for `NamespaceEnter_v1` and critical ops)
-- `environment: {requirements_hash?: string (SHA-256 of canonical pinned dependency manifest), container_image?: string}`
+- `environment: {env_manifest_hash: bytes32, requirements_hash?: string (SHA-256 of canonical pinned dependency manifest), container_image?: string}`
 - `daemon_mode: "standalone" | "cluster"` (default `"standalone"`)
 - `distributed: {timeout_seconds: int (default 300)}`
 - `fine_tune` config (`full` or `lora`)
@@ -208,7 +211,8 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 
 ### 0.Y UML_Model_IR
 Neutral declarative ML-ISA (Instruction Set Architecture) used by all Model/* system calls and drivers.
-- Nodes: array of `{node_id: string, instr: string (from mandatory base set: MATMUL, CONV2D, LAYERNORM, ATTENTION, RESIDUAL_ADD, GELU, SOFTMAX, etc.), params: dict, inputs: array of node_id or 'input_data', shape_in/out: tuple(s)}`
+- Nodes: array of `{node_id: string, instr: string (from mandatory base set: MATMUL, CONV2D, LAYERNORM, ATTENTION, RESIDUAL_ADD, GELU, SOFTMAX, etc.), params: dict, inputs: array of node_id or 'input_data', shape_in/out: tuple(s), grad_edges?: array<node_id>}`
+- `grad_edges` (optional) declares explicit gradient dependency edges for backward scheduling; when absent, reverse forward order is used subject to executor equivalence checks.
 - For parallel strategies nodes include optional sharding_spec resolved by driver into device placement.
 - Execution: strict topological order (stable sort by node_id on ties).
 - All presets expand to valid ML-ISA. Custom layers via RegisterCustom_v1 declare full instruction mapping.
@@ -340,16 +344,19 @@ Active operators (exact wiring table):
 - `UML_OS.Fingerprint.Functional_v1`
 - `UML_OS.Error.Emit_v1`
 - `UML_OS.Distributed.Setup_v1`
+- `UML_OS.Distributed.Barrier_v1`
 - `UML_OS.Evaluation.Run_v1`
 - `UML_OS.Security.AttestTEE_v1`
 - `UML_OS.Verifiable.CommitFunctional_v1`
 - `UML_OS.DifferentialPrivacy.Apply_v3`
 - `UML_OS.Backend.LoadDriver_v1`
 - `UML_OS.Pipeline.Dispatch_v1`
+- `UML_OS.Config.DeterministicStageMerge_v1`
 - `UML_OS.Inference.RunBatch_v1`
 - `UML_OS.Model.Backward_v1`
 - `UML_OS.Symbolic.Augment_v1`
 - `UML_OS.Security.VerifyCertificate_v1`
+- `UML_OS.Certificate.EvidenceValidate_v1`
 - `UML_OS.Transition.SwitchState_v1`
 - `UML_OS.Commit.WALAppend_v1`
 - `UML_OS.Commit.FinalizeRunCommit_v1`
@@ -585,6 +592,15 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Failure behavior:** abort on unsupported backend.  
 **Dependencies:** 0.R.
 
+**Operator:** `UML_OS.Distributed.Barrier_v1`
+**Category:** Distributed
+**Signature:** `(() -> ok)`
+**Purity class:** STATEFUL
+**Determinism:** deterministic
+**Definition:** executes a deterministic global barrier across ranks using ascending-rank coordination and timeout `manifest.distributed.timeout_seconds`.
+**Failure behavior:** abort on timeout/communication failure with deterministic code `DISTRIBUTED_COMMUNICATION_FAILURE`.
+**Dependencies:** distributed communicator state.
+
 **Operator:** `UML_OS.Backend.LoadDriver_v1`  
 **Category:** Backend  
 **Signature:** `(manifest.backend -> driver_handle)`  
@@ -610,6 +626,13 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Ordering/tie handling:** deterministic topological order with stable tie-break.  
 **Failure behavior:** abort on cycle or missing dependency.  
 **Dependencies:** manifest `pipeline_stages`.
+
+**Operator:** `UML_OS.Config.DeterministicStageMerge_v1`
+**Category:** Config
+**Signature:** `(base_manifest, stage_manifest -> merged_manifest)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** canonical base-first merge where stage manifest may override only non-security fields (`pipeline stage-local hyperparameters`, `dataset_key`, `checkpoint flags`, `evaluation options`). Security/policy identity fields (`policy_bundle_hash`, security mode, attestation requirements, authz/monitor/dp/redaction policy hashes, tenant identity) MUST remain unchanged. Output is re-validated by `UML_OS.Data.ValidateManifest_v1`.
 
 **Operator:** `UML_OS.Contract.Validate_v1`  
 **Category:** Contract  
@@ -655,13 +678,20 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(probe_outputs_bytes, functional_fp, security.functional_commitment -> commitment?)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR_CANONICAL(["functional_commitment_v1", probe_outputs_bytes, functional_fp]))` and attach to trace/certificate.  
+**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR_CANONICAL(["functional_commitment_v1", probe_outputs_bytes, functional_fp]))` and attach to trace/certificate. `probe_outputs_bytes` is canonical CBOR serialization of probe outputs in deterministic probe order.
 **Preconditions / Postconditions:** functional_fp available.  
 **Edge cases:** disabled path returns no commitment.  
 **Numerical considerations:** N/A.  
 **Ordering/tie handling:** canonical byte order.  
 **Failure behavior:** abort on digest mismatch.  
 **Dependencies:** `security.functional_commitment`.
+
+**Operator:** `UML_OS.Certificate.EvidenceValidate_v1`
+**Category:** Security
+**Signature:** `(evidence_bundle -> valid: bool, report: dict)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** validates pre-sign evidence bundle completeness and consistency (`manifest_hash`, `trace_final_hash`, `checkpoint_hash`, `lineage_root_hash`, `policy_bundle_hash`, `replay_token`, and related run-bound commitments) before certificate signing.
 
 **Operator:** `UML_OS.Security.VerifyCertificate_v1`
 **Category:** Security
@@ -704,12 +734,19 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.State.Journal_v1`
 **Category:** IO
-**Signature:** `(event -> journal_state')`
+**Signature:** `(t, stage_id, data_cursors, rng_offsets, resource_ledger, dp_accountant_state?, state_fp? -> journal_state')`
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Write-ahead log: append cryptographically chained record (`SHA-256(CBOR_CANONICAL(["journal_link_v1", previous_hash, event, uint64(t)]))`) to journal before any state mutation is visible.
-Required event fields: `{t, stage_id, operator_seq_max, state_delta_hash, data_cursors_hash, rng_offsets_hash, dp_accountant_state_hash?, resource_ledger_hash}`.
-Canonical journal event shape: CBOR map with at least `{t:uint64, stage_id:string, state_fp:bytes32, action:string, state_delta_hash:bytes32}`.
+Journal operator computes deterministic hashes internally:
+  - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors))`
+  - `rng_offsets_hash = SHA-256(CBOR_CANONICAL(rng_offsets))`
+  - `resource_ledger_hash = SHA-256(CBOR_CANONICAL(resource_ledger))`
+  - `dp_accountant_state_hash = SHA-256(CBOR_CANONICAL(dp_accountant_state))` when present.
+Canonical journal event shape (normative): CBOR map containing
+`{t:uint64, stage_id:string, data_cursors_hash:bytes32, rng_offsets_hash:bytes32, resource_ledger_hash:bytes32, dp_accountant_state_hash?:bytes32, state_fp?:bytes32}`.
+Storage location (normative): append-only per-run file under namespace journal path (e.g., `<namespace>/journal/run_journal.cborlog`); concrete filesystem target is resolved via `UML_OS.OS.ResolvePath_v1`.
+Scope clarification: Journal records incremental step-state transitions for recovery/audit and is distinct from commit WAL (`UML_OS.Commit.WALAppend_v1`), which is only the atomic artifact-finalization protocol.
 **Preconditions / Postconditions:** journal open; hash chain preserved.
 **Failure behavior:** abort on write failure.
 
@@ -746,6 +783,7 @@ Canonical journal event shape: CBOR map with at least `{t:uint64, stage_id:strin
 **Determinism:** deterministic  
 **Definition:** evaluates manifest termination criteria.  
 `limits` schema (normative): `{max_steps_per_stage?:uint64, max_epochs?:uint64, max_wall_time_seconds?:uint64}`; check order is fixed by key order above.
+Wall-time reproducibility note (normative): if `max_wall_time_seconds` is used, E0/E1 reproducibility is not guaranteed due to runtime timing variance; such runs are comparable only under looser replay equivalence policies.
 **Preconditions / Postconditions:** criteria declared.  
 **Edge cases:** max_steps=0.  
 **Numerical considerations:** EPS_EQ comparisons.  
@@ -792,7 +830,7 @@ State transition table (normative):
 **Signature:** `(namespace_path -> active_namespace)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** enters namespace and binds filesystem, RNG, and state scopes.  
+**Definition:** resolves `namespace_path` via `UML_OS.OS.ResolvePath_v1` then enters namespace and binds filesystem, RNG, and state scopes.  
 **Preconditions / Postconditions:** ACL allows access.  
 **Edge cases:** non-existent namespace.  
 **Numerical considerations:** N/A.  
@@ -803,10 +841,10 @@ State transition table (normative):
 
 **Operator:** `UML_OS.DifferentialPrivacy.Apply_v3`  
 **Category:** Security  
-**Signature:** `(gradients, security.differential_privacy, t -> noisy_gradients, updated_budget)`  
+**Signature:** `(microbatch_gradients_seq, security.differential_privacy, t -> noisy_gradients, updated_budget)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** If enabled (forced true in regulated mode), first clips per-sample gradients to `manifest.grad_clip_norm` (default 1.0 if unset) in binary64, averages with ascending global index order, then adds isotropic Gaussian noise ~ N(0, σ²) using deterministic moments accountant (δ=1e-5 fixed, exact composition per standard reference implementation). RNG for noise drawn from declared stream. Cumulative privacy loss tracked exactly in binary64. Aborts with PRIVACY_BUDGET_EXCEEDED if cumulative ε exceeds target_epsilon. Noise applied to averaged gradients before Update_v1.
+**Definition:** If enabled (forced true in regulated mode), consumes deterministic per-step micro-batch gradient sequence, clips per-sample/per-micro-batch gradients to configured norms in binary64, averages in ascending deterministic micro-batch/index order, then adds isotropic Gaussian noise ~ N(0, σ²) using deterministic moments accountant (δ=1e-5 fixed, exact composition per standard reference implementation). RNG for noise drawn from declared stream. Cumulative privacy loss tracked exactly in binary64. Aborts with PRIVACY_BUDGET_EXCEEDED if cumulative ε exceeds target_epsilon. Noise applied to averaged gradients before Update_v1.
 **Preconditions / Postconditions:** called only on raw gradients before any optimizer step; `target_epsilon` declared and remaining budget sufficient.  
 **Edge cases:** epsilon=0, zero gradients.  
 **Numerical considerations:** noise scale computed exactly in binary64.  
@@ -840,7 +878,7 @@ State transition table (normative):
 5. current_step <- 0
 6. checkpoint_frequency <- manifest.checkpoint_frequency or 0
 7. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
-7a. if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- deterministic_stage_merge(manifest, stage_manifest)  // stage overrides non-security fields only
+7a. if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- UML_OS.Config.DeterministicStageMerge_v1(manifest, stage_manifest)
 8. WALAppend_v1(PREPARE)
 9. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
@@ -867,13 +905,24 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     L_tot <- UML_OS.Objective.TotalLoss_v1(...)
     action <- UML_OS.Policy.Evaluate_v1(...)
     if action == "optimize":
-      grads = UML_OS.Model.Backward_v1(L_tot, theta)  # unclipped when DP is enabled
-      update_grads <- grads
+      update_grads <- null
       if manifest.security.differential_privacy.enabled == true:
-          noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(grads, manifest.security.differential_privacy, t)
+          # split batch deterministically into contiguous micro-batches of size max_microbatch in original sample order (last chunk may be smaller)
+          # DP-enabled path: micro-batch accumulation/noise/accounting are handled inside Apply_v3; manifest.gradient_accumulation_steps is not used directly by this loop.
+          micro_seq <- deterministic_split(batch, manifest.security.differential_privacy.max_microbatch)
+          micro_grads_seq <- []
+          for each micro_batch in micro_seq (deterministic order):
+              micro_logits <- UML_OS.Model.Forward_v2(theta, micro_batch, ...)
+              micro_loss <- UML_OS.Objective.TotalLoss_v1(...)
+              micro_grads <- UML_OS.Model.Backward_v1(micro_loss, theta, ir_graph)  # raw micro-batch gradients
+              micro_grads_seq.append(micro_grads)
+          noisy_grads, budget <- UML_OS.DifferentialPrivacy.Apply_v3(micro_grads_seq, manifest.security.differential_privacy, t)
           update_grads <- noisy_grads
           cumulative_epsilon <- budget.epsilon
           dp_accountant_state <- budget.accountant_state
+      else:
+          grads <- UML_OS.Model.Backward_v1(L_tot, theta, ir_graph)
+          update_grads <- grads
       theta <- UML_OS.Optimizer.Update_v1(update_grads, ...)
     else if action == "eval" or current_stage.type == "eval":
       state <- UML_OS.Transition.SwitchState_v1(state, "eval")
@@ -890,22 +939,23 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 - checkpoint_due <- (checkpoint_frequency > 0 and (t % checkpoint_frequency == 0)) or current_stage.checkpoint_on_exit == true
 - if checkpoint_due:
     if world_size == 1 or rank == 0: UML_OS.IO.SaveCheckpoint_v1(...)
-    if world_size > 1: deterministic_checkpoint_barrier()
+    if world_size > 1: UML_OS.Distributed.Barrier_v1()
 - if manifest.fingerprint_frequency > 0 and (t % manifest.fingerprint_frequency == 0): StateFingerprint_v1, Fingerprint.Functional_v1(theta, manifest.evaluation.probe_set), Verifiable.CommitFunctional_v1 (if enabled)
 - UML_OS.IO.WriteTape_v1(...) (includes stage transition and usage record)
-- resource_ledger <- update deterministic per-step resource counters `{flops, bytes_allocated, peak_bytes, gpu_time_ns, cpu_time_ns}`
+- resource_ledger <- update deterministic per-step resource counters `{flops, bytes_allocated, peak_bytes, gpu_time_ns, cpu_time_ns}` by summing declared per-operator contributions for operators executed in this step (operator resource contributions are defined in operator contract metadata; this version assumes fixed per-operator costs).
+  # quota policy schema/semantics are governed by `docs/layer2-specs/Pipeline-Orchestrator.md` (`QuotaPolicy`)
 - if resource_ledger exceeds manifest quota policy:
     Error.Emit_v1(CONTRACT_VIOLATION, ...)
     UML_OS.IO.WriteTape_v1(error_record_sync)
     abort
-- UML_OS.State.Journal_v1({t, state, action, data_cursors, rng_offsets, dp_accountant_state, resource_ledger})
+- UML_OS.State.Journal_v1(t, current_stage.step_id, data_cursors, rng_offsets, resource_ledger, dp_accountant_state?, state_fp?)
 - current_step <- current_step + 1
 - current_stage = UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // advance or terminate
-- if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- deterministic_stage_merge(manifest, stage_manifest)
+- if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- UML_OS.Config.DeterministicStageMerge_v1(manifest, stage_manifest)
 
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")
-- UML_OS.Security.VerifyCertificate_v1(certificate_evidence_bundle)  // verify evidence before signing final certificate
+- UML_OS.Certificate.EvidenceValidate_v1(certificate_evidence_bundle)  // verify assembled evidence bundle before signing
 - UML_OS.Certificate.WriteExecutionCertificate_v1(...)
 - WALAppend_v1(CERT_SIGNED)
 - FinalizeRunCommit_v1

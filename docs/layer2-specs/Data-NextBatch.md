@@ -77,6 +77,7 @@
   - `effective_q = float64(B_eff) / float64(N)`
   - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
   - `sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"` in train mode, `"SEQUENTIAL_V1"` in eval/infer mode
+  - encoding rule: all mode strings used in hashes are UTF-8 CBOR text strings with no alternate normalization.
   - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))`
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
@@ -137,7 +138,10 @@
 ### I.C Constraints and Feasible Set
 - `global_batch_size % world_size == 0`
 - `global_batch_size > 0`
+- if `world_size > 1`, then `global_batch_size >= world_size`
+- `sampler_block_size > 0`
 - `dataset_key` exists in manifest.datasets
+- Degenerate train/drop-last guard (normative): if `stage_type=="train"` and `drop_last==true` and `global_batch_size > N`, configuration is invalid and MUST abort during validation (zero-batch epochs are forbidden by default policy).
 - Train epoch policy (normative): strict bijection without replacement over `[0..N-1]` per epoch; no intra-epoch wrap in train mode.
 - If `drop_last=true`, train epoch size is `floor(N/global_batch_size) * global_batch_size`.
 - If `drop_last=false`, final train step may be partial; no repeated samples are allowed within the same epoch.
@@ -237,9 +241,11 @@ This is bijective because `gcd(a,m)=1` by construction.
 3. global_pos = cursor.global_index
 4. global_batch_size = manifest.global_batch_size
 5. If global_batch_size % world_size != 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
+5a. If world_size > 1 and global_batch_size < world_size: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
 6. micro_batch_size = global_batch_size // world_size
 7. rank_start = rank * micro_batch_size
 7b. sampler_block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
+7c. If sampler_block_size == 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
 
 8. if stage_type in {"eval", "infer"}:
        is_shuffled = false
@@ -323,6 +329,7 @@ Two runs are comparable iff dataset snapshot/hash, sampler config, replay token 
 
 #### VII.A Lint rules (mandatory)
 Passes symbol completeness, deterministic ordering, total state updates (only cursor), explicit RNG locality, edge-case totality.
+- Must reject `drop_last==true && global_batch_size > N` for train stage as invalid configuration.
 
 #### VII.B Operator test vectors (mandatory)
 - world_size=1, rank=0: full global sequence matches sequential + shuffle

@@ -151,6 +151,7 @@
 - `env_vars_fingerprint: bytes32`
   - computed as `SHA-256(CBOR_CANONICAL(sorted([(name,value)])))` over determinism-critical environment allowlist:
     - `CUBLAS_WORKSPACE_CONFIG`, `CUDA_VISIBLE_DEVICES`, `NCCL_ALGO`, `NCCL_PROTO`, `OMP_NUM_THREADS`, `PYTHONHASHSEED`.
+  - inclusion rule: include only variables that are actually set; resulting `(name,value)` tuples are sorted lexicographically by `name`.
 - `driver_versions: map<string,string>`
 - `determinism_class_map: map<string, enum("E0","E1","NON_COMPARABLE")>`:
   - declares per-field comparator class used by `CompareTrace_v1`.
@@ -233,13 +234,15 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 **Operator:** `UML_OS.Replay.CompareTrace_v1`  
 **Category:** IO  
-**Signature:** `(trace_a, trace_b -> divergence_summary)`  
+**Signature:** `(trace_a, trace_b, comparison_profile -> divergence_summary)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** compares trace fields under declared determinism class rules using `docs/layer2-specs/Trace-Sidecar.md` schema and active determinism profile:
+**Definition:** compares trace fields under declared determinism class rules using `docs/layer2-specs/Trace-Sidecar.md` schema, active determinism profile, and the selected comparison profile from Section II.I:
 - E0 fields: exact byte equality (`replay_token`, hashes, `operator_id`, `operator_seq`, state fingerprints, decision/status codes),
-- E1 fields: tolerance comparisons as declared by profile/field policy (for example numeric metrics),
+- E1 fields: tolerance comparisons as declared by profile/field policy (for example numeric metrics), using
+  `|a-b| <= max(abs_tol, rel_tol * max(|a|, |b|))` with deterministic per-field `abs_tol`/`rel_tol`,
 - key-space and record ordering must match exactly in canonical `(t, rank, operator_seq)` order.
+- profile mismatch rule: if `comparison_profile` is missing, unknown, or inconsistent with trace preconditions, return deterministic divergence failure (`REPLAY_DIVERGENCE`) with explicit reason in diagnostics.
 **Preconditions / Postconditions:** identical schema keys/types.  
 **Edge cases:** different lengths.  
 **Numerical considerations:** exact for E0 fields, threshold for E1.  
@@ -263,7 +266,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ```text
 1. ComputeReplayToken_v1 for both runs
 2. VerifyRNGOwnership_v1 for both traces
-3. CompareTrace_v1(trace_a, trace_b)
+3. CompareTrace_v1(trace_a, trace_b, comparison_profile)
 4. VerifyRestore_v1(checkpoint_blob, restored_state, replay_token)
 5. Return replay_report
 ```

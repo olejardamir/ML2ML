@@ -142,6 +142,7 @@ External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/E
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** creates immutable model version only if evidence bundle is valid.
+`evidence_bundle_ref` is a `bytes32` hash of the canonical evidence bundle used for version admission checks (certificate/evaluation/provenance evidence), encoded via canonical CBOR before hashing.
 
 **Operator:** `UML_OS.Registry.PolicyGateEvaluate_v1`  
 **Category:** Governance  
