@@ -1,0 +1,132 @@
+UML_OS Push-Button Codegen Milestones
+=====================================
+
+Goal
+----
+Move from strong prose specs to a verified, one-click code generation pipeline that produces deployable software deterministically.
+
+Current Readiness (Today)
+-------------------------
+Status: not yet enough for full push-button production generation.
+
+What is ready:
+1. Strong multi-layer prose contract coverage.
+2. Determinism and evidence semantics are largely defined.
+3. Good foundation to begin Milestones 1-3 immediately.
+
+What is missing:
+1. Complete machine-readable schemas for every contract.
+2. Fully generator-ready operator registry metadata.
+3. Full ambiguity closure for all algorithmic and edge-case behavior.
+4. Production-grade codegen templates and end-to-end generator pipeline.
+5. Verified one-command build/test/deploy generation path.
+
+
+Milestone 1: Machine-Readable Contract Layer
+--------------------------------------------
+1. Define canonical IDL/schema format for all contracts (types, enums, required/optional fields, defaults).
+2. Convert every Markdown contract into machine-readable artifacts (CBOR schema/JSON schema/IDL).
+3. Add schema validation CI gate: no prose-schema drift allowed.
+4. Version all schemas with strict compatibility rules (MAJOR/MINOR/PATCH).
+
+Deliverable:
+- Complete machine-readable schema set with deterministic validation.
+
+
+Milestone 2: Executable Operator Registry
+-----------------------------------------
+1. Expand operator registry entries to include full signatures, purity, side effects, dependencies, and error codes.
+2. Add explicit determinism metadata per operator (E0/E1 behavior, tolerances, ordering).
+3. Link each operator to canonical input/output schema digests.
+4. Add CI rule: every referenced operator must resolve in registry and pass schema checks.
+
+Deliverable:
+- Generator-ready operator registry artifact.
+
+
+Milestone 3: Deterministic Algorithm Closure
+--------------------------------------------
+1. Resolve all remaining optional/ambiguous branches in algorithms.
+2. Define canonical behavior for edge cases, tie-breaks, and failure paths.
+3. Provide reference pseudocode-to-spec mapping for each critical operator.
+4. Freeze numeric policies (tolerances, NaN/Inf handling, quantile method, rounding).
+
+Deliverable:
+- Fully unambiguous execution semantics for codegen.
+
+
+Milestone 4: Codegen Target Architecture
+----------------------------------------
+1. Decide primary generation targets (language, runtime, storage, transport).
+2. Define generated project layout (modules, package boundaries, config loading).
+3. Define runtime integration contracts (logging, tracing, metrics, authz, persistence).
+4. Standardize generated build/test scripts and dependency lock policy.
+
+Deliverable:
+- Approved target architecture profile for generation.
+
+
+Milestone 5: Generator + Templates
+----------------------------------
+1. Build generator pipeline that consumes schemas + operator registry.
+2. Implement templates for:
+   - data models
+   - operator interfaces/stubs
+   - validation layers
+   - error handling
+   - trace/checkpoint/WAL bindings
+3. Generate deterministic test scaffolding from contract vectors.
+4. Add idempotent regeneration workflow (safe re-run without manual edits loss).
+
+Deliverable:
+- First end-to-end code generator producing compilable service skeletons.
+
+
+Milestone 6: Reference Implementations for Critical Operators
+--------------------------------------------------------------
+1. Implement high-risk operators manually or with constrained templates first.
+2. Add golden vectors for each critical operator and cross-file hash commitments.
+3. Verify generated and reference outputs are equivalent under required profiles.
+4. Lock canonical implementations where deterministic behavior is most sensitive.
+
+Deliverable:
+- Verified core operator set with reproducible outputs.
+
+
+Milestone 7: End-to-End Verification Gates
+------------------------------------------
+1. Add mandatory conformance pipeline for generated code:
+   - schema conformance
+   - interface/signature conformance
+   - replay determinism
+   - checkpoint/restore
+   - evidence integrity
+2. Enforce release gates against generated artifacts only.
+3. Require registry parity and hash-chain integrity in CI.
+4. Fail build on any spec/code drift.
+
+Deliverable:
+- Policy-enforced CI proving generated code obeys contracts.
+
+
+Milestone 8: Deployment-Ready Generation
+----------------------------------------
+1. Generate deployment artifacts (container, runtime configs, policy bindings).
+2. Generate environment-specific manifests with deterministic defaults.
+3. Add migration and rollback generation for schema/operator changes.
+4. Validate production profile (managed/confidential/regulated) end-to-end.
+
+Deliverable:
+- One-command generation + deployable artifact bundle.
+
+
+Milestone 9: Push-Button Production Readiness
+---------------------------------------------
+Exit criteria:
+1. One command generates code, tests, manifests, and release evidence.
+2. Generated system passes all conformance and release gates without manual patching.
+3. Replay determinism and checkpoint restore pass in target environments.
+4. Documentation, registry, and generated code remain drift-free under CI.
+
+Final Deliverable:
+- Trusted push-button generation workflow for UML_OS implementations.
