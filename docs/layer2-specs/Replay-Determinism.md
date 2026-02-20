@@ -109,7 +109,7 @@
 - deterministic comparator order and complete reporting.
 
 ### II.F Replay Token Formulas (Authoritative)
-- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, uint64(seed)]))`.
+- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`.
 - `env_manifest_hash` is computed per `docs/layer1-foundation/Environment-Manifest.md` (alias `runtime_env_hash` must resolve to same bytes32).
 - `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))[0:16]`.
 - `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
@@ -123,7 +123,8 @@
   - `philox_key = [u32_le(epoch_seed[0:4]), u32_le(epoch_seed[4:8])]`.
   - `philox_counter_base = [u32_le(epoch_seed[8:12]), u32_le(epoch_seed[12:16]), 0, 0]`.
   - All `u32_le` conversions are little-endian, unsigned.
-  - Counter advancement is deterministic and tracked by `rng_offset_before/after`.
+- Counter advancement is deterministic and tracked by `rng_offset_before/after`.
+  - counter increment rule: each RNG draw increments the 128-bit counter by 1 (little-endian word carry propagation across four u32 words).
 - Required environment capture in replay token context:
   - driver/runtime versions,
   - determinism-affecting env vars (e.g., TF32 toggles, deterministic kernel flags, collective ordering flags),
@@ -131,7 +132,9 @@
 - `DriverRuntimeFingerprint` schema and hash:
   - schema fields: `gpu_model`, `gpu_sm_count`, `driver_version`, `cuda_version`, `cudnn_version`, `cublas_version`, `nccl_version`, `os_kernel_version`, `compiler_id`, `compiler_flags_hash`, `backend_adapter_version`, `backend_build_id`.
   - `driver_runtime_fingerprint_hash = SHA-256(CBOR_CANONICAL(driver_runtime_fingerprint_map))`.
+  - field-order requirement: keys MUST appear exactly in the listed order for canonical map construction.
 - Replay token minimum state coverage:
+  - Operator contracts: `operator_contracts_root_hash`,
   - RNG counters: `rng_offset_before`, `rng_offset_after`,
   - DP: `dp_accountant_state_hash`, `dp_config_hash`,
   - Data: `sampler_config_hash`, `effective_q`,
@@ -146,7 +149,12 @@
 - `reduction_ordering: enum("ASCENDING_INDEX","ASCENDING_RANK_RING")`
 - `atomic_reductions_allowed: bool` (`false` required for E0)
 - `env_vars_fingerprint: bytes32`
+  - computed as `SHA-256(CBOR_CANONICAL(sorted([(name,value)])))` over determinism-critical environment allowlist:
+    - `CUBLAS_WORKSPACE_CONFIG`, `CUDA_VISIBLE_DEVICES`, `NCCL_ALGO`, `NCCL_PROTO`, `OMP_NUM_THREADS`, `PYTHONHASHSEED`.
+  - inclusion rule: include only variables that are actually set; resulting `(name,value)` tuples are sorted lexicographically by `name`.
 - `driver_versions: map<string,string>`
+- `determinism_class_map: map<string, enum("E0","E1","NON_COMPARABLE")>`:
+  - declares per-field comparator class used by `CompareTrace_v1`.
 - Tier binding:
   - `BITWISE`: fixed collective algorithm/chunk order/accumulation dtype-order and `atomic_reductions_allowed=false`.
   - `TOLERANCE`: explicit per-field tolerance bands and E1 comparator profile.
@@ -226,10 +234,16 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 **Operator:** `UML_OS.Replay.CompareTrace_v1`  
 **Category:** IO  
-**Signature:** `(trace_a, trace_b -> divergence_summary)`  
+**Signature:** `(trace_a, trace_b, comparison_profile -> divergence_summary)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** compares trace fields under declared determinism class rules.  
+**Definition:** compares trace fields under declared determinism class rules using `docs/layer2-specs/Trace-Sidecar.md` schema, active determinism profile, and the selected comparison profile from Section II.I:
+- E0 fields: exact byte equality (`replay_token`, hashes, `operator_id`, `operator_seq`, state fingerprints, decision/status codes),
+- E1 fields: tolerance comparisons as declared by profile/field policy (for example numeric metrics), using
+  `|a-b| <= max(abs_tol, rel_tol * max(|a|, |b|))` with deterministic per-field `abs_tol`/`rel_tol`,
+  where `abs_tol` and `rel_tol` are sourced from the active determinism profile (or field overrides). If unspecified, defaults are `abs_tol = EPS_EQ` and `rel_tol = 0`.
+- key-space and record ordering must match exactly in canonical `(t, rank, operator_seq)` order.
+- profile mismatch rule: if `comparison_profile` is missing, unknown, or inconsistent with trace preconditions, return deterministic divergence failure (`REPLAY_DIVERGENCE`) with explicit reason in diagnostics.
 **Preconditions / Postconditions:** identical schema keys/types.  
 **Edge cases:** different lengths.  
 **Numerical considerations:** exact for E0 fields, threshold for E1.  
@@ -253,8 +267,8 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ```text
 1. ComputeReplayToken_v1 for both runs
 2. VerifyRNGOwnership_v1 for both traces
-3. CompareTrace_v1(trace_a, trace_b)
-4. VerifyRestore_v1(checkpoint_a, checkpoint_b)
+3. CompareTrace_v1(trace_a, trace_b, comparison_profile)
+4. VerifyRestore_v1(checkpoint_blob, restored_state, replay_token)
 5. Return replay_report
 ```
 

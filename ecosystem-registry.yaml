@@ -1,1696 +1,1774 @@
-ecosystem_registry_version: "EQC-ES-v1.9"
-portfolio_name: "ML2ML"
-generated_at: "2026-02-20"
+ecosystem_registry_version: EQC-ES-v1.9
+portfolio_name: ML2ML
+generated_at: '2026-02-20'
 ecosystem-imports: []
 records:
-  - DocID: "CORE-ES-001"
-    Title: "EQC Ecosystem Specification"
-    Type: "core-guidelines"
-    Layer: 0
-    FilePath: "document_guidelines/EquationCode/ECOSYSTEM.md"
-    CurrentVersion: "EQC-ES-v1.9.1"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "a09b2e61db67a21be8c86a086e695109ae363bbacf45c4917f7c37417304cfae"
-    PreviousSHA256: "19c79cb64dcedfb0b13e7a17b2d1dff64e22d71dccaafad9ec7fbc4accd0c01f"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "CORE-BASE-001"
-    Title: "EQC Base Guidelines"
-    Type: "core-guidelines"
-    Layer: 0
-    FilePath: "document_guidelines/EquationCode/EQC.md"
-    CurrentVersion: "EQC-v1.1"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "30e355c0dfda36de76d217843a966c7c5582b3bf0cc5361064243d82e4fe5d96"
-    PreviousSHA256: "5db310f98060ed4cba5725bf9b8a9a4a166763afc5d13d8e94ede4098e31b660"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-001"
-    Title: "API Interfaces"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/API-Interfaces.md"
-    CurrentVersion: "`UML_OS.Implementation.APIInterfaceContract_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "cfb18520eee339edff73426c963d01dd2e170249abbf030ab3df2f875ae0db83"
-    PreviousSHA256: "d859b7935143fdba330d7408cbc2e75b780e875064846ea22d6a2b454863431f"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-002"
-    Title: "Canonical CBOR Profile"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Canonical-CBOR-Profile.md"
-    CurrentVersion: "`UML_OS.Serialization.CanonicalCBORProfile_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "6c9c095a944825ff424256d8bc26d4bfbfcd955775ae8df9dbeffe5326385c58"
-    PreviousSHA256: "1790dc8c5304d2f2ba14c20b759564d2eee45fb94286cedaa4b775f90b69ebe3"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-003"
-    Title: "Data Structures"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Data-Structures.md"
-    CurrentVersion: "`UML_OS.Implementation.DataStructureContract_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "cd9fb6b1195bc31ad71457e1ce8b0da63952acfaedc49b61092b1ec327fc8896"
-    PreviousSHA256: "3aaa64b43e0c1e0dcd203ee6ccf4c42964acd7112dbc2deaf374f9d15af1d9d6"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-004"
-    Title: "Dependency Lock Policy"
-    Type: "external-dependency"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Dependency-Lock-Policy.md"
-    CurrentVersion: "`UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "9f7e26c792d07ee2d73cd6874d0a68ab06dab8663ebddc509c5638a964d2455c"
-    PreviousSHA256: "4b77f805c34586928e6ab54ed30d33ba16de51f3e70c650417f35d69e720e42e"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-005"
-    Title: "Determinism Profiles"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Determinism-Profiles.md"
-    CurrentVersion: "`UML_OS.Replay.DeterminismProfiles_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "20eb3135ef5aa69c8cffbd8b25d17e89fc3df8aecae8704ed64d547307d52df5"
-    PreviousSHA256: "18c342cb6a9e607515960642b9f8716ee62a8ea7fd43e9df6737f25e97f5bed8"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-006"
-    Title: "Digest Catalog"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Digest-Catalog.md"
-    CurrentVersion: "`UML_OS.Registry.DigestCatalog_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "3c1ecb9540f8f8a1e2ec0cd49be0112297470c7466a6694493022a2a7c5136b3"
-    PreviousSHA256: "4b8e64ad02ecd3d42c21faf75daeaefa337ac61dce71f989952f88c1e7d67ca9"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-007"
-    Title: "Environment Manifest"
-    Type: "external-dependency"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Environment-Manifest.md"
-    CurrentVersion: "`UML_OS.Environment.Manifest_v1` | 2026-02-20 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-20"
-    Owner: "ML2ML"
-    SHA256Hash: "d45ec11545ee1509743505c0506b33fb36a7860120466b74aab7892530f14a82"
-    PreviousSHA256: "3594284b82dc791d36b5e0ab9a2956171a621ef0c010ef0ebf69e45db4c82637"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-008"
-    Title: "Error Codes"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Error-Codes.md"
-    CurrentVersion: "`UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "9d35c6f28f9ba21b63b725b9427c63f6918e0e62d97be415b2124c863f4a02b5"
-    PreviousSHA256: "2c06f2f6128a04591489fb175bdbfefec32f92d4ce8b77c31ff9db69d3faf6ee"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-009"
-    Title: "Operator Registry Schema"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Operator-Registry-Schema.md"
-    CurrentVersion: "`UML_OS.Registry.OperatorRegistrySchema_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "4961811e44328492bec4a9c2758c527d8da70572b25de1f4169b17594eb87d90"
-    PreviousSHA256: "56332336219d380e56995fcfd0c736e448273a25f2ac2681ad6a62ce4c6d37f6"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L1-010"
-    Title: "Redaction Policy"
-    Type: "operator-library"
-    Layer: 1
-    FilePath: "docs/layer1-foundation/Redaction-Policy.md"
-    CurrentVersion: "`UML_OS.Security.RedactionPolicy_v1` | 2026-02-20 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-20"
-    Owner: "ML2ML"
-    SHA256Hash: "2900726e34ce0db966cfc7e2ed95050313e7e89a104045ce42c919843bb52802"
-    PreviousSHA256: "09cb084b5a7fafb8dffb0cb60d16825af4ac247e6c5f662334018d38902581a5"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-001"
-    Title: "AuthZ Capability Matrix"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/AuthZ-Capability-Matrix.md"
-    CurrentVersion: "`UML_OS.Security.AuthZCapabilityMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "8657253954166aff671e25a11f8b99b4fb12fad9ee92d629cba680bf7360a25d"
-    PreviousSHA256: "95147772417bab80a0e0678f652c44545c7b613c33aa0da790acde43074f5452"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-002"
-    Title: "Checkpoint Schema"
-    Type: "checkpoint-schema"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Checkpoint-Schema.md"
-    CurrentVersion: "`UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "45c62c1e43aa0e1e3a97eecd33b2ef655e85696a405536e811e9adea5fc94f83"
-    PreviousSHA256: "cc55615b5e15a09af0042a2277e2996631b1f96950d2588241767c6454043112"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-003"
-    Title: "Config Schema"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Config-Schema.md"
-    CurrentVersion: "`UML_OS.Config.SchemaValidator_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "3e28f34695b2af4a7310d732a7792889e223672fe4da9907c94983b93900f177"
-    PreviousSHA256: "f2c3e5d8470aace22e29b4e4c79d939e421b345bb1d746694d63a7d1175d2618"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-004"
-    Title: "Data Lineage"
-    Type: "data-registry"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Data-Lineage.md"
-    CurrentVersion: "`UML_OS.Data.Lineage_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "eff95ae75eae2a0fae910900252737d8ed53a282c74419c7556c2ae5d926e636"
-    PreviousSHA256: "5cb340cfc7263d4e61d30e105430ba5496a346ffdccb1b8e6bd1013ccf6fd8a7"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-005"
-    Title: "Data NextBatch"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Data-NextBatch.md"
-    CurrentVersion: "`UML_OS.Data.NextBatch_v2` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "f4356ad8a20499c7c1a96b2b76cc2e9774f6cf19e93d406e81d8d032720d7db3"
-    PreviousSHA256: "78b98c87816dc6ee3e1884f9ca011c34ff2c6367f2d456ebc9dcea94d78898a1"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-006"
-    Title: "Deployment Runbook"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Deployment-Runbook.md"
-    CurrentVersion: "`UML_OS.Implementation.DeploymentRunbook_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "453f7203a669cf63ed5b992a8e7d9add8702980b7c58a4f79f90754741f21d8a"
-    PreviousSHA256: "1c12dcf6e66af783e1ddf29c508c7148eb249413134c308756abd4f60c149c64"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-007"
-    Title: "DifferentialPrivacy Apply"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/DifferentialPrivacy-Apply.md"
-    CurrentVersion: "`UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "2c50db62ae2e4e3bad2c490de849218bbd2368e7eb0b90cd08e17013ca35258a"
-    PreviousSHA256: "53c6de58a037df93210e6632d6bb39e3d68e59a33ff22c84f15173e286d93b99"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-008"
-    Title: "Evaluation Harness"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Evaluation-Harness.md"
-    CurrentVersion: "`UML_OS.Eval.Harness_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "3d2e3e4e148bc03c4bb74c4d63d0df3da6333c13719783d0761b7ed71535f01d"
-    PreviousSHA256: "6ae2e071966c4ab9414d02b6616fe10401817643790d4e9bdd379068f47677c8"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-009"
-    Title: "Execution Certificate"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Execution-Certificate.md"
-    CurrentVersion: "`UML_OS.Certificate.ExecutionCertificate_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "0ef7691026a558357a5aa39dfc66024c5ca06bec508ea04bb305ca2641b7ecae"
-    PreviousSHA256: "dc25262914d2bccda14e1b93a79233e6a8018d38dabb2dc2d8aa83ed2499ce31"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-010"
-    Title: "Experiment Tracking"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Experiment-Tracking.md"
-    CurrentVersion: "`UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "0b95fae61e9f5a1c186875e9a107738f7716e67abe0e50ea97de3dc90617db57"
-    PreviousSHA256: "3d8583547fcf8fa9c122c5540710a40476a1063e12339ee0b88359c84b13d45c"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-011"
-    Title: "Model Registry"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Model-Registry.md"
-    CurrentVersion: "`UML_OS.Registry.ModelRegistry_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "fa59eef731b250c7529e9217f3abf3ddfa896f53562ffa911ea6e42618f6f3cd"
-    PreviousSHA256: "a9382e35d53b2bf44c08dcc187b19d6c620e0786a65ec26f0b22140593c783f4"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-012"
-    Title: "ModelIR Executor"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/ModelIR-Executor.md"
-    CurrentVersion: "`UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "33bc143f8c0904b68e5a6518222588bdba1cdaef96e55f2b7ba462c302e33c9f"
-    PreviousSHA256: "2ff2adfed5b7853f97d546901d4a13fc2212e56cd8e0b98766d024cfb5fb7781"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-013"
-    Title: "Monitoring Policy"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Monitoring-Policy.md"
-    CurrentVersion: "`UML_OS.Monitoring.Policy_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "ff742e7f517261dcf8e5367f6d96925524f0e363941584a92e1196c5a7845ffc"
-    PreviousSHA256: "8702ff4cd0722a8054bfa616674f2be760f8f51447843c08ca5f068215cfee7d"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-014"
-    Title: "Pipeline Orchestrator"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Pipeline-Orchestrator.md"
-    CurrentVersion: "`UML_OS.Pipeline.Orchestrator_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "a26e6cdf94195f71825b4b65479f3d8dafc24fb1ef1cad840ca34c8d273f60e7"
-    PreviousSHA256: "24586eca3229a47d0f5ac16347fb4f496b1a80abea8657fc02ef811f1e341aa3"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-015"
-    Title: "Replay Determinism"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Replay-Determinism.md"
-    CurrentVersion: "`UML_OS.Implementation.ReplayDeterminismContract_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "98a4f89b0ec7c0eb9cfae45ad33c48ce9d99d1585f56300ccbd6d4c99c5ed01a"
-    PreviousSHA256: "e5298a33bed66c04bb6a3d0042e58f644ffa79c9bc2f724f59a0b8c668932355"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-016"
-    Title: "Run Commit WAL"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Run-Commit-WAL.md"
-    CurrentVersion: "`UML_OS.Commit.RunCommitWAL_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "2301adcb51ab7489d385c09c6eda2c086f9c0c435983ad85c7e6900847811a1e"
-    PreviousSHA256: "e28d6056512d062b1cf8e24091de04a7ac3414a785e475b8a4f99aa47f853009"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-017"
-    Title: "Security Compliance Profile"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Security-Compliance-Profile.md"
-    CurrentVersion: "`UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "545d8224c8ca17c076be42dd3f96e094fa21d440e6c236db1d1c0a64a616cf57"
-    PreviousSHA256: "35f1d939900cb59ec68d9823c2a7498e06c06593285870dfe7c60346284005f3"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-018"
-    Title: "TMMU Allocation"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/TMMU-Allocation.md"
-    CurrentVersion: "`UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "f19ed71f5e108980beb877956c1d8b3043faeee881039657a9e65fed371bd311"
-    PreviousSHA256: "97f01f7b52db1feb833a29f194bb3ade62dd0e52b80cb0929722094a7a3f6ff7"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-019"
-    Title: "Trace Sidecar"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/Trace-Sidecar.md"
-    CurrentVersion: "`UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "220bea0540647668005d028312a209e7798860864ff393e5b6b66e78f219bbdd"
-    PreviousSHA256: "023575448e48ab23e3c2bf992520db7ab8a6c59c5e40501da19ac2d8ca067c60"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L2-020"
-    Title: "UML_OS Kernel v3.22 OS"
-    Type: "algorithm-spec"
-    Layer: 2
-    FilePath: "docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md"
-    CurrentVersion: "UML_OS-v3.22-OS | 2026-02-17 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "bb4ca10ebc6de95388a0a0635e61b33b3bd49e41065ab4c260d2fc175352caa1"
-    PreviousSHA256: "2ff8e631e9f45e8160882da5c09a4ec6cff697b77839eecf9e84377fcdd3745c"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-001"
-    Title: "Compatibility Test Matrix"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Compatibility-Test-Matrix.md"
-    CurrentVersion: "`UML_OS.Test.CompatibilityMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "27600a2bd744fd1b115c7bc9418b1af4b589630b71e0884c6fb526fa7bfb67ae"
-    PreviousSHA256: "7f4a4291ee2136f8f4cd0d75e2159cabd1601e2d17421f203f074900da718ce0"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-002"
-    Title: "Conformance CI Pipeline"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Conformance-CI-Pipeline.md"
-    CurrentVersion: "`UML_OS.Implementation.ConformanceCIPipeline_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "fd179ec95eac049eecf4ed50b46e2375f1c732222a37e1efe6456aae18649f22"
-    PreviousSHA256: "7b39fdb635344da8d45fc99fc162de76a49d2251f503de764c8165719f329c87"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-003"
-    Title: "Conformance Harness Guide"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Conformance-Harness-Guide.md"
-    CurrentVersion: "`UML_OS.Implementation.ConformanceHarnessGuide_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "c232b3130b8539c88322f805023c341cdfca2d086b6836ef6395192e10f7d7c7"
-    PreviousSHA256: "7ce614de5ff4764927d1eaee61c9e6ad22dcfab60b6b2d66eec0ee7de7f5d99a"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-004"
-    Title: "Coverage Targets"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Coverage-Targets.md"
-    CurrentVersion: "`UML_OS.Test.CoverageTargets_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "484d13d4535cdfdaff0cf455bb772156106bbaee65c46b349754bc24d58ee774"
-    PreviousSHA256: "42d77f7fead3c7c0286b2da81a9dde6a448fc7cc7fd86b4375dcd39467018a6f"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-005"
-    Title: "Data Contract Fuzzing Guide"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Data-Contract-Fuzzing-Guide.md"
-    CurrentVersion: "`UML_OS.Test.DataContractFuzzing_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "d738e999e949238050b867f4528f998e0a837548a406d908be421f031bc4e657"
-    PreviousSHA256: "2cb45c8345d157154526adad828485001168bf43ecf662bbd9e7d0a4477f6957"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "data-registry.yaml#/datasets/uml_os_default"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-006"
-    Title: "Failure Injection Scenarios"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Failure-Injection-Scenarios.md"
-    CurrentVersion: "`UML_OS.Test.FailureInjection_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "0a58d2ff0613ef1631944f3cc98c8304792b494d47c4c8d1fdc18ddf7bcb3b44"
-    PreviousSHA256: "e61604d51262ec292264d2dd72c395354adc1483427f7b96641c7a7b8669045f"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-007"
-    Title: "Integration Test Matrix"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Integration-Test-Matrix.md"
-    CurrentVersion: "`UML_OS.Test.IntegrationMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "5dfe4b4a6ef17a43e45f1626203563defb81a42ec53d4374557fdf8073a193b3"
-    PreviousSHA256: "8a2f01867f48245a3cc97319c1621586ab01090a283747ff5658743efd076d57"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-008"
-    Title: "Performance Plan"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Performance-Plan.md"
-    CurrentVersion: "`UML_OS.Implementation.PerformanceGovernance_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "9c052aac2e86f29aa595621e18bb02d75d02d3daf41b77f25bdd7570e9d7c3de"
-    PreviousSHA256: "95a7ee50624e88dd7115c2af993d17adcd4e6b534c1a33ec972c61de293e23f8"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-009"
-    Title: "Release Gates"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Release-Gates.md"
-    CurrentVersion: "`UML_OS.Implementation.ReleaseGates_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "3a9655244bfb6fcfc093d657955639458a80ab1360362d2a1dbd994c6604a85f"
-    PreviousSHA256: "bce7b7858efb810359225f01e826f84a338fc8cf482c260891106653ead2eb8e"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-010"
-    Title: "Storage Recovery Test Matrix"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Storage-Recovery-Test-Matrix.md"
-    CurrentVersion: "`UML_OS.Test.StorageRecoveryMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "fcc383758d13102b5d9e15c1d4f9f3f1d1944806d12de52e8fadaded64775109"
-    PreviousSHA256: "5927c555ae806d81ed65c29e57cbe93ded62a0be9a33be48cd848885243c64cf"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-011"
-    Title: "Test Plan"
-    Type: "test-suite"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Test-Plan.md"
-    CurrentVersion: "`UML_OS.Implementation.TestPlanOrchestrator_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "3dc8311a383f945cdac6515c8f79458f82842b04df65c7b62189edc17ba4ac17"
-    PreviousSHA256: "8d5323ba2240b995460f42a1d56913f1cb001b160d2f85ca5b2780aa8b2c1995"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L3-012"
-    Title: "Test Vectors Catalog"
-    Type: "golden-trace-set"
-    Layer: 3
-    FilePath: "docs/layer3-tests/Test-Vectors-Catalog.md"
-    CurrentVersion: "`UML_OS.Test.VectorsCatalog_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "ff08eb987cc62f452fd22e4908a2268eb41b4d94937fc0558ad681100f3c7159"
-    PreviousSHA256: "55fe56270e6a1d6864e385dfe68edb160d2f4673609f103e33b2cc8c6b8459dc"
-    MinimumEquivalence: "E1"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-001"
-    Title: "Architecture Decisions Log"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Architecture-Decisions-Log.md"
-    CurrentVersion: "`UML_OS.Architecture.DecisionLog_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "7cc3a45b89f45a104750a0608fd6efa09ae474b54ea4cd81e1f282da09f7ded7"
-    PreviousSHA256: "f42de01f2301b9a13ba0167a85be16046184afd3491a990242613b9e93dceed5"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-002"
-    Title: "Artifact Store Adapter Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Artifact-Store-Adapter-Guide.md"
-    CurrentVersion: "`UML_OS.Storage.ArtifactStoreAdapterGuide_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "6b5972d998d25c5aecf50f4e68d2ac01d8183c2a7f58d45a24fff0cc841803dd"
-    PreviousSHA256: "4240f7732ade33db639428f6847cc0ab9dbbbf699e30d2440de145f317fe8ac4"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-003"
-    Title: "Backend Adapter Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Backend-Adapter-Guide.md"
-    CurrentVersion: "`UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "15f33343115606562e7907bd2fd9e61de5494bc38e451d1d0052cc42d81a066e"
-    PreviousSHA256: "becf51219361b29540d818df22f9c5891355e5822b364ce3619c2f074d3e0d7b"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-004"
-    Title: "Backend Feature Matrix"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Backend-Feature-Matrix.md"
-    CurrentVersion: "`UML_OS.Backend.FeatureMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "110fe5ee062ba5e5db7851cb3346309beae19ce0f117d8e5b29b311dd167e071"
-    PreviousSHA256: "5e0201a6e64a96f94c6c51e484d53e59047f31f7cd0dc17f2c6955d78e85af9b"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-005"
-    Title: "Build and CI Matrix"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Build-and-CI-Matrix.md"
-    CurrentVersion: "`UML_OS.Implementation.BuildCIMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "38076a45ac83979c2dd13514af164ae762c5e87c3f137ce9b2dc2829e6aadbf3"
-    PreviousSHA256: "5e0201a6e64a96f94c6c51e484d53e59047f31f7cd0dc17f2c6955d78e85af9b"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-006"
-    Title: "CLI Command Profiles"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/CLI-Command-Profiles.md"
-    CurrentVersion: "`UML_OS.Implementation.CLICommandProfiles_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "adfacf268a0fd452eef40c53a501cef51b8edd6f83ffa3a1ab137e3e77384567"
-    PreviousSHA256: "7fc8a3d6ffcb0888adebbf64dee56610f3adbe62ba00278e42b9543d204209ef"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-007"
-    Title: "Canonical Hashing Reference"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Canonical-Hashing-Reference.md"
-    CurrentVersion: "`UML_OS.Serialization.CanonicalHashingReference_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "8a336038a8824d766f48f4a19f1c4fc519cd4163364d5b18e1fb2d07745040f5"
-    PreviousSHA256: "c7778f1026aac60d1869823c05e85dda5af9c44be4a8ee47a1a3cffbc728d24e"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-008"
-    Title: "Code Generation Mapping"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Code-Generation-Mapping.md"
-    CurrentVersion: "`UML_OS.Implementation.CodeGenerationMapping_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "4a0664ee360b1cdbda3dd9d442dda1518405e4ded33fa8a9a90125cd90a523c6"
-    PreviousSHA256: "3b5c42dbd18b5ec49279931a9d28459a85d58b89cf6c81e121cf18c03e85fdce"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-009"
-    Title: "Coding Standards"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Coding-Standards.md"
-    CurrentVersion: "`UML_OS.Implementation.CodingStandards_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "82d1cba362da4d6ec32cdb1eb4df52d0ae1748739fc6f6dd90cb883b6c7575a4"
-    PreviousSHA256: "08af6b928066c533711fa50805b514d2c66a1253b31b81cc931515097e35df2c"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-010"
-    Title: "Command Reference"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Command-Reference.md"
-    CurrentVersion: "`UML_OS.Implementation.CommandReference_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "16e2592beee9b0adfb13813f1ce7cfa4d5d28ff6c72d14fe5aa6b8b5402aa61a"
-    PreviousSHA256: "3e356eec2ab2a6da659f749b3adf26c1c0e762b27e69a9de633ed88acf89e37a"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-011"
-    Title: "Contributing Workflow"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Contributing-Workflow.md"
-    CurrentVersion: "`UML_OS.Implementation.ContributingWorkflow_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "a12e279d16d8de52578e8ee70e22083d17d5906d5a164716c47b9aed0c4077b6"
-    PreviousSHA256: "52730d23dcea2d64a694834871459db4c582686363d7982538d986c07daafcea"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-012"
-    Title: "Debugging Playbook"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Debugging-Playbook.md"
-    CurrentVersion: "`UML_OS.Implementation.DebuggingPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "5a61451e68b57b1c22f5ffa1757a3742e60bfd6574509ae15b345b3d269f677b"
-    PreviousSHA256: "00e11c93d8c62515e3058b47a0d5b97729c87448366214fa2c3cf686e5052337"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-013"
-    Title: "Determinism Debug Checklist"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Determinism-Debug-Checklist.md"
-    CurrentVersion: "`UML_OS.Implementation.DeterminismDebugChecklist_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "42ae7fe569ebef2992d3d4aa06708a3528c9a581f3f800d535c68f8bcd426d8d"
-    PreviousSHA256: "99febde10cff632a6e2d4819cd7e727ccde49a231b3b430441753166f9fc8f2c"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-014"
-    Title: "Deterministic RNG Implementation Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Deterministic-RNG-Implementation-Guide.md"
-    CurrentVersion: "`UML_OS.Implementation.DeterministicRNGGuide_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "b4da63c154b44026e362ecc93411472d9d58fd630cd635069a62fdfa716a7c75"
-    PreviousSHA256: "1c2f977baf0b5b10121fdf41eb946a0c1b21b542c3ba19d2344c738c4143b6f3"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-015"
-    Title: "Developer Setup"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Developer-Setup.md"
-    CurrentVersion: "`UML_OS.Implementation.DeveloperSetup_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "9b09a83be10f1da785a1f895f5a64da3bd993f8076bd0ce7446c76a5147ea1c1"
-    PreviousSHA256: "272381b289dc7a16d50aecec91e343a78dc5df54ca535ae773a5aa740a32955a"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-016"
-    Title: "Developer Troubleshooting FAQ"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Developer-Troubleshooting-FAQ.md"
-    CurrentVersion: "`UML_OS.Implementation.TroubleshootingFAQ_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "dd1cfe200d63c77f281b0588e2edd072984955870c622c9f757dd287c0b5817e"
-    PreviousSHA256: "b45d9ddca32053a08c457799534c907bd493bc2dcbb405e6623d3c58ed2ee423"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-017"
-    Title: "Distributed Failure Recovery Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Distributed-Failure-Recovery-Guide.md"
-    CurrentVersion: "`UML_OS.Runtime.DistributedFailureRecovery_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "bc7fbee3175f152958f59a85aa714661f97a0198aa40b5c39dba120c373dee4f"
-    PreviousSHA256: "93331e039acb0dd106284a634bf3332409936b47f2e3ef998fc1cbdfd72ad298"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-018"
-    Title: "Fixtures and Golden Data"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Fixtures-and-Golden-Data.md"
-    CurrentVersion: "`UML_OS.Test.FixturesGoldenData_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "6ae5f0adbc6824ada044845e4297bdf436344385789b6a46fb2c2e800dae3dc5"
-    PreviousSHA256: "3331185c63afd1c7ec0893146f42b97cf58095d1b4855e41da3bf14bdad333c7"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-019"
-    Title: "Implementation Backlog"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Implementation-Backlog.md"
-    CurrentVersion: "`UML_OS.Implementation.Backlog_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "c752a3dfa634505a4a2a94431feed04168cad0df2505a881ff110a5682c257fe"
-    PreviousSHA256: "b68455e9164a40d7084dab702a8bf15bf740f617bc11c6638e51f4dcb4eedd5b"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-020"
-    Title: "Implementation Roadmap"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Implementation-Roadmap.md"
-    CurrentVersion: "`UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "9b30e77eecaf87c2cf462974fef06bd5c86d04d0d20ed068e375e1bfc3053388"
-    PreviousSHA256: "b68455e9164a40d7084dab702a8bf15bf740f617bc11c6638e51f4dcb4eedd5b"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-021"
-    Title: "Local Replay Runbook"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Local-Replay-Runbook.md"
-    CurrentVersion: "`UML_OS.Implementation.LocalReplayRunbook_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "cb6a5ba4001a5df6de346da3a91b9935fddadf0dee9bf74c3ac163dcf8670d21"
-    PreviousSHA256: "09cb06daddc38552e36999fda4c60bdeb34338e83a42d55e2bdbf02050b6b6ad"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-022"
-    Title: "Migration Execution Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Migration-Execution-Guide.md"
-    CurrentVersion: "`UML_OS.Implementation.MigrationExecutionGuide_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "cd44af599dad209c0b1b54b5e16b671e2177b908d0ac06dc655a6c73dd951300"
-    PreviousSHA256: "57729892a2dfe20e7aa7b8e329b36257bff695d82ec606d2b6bb34d890d031d8"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-023"
-    Title: "Module Scaffolding Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Module-Scaffolding-Guide.md"
-    CurrentVersion: "`UML_OS.Implementation.ModuleScaffold_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "7b477aae377d92111ab2c9ea79133d915b1a12b1c9a6327c520cf06f7c9db86d"
-    PreviousSHA256: "848bfa8356ddb5e43e76768058da03d4b55a6b239f2f17f7273fb4a140ee543c"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-024"
-    Title: "Operator Conformance Matrix"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Operator-Conformance-Matrix.md"
-    CurrentVersion: "`UML_OS.Implementation.OperatorConformanceMatrix_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "0eb2e26de8f10b9c6022bff866e1b8afc32ee105981cda5c2624c327592b8e78"
-    PreviousSHA256: "aef1a6c4aa9fb5ec449d00d86ae2e01c49852ccc601b02088e14a100d84be8d3"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-025"
-    Title: "Operator SDK Scaffold Template"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Operator-SDK-Scaffold-Template.md"
-    CurrentVersion: "`UML_OS.Implementation.OperatorSDKScaffold_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "4569498cc6f520e9b554a1d689d2c95f9249be0f059fcda25e74b6a7db6d68c6"
-    PreviousSHA256: "e7b75b8a2931dfd77ce1273432d7bf6df2cadd2019b0e7a154718af7974f64d9"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-026"
-    Title: "PR Review Checklist"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/PR-Review-Checklist.md"
-    CurrentVersion: "`UML_OS.Implementation.PRReviewChecklist_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "abb72dc2172e2b44a64b9ec45603dd13129de51e68a4dbe1ef513df733cd4090"
-    PreviousSHA256: "7aeef185e05c4b8c1b7364faf2e8a6b882434918a59338af0cbb235c168878d5"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-027"
-    Title: "Profiling and Optimization Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Profiling-and-Optimization-Guide.md"
-    CurrentVersion: "`UML_OS.Implementation.ProfilingOptimizationGuide_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "fbd353e3b462dcd4198858af54d419d7a4bf840a3836235391fd145581a01219"
-    PreviousSHA256: "40c9c3c185081242fb291109ca8636a23ca3926011d8298cbb3ff4daac5e139c"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-028"
-    Title: "Reference Implementations"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Reference-Implementations.md"
-    CurrentVersion: "`UML_OS.Implementation.ReferenceImplementations_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "231bb9af583ca0b255d7f410d8a3931fba3c24c57917fa2b39e48906b1f6f884"
-    PreviousSHA256: "740954b6fb92a6fec36d6004f1ae7c09f60ff2c2897d58da1459704b5118108d"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-029"
-    Title: "Release Evidence Assembler"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Release-Evidence-Assembler.md"
-    CurrentVersion: "`UML_OS.Release.EvidenceAssembler_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "0b8e4ea8b97e5acf218f9527c2b676ba897a9347442aaff120db1401a6a6050f"
-    PreviousSHA256: "740954b6fb92a6fec36d6004f1ae7c09f60ff2c2897d58da1459704b5118108d"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-030"
-    Title: "Repo Layout and Interfaces"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Repo-Layout-and-Interfaces.md"
-    CurrentVersion: "`UML_OS.Implementation.RepoLayoutInterfaces_v1` | 2026-02-18 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "bc12c43e63b32cad0721d87671a4c3f4fb268650720d2f6951f8447bb1a7febf"
-    PreviousSHA256: "0e05b326576fb54ffb4f862ef189fef9d556be98e3ee28eb2ed724ead5459e20"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-031"
-    Title: "Runtime State Machine Reference"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Runtime-State-Machine-Reference.md"
-    CurrentVersion: "`UML_OS.Runtime.StateMachineReference_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "557cfa8d5d41b5a2057aa974d06e2e2ec652611c718f1771add9b3f823472f67"
-    PreviousSHA256: "82548d28582a5fe721a4bd63b307e4291904399366e228ca846874e041670b4a"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-032"
-    Title: "SDK Usage Guide"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/SDK-Usage-Guide.md"
-    CurrentVersion: "`UML_OS.SDK.UsageGuide_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "844faa4a8af0c7d3ac19bfd01115d7e864caa97b3b3504951c18a90414bae356"
-    PreviousSHA256: "396b7a0658c39bed0367d1868b83792ba756d9d308dec826d81f623b0acf812e"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-033"
-    Title: "SRE Incident Triage Playbook"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/SRE-Incident-Triage-Playbook.md"
-    CurrentVersion: "`UML_OS.Operations.SREIncidentTriage_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "54bb27333bb46dccb210f8f87e3b84f8e018e98d09258bf5d16dc660fd488cfa"
-    PreviousSHA256: "5d2d6d2615a8aad90bb8d57d4566b3d2caaab110b7f31fd9759c6abb4e166fa5"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-034"
-    Title: "Schema Evolution Playbook"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Schema-Evolution-Playbook.md"
-    CurrentVersion: "`UML_OS.Implementation.SchemaEvolutionPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "4ee85f9672bf961174f64d62674529ebabed8a7b8465fe41d7e6f9e0c944d001"
-    PreviousSHA256: "4147cb0e2ad0421d3d2195279307e366421a20613a58d7c754beea019be8528a"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-035"
-    Title: "Security Coding Checklist"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Security-Coding-Checklist.md"
-    CurrentVersion: "`UML_OS.Security.CodingChecklist_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "6965c1ef99e9760aa06a1157a7aafc7b230b9071a5156597f1b989479424b763"
-    PreviousSHA256: "aca9d45bcb5c43b0372190bb41ed08f15b98623fccd227e8c61f6147ac2feec8"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-036"
-    Title: "Spec Lint Implementation"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Spec-Lint-Implementation.md"
-    CurrentVersion: "`UML_OS.Implementation.SpecLint_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "33c9783eb83ac68ddf2799b754c481d35e6624a2be108da69f09ee48279eab8f"
-    PreviousSHA256: "aca9d45bcb5c43b0372190bb41ed08f15b98623fccd227e8c61f6147ac2feec8"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-037"
-    Title: "Test Harness Implementation"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Test-Harness-Implementation.md"
-    CurrentVersion: "`UML_OS.Test.HarnessImplementation_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "d5002adc70fa9ef458c425e2600f107c7e16cba13eaf4032ea623cff113da370"
-    PreviousSHA256: "3ed97cdcaa4fe8fbe814faf81274737f202c515cf9dcb04b95a9847cc53d997e"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "CORE-MASTER-001"
-    Title: "EQC Ecosystem Master"
-    Type: "core-guidelines"
-    Layer: 0
-    FilePath: "ecosystem.md"
-    CurrentVersion: "EQC-ES-v1.9"
-    Status: "active"
-    LastUpdated: "2026-02-20"
-    Owner: "ML2ML"
-    SHA256Hash: "05f196275f21b80b12abfb2d4b4769a08fe27ce544a306ee88c330ffdd16cb34"
-    PreviousSHA256: "0596b92a9d003b3a352ee05a3809a4a27562d37d4066b1c56c3a5f42a19327c7"
-    MinimumEquivalence: "E0"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "AUX-LOG-001"
-    Title: "Ecosystem Validation Log"
-    Type: "other"
-    Layer: 4
-    FilePath: "ecosystem-validation-log.md"
-    CurrentVersion: "v1.0.0"
-    Status: "active"
-    LastUpdated: "2026-02-20"
-    Owner: "ML2ML"
-    SHA256Hash: "ae37671be0487794424db0de8f2a8ca5bf4f9d0e15d8bc8daa52575132b77448"
-    PreviousSHA256: "2adce80a9933f4a84a741386ef2419c890db4a9e807b3955a8578f7c085d63f8"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "IO"
-  - DocID: "AUX-TEMPLATE-001"
-    Title: "Portfolio Release Notes Template"
-    Type: "other"
-    Layer: 4
-    FilePath: "portfolio-release-notes-template.md"
-    CurrentVersion: "v1.0.0"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "d3c01870a0118e1ea0cbc30a8c2257d642a432e3f33e392bc2c3aade624428d4"
-    PreviousSHA256: "945356ca59cddcf3e2865e8e163499f42983bc904d4958a102ec2a2474b2a2c6"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-038"
-    Title: "Operator Registry CBOR Contract"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Operator-Registry-CBOR-Contract.md"
-    CurrentVersion: "`UML_OS.Registry.OperatorRegistryCBOR_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "47a5720a0a4ef9a0f26aeea5659ea8e5554ecffc1a394c7d342fa862281881ee"
-    PreviousSHA256: "d3c01870a0118e1ea0cbc30a8c2257d642a432e3f33e392bc2c3aade624428d4"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-039"
-    Title: "Spec Lint Rules Catalog"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Spec-Lint-Rules.md"
-    CurrentVersion: "`UML_OS.Implementation.SpecLintRules_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "1d2b983d48cfba92e82edd793fef75ea798007765df80eb496666afc4cc7144f"
-    PreviousSHA256: "47a5720a0a4ef9a0f26aeea5659ea8e5554ecffc1a394c7d342fa862281881ee"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-040"
-    Title: "Change Control Playbook"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Change-Control-Playbook.md"
-    CurrentVersion: "`UML_OS.Implementation.ChangeControlPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "9b96dde842c23607d92c03aeca25fdd0f3b9471dfe6f1da83f21abc72167f9c3"
-    PreviousSHA256: "1d2b983d48cfba92e82edd793fef75ea798007765df80eb496666afc4cc7144f"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-041"
-    Title: "Contracts Artifact Lifecycle"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/Contracts-Artifact-Lifecycle.md"
-    CurrentVersion: "`UML_OS.Implementation.ContractsArtifactLifecycle_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "6d36835e7c2b49b4e23edf3acd5afdebb28228d4f8cce0f66d87b7f9820ff202"
-    PreviousSHA256: "16820c0b20c3441d63d8f354525a74af76246715f733ddc97b67fa40f7353802"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
-  - DocID: "L4-042"
-    Title: "EQC CI Policy"
-    Type: "derived-impl"
-    Layer: 4
-    FilePath: "docs/layer4-implementation/EQC-CI-Policy.md"
-    CurrentVersion: "`UML_OS.Implementation.EQCCIPolicy_v1` | 2026-02-19 | Authors: Olejar Damir"
-    Status: "active"
-    LastUpdated: "2026-02-19"
-    Owner: "ML2ML"
-    SHA256Hash: "17ee794a05db20ab7fdaf5d45f306e863f0c868bfbea05f3c7b2b4f70c955328"
-    PreviousSHA256: "6d36835e7c2b49b4e23edf3acd5afdebb28228d4f8cce0f66d87b7f9820ff202"
-    MinimumEquivalence: "E2"
-    ToolingManifestRef: "ecosystem/tooling-manifest.yaml#eqc-es-v1"
-    DataProvenanceRef: "none"
-    DeclaredEdgeTypes:
-      - "IMPORTS"
-      - "REFERENCES"
-      - "RECOGNIZES"
-    PurityClass: "PURE"
+- DocID: CORE-ES-001
+  Title: EQC Ecosystem Specification
+  Type: core-guidelines
+  Layer: 0
+  FilePath: document_guidelines/EquationCode/ECOSYSTEM.md
+  CurrentVersion: EQC-ES-v1.9.1
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: a09b2e61db67a21be8c86a086e695109ae363bbacf45c4917f7c37417304cfae
+  PreviousSHA256: 19c79cb64dcedfb0b13e7a17b2d1dff64e22d71dccaafad9ec7fbc4accd0c01f
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: CORE-BASE-001
+  Title: EQC Base Guidelines
+  Type: core-guidelines
+  Layer: 0
+  FilePath: document_guidelines/EquationCode/EQC.md
+  CurrentVersion: EQC-v1.1
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 30e355c0dfda36de76d217843a966c7c5582b3bf0cc5361064243d82e4fe5d96
+  PreviousSHA256: 5db310f98060ed4cba5725bf9b8a9a4a166763afc5d13d8e94ede4098e31b660
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-001
+  Title: API Interfaces
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/API-Interfaces.md
+  CurrentVersion: '`UML_OS.Implementation.APIInterfaceContract_v1` | 2026-02-18 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: cfb18520eee339edff73426c963d01dd2e170249abbf030ab3df2f875ae0db83
+  PreviousSHA256: d859b7935143fdba330d7408cbc2e75b780e875064846ea22d6a2b454863431f
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-002
+  Title: Canonical CBOR Profile
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Canonical-CBOR-Profile.md
+  CurrentVersion: '`UML_OS.Serialization.CanonicalCBORProfile_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 6c9c095a944825ff424256d8bc26d4bfbfcd955775ae8df9dbeffe5326385c58
+  PreviousSHA256: 1790dc8c5304d2f2ba14c20b759564d2eee45fb94286cedaa4b775f90b69ebe3
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-003
+  Title: Data Structures
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Data-Structures.md
+  CurrentVersion: '`UML_OS.Implementation.DataStructureContract_v1` | 2026-02-18 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 6b439393317edf4b7465da5c9aa997707ff71f7c42fcb1c318da884e408b50fc
+  PreviousSHA256: 6b439393317edf4b7465da5c9aa997707ff71f7c42fcb1c318da884e408b50fc
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-004
+  Title: Dependency Lock Policy
+  Type: external-dependency
+  Layer: 1
+  FilePath: docs/layer1-foundation/Dependency-Lock-Policy.md
+  CurrentVersion: '`UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 9f7e26c792d07ee2d73cd6874d0a68ab06dab8663ebddc509c5638a964d2455c
+  PreviousSHA256: 4b77f805c34586928e6ab54ed30d33ba16de51f3e70c650417f35d69e720e42e
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-005
+  Title: Determinism Profiles
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Determinism-Profiles.md
+  CurrentVersion: '`UML_OS.Replay.DeterminismProfiles_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 20eb3135ef5aa69c8cffbd8b25d17e89fc3df8aecae8704ed64d547307d52df5
+  PreviousSHA256: 18c342cb6a9e607515960642b9f8716ee62a8ea7fd43e9df6737f25e97f5bed8
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-006
+  Title: Digest Catalog
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Digest-Catalog.md
+  CurrentVersion: '`UML_OS.Registry.DigestCatalog_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 3c1ecb9540f8f8a1e2ec0cd49be0112297470c7466a6694493022a2a7c5136b3
+  PreviousSHA256: 4b8e64ad02ecd3d42c21faf75daeaefa337ac61dce71f989952f88c1e7d67ca9
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-007
+  Title: Environment Manifest
+  Type: external-dependency
+  Layer: 1
+  FilePath: docs/layer1-foundation/Environment-Manifest.md
+  CurrentVersion: '`UML_OS.Environment.Manifest_v1` | 2026-02-20 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: d45ec11545ee1509743505c0506b33fb36a7860120466b74aab7892530f14a82
+  PreviousSHA256: 3594284b82dc791d36b5e0ab9a2956171a621ef0c010ef0ebf69e45db4c82637
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-008
+  Title: Error Codes
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Error-Codes.md
+  CurrentVersion: '`UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: cf4a79674aca4cc6edb88bac2555e818c0e88a0edbdca340d7e46c18b95450f0
+  PreviousSHA256: cf4a79674aca4cc6edb88bac2555e818c0e88a0edbdca340d7e46c18b95450f0
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-009
+  Title: Operator Registry Schema
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Operator-Registry-Schema.md
+  CurrentVersion: '`UML_OS.Registry.OperatorRegistrySchema_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 4961811e44328492bec4a9c2758c527d8da70572b25de1f4169b17594eb87d90
+  PreviousSHA256: 56332336219d380e56995fcfd0c736e448273a25f2ac2681ad6a62ce4c6d37f6
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L1-010
+  Title: Redaction Policy
+  Type: operator-library
+  Layer: 1
+  FilePath: docs/layer1-foundation/Redaction-Policy.md
+  CurrentVersion: '`UML_OS.Security.RedactionPolicy_v1` | 2026-02-20 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 2900726e34ce0db966cfc7e2ed95050313e7e89a104045ce42c919843bb52802
+  PreviousSHA256: 09cb084b5a7fafb8dffb0cb60d16825af4ac247e6c5f662334018d38902581a5
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-001
+  Title: AuthZ Capability Matrix
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/AuthZ-Capability-Matrix.md
+  CurrentVersion: '`UML_OS.Security.AuthZCapabilityMatrix_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: bd4e28895953edb503d98c923131ff640ff0c834425e22be02af0532aef171f9
+  PreviousSHA256: 8425415183e7208ca5908ab8eaf8f6fd7e648c130f272d5608c1ed329d413494
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-002
+  Title: Checkpoint Schema
+  Type: checkpoint-schema
+  Layer: 2
+  FilePath: docs/layer2-specs/Checkpoint-Schema.md
+  CurrentVersion: '`UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: ec9603d7f3fb851c44bb979b567e8a052b67c7ee458ed5898c730d73b95aac73
+  PreviousSHA256: 70a6ce0a787e2b0f92cad12395fde79714d4ceae1763d4708593d222319a3826
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-003
+  Title: Config Schema
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Config-Schema.md
+  CurrentVersion: '`UML_OS.Config.SchemaValidator_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: b1f913188df8b96e33025653034cae7e6df5f8be367c8b70eed46b76647c0d6d
+  PreviousSHA256: ffcead7a81019b423592d8a1379870a37708b2ee94093056b1daf170b866d79e
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-004
+  Title: Data Lineage
+  Type: data-registry
+  Layer: 2
+  FilePath: docs/layer2-specs/Data-Lineage.md
+  CurrentVersion: '`UML_OS.Data.Lineage_v1` | 2026-02-18 | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 99757ab8974f68b7af2e142bb62a6ef1889ce96f44fe7750798ef3d6e7f78baa
+  PreviousSHA256: fe33ea6024dab1d129b2707d7251ffabff3662dbb96e80ea4a2d43626882a6cd
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-005
+  Title: Data NextBatch
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Data-NextBatch.md
+  CurrentVersion: '`UML_OS.Data.NextBatch_v2` | 2026-02-18 | Authors: Olejar Damir
+    (with EQC team improvements)'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 3e503345729c37aea1dcd066d65cbc9835718118e9af82e83e1c16e9c8cd27d1
+  PreviousSHA256: e06ffce0974f84765ac8aaf2a6177f6d3e9bffe7b05de4050c16cc081721ad54
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-006
+  Title: Deployment Runbook
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Deployment-Runbook.md
+  CurrentVersion: '`UML_OS.Implementation.DeploymentRunbook_v1` | 2026-02-18 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: abd18bc60caaa85ff51e27e054e24c94074eb1982af6faf78b9adc77bc3a7a81
+  PreviousSHA256: 71049954388e95a7221878687f23b619bc1ac6a4f3b7359d63b5b566a262c39b
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-007
+  Title: DifferentialPrivacy Apply
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/DifferentialPrivacy-Apply.md
+  CurrentVersion: '`UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar
+    Damir (with EQC team improvements)'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: d6ccf993316d8647ef0a48e9b7d19a6a68ee0fdfbb716cca209f5d0c4a15bf25
+  PreviousSHA256: 6158a946b002e8860e1623b4377efaba99e935c944426c325a5088e6072f8a63
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-008
+  Title: Evaluation Harness
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Evaluation-Harness.md
+  CurrentVersion: '`UML_OS.Eval.Harness_v1` | 2026-02-18 | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 881ac4a108de5bb2272fb1e9b700f7c45072ffd412b1c1665598c4d605453d76
+  PreviousSHA256: bf7bdb24e07a8558d7fb9eb189ddddc313378b4764e23cdd817850c76fa566da
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-009
+  Title: Execution Certificate
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Execution-Certificate.md
+  CurrentVersion: '`UML_OS.Certificate.ExecutionCertificate_v1` | 2026-02-18 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 34073a3468e653b91f7c9dff2823c49811161b01aacac7bb5b1d2b3f0ebbb9a3
+  PreviousSHA256: 61751d946941dac07f9d1047f832d831fef949433f76b36d94773eabccedb481
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-010
+  Title: Experiment Tracking
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Experiment-Tracking.md
+  CurrentVersion: '`UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: de7249d9ac424312cc21a291751d6b9748588a27b4b4d58bb7453a5f93a82f6e
+  PreviousSHA256: 50655aaffaa5be5d1be5becfc99a346e526fee460939b74eabec7c5b9955e78e
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-011
+  Title: Model Registry
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Model-Registry.md
+  CurrentVersion: '`UML_OS.Registry.ModelRegistry_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: d051593d5a73b1fcba4f2f824a7541fd6efc1fac5c1b006e4a1bcd670ef883b9
+  PreviousSHA256: f44cbbfec855da57129c06668bc3d2eae3b4b41e2fcb3718c7c7109fe802a92a
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-012
+  Title: ModelIR Executor
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/ModelIR-Executor.md
+  CurrentVersion: '`UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar
+    Damir (with EQC team improvements)'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 8d73564a90e2496a49e80c6975aa6957708a66da300a094cb65ab684949beac4
+  PreviousSHA256: a4a414af400f8c3e6f78bf9038984a1ab0582d591ca169d07f195eb162663f31
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-013
+  Title: Monitoring Policy
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Monitoring-Policy.md
+  CurrentVersion: '`UML_OS.Monitoring.Policy_v1` | 2026-02-18 | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 8c26ae8d7d8c6385ed1562b1dc9b35d280ad5e2906abd0dac345cd857ece82fd
+  PreviousSHA256: 151e7f2abcac34bc116d637366a20d503b9d90d2df42d939b49ea3f6c092460c
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-014
+  Title: Pipeline Orchestrator
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Pipeline-Orchestrator.md
+  CurrentVersion: '`UML_OS.Pipeline.Orchestrator_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 978db4ce6be1b2c20af0f1e8ce7d4bc070dc86732595b35f2172abfce36c25dd
+  PreviousSHA256: b9e12fb09d34d5e3912e0189c1d2c1fafe1a14a6ad26a27c5316fc4b60d1a463
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-015
+  Title: Replay Determinism
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Replay-Determinism.md
+  CurrentVersion: '`UML_OS.Implementation.ReplayDeterminismContract_v1` | 2026-02-18
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: b5eb315874b7955cac9a981c046f79a53c2e1e5dd80f3f52ed79d19100fa9b30
+  PreviousSHA256: 70fc0199791c579c5e5554b39be336de79e7ca797b3ca7647ac8d59abcf90041
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-016
+  Title: Run Commit WAL
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Run-Commit-WAL.md
+  CurrentVersion: '`UML_OS.Commit.RunCommitWAL_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: b6a956490f8b617c1a599606ceee57367b05acadc9da511b4554ecbc54f370e2
+  PreviousSHA256: 50bfeef216d4b65aeea1ea1e712f2e4f34cda428867d818a91d0ec89f1bc3983
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-017
+  Title: Security Compliance Profile
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Security-Compliance-Profile.md
+  CurrentVersion: '`UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: b83670fc4a9b071874bb19a224eccec7d7d6eb57daa902b3da5d6a0a01e03de2
+  PreviousSHA256: 9d82b0c2a7bc2aa47bab4731db749b9e33f069910830b60ac6ccf9ccf306f171
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-018
+  Title: TMMU Allocation
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/TMMU-Allocation.md
+  CurrentVersion: '`UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir
+    (with EQC team improvements)'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 640081f57678afc27ee13e4a17f9f04c00da9ea664514c0390c15697d5620fab
+  PreviousSHA256: 9b306cdb14eba143105d84222e2a162cbe899d77e5db6e7271ca0aa54b2912c7
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-019
+  Title: Trace Sidecar
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/Trace-Sidecar.md
+  CurrentVersion: '`UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: d5a943699156f5b1b3b7987e6166d634cc78173b64323c19ac00e39515731894
+  PreviousSHA256: 9906277ea8764a7d58b81f065feca6a7e8eb0c5db64043be6d4269e0c0f71fce
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L2-020
+  Title: UML_OS Kernel v3.22 OS
+  Type: algorithm-spec
+  Layer: 2
+  FilePath: docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md
+  CurrentVersion: 'UML_OS-v3.22-OS | 2026-02-17 | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: e042686b889624b75d71e237e7c0dedeb2639edd654f2aedf5e799a4e2e4b993
+  PreviousSHA256: 499b2a3cba9b7b9562f34c757fb76b5b3b8ccb82fb316e7cf199d61b31686ce5
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-001
+  Title: Compatibility Test Matrix
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Compatibility-Test-Matrix.md
+  CurrentVersion: '`UML_OS.Test.CompatibilityMatrix_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 27600a2bd744fd1b115c7bc9418b1af4b589630b71e0884c6fb526fa7bfb67ae
+  PreviousSHA256: 7f4a4291ee2136f8f4cd0d75e2159cabd1601e2d17421f203f074900da718ce0
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-002
+  Title: Conformance CI Pipeline
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Conformance-CI-Pipeline.md
+  CurrentVersion: '`UML_OS.Implementation.ConformanceCIPipeline_v1` | 2026-02-19 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: fd179ec95eac049eecf4ed50b46e2375f1c732222a37e1efe6456aae18649f22
+  PreviousSHA256: 7b39fdb635344da8d45fc99fc162de76a49d2251f503de764c8165719f329c87
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-003
+  Title: Conformance Harness Guide
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Conformance-Harness-Guide.md
+  CurrentVersion: '`UML_OS.Implementation.ConformanceHarnessGuide_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: c232b3130b8539c88322f805023c341cdfca2d086b6836ef6395192e10f7d7c7
+  PreviousSHA256: 7ce614de5ff4764927d1eaee61c9e6ad22dcfab60b6b2d66eec0ee7de7f5d99a
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-004
+  Title: Coverage Targets
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Coverage-Targets.md
+  CurrentVersion: '`UML_OS.Test.CoverageTargets_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 484d13d4535cdfdaff0cf455bb772156106bbaee65c46b349754bc24d58ee774
+  PreviousSHA256: 42d77f7fead3c7c0286b2da81a9dde6a448fc7cc7fd86b4375dcd39467018a6f
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-005
+  Title: Data Contract Fuzzing Guide
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Data-Contract-Fuzzing-Guide.md
+  CurrentVersion: '`UML_OS.Test.DataContractFuzzing_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: d738e999e949238050b867f4528f998e0a837548a406d908be421f031bc4e657
+  PreviousSHA256: 2cb45c8345d157154526adad828485001168bf43ecf662bbd9e7d0a4477f6957
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-006
+  Title: Failure Injection Scenarios
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Failure-Injection-Scenarios.md
+  CurrentVersion: '`UML_OS.Test.FailureInjection_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 0a58d2ff0613ef1631944f3cc98c8304792b494d47c4c8d1fdc18ddf7bcb3b44
+  PreviousSHA256: e61604d51262ec292264d2dd72c395354adc1483427f7b96641c7a7b8669045f
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-007
+  Title: Integration Test Matrix
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Integration-Test-Matrix.md
+  CurrentVersion: '`UML_OS.Test.IntegrationMatrix_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 5dfe4b4a6ef17a43e45f1626203563defb81a42ec53d4374557fdf8073a193b3
+  PreviousSHA256: 8a2f01867f48245a3cc97319c1621586ab01090a283747ff5658743efd076d57
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-008
+  Title: Performance Plan
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Performance-Plan.md
+  CurrentVersion: '`UML_OS.Implementation.PerformanceGovernance_v1` | 2026-02-18 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 9c052aac2e86f29aa595621e18bb02d75d02d3daf41b77f25bdd7570e9d7c3de
+  PreviousSHA256: 95a7ee50624e88dd7115c2af993d17adcd4e6b534c1a33ec972c61de293e23f8
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-009
+  Title: Release Gates
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Release-Gates.md
+  CurrentVersion: '`UML_OS.Implementation.ReleaseGates_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 3a9655244bfb6fcfc093d657955639458a80ab1360362d2a1dbd994c6604a85f
+  PreviousSHA256: bce7b7858efb810359225f01e826f84a338fc8cf482c260891106653ead2eb8e
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-010
+  Title: Storage Recovery Test Matrix
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Storage-Recovery-Test-Matrix.md
+  CurrentVersion: '`UML_OS.Test.StorageRecoveryMatrix_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: fcc383758d13102b5d9e15c1d4f9f3f1d1944806d12de52e8fadaded64775109
+  PreviousSHA256: 5927c555ae806d81ed65c29e57cbe93ded62a0be9a33be48cd848885243c64cf
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-011
+  Title: Test Plan
+  Type: test-suite
+  Layer: 3
+  FilePath: docs/layer3-tests/Test-Plan.md
+  CurrentVersion: '`UML_OS.Implementation.TestPlanOrchestrator_v1` | 2026-02-18 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 3dc8311a383f945cdac6515c8f79458f82842b04df65c7b62189edc17ba4ac17
+  PreviousSHA256: 8d5323ba2240b995460f42a1d56913f1cb001b160d2f85ca5b2780aa8b2c1995
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-012
+  Title: Test Vectors Catalog
+  Type: golden-trace-set
+  Layer: 3
+  FilePath: docs/layer3-tests/Test-Vectors-Catalog.md
+  CurrentVersion: '`UML_OS.Test.VectorsCatalog_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: ff08eb987cc62f452fd22e4908a2268eb41b4d94937fc0558ad681100f3c7159
+  PreviousSHA256: 55fe56270e6a1d6864e385dfe68edb160d2f4673609f103e33b2cc8c6b8459dc
+  MinimumEquivalence: E1
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-001
+  Title: Architecture Decisions Log
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Architecture-Decisions-Log.md
+  CurrentVersion: '`UML_OS.Architecture.DecisionLog_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 7cc3a45b89f45a104750a0608fd6efa09ae474b54ea4cd81e1f282da09f7ded7
+  PreviousSHA256: f42de01f2301b9a13ba0167a85be16046184afd3491a990242613b9e93dceed5
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-002
+  Title: Artifact Store Adapter Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Artifact-Store-Adapter-Guide.md
+  CurrentVersion: '`UML_OS.Storage.ArtifactStoreAdapterGuide_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 6b5972d998d25c5aecf50f4e68d2ac01d8183c2a7f58d45a24fff0cc841803dd
+  PreviousSHA256: 4240f7732ade33db639428f6847cc0ab9dbbbf699e30d2440de145f317fe8ac4
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-003
+  Title: Backend Adapter Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Backend-Adapter-Guide.md
+  CurrentVersion: '`UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 15f33343115606562e7907bd2fd9e61de5494bc38e451d1d0052cc42d81a066e
+  PreviousSHA256: becf51219361b29540d818df22f9c5891355e5822b364ce3619c2f074d3e0d7b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-004
+  Title: Backend Feature Matrix
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Backend-Feature-Matrix.md
+  CurrentVersion: '`UML_OS.Backend.FeatureMatrix_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 110fe5ee062ba5e5db7851cb3346309beae19ce0f117d8e5b29b311dd167e071
+  PreviousSHA256: 5e0201a6e64a96f94c6c51e484d53e59047f31f7cd0dc17f2c6955d78e85af9b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-005
+  Title: Build and CI Matrix
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Build-and-CI-Matrix.md
+  CurrentVersion: '`UML_OS.Implementation.BuildCIMatrix_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 38076a45ac83979c2dd13514af164ae762c5e87c3f137ce9b2dc2829e6aadbf3
+  PreviousSHA256: 5e0201a6e64a96f94c6c51e484d53e59047f31f7cd0dc17f2c6955d78e85af9b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-006
+  Title: CLI Command Profiles
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/CLI-Command-Profiles.md
+  CurrentVersion: '`UML_OS.Implementation.CLICommandProfiles_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: adfacf268a0fd452eef40c53a501cef51b8edd6f83ffa3a1ab137e3e77384567
+  PreviousSHA256: 7fc8a3d6ffcb0888adebbf64dee56610f3adbe62ba00278e42b9543d204209ef
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-007
+  Title: Canonical Hashing Reference
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Canonical-Hashing-Reference.md
+  CurrentVersion: '`UML_OS.Serialization.CanonicalHashingReference_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 8a336038a8824d766f48f4a19f1c4fc519cd4163364d5b18e1fb2d07745040f5
+  PreviousSHA256: c7778f1026aac60d1869823c05e85dda5af9c44be4a8ee47a1a3cffbc728d24e
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-008
+  Title: Code Generation Mapping
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Code-Generation-Mapping.md
+  CurrentVersion: '`UML_OS.Implementation.CodeGenerationMapping_v1` | 2026-02-18 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 4a0664ee360b1cdbda3dd9d442dda1518405e4ded33fa8a9a90125cd90a523c6
+  PreviousSHA256: 3b5c42dbd18b5ec49279931a9d28459a85d58b89cf6c81e121cf18c03e85fdce
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-009
+  Title: Coding Standards
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Coding-Standards.md
+  CurrentVersion: '`UML_OS.Implementation.CodingStandards_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 82d1cba362da4d6ec32cdb1eb4df52d0ae1748739fc6f6dd90cb883b6c7575a4
+  PreviousSHA256: 08af6b928066c533711fa50805b514d2c66a1253b31b81cc931515097e35df2c
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-010
+  Title: Command Reference
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Command-Reference.md
+  CurrentVersion: '`UML_OS.Implementation.CommandReference_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 16e2592beee9b0adfb13813f1ce7cfa4d5d28ff6c72d14fe5aa6b8b5402aa61a
+  PreviousSHA256: 3e356eec2ab2a6da659f749b3adf26c1c0e762b27e69a9de633ed88acf89e37a
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-011
+  Title: Contributing Workflow
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Contributing-Workflow.md
+  CurrentVersion: '`UML_OS.Implementation.ContributingWorkflow_v1` | 2026-02-19 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: a12e279d16d8de52578e8ee70e22083d17d5906d5a164716c47b9aed0c4077b6
+  PreviousSHA256: 52730d23dcea2d64a694834871459db4c582686363d7982538d986c07daafcea
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-012
+  Title: Debugging Playbook
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Debugging-Playbook.md
+  CurrentVersion: '`UML_OS.Implementation.DebuggingPlaybook_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 5a61451e68b57b1c22f5ffa1757a3742e60bfd6574509ae15b345b3d269f677b
+  PreviousSHA256: 00e11c93d8c62515e3058b47a0d5b97729c87448366214fa2c3cf686e5052337
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-013
+  Title: Determinism Debug Checklist
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Determinism-Debug-Checklist.md
+  CurrentVersion: '`UML_OS.Implementation.DeterminismDebugChecklist_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 42ae7fe569ebef2992d3d4aa06708a3528c9a581f3f800d535c68f8bcd426d8d
+  PreviousSHA256: 99febde10cff632a6e2d4819cd7e727ccde49a231b3b430441753166f9fc8f2c
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-014
+  Title: Deterministic RNG Implementation Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Deterministic-RNG-Implementation-Guide.md
+  CurrentVersion: '`UML_OS.Implementation.DeterministicRNGGuide_v1` | 2026-02-19 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: b4da63c154b44026e362ecc93411472d9d58fd630cd635069a62fdfa716a7c75
+  PreviousSHA256: 1c2f977baf0b5b10121fdf41eb946a0c1b21b542c3ba19d2344c738c4143b6f3
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-015
+  Title: Developer Setup
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Developer-Setup.md
+  CurrentVersion: '`UML_OS.Implementation.DeveloperSetup_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 9b09a83be10f1da785a1f895f5a64da3bd993f8076bd0ce7446c76a5147ea1c1
+  PreviousSHA256: 272381b289dc7a16d50aecec91e343a78dc5df54ca535ae773a5aa740a32955a
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-016
+  Title: Developer Troubleshooting FAQ
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Developer-Troubleshooting-FAQ.md
+  CurrentVersion: '`UML_OS.Implementation.TroubleshootingFAQ_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: dd1cfe200d63c77f281b0588e2edd072984955870c622c9f757dd287c0b5817e
+  PreviousSHA256: b45d9ddca32053a08c457799534c907bd493bc2dcbb405e6623d3c58ed2ee423
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-017
+  Title: Distributed Failure Recovery Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Distributed-Failure-Recovery-Guide.md
+  CurrentVersion: '`UML_OS.Runtime.DistributedFailureRecovery_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: bc7fbee3175f152958f59a85aa714661f97a0198aa40b5c39dba120c373dee4f
+  PreviousSHA256: 93331e039acb0dd106284a634bf3332409936b47f2e3ef998fc1cbdfd72ad298
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-018
+  Title: Fixtures and Golden Data
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Fixtures-and-Golden-Data.md
+  CurrentVersion: '`UML_OS.Test.FixturesGoldenData_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 6ae5f0adbc6824ada044845e4297bdf436344385789b6a46fb2c2e800dae3dc5
+  PreviousSHA256: 3331185c63afd1c7ec0893146f42b97cf58095d1b4855e41da3bf14bdad333c7
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-019
+  Title: Implementation Backlog
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Implementation-Backlog.md
+  CurrentVersion: '`UML_OS.Implementation.Backlog_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: c752a3dfa634505a4a2a94431feed04168cad0df2505a881ff110a5682c257fe
+  PreviousSHA256: b68455e9164a40d7084dab702a8bf15bf740f617bc11c6638e51f4dcb4eedd5b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-020
+  Title: Implementation Roadmap
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Implementation-Roadmap.md
+  CurrentVersion: '`UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 9b30e77eecaf87c2cf462974fef06bd5c86d04d0d20ed068e375e1bfc3053388
+  PreviousSHA256: b68455e9164a40d7084dab702a8bf15bf740f617bc11c6638e51f4dcb4eedd5b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-021
+  Title: Local Replay Runbook
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Local-Replay-Runbook.md
+  CurrentVersion: '`UML_OS.Implementation.LocalReplayRunbook_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: cb6a5ba4001a5df6de346da3a91b9935fddadf0dee9bf74c3ac163dcf8670d21
+  PreviousSHA256: 09cb06daddc38552e36999fda4c60bdeb34338e83a42d55e2bdbf02050b6b6ad
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-022
+  Title: Migration Execution Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Migration-Execution-Guide.md
+  CurrentVersion: '`UML_OS.Implementation.MigrationExecutionGuide_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: cd44af599dad209c0b1b54b5e16b671e2177b908d0ac06dc655a6c73dd951300
+  PreviousSHA256: 57729892a2dfe20e7aa7b8e329b36257bff695d82ec606d2b6bb34d890d031d8
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-023
+  Title: Module Scaffolding Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Module-Scaffolding-Guide.md
+  CurrentVersion: '`UML_OS.Implementation.ModuleScaffold_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 7b477aae377d92111ab2c9ea79133d915b1a12b1c9a6327c520cf06f7c9db86d
+  PreviousSHA256: 848bfa8356ddb5e43e76768058da03d4b55a6b239f2f17f7273fb4a140ee543c
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-024
+  Title: Operator Conformance Matrix
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Operator-Conformance-Matrix.md
+  CurrentVersion: '`UML_OS.Implementation.OperatorConformanceMatrix_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 0eb2e26de8f10b9c6022bff866e1b8afc32ee105981cda5c2624c327592b8e78
+  PreviousSHA256: aef1a6c4aa9fb5ec449d00d86ae2e01c49852ccc601b02088e14a100d84be8d3
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-025
+  Title: Operator SDK Scaffold Template
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Operator-SDK-Scaffold-Template.md
+  CurrentVersion: '`UML_OS.Implementation.OperatorSDKScaffold_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 4569498cc6f520e9b554a1d689d2c95f9249be0f059fcda25e74b6a7db6d68c6
+  PreviousSHA256: e7b75b8a2931dfd77ce1273432d7bf6df2cadd2019b0e7a154718af7974f64d9
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-026
+  Title: PR Review Checklist
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/PR-Review-Checklist.md
+  CurrentVersion: '`UML_OS.Implementation.PRReviewChecklist_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: abb72dc2172e2b44a64b9ec45603dd13129de51e68a4dbe1ef513df733cd4090
+  PreviousSHA256: 7aeef185e05c4b8c1b7364faf2e8a6b882434918a59338af0cbb235c168878d5
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-027
+  Title: Profiling and Optimization Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Profiling-and-Optimization-Guide.md
+  CurrentVersion: '`UML_OS.Implementation.ProfilingOptimizationGuide_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: fbd353e3b462dcd4198858af54d419d7a4bf840a3836235391fd145581a01219
+  PreviousSHA256: 40c9c3c185081242fb291109ca8636a23ca3926011d8298cbb3ff4daac5e139c
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-028
+  Title: Reference Implementations
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Reference-Implementations.md
+  CurrentVersion: '`UML_OS.Implementation.ReferenceImplementations_v1` | 2026-02-18
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 231bb9af583ca0b255d7f410d8a3931fba3c24c57917fa2b39e48906b1f6f884
+  PreviousSHA256: 740954b6fb92a6fec36d6004f1ae7c09f60ff2c2897d58da1459704b5118108d
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-029
+  Title: Release Evidence Assembler
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Release-Evidence-Assembler.md
+  CurrentVersion: '`UML_OS.Release.EvidenceAssembler_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 0b8e4ea8b97e5acf218f9527c2b676ba897a9347442aaff120db1401a6a6050f
+  PreviousSHA256: 740954b6fb92a6fec36d6004f1ae7c09f60ff2c2897d58da1459704b5118108d
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-030
+  Title: Repo Layout and Interfaces
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Repo-Layout-and-Interfaces.md
+  CurrentVersion: '`UML_OS.Implementation.RepoLayoutInterfaces_v1` | 2026-02-18 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: bc12c43e63b32cad0721d87671a4c3f4fb268650720d2f6951f8447bb1a7febf
+  PreviousSHA256: 0e05b326576fb54ffb4f862ef189fef9d556be98e3ee28eb2ed724ead5459e20
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-031
+  Title: Runtime State Machine Reference
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Runtime-State-Machine-Reference.md
+  CurrentVersion: '`UML_OS.Runtime.StateMachineReference_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 557cfa8d5d41b5a2057aa974d06e2e2ec652611c718f1771add9b3f823472f67
+  PreviousSHA256: 82548d28582a5fe721a4bd63b307e4291904399366e228ca846874e041670b4a
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-032
+  Title: SDK Usage Guide
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/SDK-Usage-Guide.md
+  CurrentVersion: '`UML_OS.SDK.UsageGuide_v1` | 2026-02-19 | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 844faa4a8af0c7d3ac19bfd01115d7e864caa97b3b3504951c18a90414bae356
+  PreviousSHA256: 396b7a0658c39bed0367d1868b83792ba756d9d308dec826d81f623b0acf812e
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-033
+  Title: SRE Incident Triage Playbook
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/SRE-Incident-Triage-Playbook.md
+  CurrentVersion: '`UML_OS.Operations.SREIncidentTriage_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 54bb27333bb46dccb210f8f87e3b84f8e018e98d09258bf5d16dc660fd488cfa
+  PreviousSHA256: 5d2d6d2615a8aad90bb8d57d4566b3d2caaab110b7f31fd9759c6abb4e166fa5
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-034
+  Title: Schema Evolution Playbook
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Schema-Evolution-Playbook.md
+  CurrentVersion: '`UML_OS.Implementation.SchemaEvolutionPlaybook_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 4ee85f9672bf961174f64d62674529ebabed8a7b8465fe41d7e6f9e0c944d001
+  PreviousSHA256: 4147cb0e2ad0421d3d2195279307e366421a20613a58d7c754beea019be8528a
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-035
+  Title: Security Coding Checklist
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Security-Coding-Checklist.md
+  CurrentVersion: '`UML_OS.Security.CodingChecklist_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 6965c1ef99e9760aa06a1157a7aafc7b230b9071a5156597f1b989479424b763
+  PreviousSHA256: aca9d45bcb5c43b0372190bb41ed08f15b98623fccd227e8c61f6147ac2feec8
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-036
+  Title: Spec Lint Implementation
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Spec-Lint-Implementation.md
+  CurrentVersion: '`UML_OS.Implementation.SpecLint_v1` | 2026-02-19 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 33c9783eb83ac68ddf2799b754c481d35e6624a2be108da69f09ee48279eab8f
+  PreviousSHA256: aca9d45bcb5c43b0372190bb41ed08f15b98623fccd227e8c61f6147ac2feec8
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-037
+  Title: Test Harness Implementation
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Test-Harness-Implementation.md
+  CurrentVersion: '`UML_OS.Test.HarnessImplementation_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: d5002adc70fa9ef458c425e2600f107c7e16cba13eaf4032ea623cff113da370
+  PreviousSHA256: 3ed97cdcaa4fe8fbe814faf81274737f202c515cf9dcb04b95a9847cc53d997e
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: CORE-MASTER-001
+  Title: EQC Ecosystem Master
+  Type: core-guidelines
+  Layer: 0
+  FilePath: ecosystem.md
+  CurrentVersion: EQC-ES-v1.9
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 05f196275f21b80b12abfb2d4b4769a08fe27ce544a306ee88c330ffdd16cb34
+  PreviousSHA256: 0596b92a9d003b3a352ee05a3809a4a27562d37d4066b1c56c3a5f42a19327c7
+  MinimumEquivalence: E0
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: AUX-LOG-001
+  Title: Ecosystem Validation Log
+  Type: other
+  Layer: 4
+  FilePath: ecosystem-validation-log.md
+  CurrentVersion: v1.0.0
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 3dea90c863589b2efe83b1f58b7072b958e6f6d69d2260d559555f0957934fdf
+  PreviousSHA256: 55bcba7a045033044f722583bb739d4c979b9282f1764e937c5826c87ba7ae9a
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: IO
+- DocID: AUX-TEMPLATE-001
+  Title: Portfolio Release Notes Template
+  Type: other
+  Layer: 4
+  FilePath: portfolio-release-notes-template.md
+  CurrentVersion: v1.0.0
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: d3c01870a0118e1ea0cbc30a8c2257d642a432e3f33e392bc2c3aade624428d4
+  PreviousSHA256: 945356ca59cddcf3e2865e8e163499f42983bc904d4958a102ec2a2474b2a2c6
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-038
+  Title: Operator Registry CBOR Contract
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Operator-Registry-CBOR-Contract.md
+  CurrentVersion: '`UML_OS.Registry.OperatorRegistryCBOR_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 47a5720a0a4ef9a0f26aeea5659ea8e5554ecffc1a394c7d342fa862281881ee
+  PreviousSHA256: d3c01870a0118e1ea0cbc30a8c2257d642a432e3f33e392bc2c3aade624428d4
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-039
+  Title: Spec Lint Rules Catalog
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Spec-Lint-Rules.md
+  CurrentVersion: '`UML_OS.Implementation.SpecLintRules_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 1d2b983d48cfba92e82edd793fef75ea798007765df80eb496666afc4cc7144f
+  PreviousSHA256: 47a5720a0a4ef9a0f26aeea5659ea8e5554ecffc1a394c7d342fa862281881ee
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-040
+  Title: Change Control Playbook
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Change-Control-Playbook.md
+  CurrentVersion: '`UML_OS.Implementation.ChangeControlPlaybook_v1` | 2026-02-19 |
+    Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 9b96dde842c23607d92c03aeca25fdd0f3b9471dfe6f1da83f21abc72167f9c3
+  PreviousSHA256: 1d2b983d48cfba92e82edd793fef75ea798007765df80eb496666afc4cc7144f
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-041
+  Title: Contracts Artifact Lifecycle
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Contracts-Artifact-Lifecycle.md
+  CurrentVersion: '`UML_OS.Implementation.ContractsArtifactLifecycle_v1` | 2026-02-19
+    | Authors: Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-19'
+  Owner: ML2ML
+  SHA256Hash: 6d36835e7c2b49b4e23edf3acd5afdebb28228d4f8cce0f66d87b7f9820ff202
+  PreviousSHA256: 16820c0b20c3441d63d8f354525a74af76246715f733ddc97b67fa40f7353802
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-042
+  Title: EQC CI Policy
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/EQC-CI-Policy.md
+  CurrentVersion: '`UML_OS.Implementation.EQCCIPolicy_v1` | 2026-02-19 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-20'
+  Owner: ML2ML
+  SHA256Hash: 17ee794a05db20ab7fdaf5d45f306e863f0c868bfbea05f3c7b2b4f70c955328
+  PreviousSHA256: 5a2b92f5fa7b50dab0df23910acbbbfaebcbf4149d2c6a1481c49dd7478ed90f
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE

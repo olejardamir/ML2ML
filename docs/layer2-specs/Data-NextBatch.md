@@ -77,6 +77,7 @@
   - `effective_q = float64(B_eff) / float64(N)`
   - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
   - `sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"` in train mode, `"SEQUENTIAL_V1"` in eval/infer mode
+  - encoding rule: all mode strings used in hashes are UTF-8 CBOR text strings with no alternate normalization.
   - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))`
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
@@ -137,10 +138,14 @@
 ### I.C Constraints and Feasible Set
 - `global_batch_size % world_size == 0`
 - `global_batch_size > 0`
+- if `world_size > 1`, then `global_batch_size >= world_size`
+- `sampler_block_size > 0`
 - `dataset_key` exists in manifest.datasets
+- Degenerate train/drop-last guard (normative): if `stage_type=="train"` and `drop_last==true` and `global_batch_size > N`, configuration is invalid and MUST abort during validation (zero-batch epochs are forbidden by default policy).
 - Train epoch policy (normative): strict bijection without replacement over `[0..N-1]` per epoch; no intra-epoch wrap in train mode.
 - If `drop_last=true`, train epoch size is `floor(N/global_batch_size) * global_batch_size`.
 - If `drop_last=false`, final train step may be partial; no repeated samples are allowed within the same epoch.
+- For `stage_type in {"eval","infer"}`, `drop_last` is ignored; final partial batch MUST be emitted.
 
 ### I.D Transient Variables
 - `N`, `epoch_seed`, `block_order`, `current_block_perms` (lazy map)
@@ -213,8 +218,8 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Determinism:** deterministic  
 **Definition:** Computes an explicit affine bijection inside the selected block. Let `block_start = block_id * block_size`, `m = min(block_size, N - block_start)`, and derive `(k0, k1)` from Philox with counter tuple `(epoch_seed, block_id)`. If `m=1`, return `block_start`. Otherwise choose `a` deterministically from seed material:
 1. `a <- 1 + (k0 mod (m-1))`
-2. while `gcd(a, m) != 1`: `a <- 1 + (a mod (m-1))`
-3. bounded loop upper bound: `m-1` iterations (must terminate because at least one coprime exists)
+2. for `i in [0..m-2]`: let `cand = 1 + ((a - 1 + i) mod (m-1))`; choose first `cand` with `gcd(cand, m) == 1`
+3. if none found (unreachable for `m>1`), abort with deterministic failure code `CONTRACT_VIOLATION`
 Then set `c = k1 mod m`, compute `j = (a * local_pos + c) mod m`, and `original_index = block_start + j`.
 This is bijective because `gcd(a,m)=1` by construction.
 **Preconditions / Postconditions:** `local_pos < m`; output index in `[0, N-1]`; mapping is a permutation over `[block_start, block_start + m - 1]`.  
@@ -236,13 +241,16 @@ This is bijective because `gcd(a,m)=1` by construction.
 3. global_pos = cursor.global_index
 4. global_batch_size = manifest.global_batch_size
 5. If global_batch_size % world_size != 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
+5a. If world_size > 1 and global_batch_size < world_size: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
 6. micro_batch_size = global_batch_size // world_size
 7. rank_start = rank * micro_batch_size
 7b. sampler_block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
+7c. If sampler_block_size == 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
 
 8. if stage_type in {"eval", "infer"}:
        is_shuffled = false
        sampling_mode = "SEQUENTIAL_V1"
+       # eval/infer ignore drop_last and always emit terminal partial ranges
        batch_positions = [global_pos + rank_start + i for i in 0..micro_batch_size-1]
        batch_indices = [p % N for p in batch_positions]
    else:
@@ -254,9 +262,13 @@ This is bijective because `gcd(a,m)=1` by construction.
        block_order = SeededBlockPermute_v1(num_full_blocks, epoch_seed) if num_full_blocks > 0 else []
 
        batch_indices = []
+       epoch_limit = N
+       if manifest.data.drop_last == true:
+           num_full_batches = N // global_batch_size
+           epoch_limit = (N // global_batch_size) * global_batch_size
        for i in 0..micro_batch_size-1:
            p = global_pos + rank_start + i
-           if p >= N:  # strict no-wrap train epoch policy
+           if p >= epoch_limit:  # strict no-wrap train epoch policy
                break
            block_id_global = p // block_size
            if has_tail and block_id_global == num_full_blocks:
@@ -268,11 +280,21 @@ This is bijective because `gcd(a,m)=1` by construction.
            batch_indices.append(orig_idx)
 
 9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))
-10. cursor.global_index += global_batch_size
-11. if cursor.global_index >= N:
+10. epoch_limit_for_advance = N
+    if stage_type == "train" and manifest.data.drop_last == true:
+        epoch_limit_for_advance = (N // global_batch_size) * global_batch_size
+11. produced_global_count = global_batch_size
+    if stage_type == "train":
+        remaining = epoch_limit_for_advance - global_pos
+        if remaining <= 0:
+            produced_global_count = 0
+        else if remaining < global_batch_size:
+            produced_global_count = remaining
+12. cursor.global_index += produced_global_count
+13. if cursor.global_index >= epoch_limit_for_advance:
         cursor.epoch += 1
         cursor.global_index = 0   # start new epoch
-12. return batch_indices, cursor, {sampling_mode, sampler_config_hash}
+14. return batch_indices, cursor, {sampling_mode, sampler_config_hash}
 ```
 
 **Scalability & Algorithmic Guarantees (v2):**
@@ -307,6 +329,7 @@ Two runs are comparable iff dataset snapshot/hash, sampler config, replay token 
 
 #### VII.A Lint rules (mandatory)
 Passes symbol completeness, deterministic ordering, total state updates (only cursor), explicit RNG locality, edge-case totality.
+- Must reject `drop_last==true && global_batch_size > N` for train stage as invalid configuration.
 
 #### VII.B Operator test vectors (mandatory)
 - world_size=1, rank=0: full global sequence matches sequential + shuffle

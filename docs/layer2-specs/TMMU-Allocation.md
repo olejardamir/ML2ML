@@ -53,6 +53,7 @@
 - Tensors ordered by first definition node_id (earliest wins on ties).
 - Logical slots assigned in ascending order (lowest available first).
 - Within same birth time: larger tensors first (size-descending heuristic for better packing).
+- Secondary tie-break for equal birth and equal size: `tensor_id` lexicographic ascending.
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Allocation is purely sequential and deterministic.
@@ -179,6 +180,10 @@
   - `alias_group_refcount == 1`,
   - `saved_for_backward == false`,
   - liveness constraints remain valid for the base storage.
+- Alias refcount lifecycle:
+  - increment on alias/view creation bound to `alias_group_id`,
+  - decrement on deterministic end-of-liveness event for each alias member,
+  - storage reuse allowed only when refcount reaches zero.
 
 ### II.H Dynamic Shapes and Replan Policy (Normative)
 - Dynamic dimensions must declare `shape_envelope` bounds.
@@ -191,6 +196,8 @@
 - Planner must support parameter, activation, and optimizer-state sharding contracts.
 
 ### II.K Plan Hash (Normative)
+- `execution_order_hash = SHA-256(CBOR_CANONICAL(execution_order))`.
+- `shard_spec_hash = SHA-256(CBOR_CANONICAL(shard_spec))`, where `shard_spec` is resolved from manifest parallelism/sharding configuration.
 - `tmmu_plan_hash = SHA-256(CBOR_CANONICAL(["tmmu_plan_v1", ir_hash, mode, arena_config_hash, execution_order_hash, rank, world_size, shard_spec_hash, slot_assignment_table, logical_address_table]))`.
 - `replay_token` is `bytes32` and is included in `slot_assignment_table` derivation inputs.
 
@@ -263,6 +270,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Signature:** `(ir_dag, execution_order, mode → live_ranges)`  
 **Purity class:** PURE  
 **Definition:** Linear pass; backward extends activation lifetimes until gradient use.
+If `saved_for_backward=true`, death time is extended through the last backward consumer of the saved tensor/view.
 **Preconditions / Postconditions:** valid execution_order and IR references; returns complete live intervals for all tensors.  
 **Edge cases:** branched DAG fan-out/fan-in and backward retention boundaries.  
 **Numerical considerations:** N/A (graph interval computation).  
@@ -274,9 +282,9 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 **Operator:** `UML_OS.TMMU.AssignLogicalSlots_v1` (new)  
 **Category:** Memory  
-**Signature:** `(live_ranges, arena_config → logical_slot_assignment: dict[tensor_id → (arena, logical_slot_id)] )`  
+**Signature:** `(live_ranges, arena_config -> logical_slot_assignment: dict[tensor_id -> (arena, logical_slot_id)], slot_size_map: dict[(arena, logical_slot_id) -> uint64], slot_alignment_map: dict[(arena, logical_slot_id) -> uint64])`  
 **Purity class:** PURE  
-**Definition:** Optimal greedy linear-scan on interval graph per arena (optimal slot count). Each logical slot backing is sized to max tensor assigned to it.
+**Definition:** Optimal greedy linear-scan on interval graph per arena (optimal slot count). Each logical slot backing is sized to max tensor assigned to it and emits deterministic `slot_size_map` / `slot_alignment_map` required by virtual mapping.
 **Preconditions / Postconditions:** intervals are valid and non-negative; output has no overlapping intervals per slot.  
 **Edge cases:** equal birth/death times and sparse arenas.  
 **Numerical considerations:** integer interval endpoints only.  
@@ -291,7 +299,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Category:** Memory  
 **Signature:** `(logical_slot_assignment, arena_config, slot_size_map, slot_alignment_map -> logical_map)`  
 **Purity class:** PURE  
-**Definition:** For each arena independently, sort slots by `logical_slot_id` ascending and compute aligned offsets by prefix sum: `offset_0=0`, `offset_{k+1}=align_up(offset_k + slot_size_k, align_{k+1})`, where `align_k = max(slot_alignment_map[arena, slot_k], arena_config[arena].alignment_bytes)`. Emit logical addresses as `(arena_id, offset_bytes)`; runtime resolves to physical pointers out-of-band.
+**Definition:** For each arena independently, sort slots by `logical_slot_id` ascending and compute aligned offsets by prefix sum: `offset_0=0`, `offset_{k+1}=align_up(offset_k + slot_size_k, align_{k+1})`, where `align_k = max(slot_alignment_map[arena, slot_k], arena_config[arena].alignment_bytes)`. If `slot_alignment_map` entry is missing, default alignment is `arena_config[arena].alignment_bytes`. Emit logical addresses as `(arena_id, offset_bytes)`; runtime resolves to physical pointers out-of-band.
 **Preconditions / Postconditions:** logical slots assigned; output addresses unique per `(arena, slot)`.  
 **Edge cases:** large slot cardinality and arena name collisions (disallowed).  
 **Numerical considerations:** uint64 offset arithmetic with overflow checks; no hash truncation/collision path.  
@@ -350,13 +358,13 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 1. live_ranges ← AnalyzeLiveness_v1(ir_dag, execution_order, mode)
    # Mode-aware lifetime extension for backward activations/gradients
 
-2. logical_slots ← AssignLogicalSlots_v1(live_ranges, arena_config)
+2. logical_slots, slot_size_map, slot_alignment_map ← AssignLogicalSlots_v1(live_ranges, arena_config)
    # Per-arena linear-scan (optimal for interval graphs):
    #   - Sort tensors by birth time, then size descending
    #   - Maintain active_slots set (bitset or min-heap of used slots)
    #   - For each tensor: expire ended slots, assign lowest unused logical_slot
-   #   - Record max_size_per_slot for backing buffer sizing
-   #   - Record slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
+   #   - Emit slot_size_map[(arena, slot)] = max(required_tensor_bytes for tensors in slot)
+   #   - Emit slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
 
 3. logical_map ← MapToVirtualAddresses_v1(logical_slots, arena_config, slot_size_map, slot_alignment_map)
    # Per arena: deterministic slot order by logical_slot_id
@@ -365,6 +373,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
    # va(slot_k) = arena_base[arena] + offset_k
 
 4. tensor_map ← {}
+   tensor_intervals_sorted ← tensors sorted deterministically by `tensor_id` ascending
    for tensor in tensor_intervals_sorted:   # tensors, not nodes
        (arena, slot) ← logical_slots[tensor.id]
        logical_addr ← logical_map[(arena, slot)]  # (arena_id, offset_bytes)

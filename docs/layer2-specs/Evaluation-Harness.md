@@ -83,9 +83,19 @@
 - `eval_manifest_hash`
 - `dataset_snapshot_id`
 - `metrics_digest`
+  - `metrics_digest = SHA-256(CBOR_CANONICAL(sorted_metrics))` where `sorted_metrics` is canonical array of `{name, value, unit?}` sorted by `name`.
 - `trace_final_hash`
 - `determinism_tier`
+  - allowed values: `E0 | E1` as defined in `docs/layer2-specs/Replay-Determinism.md`.
+  - enforcement rule: `E0` requires bitwise equality for designated critical outputs; `E1` uses tolerance-based comparators from the active determinism profile/eval config.
+  - critical-output source of truth: designated critical outputs are those marked `E0` by the active determinism profile/class map for the evaluation suite.
 - `replay_token`
+- `aggregation_policy` schema (normative):
+  - map `metric_name -> {agg: enum("mean","sum","min","max","quantile"), quantile_p?:float64}`.
+  - quantile rule (normative): when `agg="quantile"`, compute nearest-rank quantile on ascending sorted values with index `k = floor(p * (n-1))` (0-based), value=`sorted[k]`.
+- `evidence_bundle_ref` points to canonical CBOR payload:
+  - `{eval_manifest_hash, dataset_snapshot_id, metrics_digest, trace_final_hash, determinism_tier, replay_token, eval_report_hash}`.
+  - `eval_report_hash = SHA-256(CBOR_CANONICAL(eval_report))`, where `eval_report` is the output of `AggregateMetrics_v1`.
 
 ---
 ## 3) Initialization
@@ -102,12 +112,26 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Eval.RunSuite_v1`  
+**Category:** Governance  
+**Signature:** `(eval_manifest, model_ref, dataset_snapshot_ref -> suite_run_report)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** executes the declared evaluation suite in deterministic case order and emits per-case results.
+
+**Operator:** `UML_OS.Eval.AggregateMetrics_v1`  
+**Category:** Governance  
+**Signature:** `(suite_run_report, aggregation_policy -> eval_report)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** aggregates per-case metrics into canonical summary outputs and threshold verdicts.
+
 **Operator:** `UML_OS.Eval.BuildEvidenceBundle_v1`  
 **Category:** Governance  
 **Signature:** `(eval_report, trace_ref, dataset_snapshot_ref -> evidence_bundle_ref)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** builds content-addressed evidence bundle for downstream policy gates.
+**Definition:** builds content-addressed evidence bundle for downstream policy gates, with `trace_final_hash` computed from the actual evaluation trace referenced by `trace_ref`.
 
 ---
 ## 6) Procedure

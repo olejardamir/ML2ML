@@ -103,14 +103,19 @@
 - Required `RUN_HEADER` fields/types: `kind:"RUN_HEADER"`, `schema_version:string`, `replay_token:bytes32`, `run_id:string`, `tenant_id:string`, `task_type:string`, `world_size:uint32`, `backend_binary_hash:bytes32`, `driver_runtime_fingerprint_hash:bytes32`, `policy_bundle_hash:bytes32`, `monitor_policy_hash:bytes32`, `operator_contracts_root_hash:bytes32`, `redaction_mode:string`, `redaction_key_id?:string`, `redaction_policy_hash?:bytes32`, `hash_gate_M:uint64`, `hash_gate_K:uint64`.
 - Optional `run_header` fields/types: `authz_decision_hash?:bytes32`.
 - Required `ITER` fields/types: `t:uint64`, `stage_id:string`, `operator_id:string`, `operator_seq:uint64`, `rank:uint32`, `status:string`, `replay_token:bytes32`.
-- `operator_seq` is a per-rank monotone counter.
+- `operator_seq` is a per-step, per-rank monotone counter:
+  - initialize `operator_seq=0` at the start of each `(t, rank)` step scope,
+  - increment by 1 for each operator invocation in execution order.
 - Uniqueness invariant: there must be at most one `ITER` record for each `(t, rank, operator_seq)` tuple.
 - Optional `ITER` fields/types: `loss_total:float64`, `grad_norm:float64`, `state_fp:bytes32`, `functional_fp:bytes32`, `rng_offset_before:uint64`, `rng_offset_after:uint64`.
 - Optional `ITER` fields/types: `resource_ledger_hash:bytes32`, `quota_decision:string`, `quota_policy_hash:bytes32`.
+  - `resource_ledger_hash = SHA-256(CBOR_CANONICAL(resource_ledger_map))` with deterministic key order.
 - Optional `ITER` fields/types: `tracking_event_type:string`, `artifact_id:string`, `metric_name:string`, `metric_value:float64`, `window_id:string`.
 - Required `POLICY_GATE_VERDICT` fields/types: `t:uint64`, `policy_gate_hash:bytes32`, `transcript_hash:bytes32`.
-- Required `CHECKPOINT_COMMIT` fields/types: `t:uint64`, `checkpoint_hash:bytes32`, `checkpoint_header_hash:bytes32`, `checkpoint_merkle_root:bytes32`, `trace_final_hash_at_checkpoint:bytes32`.
+  - `transcript_hash = SHA-256(CBOR_CANONICAL(policy_transcript))` where `policy_transcript` is the canonical ordered transcript as defined by the active policy-gate contract (for monitoring gates, see `docs/layer2-specs/Monitoring-Policy.md` II.G).
+- Required `CHECKPOINT_COMMIT` fields/types: `t:uint64`, `checkpoint_hash:bytes32`, `checkpoint_header_hash:bytes32`, `checkpoint_merkle_root:bytes32`, `trace_snapshot_hash:bytes32`.
 - Required `CERTIFICATE_INPUTS` fields/types: `t:uint64`, `certificate_inputs_hash:bytes32`.
+  - `certificate_inputs_hash = SHA-256(CBOR_CANONICAL(certificate_inputs_bundle))` where `certificate_inputs_bundle` is the canonical evidence bundle passed to certificate build/sign flow.
 - Required `RUN_END` fields/types: `status:string`, `final_state_fp:bytes32`, `trace_final_hash:bytes32`.
 - Required `ERROR` fields/types: `t:uint64`, `failure_code:string`, `failure_operator:string`, `diagnostics_hash:bytes32`.
 - Migration controls:
@@ -126,15 +131,19 @@
   - `CONFIDENTIAL`: any value that can leak sample/model-sensitive properties.
 - No-raw-data rule: traces must not contain raw examples, prompts, gradients, secrets, or direct identifiers.
 - Confidential-mode redaction: sensitive values must be replaced by deterministic keyed hashes (`HMAC-SHA256`) with declared key identifier, as defined in `docs/layer1-foundation/Redaction-Policy.md`.
+  - Redacted value encoding (normative): store full HMAC output as `bytes32`.
 - Size and sampling controls: deterministic per-operator caps and sampling policy must be declared to bound trace overhead.
 - Deterministic size/sampling controls:
   - `max_bytes_per_step:uint64`
   - `max_record_bytes:uint32`
   - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
+  - defaults for `HASH_GATED`: `hash_gate_M=100`, `hash_gate_K=1`.
   - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq]))) mod hash_gate_M < hash_gate_K`.
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
-  - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with declared priority ordering.
-  - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END"}`.
+  - Validation requirement: `UML_OS.Trace.ValidateSchema_v1` MUST enforce `hash_gate_M > 0` and `hash_gate_K <= hash_gate_M`; violation is deterministic schema failure.
+  - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with fixed priority ordering:
+    - `RUN_HEADER` > `ERROR` > `POLICY_GATE_VERDICT` > `CHECKPOINT_COMMIT` > `CERTIFICATE_INPUTS` > `RUN_END` > `ITER`.
+  - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END","ERROR"}`.
   - Mandatory records MUST NEVER be sampled out or dropped.
   - If caps force dropping mandatory records: emit `TRACE_CAP_EXCEEDED_MANDATORY` and abort deterministically.
 

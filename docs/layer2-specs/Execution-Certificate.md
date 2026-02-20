@@ -88,10 +88,13 @@
   - `signed_payload` (canonical CBOR; this exact payload is signed)
   - `unsigned_metadata` (not signed; informational only)
 - `signed_payload` field set is fixed by this section; no additional implementation-specific fields are allowed in signed bytes.
+- policy-bundle consistency rule:
+  - if individual policy hashes are present (`security/authz/monitor/dp/redaction`), they MUST match the decomposition of `policy_bundle_hash` under `policy_bundle_v1`; mismatch is deterministic verification failure.
 - Dependency identity semantics:
   - `lockfile_hash` = canonical package lock digest (`LockfileDigest_v1`).
   - `dependencies_lock_hash` = derived environment-bound commitment (`DependenciesLockDigest_v1`).
   - `operator_contracts_root_hash` = `operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
+  - `certificate_hash = SHA-256(certificate_cbor)` where `certificate_cbor` is canonical serialized certificate object (signed payload + signature envelope).
 - `signed_payload` required fields:
   - `certificate_version:string`
   - `tenant_id:string`
@@ -106,7 +109,9 @@
   - `monitor_policy_hash?:bytes32`
   - `dp_policy_hash?:bytes32`
   - `policy_gate_hash:bytes32`
+    - semantics: hash of the canonical policy-gate evaluation transcript for the certified run context, as defined in `docs/layer2-specs/Monitoring-Policy.md` (section II.G).
   - `authz_decision_hash:bytes32`
+    - provenance note: full authorization context (`authz_query_hash`, verdict, reason, granted set) is carried in trace/audit records; certificate stores `authz_decision_hash` for cryptographic cross-linking.
   - `dependencies_lock_hash:bytes32`
   - `lockfile_hash:bytes32`
   - `toolchain_hash:bytes32`
@@ -123,16 +128,20 @@
   - `backend_binary_hash:bytes32`
   - `dp_epsilon?:float64`
   - `dp_delta?:float64`
-  - `dp_accountant_state_hash?:bytes32` (if DP enabled)
+  - `dp_accountant_state_hash?:bytes32` (if DP enabled; equals `SHA-256(CBOR_CANONICAL(accountant_state_t))` from `docs/layer2-specs/DifferentialPrivacy-Apply.md`)
   - `attestation_quote_hash?:bytes32` (required in `ATTESTED` mode)
   - `attestation_bundle_hash?:bytes32` (required in `ATTESTED` mode)
   - `trust_store_hash:bytes32`
   - `key_id:string`
+  - `signature_algorithm:string` (e.g., `"ed25519"`)
   - `revocation_bundle_hash:bytes32`
   - `verification_time_utc:string` (required when online revocation/attestation checks are verdict-affecting)
+  - `valid_until_utc:string` (certificate expiry upper bound for verifier acceptance)
   - `determinism_conformance_suite_id?:bytes32`
   - `step_start:uint64`
   - `step_end:uint64`
+  - semantics: `step_start`/`step_end` are the inclusive first/last step indices covered by this certificate; final run certificate covers the full run interval.
+  - zero-step convention: for runs that execute zero steps, set `step_start=0` and `step_end=0`.
 - `unsigned_metadata` optional fields:
   - `wall_time_start_utc:string`
   - `wall_time_end_utc:string`
@@ -141,7 +150,15 @@
   - `signature:bytes64`
 - Signature scheme (normative):
   - canonical payload serialization: canonical CBOR of `signed_payload`
-  - signature algorithm: Ed25519
+  - signature algorithm: indicated by `signed_payload.signature_algorithm`; current required value is `"ed25519"`
+  - Ed25519 implementation MUST follow RFC 8032 deterministic signing behavior (no external nonce randomness).
+- Trust/revocation commitment definitions:
+  - `trust_store_hash = SHA-256(CBOR_CANONICAL(trust_store_bundle))`, where `trust_store_bundle` is the canonical root/intermediate key set used for verification.
+  - `revocation_bundle_hash = SHA-256(CBOR_CANONICAL(revocation_bundle))`, where `revocation_bundle` is the canonical CRL/OCSP capture (online) or pinned offline revocation set.
+  - Normative source definitions are aligned with `docs/layer2-specs/Security-Compliance-Profile.md`.
+  - Time-sensitive verification checks MUST use signed `verification_time_utc` as the evaluation time anchor (not verifier wall-clock time).
+  - Timestamp canonical format (normative): UTC ISO 8601 without fractional seconds, exactly `YYYY-MM-DDTHH:MM:SSZ` (example: `2026-02-20T15:04:05Z`) for `verification_time_utc` and `valid_until_utc`.
+  - `key_id` MUST be globally unique within trust-store scope and map to exactly one public key at verification time.
 
 ---
 ## 3) Initialization
@@ -173,21 +190,21 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Signature:** `(certificate_payload, signing_key_ref -> execution_certificate)`  
 **Purity class:** IO  
 **Determinism:** deterministic payload + deterministic signature algorithm policy  
-**Definition:** signs canonical CBOR bytes of `signed_payload` only; `unsigned_metadata` is excluded. In `ATTESTED` mode key release requires attestation policy pass.
+**Definition:** signs canonical CBOR bytes of `signed_payload` only; `unsigned_metadata` is excluded. In `ATTESTED` mode key release requires attestation policy pass. `signing_key_ref` may resolve to HSM/KMS key material via daemon key broker; signer MUST enforce deterministic algorithm behavior for the selected `signature_algorithm`.
 
 **Operator:** `UML_OS.Certificate.Verify_v1`  
 **Category:** Security  
 **Signature:** `(execution_certificate, trust_store -> verification_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, and revocation status using `revocation_bundle_hash`.
+**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, expiry (`verification_time_utc <= valid_until_utc`), and revocation status using `revocation_bundle_hash`.
 
 **Operator:** `UML_OS.Certificate.EvidenceValidate_v1`  
 **Category:** Security  
-**Signature:** `(execution_certificate, manifest, trace, checkpoint, replay_context -> report)`  
+**Signature:** `(manifest, trace, checkpoint, replay_context -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** validates cross-artifact coherence and rejects mismatched evidence.
+**Definition:** validates pre-sign cross-artifact coherence and rejects mismatched evidence.
 
 ---
 ## 6) Procedure
@@ -195,7 +212,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 1. Build_v1(evidence_bundle)
 2. Sign_v1(payload, signing_key_ref)
 3. Verify_v1(certificate, trust_store)
-4. EvidenceValidate_v1(certificate, manifest, trace, checkpoint, replay_context)
+4. EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)
 5. Return certificate + report
 ```
 

@@ -40,6 +40,7 @@
 ### 0.I Outputs and Metric Schema
 - Outputs: `(deployment_report, rollback_report?)`.
 - Metrics: `rollout_success_rate`, `mean_recovery_time`, `incident_count`.
+- `rollout_success_rate` definition (normative): `(successful_canary_stages / total_canary_stages_attempted) * 100`.
 - Completion status: `success | failed | rolled_back`.
 ### 0.J Spec Lifecycle Governance
 - Gate-policy semantic changes require version bump.
@@ -86,11 +87,20 @@
 
 ### II.F Deterministic Rollout Playbook (Concrete)
 - Preflight checks: signature verification, dependency lock verification, config-schema validation, checkpoint compatibility check.
-- Canary policy: fixed cohort order `[1%, 5%, 25%, 50%, 100%]`, each stage has fixed dwell time and deterministic metric window.
+- Canary policy: fixed cohort order `[1%, 5%, 25%, 50%, 100%]`, each stage advances on deterministic sample-count windows (not wall-clock dwell).
 - Gate thresholds:
   - error_rate <= 0.5%
   - p95_latency_delta <= 10%
   - replay_determinism_failures == 0
+  - boundary rule (normative): floating-point threshold checks use `value <= threshold + EPS_EQ` with `EPS_EQ=1e-10`.
+- Gate metric definitions (normative):
+  - `error_rate` = `failed_requests / total_requests` over the fixed canary evaluation window declared in rollout policy.
+  - `p95_latency_delta` = `(p95_latency_canary - p95_latency_baseline) / p95_latency_baseline * 100`, with baseline from the last approved production release bound by `baseline_release_hash`.
+  - `replay_determinism_failures` = count of E0 replay-check failures over the same fixed window.
+    - failure criterion is a divergence reported by `UML_OS.Replay.CompareTrace_v1` under the applicable comparison profile from `docs/layer2-specs/Replay-Determinism.md`.
+  - rollout input MUST include explicit `baseline_release_hash`; baseline selection is not inferred implicitly.
+  - All gate metrics are computed from a frozen, canonicalized telemetry snapshot committed as `metrics_snapshot_hash`.
+  - `metrics_snapshot_hash = SHA-256(CBOR_CANONICAL(metrics_snapshot_map))`.
 - Gate verdict determinism: verdict is computed from a frozen metrics snapshot (`metrics_snapshot_hash`) captured at each canary stage; real-time telemetry ordering is not used directly for final verdict computation.
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.
 - Promotion gate:
@@ -108,7 +118,8 @@
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Artifact commitment formulas:
   - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", image_digest, code_commit_hash, lockfile_hash, toolchain_hash]))`.
-  - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` uses pinned canonical SBOM export format.
+  - `image_digest` is the immutable OCI manifest digest (`sha256:<hex>`) resolved from registry manifest bytes.
+  - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` is canonical SPDX JSON (UTF-8, lexicographically sorted object keys, no insignificant whitespace).
 - Secrets and keys:
   - secret injection only through managed secret stores,
   - key rotation procedure and rotation audit record required before promotion.
@@ -126,7 +137,7 @@
   1. write immutable content-addressed trace/checkpoint/lineage/certificate objects,
   2. compute and validate bound hashes,
   3. emit terminal WAL finalize record,
-  4. publish single COMMITTED pointer object with `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}` via conditional create-if-absent.
+  4. publish single COMMITTED pointer object with `{trace_final_hash, checkpoint_hash, lineage_root_hash, certificate_hash, wal_terminal_hash}` via conditional create-if-absent.
 - Crash recovery validates COMMITTED pointer if present; if absent, run remains uncommitted and recovery proceeds from WAL.
 
 ### II.H CAS Retention and Garbage Collection (Normative)

@@ -55,11 +55,43 @@
 - one deterministic verdict per authorization query.
 
 ### II.F Capability Resolution Rule (Normative)
+- `principal_id` format is canonical tenant-scoped UTF-8 text: `tenant_id "/" principal_local_id`.
+- Delimiter constraint: `tenant_id` MUST NOT contain `"/"`; parsing is a single split on the first slash.
+- Component constraints (normative):
+  - `tenant_id` and `principal_local_id` MUST each be valid UTF-8 strings,
+  - total encoded byte length of `tenant_id + "/" + principal_local_id` MUST be `<= 1024`.
+- `principal_id` comparisons are bytewise and case-sensitive.
+- `capability_matrix` MUST include immutable `matrix_version:string`; updates publish a new matrix object and `capability_matrix_hash`.
+- Capability matrix canonical structure (normative):
+  - canonical CBOR map: `operator_id:string -> required_capabilities:array<string>`,
+  - each `required_capabilities` array is lexicographically sorted and duplicate-free.
+  - `capability_matrix_hash = SHA-256(CBOR_CANONICAL(capability_matrix_map))`.
+- Capability names MUST be fully-qualified and versioned (example: `storage.write.v1`).
 - `required_capabilities` is read from canonical operator registry for `operator_id`.
 - Missing `operator_id` mapping is deterministic failure.
+- Authorization model is default-deny: any missing principal binding or missing required capability yields `DENY`.
+- `authz_policy_hash` definition (normative): `SHA-256(CBOR_CANONICAL(authz_policy_document))`, where `authz_policy_document` is the canonical authorization policy mapping used for capability grants/denials.
+  - `authz_policy_document` canonical schema (normative):
+    - CBOR map: `principal_id:string -> granted_capabilities:array<string>`,
+    - map keys (`principal_id`) sorted lexicographically,
+    - each `granted_capabilities` array sorted lexicographically and duplicate-free.
 
 ### II.G Deterministic Verdict Hash (Normative)
 - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+- `granted_capabilities_hash = SHA-256(CBOR_CANONICAL(sorted(granted_capabilities)))`.
+- `granted_capabilities` is the deterministic policy-evaluation output set for `(tenant_id, principal_id)` under `authz_policy_hash`, sorted lexicographically before hashing.
+- `granted_capabilities` MUST NOT contain duplicate capability names (duplicate presence is deterministic failure).
+- `verdict_enum` is a required enum from:
+  - `ALLOW`
+  - `DENY`
+- `decision_reason_code` is a required enum from:
+  - `ALLOW`
+  - `DENY_MISSING_CAPABILITY`
+  - `DENY_POLICY`
+  - `DENY_PRINCIPAL_NOT_BOUND`
+  - `DENY_OPERATOR_UNREGISTERED`
+  - `DENY_TENANT_SCOPE`
+  - `DENY_TENANT_SCOPE` semantics: authorization subject is outside allowed tenant namespace/scope for the requested operation.
 - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
 - Execution certificates MUST bind `authz_decision_hash` (not only query hash).
 
@@ -94,8 +126,8 @@
 ---
 ## 6) Procedure
 ```text
-1. ResolveRequiredCapabilities_v1
-2. EvaluateAuthorization_v1
+1. ResolveRequiredCapabilities_v1(operator_id, operator_registry)
+2. EvaluateAuthorization_v1(tenant_id, principal_id, operator_id, authz_policy)
 3. Return verdict + authz_query_hash + authz_decision_hash + report
 ```
 

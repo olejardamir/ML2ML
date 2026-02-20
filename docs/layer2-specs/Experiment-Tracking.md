@@ -98,10 +98,13 @@
   - `tenant_id:string`, `run_id:string`, `replay_token:bytes32`, `manifest_hash:bytes32`, `trace_final_hash:bytes32`, `checkpoint_hash:bytes32`, `execution_certificate_hash:bytes32`, `status:string`, `created_at:string`, `ended_at?:string`.
 - `MetricRecord` (CBOR map):
   - `tenant_id:string`, `run_id:string`, `metric_name:string`, `metric_value:float64`, `metric_step:uint64`, `aggregation:enum(raw|sum|mean|min|max|quantile)`, `quantile_p?:float64`, `window_id?:string`, `recorded_at:string`.
+  - semantics: each metric record stores one scalar observation; `aggregation` denotes producer-side semantic label and does not trigger query-time aggregation by itself.
 - `ArtifactRecord` (CBOR map):
-  - `tenant_id:string`, `run_id:string`, `artifact_id:string`, `artifact_digest:digest_ref`, `artifact_size_bytes:uint64`, `storage_locator:string`, `artifact_class:string`, `created_at:string`, `tombstoned_at?:string`.
+  - `tenant_id:string`, `run_id:string`, `artifact_id:string`, `artifact_digest:bytes32`, `artifact_size_bytes:uint64`, `storage_locator:string`, `artifact_class:string`, `created_at:string`, `tombstoned_at?:string`, `tombstone_reason?:string`.
+- Type alias note: `digest_ref` (when used externally) resolves to `bytes32` in this contract version.
 - Record hash rule:
   - `record_hash = SHA-256(CBOR_CANONICAL(record_map))`.
+  - For `MetricRecord`, the canonical `record_map` used for hashing omits `recorded_at`; `recorded_at` remains stored metadata for human/audit readability only.
 
 ### II.H Tracking Gate Binding (Normative)
 - Any tracking record used by policy gates must be hash-addressed.
@@ -111,10 +114,20 @@
 ### II.I Artifact and Index Commitments (Normative)
 - `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", artifact_bytes_hash, metadata_hash]))`.
 - `artifact_index_hash` is computed as:
+  - `metadata_hash_i = SHA-256(CBOR_CANONICAL(artifact_metadata_i))`, where `artifact_metadata_i` is the canonical metadata map stored for artifact `i`.
   - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", artifact_id_i, metadata_hash_i, status_i]))`,
   - sorted by `artifact_id`,
   - Merkle odd-leaf rule duplicates the last leaf.
 - Idempotency rule: repeated `ArtifactPut_v1` with identical `(run_id, artifact_id)` must return the existing record deterministically.
+- `run_record_hash = SHA-256(CBOR_CANONICAL(RunRecord))`.
+  - mutability note: `RunRecord` is mutable until `RunEnd_v1` finalizes terminal fields; `run_record_hash` is final only after run end, and pre-final uses are undefined.
+- `tracking_store_hash` definition (normative):
+  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", run_record_hash, metric_stream_hash, artifact_index_hash]))`,
+  - `metric_stream_hash` is computed as a deterministic hash-chain over `MetricRecord` hashes sorted by `(metric_step, metric_name, record_hash)`:
+    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain_v1"]))`,
+    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain_v1", h_{i-1}, record_hash_i]))`,
+    - final `metric_stream_hash = h_n`.
+  - `recorded_at` is informational metadata only and MUST NOT affect deterministic ordering/hash commitments.
 
 ---
 ## 3) Initialization
@@ -143,7 +156,21 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Signature:** `(tenant_id, run_manifest -> run_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** creates immutable run metadata anchor.
+**Definition:** creates immutable run metadata anchor with placeholder terminal fields (`trace_final_hash`, `ended_at`) unset.
+
+**Operator:** `UML_OS.Tracking.RunStart_v1`  
+**Category:** IO  
+**Signature:** `(run_id, start_metadata -> ok)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends deterministic run-start event and transitions run lifecycle to ACTIVE.
+
+**Operator:** `UML_OS.Tracking.RunEnd_v1`  
+**Category:** IO  
+**Signature:** `(run_id, end_metadata -> ok)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** appends deterministic run-end event, atomically sets terminal run fields (`trace_final_hash`, `ended_at`, status), and seals the run event stream.
 
 **Operator:** `UML_OS.Tracking.MetricLog_v1`  
 **Category:** IO  
@@ -159,12 +186,27 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Determinism:** deterministic  
 **Definition:** stores content-addressed artifact and updates index.
 
+**Operator:** `UML_OS.Tracking.ArtifactGet_v1`  
+**Category:** IO  
+**Signature:** `(run_id, artifact_id -> artifact_bytes, metadata)`  
+**Purity class:** IO  
+**Determinism:** deterministic  
+**Definition:** resolves artifact by content-addressed identifier and returns immutable bytes + metadata.
+
+**Operator:** `UML_OS.Tracking.ArtifactList_v1`  
+**Category:** IO  
+**Signature:** `(run_id, filter? -> artifact_index)`  
+**Purity class:** PURE  
+**Determinism:** deterministic  
+**Definition:** lists artifacts in canonical order (artifact_id ascending) with deterministic filtering.
+
 **Operator:** `UML_OS.Tracking.ArtifactTombstone_v1`
 **Category:** IO
 **Signature:** `(run_id, artifact_id, reason -> tombstone_id)`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** appends immutable tombstone metadata; physical deletion is deferred to retention policy.
+**Definition:** appends immutable tombstone metadata; physical deletion is deferred to retention policy. Tombstoned artifacts remain retrievable by `artifact_id` for audit/replay, and are marked as deleted in listing views.
+`reason` is required and MUST be a valid UTF-8 string; it MUST be persisted into `tombstone_reason` and therefore committed by `record_hash`.
 
 ---
 ## 6) Procedure
