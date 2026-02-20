@@ -24,7 +24,8 @@
   - Map keys MUST be sorted by bytewise lexicographic order of canonical key encodings.
 - Policy object is loaded by `redaction_policy_hash`.
 
-### 0.C Numeric and Transform Policy
+### 0.C Numeric Policy
+- This section also defines deterministic transform-selection policy.
 - Effective transform decision is deterministic:
   1. If `field_transform_map` has path entry, use that transform.
   2. Else if classification is `CONFIDENTIAL`, use input `redaction_mode`.

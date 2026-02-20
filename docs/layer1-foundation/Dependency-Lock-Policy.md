@@ -25,7 +25,8 @@
 - `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
 - Artifact verification replay requires content-addressed immutable artifact retrieval from `artifact_index_blob` locations; this store assumption is part of runtime environment reproducibility (anchored by `runtime_env_hash`).
 
-### 0.C Numeric and Version Policy
+### 0.C Numeric Policy
+- This section also defines deterministic version-comparison behavior for dependency governance.
 - Semantic version parsing MUST follow SemVer 2.0.0 for valid SemVer strings.
 - Non-SemVer version strings MUST be compared as raw UTF-8 strings in bytewise lexicographic order.
 - Upgrade-comparison mixed-scheme rule: if one side is SemVer and the other is non-SemVer, the change is invalid (`VERSION_SCHEME_MISMATCH`) unless a future policy version explicitly permits mixed-scheme comparison.

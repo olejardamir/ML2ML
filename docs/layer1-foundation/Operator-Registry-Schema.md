@@ -273,11 +273,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 - exact compare of report and registry hash.
 
 ---
-## 10) Checkpoint
+## 10) Checkpoint/Restore
 ### Checkpoint contents
 - `last_validated_registry_hash:bytes32` (present only if validation completed successfully).
 ### Serialization
 - deterministic canonical CBOR.
-### Note
+### Restore semantics
 - Validation is a pure function; checkpoints store final results only.
 - Intermediate resume is not supported; interrupted validation MUST be rerun from the beginning.

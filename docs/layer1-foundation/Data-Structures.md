@@ -49,10 +49,11 @@
 ### 0.G Operator Manifest
 - `UML_OS.Implementation.ValidateSchemaDecl_v1`
 - `UML_OS.Implementation.ValidateInstance_v1`
-- `UML_OS.Implementation.ValidateStruct_v1` (compat alias to schema validation)
+- `UML_OS.Implementation.ValidateStruct_v1`
 - `UML_OS.Implementation.SerializeCanonical_v1`
 - `UML_OS.Implementation.ComputeStructHash_v1`
 - `UML_OS.Error.Emit_v1`
+- Compatibility note: `UML_OS.Implementation.ValidateStruct_v1` is a compat alias to schema validation.
 
 ### 0.H Namespacing and Packaging
 - Structure names are namespaced by subsystem.
@@ -209,10 +210,11 @@
 
 - `UML_OS.Implementation.ValidateSchemaDecl_v1`
 - `UML_OS.Implementation.ValidateInstance_v1`
-- `UML_OS.Implementation.ValidateStruct_v1` (compat alias to `ValidateSchemaDecl_v1`)
+- `UML_OS.Implementation.ValidateStruct_v1`
 - `UML_OS.Implementation.SerializeCanonical_v1`
 - `UML_OS.Implementation.ComputeStructHash_v1`
 - `UML_OS.Error.Emit_v1`
+- Compatibility note: `UML_OS.Implementation.ValidateStruct_v1` aliases `UML_OS.Implementation.ValidateSchemaDecl_v1`.
 
 ---
 

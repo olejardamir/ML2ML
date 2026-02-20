@@ -21,7 +21,8 @@
 ### 0.B Reproducibility Contract
 - Replayable given `(determinism_profile_id, determinism_profile_hash, backend_binary_hash, driver_runtime_fingerprint_hash, trace_a_hash, trace_b_hash)`.
 
-### 0.C Numeric and Equivalence Policy
+### 0.C Numeric Policy
+- This section also defines deterministic equivalence-level semantics used by replay comparison.
 - `BITWISE` profile uses strict bitwise equality for compared values.
 - `TOLERANCE` profile uses explicit per-field tolerance policies.
 - Equivalence levels (normative):

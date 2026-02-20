@@ -26,7 +26,8 @@
   - if a required dependency document is missing, unreadable, or its content does not match the version/sections referenced by this contract, treat as fatal configuration error and abort with `CONTRACT_VIOLATION`.
   - dependency governance assumption: referenced documents MUST be maintained as a coherent suite with this contract.
 
-### 0.C Numeric and Equivalence Policy
+### 0.C Numeric Policy
+- This section also defines equivalence-level semantics for compatibility and manifest commitments.
 - All fields are exact typed values.
 - `E0` (normative): byte-identical canonical manifest bytes, `env_manifest_hash`, and compatibility verdict/report fields.
 
@@ -282,7 +283,15 @@
 5. Compute `env_manifest_hash`.
 
 ---
-## 4) Operator Definitions
+## 4) Operator Manifest
+- `UML_OS.Environment.BuildManifest_v1`
+- `UML_OS.Environment.ComputeManifestHash_v1`
+- `UML_OS.Environment.ValidateCompatibility_v1`
+- `UML_OS.Error.Emit_v1`
+- External operator reference note: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+
+---
+## 5) Operator Definitions
 **Operator:** `UML_OS.Environment.BuildManifest_v1`  
 **Category:** Environment  
 **Signature:** `(() -> env_manifest)`  
@@ -327,7 +336,7 @@
 - `is_compatible` is true iff `missing_fields==0` and `compatibility_failures==0` and `compatibility_status=="COMPATIBLE"`.
 
 ---
-## 5) Procedure
+## 6) Procedure
 ```text
 1. BuildManifest_v1
 2. ComputeManifestHash_v1
@@ -336,7 +345,7 @@
 ```
 
 ---
-## 6) Trace & Metrics
+## 7) Trace & Metrics
 ### 6.1 Logging Rule
 - Environment capture/validation emits deterministic records.
 - Trace emission mapping:
@@ -364,7 +373,7 @@
 - Comparable iff `schema_version` matches and canonical CBOR profile is identical.
 
 ---
-## 7) Validation
+## 8) Validation
 ### 7.1 Lint Rules (mandatory)
 - Manifest map contains exactly required fields (no extras, no missing).
 - `schema_version` equals `UML_OS.Environment.Manifest_v1`.
@@ -379,7 +388,7 @@
 - Golden capture and compatibility traces with fixed hashes.
 
 ---
-## 8) Refactor & Equivalence
+## 9) Refactor & Equivalence
 ### 8.1 Equivalence Levels
 - `E0` required for manifest bytes, `env_manifest_hash`, and compatibility verdict/report.
 
@@ -391,7 +400,7 @@
 - Exact compare of `env_manifest_hash` and `compatibility_report`.
 
 ---
-## 9) Checkpoint/Restore
+## 10) Checkpoint/Restore
 ### 9.1 Checkpoint Contents
 - `env_manifest_hash:bytes32`
 - `schema_version:string`
@@ -405,7 +414,7 @@
 - Content-addressable storage mechanism is out of scope, but exact original manifest bytes MUST be retrievable by hash.
 
 ---
-## 10) EQC Alignment Notes
+## 11) EQC Alignment Notes
 - This document preserves EQC block structure with domain-specific mappings:
   - Block V observability semantics are represented in section `6) Trace & Metrics`.
   - Block VI parallel/nondeterminism semantics are represented in section `0.E` and relevant deterministic ordering rules.

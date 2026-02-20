@@ -2292,3 +2292,22 @@
 - Validation:
   - Re-ran Layer3 structural checks (operator-manifest coverage, `0.Z` coverage).
   - Re-ran registry/file digest parity validation.
+
+## 2026-02-20 — Layer1 EQC Structural Conformance and Wiring Pass
+- Scope: `docs/layer1-foundation/*` audited against `document_guidelines/EquationCode/EQC.md` mandatory block structure and operator-manifest/definition consistency.
+- Changes applied (additive/non-destructive):
+  - Standardized missing `0.C Numeric Policy` headings while preserving existing numeric+extended semantics in:
+    - `Dependency-Lock-Policy.md`
+    - `Determinism-Profiles.md`
+    - `Environment-Manifest.md`
+    - `Redaction-Policy.md`
+  - Added explicit Section `4) Operator Manifest` in `Environment-Manifest.md` and preserved imported `UML_OS.Error.Emit_v1` wiring note.
+  - Renumbered downstream Environment-Manifest sections to keep strict EQC block order (`4` through `10`) and retained all existing content.
+  - Normalized manifest bullet formatting for parser-safe operator extraction in `Data-Structures.md` and `Environment-Manifest.md` (moved alias/import notes out of inline operator-id bullets).
+  - Updated `Operator-Registry-Schema.md` section title from `10) Checkpoint` to `10) Checkpoint/Restore` and retained semantics.
+- Structural validation:
+  - Layer1 required EQC blocks presence check: pass (all 10 files satisfy mandatory section set).
+  - Layer1 operator-manifest vs section-5 operator-definition resolution check: pass (excluding imported `UML_OS.Error.Emit_v1`).
+- Registry updates:
+  - Refreshed hashes and `LastUpdated` for touched Layer1 records in `ecosystem-registry.yaml`:
+    - `L1-003`, `L1-004`, `L1-005`, `L1-007`, `L1-009`, `L1-010`.
