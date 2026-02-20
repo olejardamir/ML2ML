@@ -86,7 +86,7 @@
 
 ### II.F Deterministic Rollout Playbook (Concrete)
 - Preflight checks: signature verification, dependency lock verification, config-schema validation, checkpoint compatibility check.
-- Canary policy: fixed cohort order `[1%, 5%, 25%, 50%, 100%]`, each stage has fixed dwell time and deterministic metric window.
+- Canary policy: fixed cohort order `[1%, 5%, 25%, 50%, 100%]`, each stage advances on deterministic sample-count windows (not wall-clock dwell).
 - Gate thresholds:
   - error_rate <= 0.5%
   - p95_latency_delta <= 10%
@@ -95,6 +95,7 @@
   - `error_rate` = `failed_requests / total_requests` over the fixed canary evaluation window declared in rollout policy.
   - `p95_latency_delta` = `(p95_latency_canary - p95_latency_baseline) / p95_latency_baseline * 100`, with baseline from the last approved production release bound by `baseline_release_hash`.
   - `replay_determinism_failures` = count of E0 replay-check failures over the same fixed window.
+  - rollout input MUST include explicit `baseline_release_hash`; baseline selection is not inferred implicitly.
   - All gate metrics are computed from a frozen, canonicalized telemetry snapshot committed as `metrics_snapshot_hash`.
 - Gate verdict determinism: verdict is computed from a frozen metrics snapshot (`metrics_snapshot_hash`) captured at each canary stage; real-time telemetry ordering is not used directly for final verdict computation.
 - Rollback triggers: any threshold breach at any stage, signature mismatch, or missing trace artifacts.

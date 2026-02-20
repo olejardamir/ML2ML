@@ -133,13 +133,21 @@ Normative checks in `MODULAR` mode:
 - `schema_extensions[ext_id].owner == manifest.extensions[ext_id].owner`
 - `manifest.extensions[ext_id].version` must satisfy `version_range`
 - two extensions cannot claim overlapping `root_prefix` (`FAIL`)
+- overlap refinement rule:
+  - nested prefixes are allowed only when owners are identical; longer (more specific) prefix takes precedence.
+  - equal-length overlaps with different owners are fatal (`FAIL`).
 - `version_range` is interpreted using SemVer 2.0.0 comparison rules (deterministic parser; prerelease ordering per SemVer spec).
 - extension signature validation must use `signing_key_id` resolved from trust-store metadata with validity-window and revocation checks at manifest creation time.
+
+### II.G.1 Extension Registration (Normative)
+- Extensions are loaded from a deterministic extension registry snapshot and validated at manifest-check time.
+- Runtime mutation of extension registry is out-of-scope for this contract version; registry updates must publish a new signed snapshot hash.
 
 ### II.H Field Access Rule (Normative)
 - Define `MANIFEST_FIELD_ACCESS_SET`: exact set of manifest key paths referenced by kernel, executor, sampler, DP, checkpoint, trace, backend adapter, and deployment operators.
 - CI must compute `MANIFEST_FIELD_ACCESS_SET` from static extraction and compare against schema-declared paths.
 - Build fails with `CONTRACT_VIOLATION` if any referenced path is undeclared.
+- To support dynamic access paths, each operator contract MUST declare manifest field inputs explicitly in its operator signature/contract metadata; runtime validation enforces declared-access subset relation.
 
 ### II.I Canonical Defaults Table (Normative)
 | field_path | default |

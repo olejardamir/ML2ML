@@ -147,7 +147,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Signature:** `(tenant_id, run_manifest -> run_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** creates immutable run metadata anchor.
+**Definition:** creates immutable run metadata anchor with placeholder terminal fields (`trace_final_hash`, `ended_at`) unset.
 
 **Operator:** `UML_OS.Tracking.RunStart_v1`  
 **Category:** IO  
@@ -161,7 +161,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Signature:** `(run_id, end_metadata -> ok)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** appends deterministic run-end event and seals the run event stream.
+**Definition:** appends deterministic run-end event, atomically sets terminal run fields (`trace_final_hash`, `ended_at`, status), and seals the run event stream.
 
 **Operator:** `UML_OS.Tracking.MetricLog_v1`  
 **Category:** IO  

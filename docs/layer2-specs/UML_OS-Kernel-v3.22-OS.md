@@ -31,12 +31,13 @@
 - Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`
+- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`
 - `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
 - Replay context must also bind:
   - `sampler_config_hash`,
   - `tmmu_plan_hash`,
   - `dp_accountant_state_hash`,
+  - `operator_contracts_root_hash`,
   - `determinism_profile_hash`,
   - backend runtime fingerprint.
 - Canonical hash/input encoding rule (global): all hash inputs are domain-separated CBOR arrays; strings encoded UTF-8; integers encoded as unsigned big-endian logical values via CBOR major type.
@@ -58,6 +59,7 @@
 - NaN/Inf policy: NaN/±Inf ranked as `+Inf` (see 0.A); abort per 0.K on critical paths
 - Normalized exponentials: stable log-sum-exp required in all softmax / log-probability paths
 - Approx-equality: `a ≈ b` iff `|a - b| ≤ EPS_EQ`
+- Counter overflow policy: `t`, `current_step`, `operator_seq`, and all uint64 counters MUST fail-fast on overflow (`COUNTER_OVERFLOW`); wraparound is forbidden.
 
 ### 0.D Ordering and Tie-Break Policy
 - Index base: `0-based`
@@ -172,6 +174,8 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - Deterministic rank ordering and deterministic collective primitives
 - `global_batch_size % world_size == 0` required for distributed runs
 - Global batch sequence is world-size invariant by data contract; update values are E0 only within fixed distributed configuration and E1 across compatible re-shards; sharding remains contiguous rank-ordered after global deterministic permutation; collective order fixed by ascending rank.
+- E0 distributed requirement: all ranks MUST report identical `driver_runtime_fingerprint_hash`; mismatch is deterministic failure (or explicit downgrade to non-E0 mode if policy allows).
+- Per-rank RNG derivation (normative): `rank_rng_seed = SHA-256(CBOR_CANONICAL(["rank_rng_v1", replay_token, uint32(rank)]))`; each rank initializes its RNG master from this seed to avoid cross-rank stream collisions.
 - In `daemon_mode=cluster`, all collectives respect manifest `distributed.timeout_seconds` (default 300); any timeout or communication error aborts deterministically with `DISTRIBUTED_COMMUNICATION_FAILURE` record (included in trace and certificate).
 - Declared parallelism.strategy is implemented by the loaded driver under Contract.Validate_v1 and the ReproducibilityTest suite (sharding of model parameters and data consistent with NextBatch_v2 and UML_Model_IR node annotations). Hybrid strategies combine via manifest-defined stage or node partitioning.
 
@@ -573,7 +577,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(parallelism, world_size, backend -> dist_state)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
-**Definition:** initializes deterministic collectives and rank order.  
+**Definition:** initializes deterministic collectives and rank order; validates identical distributed determinism profile across ranks and derives per-rank RNG masters using `rank_rng_seed` rule from 0.R.  
 **Preconditions / Postconditions:** valid backend and world size.  
 **Edge cases:** world_size=1.  
 **Numerical considerations:** deterministic reduction primitives only.  
@@ -714,7 +718,7 @@ Canonical journal event shape: CBOR map with at least `{t:uint64, stage_id:strin
 **Signature:** `(state -> checkpoint)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** writes full checkpoint at frequency or termination using deterministic serialization. Checkpoint payload must include `theta`, `data_cursors`, `rng_master_state`/offsets, and `dp_accountant_state` when DP is enabled.
+**Definition:** writes full checkpoint at frequency or termination using deterministic serialization. In distributed mode, rank 0 writes the canonical checkpoint after deterministic gather/barrier; checkpoint payload must include `theta`, `data_cursors`, `rng_master_state`/offsets, and `dp_accountant_state` when DP is enabled, plus sharding metadata needed for restore.
 **Preconditions / Postconditions:** checkpoint path resolved in namespace.  
 **Edge cases:** checkpoint_frequency=0 disables periodic writes.  
 **Numerical considerations:** binary64 for critical values.  
@@ -836,6 +840,7 @@ State transition table (normative):
 5. current_step <- 0
 6. checkpoint_frequency <- manifest.checkpoint_frequency or 0
 7. current_stage <- UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // resolves initial stage
+7a. if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- deterministic_stage_merge(manifest, stage_manifest)  // stage overrides non-security fields only
 8. WALAppend_v1(PREPARE)
 9. state <- UML_OS.Transition.SwitchState_v1(S_INIT, current_stage.type)
 
@@ -843,6 +848,7 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 - terminated <- UML_OS.Termination.Check_v1(...) (scoped to current stage)
 - terminated <- terminated OR check_global_termination_limits(manifest, t, state)
 - if terminated: break
+- if t == UINT64_MAX: Error.Emit_v1(COUNTER_OVERFLOW, ...); UML_OS.IO.WriteTape_v1(error_record_sync); abort
 - t <- t + 1
 - UML_OS.Contract.Validate_v1(...)
 - if current_stage.type == "augment":
@@ -854,6 +860,9 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     state <- UML_OS.Transition.SwitchState_v1(state, "train")
     batch, cursor_next <- UML_OS.Data.NextBatch_v2(dataset_key, world_size, rank, current_stage.type, data_cursors[dataset_key])
     data_cursors[dataset_key] <- cursor_next
+    if len(batch) == 0:
+      UML_OS.IO.WriteTape_v1({t, stage_id: current_stage.step_id, status:"batch_empty", dataset_key})
+      continue
     logits <- UML_OS.Model.Forward_v2(...)
     L_tot <- UML_OS.Objective.TotalLoss_v1(...)
     action <- UML_OS.Policy.Evaluate_v1(...)
@@ -879,7 +888,9 @@ Loop until Pipeline.Dispatch_v1 returns termination:
     state <- UML_OS.Transition.SwitchState_v1(state, "infer")
     UML_OS.Inference.RunBatch_v1(theta, dataset_key)
 - checkpoint_due <- (checkpoint_frequency > 0 and (t % checkpoint_frequency == 0)) or current_stage.checkpoint_on_exit == true
-- if checkpoint_due: UML_OS.IO.SaveCheckpoint_v1(...)
+- if checkpoint_due:
+    if world_size == 1 or rank == 0: UML_OS.IO.SaveCheckpoint_v1(...)
+    if world_size > 1: deterministic_checkpoint_barrier()
 - if manifest.fingerprint_frequency > 0 and (t % manifest.fingerprint_frequency == 0): StateFingerprint_v1, Fingerprint.Functional_v1(theta, manifest.evaluation.probe_set), Verifiable.CommitFunctional_v1 (if enabled)
 - UML_OS.IO.WriteTape_v1(...) (includes stage transition and usage record)
 - resource_ledger <- update deterministic per-step resource counters `{flops, bytes_allocated, peak_bytes, gpu_time_ns, cpu_time_ns}`
@@ -890,6 +901,7 @@ Loop until Pipeline.Dispatch_v1 returns termination:
 - UML_OS.State.Journal_v1({t, state, action, data_cursors, rng_offsets, dp_accountant_state, resource_ledger})
 - current_step <- current_step + 1
 - current_stage = UML_OS.Pipeline.Dispatch_v1(manifest.pipeline_stages, current_step)  // advance or terminate
+- if current_stage.manifest_path exists: stage_manifest <- UML_OS.Data.Manifest_v1(current_stage.manifest_path); UML_OS.Data.ValidateManifest_v1(stage_manifest); manifest <- deterministic_stage_merge(manifest, stage_manifest)
 
 On full termination:
 - state <- UML_OS.Transition.SwitchState_v1(state, "terminate")

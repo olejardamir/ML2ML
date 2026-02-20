@@ -1885,3 +1885,37 @@
   - Tightened kernel deterministic collective, fingerprint-frequency, dataset-key defaults, journal/termination/state-transition semantics, and synchronous error trace emission before abort.
   - Added deployment definitions for image digest and canonical SPDX SBOM hash input.
 - Validation: targeted hash parity checks completed for updated records.
+
+- Date: 2026-02-20
+- Scope: Layer2 fourth-pass deterministic and governance fixes.
+- Changes:
+  - Added capability versioning/default-deny semantics and granted-capability derivation requirements.
+  - Tightened checkpoint streaming root finalization and restore migration behavior.
+  - Added extension overlap precedence rule and dynamic field-access declaration fallback.
+  - Clarified canary stage progression by deterministic sample-count windows and explicit baseline input.
+  - Strengthened DP config semantics (PER_STEP-only granularity, configurable alpha grid, per-group q_g composition).
+  - Extended replay token binding with determinism profile hash and driver-fingerprint ordering rule.
+  - Added certificate policy-bundle decomposition consistency rule.
+  - Added deterministic metrics digest rule for evaluation evidence.
+  - Clarified run-start/run-end tracking terminal field lifecycle.
+  - Added ERROR to mandatory trace record kinds.
+  - Strengthened kernel replay token binding and deterministic runtime rules.
+- Validation: registry hash parity checked for all touched records.
+
+- Date: 2026-02-20
+- Scope: Selective fifth-pass gap closure (only unresolved items).
+- Changes:
+  - `Run-Commit-WAL.md`: replaced ambiguous WAL hash payload wording with canonical record-payload rule; added full deterministic `WALRecover_v1` algorithm; added startup recovery step in procedure; added explicit counter-overflow abort rule.
+  - `UML_OS-Kernel-v3.22-OS.md`: added explicit uint64 overflow fail-fast semantics (`COUNTER_OVERFLOW`); added deterministic stage-manifest load/validate/merge hooks at dispatch boundaries; added explicit overflow guard before `t` increment.
+  - `Error-Codes.md`: added `COUNTER_OVERFLOW` and `WAL_CORRUPTION` registry entries.
+- Validation: refreshed registry hashes for `L1-008`, `L2-016`, and `L2-020`.
+
+- Date: 2026-02-20
+- Scope: Seventh-pass selective hardening (interaction/concurrency/crypto/recovery).
+- Changes:
+  - `UML_OS-Kernel-v3.22-OS.md`: replay token now binds `operator_contracts_root_hash`; added distributed E0 fingerprint homogeneity rule; added per-rank RNG seed derivation; added distributed checkpoint write/barrier semantics; added explicit empty-batch skip path with trace emission.
+  - `Replay-Determinism.md`: replay token and minimum-coverage set now include `operator_contracts_root_hash`.
+  - `Checkpoint-Schema.md`: restore now requires operator-registry-root compatibility (or declared deterministic migration path) and strict `tmmu_plan_hash` match from recomputed execution order.
+  - `Execution-Certificate.md`: added signed `signature_algorithm` and `valid_until_utc`; verifier enforces expiry; Sign_v1 clarified for HSM/KMS key refs with deterministic signing behavior.
+  - `Run-Commit-WAL.md`: added record framing integrity (`record_length_u32`, `record_crc32c`) and recovery validation for checksum/torn writes.
+- Validation: refreshed registry hashes for `L2-002`, `L2-009`, `L2-015`, `L2-016`, `L2-020`.

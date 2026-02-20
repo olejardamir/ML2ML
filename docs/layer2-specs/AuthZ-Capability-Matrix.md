@@ -58,12 +58,15 @@
 - `principal_id` format is canonical tenant-scoped UTF-8 text: `tenant_id "/" principal_local_id`.
 - `principal_id` comparisons are bytewise and case-sensitive.
 - `capability_matrix` MUST include immutable `matrix_version:string`; updates publish a new matrix object and `capability_matrix_hash`.
+- Capability names MUST be fully-qualified and versioned (example: `storage.write.v1`).
 - `required_capabilities` is read from canonical operator registry for `operator_id`.
 - Missing `operator_id` mapping is deterministic failure.
+- Authorization model is default-deny: any missing principal binding or missing required capability yields `DENY`.
 
 ### II.G Deterministic Verdict Hash (Normative)
 - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
 - `granted_capabilities_hash = SHA-256(CBOR_CANONICAL(sorted(granted_capabilities)))`.
+- `granted_capabilities` is the deterministic policy-evaluation output set for `(tenant_id, principal_id)` under `authz_policy_hash`, sorted lexicographically before hashing.
 - `verdict_enum` is a required enum from:
   - `ALLOW`
   - `DENY`

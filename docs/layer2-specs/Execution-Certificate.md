@@ -88,6 +88,8 @@
   - `signed_payload` (canonical CBOR; this exact payload is signed)
   - `unsigned_metadata` (not signed; informational only)
 - `signed_payload` field set is fixed by this section; no additional implementation-specific fields are allowed in signed bytes.
+- policy-bundle consistency rule:
+  - if individual policy hashes are present (`security/authz/monitor/dp/redaction`), they MUST match the decomposition of `policy_bundle_hash` under `policy_bundle_v1`; mismatch is deterministic verification failure.
 - Dependency identity semantics:
   - `lockfile_hash` = canonical package lock digest (`LockfileDigest_v1`).
   - `dependencies_lock_hash` = derived environment-bound commitment (`DependenciesLockDigest_v1`).
@@ -128,8 +130,10 @@
   - `attestation_bundle_hash?:bytes32` (required in `ATTESTED` mode)
   - `trust_store_hash:bytes32`
   - `key_id:string`
+  - `signature_algorithm:string` (e.g., `"ed25519"`)
   - `revocation_bundle_hash:bytes32`
   - `verification_time_utc:string` (required when online revocation/attestation checks are verdict-affecting)
+  - `valid_until_utc:string` (certificate expiry upper bound for verifier acceptance)
   - `determinism_conformance_suite_id?:bytes32`
   - `step_start:uint64`
   - `step_end:uint64`
@@ -141,7 +145,7 @@
   - `signature:bytes64`
 - Signature scheme (normative):
   - canonical payload serialization: canonical CBOR of `signed_payload`
-  - signature algorithm: Ed25519
+  - signature algorithm: indicated by `signed_payload.signature_algorithm`; current required value is `"ed25519"`
   - Ed25519 implementation MUST follow RFC 8032 deterministic signing behavior (no external nonce randomness).
 - Trust/revocation commitment definitions:
   - `trust_store_hash = SHA-256(CBOR_CANONICAL(trust_store_bundle))`, where `trust_store_bundle` is the canonical root/intermediate key set used for verification.
@@ -180,14 +184,14 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 **Signature:** `(certificate_payload, signing_key_ref -> execution_certificate)`  
 **Purity class:** IO  
 **Determinism:** deterministic payload + deterministic signature algorithm policy  
-**Definition:** signs canonical CBOR bytes of `signed_payload` only; `unsigned_metadata` is excluded. In `ATTESTED` mode key release requires attestation policy pass.
+**Definition:** signs canonical CBOR bytes of `signed_payload` only; `unsigned_metadata` is excluded. In `ATTESTED` mode key release requires attestation policy pass. `signing_key_ref` may resolve to HSM/KMS key material via daemon key broker; signer MUST enforce deterministic algorithm behavior for the selected `signature_algorithm`.
 
 **Operator:** `UML_OS.Certificate.Verify_v1`  
 **Category:** Security  
 **Signature:** `(execution_certificate, trust_store -> verification_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, and revocation status using `revocation_bundle_hash`.
+**Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, expiry (`verification_time_utc <= valid_until_utc`), and revocation status using `revocation_bundle_hash`.
 
 **Operator:** `UML_OS.Certificate.EvidenceValidate_v1`  
 **Category:** Security  

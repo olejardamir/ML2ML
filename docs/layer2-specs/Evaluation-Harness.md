@@ -83,6 +83,7 @@
 - `eval_manifest_hash`
 - `dataset_snapshot_id`
 - `metrics_digest`
+  - `metrics_digest = SHA-256(CBOR_CANONICAL(sorted_metrics))` where `sorted_metrics` is canonical array of `{name, value, unit?}` sorted by `name`.
 - `trace_final_hash`
 - `determinism_tier`
   - allowed values: `E0 | E1` as defined in `docs/layer2-specs/Replay-Determinism.md`.

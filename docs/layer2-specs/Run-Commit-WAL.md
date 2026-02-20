@@ -20,6 +20,7 @@
 - Replayable given `(wal_records, run_id, tenant_id)`.
 ### 0.C Numeric Policy
 - Counters and sequence IDs use uint64.
+- Counter overflow is forbidden: any increment that would exceed `2^64-1` MUST abort with `COUNTER_OVERFLOW`.
 ### 0.D Ordering and Tie-Break Policy
 - WAL records are strictly ordered by `wal_seq`.
 ### 0.E Parallel, Concurrency, and Reduction Policy
@@ -80,12 +81,19 @@
   - `certificate_hash?:bytes32`
   - `commit_pointer_hash?:bytes32`
   - `prev_record_hash:bytes32`
+  - `record_length_u32:uint32`
+  - `record_crc32c:uint32`
   - `record_hash:bytes32`
 
 WAL hash-chain rule:
-- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", tenant_id_i, run_id_i, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]))`
+- Define `wal_record_payload_i` as the canonical CBOR map of the WAL record with all present fields except `record_hash`.
+- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", wal_record_payload_i]))`
 - `commit_record_hash = record_hash` of the terminal `FINALIZE` WAL record.
 - `wal_terminal_hash = commit_record_hash`.
+- WAL framing integrity rule:
+  - records are persisted as `[record_length_u32 | record_cbor_bytes | record_crc32c]`,
+  - `record_crc32c` is computed over `record_cbor_bytes`,
+  - recovery MUST reject checksum mismatches and truncated trailing records as `WAL_CORRUPTION`.
 
 Terminal commit record rule:
 - `record_type="FINALIZE"` MUST include:
@@ -98,10 +106,20 @@ Terminal commit record rule:
   - and SHOULD include `policy_bundle_hash` + `determinism_profile_hash` to bind signing context.
 
 ### II.G Recovery Rule (Normative)
-- On startup:
-  - if terminal `FINALIZE` exists and all final artifacts verify, commit is complete.
-  - if only non-terminal records exist, rollback temp objects and emit deterministic failure record.
-  - if terminal `ROLLBACK` exists, no final artifacts may be visible.
+- Deterministic `WALRecover_v1` algorithm:
+  1. Enumerate records for `(tenant_id, run_id)` by strictly ascending `wal_seq`.
+  2. Validate continuity: first record MUST have `wal_seq=0`; each next record MUST increment by exactly 1.
+  3. Validate framing/checksum for each record (`record_length_u32`, `record_crc32c`); detect and reject torn writes.
+  4. Validate hash chain: for each record `i>0`, `prev_record_hash_i == record_hash_{i-1}`; recompute each `record_hash_i` from canonical payload and verify equality.
+  5. If chain validation fails (gap, mismatch, duplicate terminal), abort with `WAL_CORRUPTION`.
+  6. Determine terminal state from highest `wal_seq` record:
+     - `FINALIZE`: verify all referenced final artifacts exist and hashes match; if valid, mark committed and return success.
+     - `ROLLBACK`: ensure no final artifacts are visible via COMMITTED pointer; return rolled-back success.
+     - non-terminal (`PREPARE` or `CERT_SIGNED`): execute deterministic rollback:
+       - remove temp artifacts referenced by WAL (idempotent),
+       - remove COMMITTED pointer if present and inconsistent,
+       - append terminal `ROLLBACK` record if absent.
+  7. Emit deterministic recovery report with status, terminal record hash, and any removed temp refs.
 
 Canonical commit barrier:
 - Write immutable content-addressed artifacts first.
@@ -136,11 +154,12 @@ Canonical commit barrier:
 **Signature:** `(wal_stream, artifact_store -> recovery_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
-**Definition:** executes finalize-or-rollback deterministic recovery.
+**Definition:** Executes II.G algorithm exactly: validates sequence/hash-chain, then deterministically finalize-or-rollback with idempotent artifact handling and explicit corruption failure.
 
 ---
 ## 6) Procedure
 ```text
+0. WALRecover_v1 on startup/resume
 1. WALAppend_v1(PREPARE)
 2. WALAppend_v1(CERT_SIGNED)
 3. FinalizeRunCommit_v1

@@ -172,7 +172,7 @@
   - `accountant: "pld" | "moments" | "rdp" | "f_dp" | "gdp"` (default/recommended: `pld`)
   - `subsampling: "POISSON" | "SHUFFLE_WITHOUT_REPLACEMENT" | "NONE"`
   - `sampling_mode: string` (from `docs/layer2-specs/Data-NextBatch.md` sampler metadata)
-  - `accountant_granularity: "PER_STEP" | "PER_EPOCH"` (default `PER_STEP`, recommended `PER_STEP`)
+  - `accountant_granularity: "PER_STEP"` (required)
   - `clipping.strategy: "per_sample" | "ghost" | "per_layer" | "per_group" | "per_tensor" | "hybrid" | "peft_targeted" | "adaptive"`
   - `clipping.norm: float | "adaptive"`
   - `clip_norm_map: dict | null`
@@ -223,12 +223,12 @@
 - `stddev_map_t[g]` is derived deterministically as `stddev_map_t[g] = sigma_map_t[g] * C_g / B_eff`.
 - Group composition at a step uses the selected accountant (`PLD` default, `RDP`/`moments`/`f_dp`/`gdp` fallback) with explicit `sampling_rate`, `subsampling`, and optional `amplification_factor`.
 - Normative heterogeneous composition rule:
-  - Fixed declared Renyi-order grid for this contract version:
+  - Renyi-order grid is config-bound and deterministic (`alpha_grid` in DP config); default:
     - `alpha_grid = [1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16, 24, 32, 48, 64]`.
-  - For each Renyi order `alpha` in `alpha_grid`, compute `RDP_step(alpha) = sum_g RDP_g(alpha; q_eff, sigma_g)`.
+  - For each Renyi order `alpha` in `alpha_grid`, compute `RDP_step(alpha) = sum_g RDP_g(alpha; q_g, sigma_g)` (per-group sampling rates).
   - Compose across optimizer steps by summation in deterministic step order.
   - Convert to `(epsilon, delta)` via deterministic minimization over the fixed `alpha` grid.
-  - PLD path is allowed as primary implementation only when configured discretization/truncation error bound is declared and included in trace.
+  - PLD path is allowed as primary implementation only when `pld_discretization_bins`, `pld_truncation_bound`, and declared error bound are config-bound and included in trace.
 - Step composition: accountant composes optimizer steps in deterministic order; `(epsilon, delta)` reported from accountant conversion per optimizer step.
 - Ghost clipping: when enabled, accountant input uses `sampling_rate' = min(1.0, accounting_adjustment_factor * sampling_rate)` and requires audited bound artifact in regulated mode.
 - zero-sensitivity rule: groups with sensitivity `0` MUST set `sigma_g=0`, `stddev_g=0`, and contribute zero privacy cost in accountant updates.
@@ -522,8 +522,7 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 16. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
 17. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
 18. Accountant step semantics:
-    - if `accountant_granularity == PER_STEP`, `t` advances by 1 per optimizer step.
-    - if `accountant_granularity == PER_EPOCH`, budget updates are aggregated deterministically across step set and committed once at epoch boundary.
+    - `accountant_granularity == PER_STEP`; `t` advances by 1 per optimizer step.
 19. emit dp_metrics (`gradient_snr`, `fairness_clip_ratio`, `scaling_law_confidence`, `peft_noise_reduction_factor`, `effective_heterogeneous_multiplier`) and return.
 ```
 

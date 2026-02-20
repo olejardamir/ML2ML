@@ -139,7 +139,7 @@
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with fixed priority ordering:
     - `RUN_HEADER` > `ERROR` > `POLICY_GATE_VERDICT` > `CHECKPOINT_COMMIT` > `CERTIFICATE_INPUTS` > `RUN_END` > `ITER`.
-  - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END"}`.
+  - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END","ERROR"}`.
   - Mandatory records MUST NEVER be sampled out or dropped.
   - If caps force dropping mandatory records: emit `TRACE_CAP_EXCEEDED_MANDATORY` and abort deterministically.
 

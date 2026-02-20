@@ -109,7 +109,7 @@
 - deterministic comparator order and complete reporting.
 
 ### II.F Replay Token Formulas (Authoritative)
-- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`.
+- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`.
 - `env_manifest_hash` is computed per `docs/layer1-foundation/Environment-Manifest.md` (alias `runtime_env_hash` must resolve to same bytes32).
 - `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))[0:16]`.
 - `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
@@ -132,7 +132,9 @@
 - `DriverRuntimeFingerprint` schema and hash:
   - schema fields: `gpu_model`, `gpu_sm_count`, `driver_version`, `cuda_version`, `cudnn_version`, `cublas_version`, `nccl_version`, `os_kernel_version`, `compiler_id`, `compiler_flags_hash`, `backend_adapter_version`, `backend_build_id`.
   - `driver_runtime_fingerprint_hash = SHA-256(CBOR_CANONICAL(driver_runtime_fingerprint_map))`.
+  - field-order requirement: keys MUST appear exactly in the listed order for canonical map construction.
 - Replay token minimum state coverage:
+  - Operator contracts: `operator_contracts_root_hash`,
   - RNG counters: `rng_offset_before`, `rng_offset_after`,
   - DP: `dp_accountant_state_hash`, `dp_config_hash`,
   - Data: `sampler_config_hash`, `effective_q`,
