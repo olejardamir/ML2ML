@@ -1525,3 +1525,142 @@
   - Updated hash (`L1-004`): `9f7e26c792d07ee2d73cd6874d0a68ab06dab8663ebddc509c5638a964d2455c`
   - Previous hash (`L1-004`): `4b77f805c34586928e6ab54ed30d33ba16de51f3e70c650417f35d69e720e42e`
   - Registry path for `L1-004` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Redaction policy determinism/completeness rewrite (`L1-010`).
+- Scope:
+  - Rewrote `docs/layer1-foundation/Redaction-Policy.md` to resolve logical, structural, and algorithmic gaps:
+    - unified operator/procedure inputs around `redaction_policy_hash` (policy loaded by hash),
+    - defined deterministic bucketization algorithm, float boundary behavior, and canonical bucket output format,
+    - defined canonical nested field-path representation and traversal order,
+    - defined canonical preimage and canonical field-value encoding,
+    - defined `redaction_audit` schema and deterministic output ordering,
+    - clarified per-field transform overrides over default mode,
+    - enforced mandatory unredacted verification fields and policy-classification constraints,
+    - added explicit initialization/procedure error handling and key validity-window checks,
+    - clarified parallel merge determinism and checkpoint/restore key-retention assumptions,
+    - aligned `ValidateRedactionCoverage_v1` signature to `redaction_policy_hash`.
+  - Updated registry record `L1-010` hash/version in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `b9ba45462f96d68cdb87355e92064d62362c913548d7c59afce90d4d7f911f82`
+  - Previous hash (`L1-010`): `bdd99faec6b06933c2c3b88554bc43cafdfab2e91ca0e2b3cd0661a2243711e3`
+  - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-19
+- Action: Redaction policy final rigor pass (`L1-010`).
+- Scope:
+  - Updated `docs/layer1-foundation/Redaction-Policy.md` to address remaining logical/algorithmic gaps:
+    - defined canonical `record_blob` format (canonical CBOR),
+    - defined leaf/composite semantics and composite-whole transform behavior,
+    - corrected canonical path ordering to bytewise sort on canonical CBOR path bytes,
+    - defined mandatory-field presence failure behavior,
+    - specified NaN/Inf behavior for bucketization and finite-boundary requirement,
+    - clarified `record_id` source in audit,
+    - made transform decision logic explicit and deterministic,
+    - defined mandatory fields as explicit top-level paths,
+    - defined schema compatibility checks and registry source,
+    - defined `forbidden_raw_field_count`,
+    - removed undefined `canonicalization_policy_id` usage in favor of `preimage_format_id`,
+    - specified key validity timestamp representation (Unix epoch seconds),
+    - defined `bucket_rules`, `policy_rules`, and `key_policy` roles,
+    - added missing operator definition for `ComputeRedactionPolicyHash_v1`,
+    - clarified error/abort semantics for `Emit_v1`,
+    - added explicit canonical CBOR reference and `schema_version` encoding as text string,
+    - clarified checkpoint cursor semantics for batch/single-record modes.
+  - Updated registry record `L1-010` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `1dbefd4f48a376b338216e39767f2bec7adab6e04b9d4e18c2491dec061dc76a`
+  - Previous hash (`L1-010`): `b9ba45462f96d68cdb87355e92064d62362c913548d7c59afce90d4d7f911f82`
+  - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Redaction policy determinism-closure pass (`L1-010`).
+- Scope:
+  - Updated `docs/layer1-foundation/Redaction-Policy.md` to close remaining deterministic/structural gaps:
+    - formalized canonical CBOR profile constraints (RFC 8949 deterministic + float64 + canonical map-key ordering),
+    - expanded fatal reason codes (`KEY_NOT_AUTHORIZED`, `BUCKET_VALUE_NAN`, `NULL_VALUE_FOR_BUCKET`, `INVALID_PREIMAGE_FORMAT`),
+    - defined `key_policy.allowed_key_ids` and enforced key authorization in initialization/procedure,
+    - defined v1 behavior for `policy_rules` (reserved/ignored entries),
+    - tightened bucketization semantics (null/NaN failure behavior, bucket index formatting),
+    - added transform-path prefix conflict rejection,
+    - defined `coverage_report` schema and explicit procedure abort when `coverage_report.valid == false`,
+    - clarified output structural invariance (same input field/path presence, values may be transformed),
+    - clarified trace `field_path` encoding as canonical CBOR `FieldPath`.
+  - Updated registry record `L1-010` hash/version in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `912c6590522df6fdc087fca70e58e191f171b9ba51bd94c2a0f3168c5150a704`
+  - Previous hash (`L1-010`): `1dbefd4f48a376b338216e39767f2bec7adab6e04b9d4e18c2491dec061dc76a`
+  - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Redaction policy edge-case closure pass (`L1-010`).
+- Scope:
+  - Updated `docs/layer1-foundation/Redaction-Policy.md` to close remaining logical/algorithmic gaps:
+    - upgraded transform-conflict rule from explicit-map-only to effective-transform conflict detection,
+    - added explicit real-number comparison semantics for bucketization across integer/float numeric encodings,
+    - enforced audit `record_id` extraction from original input and added `record_id` to mandatory unredacted top-level fields,
+    - added record-model constraint that map keys are CBOR text strings,
+    - formalized `coverage_report` schema in output section,
+    - extended validation/lint to enforce effective-transform ancestor/descendant conflict checks.
+  - Updated registry record `L1-010` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `bb95d39fa3cda2fc5d5fc3358e9d8603b337b4422a0f977821bd5b09a7089d5e`
+  - Previous hash (`L1-010`): `912c6590522df6fdc087fca70e58e191f171b9ba51bd94c2a0f3168c5150a704`
+  - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Redaction policy input-validation closure pass (`L1-010`).
+- Scope:
+  - Updated `docs/layer1-foundation/Redaction-Policy.md` to close remaining validation determinism gaps:
+    - added fatal reason codes for basic input validation (`INVALID_REDACTION_MODE`, `SCHEMA_NOT_FOUND`, `INVALID_CBOR`),
+    - made `forbidden_raw_field_count` definition explicit via effective-transform `!= NONE` redactable criterion,
+    - made `coverage_report.errors` ordering deterministic (lexicographic) and success state explicit (`errors=[]`),
+    - added explicit operator checks for invalid mode, missing schema, and invalid/non-canonical CBOR,
+    - defined `key_policy` forward-compat handling for unknown fields,
+    - enforced that `CONFIDENTIAL` fields cannot have effective transform `NONE`,
+    - added mandatory-field ancestor-transform prohibition,
+    - added validation of policy-map key shape as well-formed `FieldPath`.
+  - Updated registry record `L1-010` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `f60a593d475e98650acc50ce3bcebc2f5350f5b954ad3f780a3177d6123f5eaa`
+  - Previous hash (`L1-010`): `bb95d39fa3cda2fc5d5fc3358e9d8603b337b4422a0f977821bd5b09a7089d5e`
+  - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Redaction policy enum/runtime-validation completion pass (`L1-010`).
+- Scope:
+  - Updated `docs/layer1-foundation/Redaction-Policy.md` to finalize remaining deterministic validation gaps:
+    - added fatal reason codes `INVALID_TRANSFORM_VALUE` and `INVALID_VALUE_TYPE`,
+    - constrained `coverage_report.errors` to 0.K fatal reason codes with lexicographic ordering,
+    - added explicit validation that all `field_transform_map` values are within allowed transform enum,
+    - added runtime type enforcement for `BUCKET_V1` (non-numeric value aborts with `INVALID_VALUE_TYPE`),
+    - confirmed `±Inf` text is correct in 0.Z.
+  - Updated registry record `L1-010` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `09cb084b5a7fafb8dffb0cb60d16825af4ac247e6c5f662334018d38902581a5`
+  - Previous hash (`L1-010`): `f60a593d475e98650acc50ce3bcebc2f5350f5b954ad3f780a3177d6123f5eaa`
+  - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Redaction policy canonical-output encoding closure (`L1-010`).
+- Scope:
+  - Updated `docs/layer1-foundation/Redaction-Policy.md` to add explicit requirement that `redacted_record` is encoded as canonical CBOR using the same profile as Section 0.B.
+  - Updated registry record `L1-010` hash in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-010`): `2900726e34ce0db966cfc7e2ed95050313e7e89a104045ce42c919843bb52802`
+  - Previous hash (`L1-010`): `09cb084b5a7fafb8dffb0cb60d16825af4ac247e6c5f662334018d38902581a5`
+  - Registry path for `L1-010` unchanged and resolves: pass
