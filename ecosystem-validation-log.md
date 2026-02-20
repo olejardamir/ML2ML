@@ -1664,3 +1664,20 @@
   - Updated hash (`L1-010`): `2900726e34ce0db966cfc7e2ed95050313e7e89a104045ce42c919843bb52802`
   - Previous hash (`L1-010`): `09cb084b5a7fafb8dffb0cb60d16825af4ac247e6c5f662334018d38902581a5`
   - Registry path for `L1-010` unchanged and resolves: pass
+
+---
+
+- Date: 2026-02-20
+- Action: Layer1 EQC structural alignment audit and normalization (`L1-007`).
+- Scope:
+  - Audited all files under `docs/layer1-foundation/` against `document_guidelines/EquationCode/EQC.md` required block structure.
+  - Updated `docs/layer1-foundation/Environment-Manifest.md` with structural-only EQC alignment while preserving all existing normative content:
+    - added `0.Z EQC Mandatory Declarations Addendum`,
+    - normalized Section 2 subheadings to explicit `I.A`–`I.E` forms,
+    - added `10) EQC Alignment Notes` cross-mapping section,
+    - updated spec date stamp to `2026-02-20`.
+  - Updated registry record `L1-007` hash/version in `ecosystem-registry.yaml`.
+- Validation:
+  - Updated hash (`L1-007`): `d45ec11545ee1509743505c0506b33fb36a7860120466b74aab7892530f14a82`
+  - Previous hash (`L1-007`): `3594284b82dc791d36b5e0ab9a2956171a621ef0c010ef0ebf69e45db4c82637`
+  - Required EQC heading presence check across all 10 Layer1 docs: pass

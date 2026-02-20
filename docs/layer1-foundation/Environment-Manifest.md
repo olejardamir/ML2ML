@@ -3,7 +3,7 @@
 
 **Algorithm:** `UML_OS.Environment.Manifest_v1`  
 **Purpose (1 sentence):** Define canonical environment/runtime fingerprint schema and hashing used by replay tokens, checkpoints, and certificates.  
-**Spec Version:** `UML_OS.Environment.Manifest_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `UML_OS.Environment.Manifest_v1` | 2026-02-20 | Authors: Olejar Damir  
 **Domain / Problem Class:** Deterministic environment identity and compatibility gating.
 
 ---
@@ -68,18 +68,24 @@
 ### 0.L Input/Data Provenance
 - Capture sources MUST be recorded deterministically via the normalized manifest fields and constituent hashes.
 
+### 0.Z EQC Mandatory Declarations Addendum
+- No stochastic operators in this contract version.
+- Determinism level: `BITWISE` for canonical manifest bytes and `env_manifest_hash`.
+- Numeric edge policy:
+  - This contract does not define floating stochastic computation paths; numeric handling is exact typed capture and canonical encoding per declared rules.
+
 ---
 ## 2) System Model
-### 2.1 Persistent State
+### I.A Persistent State
 - Environment manifest registry keyed by `env_manifest_hash`.
 
-### 2.2 Inputs
+### I.B Inputs and Hyperparameters
 - `BuildManifest_v1` takes no explicit inputs: it deterministically captures host/runtime facts from normative sources.
 - `ValidateCompatibility_v1` takes `(candidate_manifest, required_manifest?)`.
 - `required_manifest` MUST conform to the same schema as section 2.6 (complete required manifest, no extra fields).
 - Backend adapter definition: the component that interfaces with the compute/runtime backend and exposes deterministic metadata APIs used by this contract.
 
-### 2.3 Constraints and Feasible Set
+### I.C Constraints and Feasible Set
 - Valid iff all required fields exist, satisfy schema/type constraints, and per-field normalization rules.
 - Capture MUST observe a consistent snapshot of sources; if snapshot consistency cannot be guaranteed, capture aborts with `CONTRACT_VIOLATION`.
 - For multi-file artifact hashing, all file contents MUST be read from one consistent snapshot view; if mutation is detected during capture, abort with `CONTRACT_VIOLATION`.
@@ -91,10 +97,10 @@
   5. if metadata unchanged, re-read each current target file and recompute sha256; if any hash differs from step 2, abort with `CONTRACT_VIOLATION`.
   - note: if a symlink target is replaced by another file with identical metadata and identical content, this change is undetectable by this algorithm and accepted as a practical determinism trade-off.
 
-### 2.4 Transient Variables
+### I.D Transient Variables
 - Capture diagnostics and validation diagnostics.
 
-### 2.5 Invariants
+### I.E Invariants and Assertions
 - Same normalized runtime facts always produce identical canonical CBOR bytes and `env_manifest_hash`.
 
 ### 2.6 Canonical Environment Manifest Schema (Normative)
@@ -397,3 +403,10 @@
 - Restore retrieves manifest by `env_manifest_hash` from content-addressable storage.
 - Restored run MUST match committed `env_manifest_hash`; otherwise abort deterministically.
 - Content-addressable storage mechanism is out of scope, but exact original manifest bytes MUST be retrievable by hash.
+
+---
+## 10) EQC Alignment Notes
+- This document preserves EQC block structure with domain-specific mappings:
+  - Block V observability semantics are represented in section `6) Trace & Metrics`.
+  - Block VI parallel/nondeterminism semantics are represented in section `0.E` and relevant deterministic ordering rules.
+  - Block IX checkpoint/restore semantics are represented in section `9) Checkpoint/Restore`.
