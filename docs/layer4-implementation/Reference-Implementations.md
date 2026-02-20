@@ -80,12 +80,13 @@
 - signatures and side-effects must match `docs/layer1-foundation/API-Interfaces.md`.
 
 ### II.F Canonical Function Signatures (Normative)
-- `next_batch_v2(dataset_key, world_size, rank, stage_type, cursor_in) -> (indices, cursor_next, metrics)`
-- `dp_apply_v3(gradients, dp_config, t, state) -> (noisy_gradients, state_next, metrics)`
-- `prepare_memory_v2(ir_dag, execution_order, mode, arena_config) -> (tensor_map, metrics)`
-- `replay_compare_trace_v1(trace_a, trace_b, replay_mode) -> divergence_report`
-- `evidence_validate_v1(certificate, manifest, trace, checkpoint, replay_ctx) -> validation_report`
+- `UML_OS.Data.NextBatch_v2(dataset_key, world_size, rank, stage_type, cursor_in) -> (indices, cursor_next, metrics)`
+- `UML_OS.DifferentialPrivacy.Apply_v3(gradients, dp_config, t, state) -> (noisy_gradients, state_next, metrics)`
+- `UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode, arena_config) -> (tensor_map, metrics)`
+- `UML_OS.Replay.CompareTrace_v1(trace_a, trace_b, replay_mode) -> divergence_report`
+- `UML_OS.Certificate.EvidenceValidate_v1(manifest, trace, checkpoint, replay_ctx) -> validation_report`
 - All signatures must be derived from `contracts/operator_registry.cbor`; manual signature drift is forbidden.
+- Alias note: short helper names may appear in pseudocode, but normative identity is always the fully-qualified operator id.
 
 ### II.G Normative Reference Pseudocode (Required)
 - `CBOR_CANONICAL(value)`:
@@ -145,6 +146,20 @@
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** canonical injective arena-offset planner pseudocode.
+
+**Operator:** `UML_OS.Implementation.Ref.ReplayCompare_v1`
+**Category:** Implementation
+**Signature:** `(trace_a, trace_b, replay_mode -> divergence_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** canonical comparator pseudocode aligned with `docs/layer2-specs/Replay-Determinism.md`.
+
+**Operator:** `UML_OS.Implementation.Ref.EvidenceValidate_v1`
+**Category:** Implementation
+**Signature:** `(manifest, trace, checkpoint, replay_ctx -> validation_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** canonical evidence-link validation pseudocode aligned with `docs/layer2-specs/Execution-Certificate.md`.
 
 ---
 ## 6) Procedure

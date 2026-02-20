@@ -69,19 +69,39 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Runtime.DetectFailureEvent_v1`
+**Signature:** `(cluster_state, health_signals -> failure_events)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Canonically classifies rank/node failures and emits ordered failure events.
+
+**Operator:** `UML_OS.Runtime.ResolveLeaseState_v1`
+**Signature:** `(lease_table, failure_events, lease_policy -> lease_state)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Resolves lease ownership with deterministic epoch/rank tie-breaking and split-brain prevention.
+
 **Operator:** `UML_OS.Runtime.ComputeRecoveryPlan_v1`  
 **Signature:** `(cluster_state, failure_events, lease_state -> recovery_plan)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Produces deterministic restart/eviction/rejoin plan.
 
+**Operator:** `UML_OS.Runtime.ExecuteRecoveryPlan_v1`
+**Signature:** `(recovery_plan, cluster_state -> recovery_report, final_cluster_state)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** Executes ordered recovery actions and validates resulting cluster state.
+
 ---
 ## 6) Procedure
 ```text
-1. Detect and classify failure events
-2. Resolve lease ownership deterministically
-3. Compute recovery plan
-4. Execute plan and validate final cluster state
+1. failure_events <- DetectFailureEvent_v1
+2. lease_state <- ResolveLeaseState_v1
+3. recovery_plan <- ComputeRecoveryPlan_v1
+4. recovery_report, final_cluster_state <- ExecuteRecoveryPlan_v1
+5. restart_plan_hash <- SHA-256(CBOR_CANONICAL(recovery_plan))
+6. return (recovery_report, restart_plan_hash, final_cluster_state)
 ```
 
 ---

@@ -82,10 +82,10 @@
 ---
 ## 6) Procedure
 ```text
-1. linkage <- CheckArtifactLinkage_v1(...)
-2. rng_check <- CheckRNGProgression_v1(...)
-3. backend_check <- CheckBackendProfile_v1(...)
-4. loc <- LocalizeFirstDivergence_v1(...)
+1. linkage <- CheckArtifactLinkage_v1(...)      # config/data linkage stage
+2. rng_check <- CheckRNGProgression_v1(...)     # RNG stage
+3. backend_check <- CheckBackendProfile_v1(...) # backend stage
+4. loc <- LocalizeFirstDivergence_v1(linkage, rng_check, backend_check, ...)
 5. return debug_report with deterministic remediation ordering
 ```
 

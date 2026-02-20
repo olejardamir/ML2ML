@@ -51,6 +51,11 @@
 ### I.E Invariants and Assertions
 - same preimage -> same bytes32 digest.
 
+### II.F Domain Tag and Digest Table (Normative)
+- `domain_tag` is a fixed UTF-8 string bound to `digest_id` in the formula registry.
+- `ComputeDigest_v1` must prepend this exact `domain_tag` to the canonical preimage tuple.
+- `digest_table` output is a canonical map: `map<digest_id:string, digest_bytes32>`, sorted lexicographically by `digest_id` before serialization.
+
 ---
 ## 3) Initialization
 1. Load formula registry.
@@ -65,16 +70,22 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Serialization.ValidateDigestInputs_v1`
+**Signature:** `(digest_id, preimage -> validation_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Validates required fields/types/order for the given `digest_id` using the formula registry.
+
 **Operator:** `UML_OS.Serialization.ComputeDigest_v1`  
 **Signature:** `(digest_id, normalized_preimage -> digest_bytes32)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** Computes `SHA-256(CBOR_CANONICAL([domain_tag, ...]))` for declared digest id.
+**Definition:** Computes `SHA-256(CBOR_CANONICAL([domain_tag, ...]))` where `domain_tag` is loaded from the formula registry for `digest_id`.
 
 ---
 ## 6) Procedure
 ```text
-1. Validate digest input schema
+1. ValidateDigestInputs_v1
 2. Normalize preimage deterministically
 3. Compute digest
 4. Emit digest table entry

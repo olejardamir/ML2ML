@@ -72,6 +72,11 @@
 **Purity class:** PURE  
 **Definition:** Detects contract-impacting changes and missing updates.
 
+**Operator:** `UML_OS.Implementation.ScorePRRisk_v1`
+**Signature:** `(findings, evidence_bundle -> risk_score, review_metrics)`
+**Purity class:** PURE
+**Definition:** Computes deterministic risk score and review metrics from findings and attached evidence.
+
 **Operator:** `UML_OS.Implementation.DecideReviewGate_v1`  
 **Signature:** `(findings, risk_score -> gate_verdict)`  
 **Purity class:** PURE  
@@ -84,7 +89,7 @@
 2. risk <- ScorePRRisk_v1(findings)
 3. gate <- DecideReviewGate_v1(findings, risk)
 4. if gate == FAIL: Error.Emit_v1(CONTRACT_VIOLATION)
-5. return review artifacts
+5. return (review_findings, review_gate, review_metrics)
 ```
 
 ---

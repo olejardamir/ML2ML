@@ -15,6 +15,7 @@
 - minimize commit inconsistency and recovery ambiguity.
 ### 0.B Reproducibility Contract
 - storage outcomes reproducible from `(object_keys, object_hashes, commit_policy_hash)`.
+- `object_keys` must be canonicalized as lexicographically sorted UTF-8 strings before any hash/plan computation.
 ### 0.C Numeric Policy
 - byte counts and sequence ids are uint64 exact.
 ### 0.D Ordering and Tie-Break Policy
@@ -67,19 +68,34 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Storage.PutImmutableObject_v1`
+**Signature:** `(object_key, object_bytes, expected_hash -> put_status)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** Writes object exactly once under immutable semantics; validates `SHA-256(object_bytes) == expected_hash` before commit.
+
 **Operator:** `UML_OS.Storage.PublishCommitPointer_v1`  
 **Signature:** `(tenant_id, run_id, pointer_payload -> publish_status)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Publishes COMMITTED pointer atomically using conditional semantics.
 
+**Operator:** `UML_OS.Storage.ValidateCommittedRun_v1`
+**Signature:** `(tenant_id, run_id, pointer_payload, object_index -> recovery_report, commit_status)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Verifies that all pointer-linked objects exist and hashes match; returns deterministic `commit_status`.
+
+External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+
 ---
 ## 6) Procedure
 ```text
-1. Write immutable content-addressed objects
-2. Validate object hashes
+1. Sort `object_keys` canonically
+2. For each key: PutImmutableObject_v1
 3. Publish COMMITTED pointer via conditional create
-4. Validate committed run linkage
+4. ValidateCommittedRun_v1
+5. return (storage_report, commit_status, recovery_report)
 ```
 
 ---

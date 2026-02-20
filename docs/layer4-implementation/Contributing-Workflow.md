@@ -72,6 +72,12 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Contrib.OpenPR_v1`
+**Signature:** `(pr_metadata -> pr_id)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** Creates canonical PR record and returns immutable `pr_id`.
+
 **Operator:** `UML_OS.Contrib.RunRequiredChecks_v1`  
 **Signature:** `(pr_id, check_policy -> check_report)`  
 **Purity class:** IO  
@@ -94,6 +100,7 @@
 2. RunRequiredChecks_v1
 3. RecordReview_v1 (one or more)
 4. MergePR_v1
+5. return (workflow_report, merge_verdict)
 ```
 
 ---

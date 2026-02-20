@@ -40,6 +40,7 @@
 - Outputs: `(adapter_report, certification_status)`.
 - Metrics: `covered_primitives`, `e0_pass_rate`, `e1_pass_rate`.
 - Completion status: `success | failed`.
+- `adapter_report` must include `primitive_semantics_hash` and `determinism_compliance_report_hash`.
 ### 0.J Spec Lifecycle Governance
 - Primitive contract changes require MAJOR bump.
 ### 0.K Failure and Error Semantics
@@ -151,10 +152,13 @@ Template conformance note (III.A): each operator definition in this section is i
 
 **Operator:** `UML_OS.Backend.RunReproducibilitySuite_v1`  
 **Category:** IO  
-**Signature:** `(driver, test_manifest -> repro_report)`  
+**Signature:** `(driver, test_manifest -> adapter_report)`  
 **Purity class:** STATEFUL  
-**Determinism:** deterministic suite orchestration  
-**Definition:** runs E0/E1 reproducibility checks vs reference backend.
+**Determinism:** deterministic suite orchestration and deterministic report reduction order  
+**Definition:** runs E0/E1 reproducibility checks vs reference backend and returns:
+- `adapter_report.repro_report`
+- `adapter_report.primitive_semantics_hash`
+- `adapter_report.determinism_compliance_report_hash`.
 
 **Operator:** `UML_OS.Backend.VerifyDriverHash_v1`  
 **Category:** IO  
@@ -168,8 +172,9 @@ Template conformance note (III.A): each operator definition in this section is i
 ```text
 1. VerifyDriverHash_v1
 2. ValidatePrimitiveCoverage_v1
-3. RunReproducibilitySuite_v1
-4. Emit certification_status
+3. adapter_report <- RunReproducibilitySuite_v1
+4. Emit certification_status from deterministic policy reduction over adapter_report
+5. return (adapter_report, certification_status)
 ```
 
 ---
