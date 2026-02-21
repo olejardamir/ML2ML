@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Backend.AdapterContract_v1`  
 **Purpose (1 sentence):** Define required backend adapter primitives, determinism guarantees, and certification checks for UML_OS driver integration.  
 **Spec Version:** `UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Driver integration and compliance.
 
 ---

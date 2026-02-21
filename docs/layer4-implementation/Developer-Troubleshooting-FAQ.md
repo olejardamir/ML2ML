@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.TroubleshootingFAQ_v1`  
 **Purpose (1 sentence):** Define deterministic diagnosis mappings from common development failures to canonical remediation workflows.  
 **Spec Version:** `UML_OS.Implementation.TroubleshootingFAQ_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Developer support and failure remediation.
 
 ---

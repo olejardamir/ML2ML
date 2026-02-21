@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.FixturesGoldenData_v1`  
 **Purpose (1 sentence):** Define deterministic fixture and golden-data lifecycle, storage, and update rules for tests and replay validation.  
 **Spec Version:** `UML_OS.Test.FixturesGoldenData_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Test fixture governance.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ProfilingOptimizationGuide_v1`  
 **Purpose (1 sentence):** Define deterministic profiling workflows and optimization acceptance criteria for runtime, memory, and throughput improvements.  
 **Spec Version:** `UML_OS.Implementation.ProfilingOptimizationGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Performance engineering.
 
 ---

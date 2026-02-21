@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ReplayDeterminismContract_v1`  
 **Purpose (1 sentence):** Define and verify deterministic replay semantics, RNG ownership, token composition, and restore equivalence.  
 **Spec Version:** `UML_OS.Implementation.ReplayDeterminismContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Reproducibility and replay verification.
 
 ---

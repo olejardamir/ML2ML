@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.DeveloperSetup_v1`  
 **Purpose (1 sentence):** Define deterministic local developer environment setup and verification steps for implementing UML_OS components.  
 **Spec Version:** `UML_OS.Implementation.DeveloperSetup_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Local development bootstrap and environment consistency.
 
 ---

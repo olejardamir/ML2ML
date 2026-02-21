@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.IndustryProductizationPlan_v1`  
 **Purpose (1 sentence):** Define normative, externally-verifiable productization requirements that reduce adoption friction and improve ecosystem interoperability for UML_OS.  
 **Spec Version:** `UML_OS.Implementation.IndustryProductizationPlan_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Product profile governance, ecosystem integration, and third-party trust.
 
 ---
@@ -48,13 +50,14 @@
 
 ---
 ## 2) Normative Upgrade Workstreams
-### I.A Product Profiles (Core/Managed/Regulated)
+### I.A Product Profiles (Core/Enterprise/Regulated)
 - Define three normative profiles:
   - `core`: single-node, single backend adapter, single artifact store adapter, default deterministic trace/redaction policy.
   - `enterprise`: multi-node operational profile with deployment/runbook and policy gate integration.
   - `regulated`: enterprise profile + attestation, revocation, and control-mapped evidence requirements.
 - Runtime-mode mapping note:
   - product profile `enterprise` maps to execution mode `managed` unless a stricter mode is selected.
+  - `managed` is an execution mode; `enterprise` is the product profile.
 - Graduation policy:
   - `core -> enterprise`: requires conformance pipeline pass and deployment gate pass.
   - `enterprise -> regulated`: requires full security case and regulator-grade evidence bundle.
@@ -123,7 +126,7 @@
 ---
 ## 3) Procedure
 ```text
-1. Resolve target product profile (core/managed/regulated).
+1. Resolve target product profile (core/enterprise/regulated).
 2. Build observability mapping bundle and hash.
 3. Build adapter certification evidence bundle and hash.
 4. Validate runnable reference stack and golden demo determinism.
@@ -148,6 +151,8 @@
   - `docs/layer4-implementation/Backend-Adapter-Guide.md`
   - `docs/layer4-implementation/Artifact-Store-Adapter-Guide.md`
   - `docs/layer4-implementation/Release-Evidence-Assembler.md`
+  - `docs/START-HERE.md`
+  - `docs/layer4-implementation/Tooling-Suite.md`
 
 ---
 ## 5) Checkpoint/Restore

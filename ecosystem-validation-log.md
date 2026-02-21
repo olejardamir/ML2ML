@@ -2329,3 +2329,64 @@
   - Graph node coverage for registry DocIDs: **pass** (0 missing nodes).
   - Broken in-doc `docs/...md` references: **pass** (0 broken links).
   - Registry duplicate `DocID` check: **pass** (0 duplicates).
+# 2026-02-21 — 10/10 Hardening Consistency Pass
+
+## Scope
+- Applied canonicalization/ordering/normativity hardening updates requested for:
+  - `docs/layer1-foundation/API-Interfaces.md`
+  - `docs/layer1-foundation/Canonical-CBOR-Profile.md`
+  - `docs/layer1-foundation/Operator-Registry-Schema.md`
+  - `docs/layer4-implementation/Operator-Registry-CBOR-Contract.md`
+  - `docs/layer4-implementation/Industry-Productization-Upgrade-Plan.md`
+  - `docs/layer4-implementation/Implementation-Roadmap.md`
+
+## Additions
+- Added `docs/layer1-foundation/Normativity-Legend.md`.
+- Added `docs/START-HERE.md`.
+- Added `docs/layer4-implementation/Tooling-Suite.md`.
+- Added onboarding fixture artifacts:
+  - `docs/examples/hello-core/manifest.core.yaml`
+  - `docs/examples/hello-core/hello-core-golden.json`
+
+## Ecosystem Wiring
+- Added registry records:
+  - `L1-011` (`Normativity-Legend.md`)
+  - `L4-062` (`Tooling-Suite.md`)
+  - `L4-063` (`START-HERE.md`)
+- Added graph nodes and `CORE-MASTER-001` recognition edges for all three docs.
+
+## Notes
+- Product profile naming unified to `core/enterprise/regulated`; `managed` retained only as execution mode mapping.
+- Operator-registry hash preimage and schema authority aligned to `Operator-Registry-Schema.md`.
+
+# 2026-02-21 — Remaining Blockers Cleanup Pass
+
+## Scope
+- Addressed remaining doc-writing blockers reported after merged snapshot review:
+  - profile naming consistency,
+  - archival epic completion,
+  - canonicalization/registry wording cleanup,
+  - operator hash preimage specificity,
+  - duplicate procedure blocks.
+
+## Applied Changes
+- `docs/layer4-implementation/Implementation-Backlog.md`
+  - standardized profile naming in invariants and `EPIC_profiles` to `core/enterprise/regulated`,
+  - expanded `EPIC_archival_notarization` tasks/done criteria to full deterministic, hash-bound requirements.
+- `docs/layer1-foundation/Data-Structures.md`
+  - replaced ambiguous “non-normalized” wording with explicit NFC requirement pattern.
+- `docs/START-HERE.md`
+  - removed duplicate informative mirror procedure; retained single canonical `## 6) Procedure`.
+- `docs/layer1-foundation/Normativity-Legend.md`
+  - removed duplicate procedure section; retained single canonical `## 6) Procedure`.
+- `docs/layer1-foundation/Operator-Registry-Schema.md`
+  - `ComputeRegistryHash_v1` definition now explicitly states canonical preimage and ordering basis.
+- `docs/layer4-implementation/Operator-Registry-CBOR-Contract.md`
+  - clarified inherited numeric version ordering (`version_num`) and canonical profile binding for hash preimage.
+
+## Ecosystem Integrity
+- Refreshed registry hashes for changed docs.
+- Post-pass checks:
+  - `missing_struct = 0`
+  - `registry_missing_docs = 0`
+  - `registry_hash_mismatches = 0`

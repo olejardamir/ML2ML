@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.MigrationExecutionGuide_v1`  
 **Purpose (1 sentence):** Define deterministic operational procedures for executing and validating manifest/trace/checkpoint migrations.  
 **Spec Version:** `UML_OS.Implementation.MigrationExecutionGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Schema and artifact migration operations.
 
 ---

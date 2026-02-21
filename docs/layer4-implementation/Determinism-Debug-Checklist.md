@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.DeterminismDebugChecklist_v1`  
 **Purpose (1 sentence):** Define deterministic debugging workflow to localize and resolve replay divergence sources across data, model, DP, backend, and runtime layers.  
 **Spec Version:** `UML_OS.Implementation.DeterminismDebugChecklist_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Replay debugging and incident triage.
 
 ---

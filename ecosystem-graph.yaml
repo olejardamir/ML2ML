@@ -437,6 +437,18 @@ nodes:
     Type: "derived-impl"
     Path: "docs/layer4-implementation/Tooling-and-Automation-Suite.md"
 
+  - DocID: "L1-011"
+    Layer: 1
+    Type: "core-guidelines"
+    Path: "docs/layer1-foundation/Normativity-Legend.md"
+  - DocID: "L4-062"
+    Layer: 4
+    Type: "derived-impl"
+    Path: "docs/layer4-implementation/Tooling-Suite.md"
+  - DocID: "L4-063"
+    Layer: 4
+    Type: "derived-impl"
+    Path: "docs/START-HERE.md"
 edges:
   - from: "CORE-BASE-001"
     type: "IMPORTS"
@@ -1893,3 +1905,12 @@ edges:
   - from: "CORE-MASTER-001"
     type: "RECOGNIZES"
     to: "L4-061"
+  - from: "CORE-MASTER-001"
+    type: "RECOGNIZES"
+    to: "L1-011"
+  - from: "CORE-MASTER-001"
+    type: "RECOGNIZES"
+    to: "L4-062"
+  - from: "CORE-MASTER-001"
+    type: "RECOGNIZES"
+    to: "L4-063"

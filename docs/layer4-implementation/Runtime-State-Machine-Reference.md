@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Runtime.StateMachineReference_v1`  
 **Purpose (1 sentence):** Define canonical runtime state machines and deterministic transition semantics for kernel, orchestrator, and execution subsystems.  
 **Spec Version:** `UML_OS.Runtime.StateMachineReference_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Runtime lifecycle and transition correctness.
 
 ---

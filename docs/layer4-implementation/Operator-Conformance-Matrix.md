@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.OperatorConformanceMatrix_v1`  
 **Purpose (1 sentence):** Define deterministic operator implementation and conformance tracking for coding progress and release gating.  
 **Spec Version:** `UML_OS.Implementation.OperatorConformanceMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Implementation governance and conformance.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.VectorsCatalog_v1`  
 **Purpose (1 sentence):** Define authoritative operator-level input/output vectors and expected hashes/errors for deterministic conformance testing.  
 **Spec Version:** `UML_OS.Test.VectorsCatalog_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Golden-vector governance.
 
 ---

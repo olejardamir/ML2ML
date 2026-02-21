@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Security.ComplianceProfile_v1`  
 **Purpose (1 sentence):** Define deterministic security/compliance requirements for managed, confidential, and regulated operation modes.  
 **Spec Version:** `UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Security policy and regulated execution governance.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`  
 **Purpose (1 sentence):** Perform static liveness analysis, slot-optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic injective arena-offset logical-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, alignment safety, and replayability across large models.  
 **Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic, size-aware, multi-arena tensor memory planning via interval-graph register allocation for deep learning computation graphs.
 
 ---

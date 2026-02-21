@@ -1,5 +1,7 @@
 # UML_OS Scope and Non-Goals
 **Spec Version:** v1.0.0 | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **EQC Compliance:** Governance companion; normative boundary declarations.
 
 ## 1) In Scope

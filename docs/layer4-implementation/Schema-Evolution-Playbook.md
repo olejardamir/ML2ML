@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.SchemaEvolutionPlaybook_v1`  
 **Purpose (1 sentence):** Provide deterministic procedures for introducing, validating, and migrating contract schemas without replay or audit breakage.  
 **Spec Version:** `UML_OS.Implementation.SchemaEvolutionPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Contract migration governance.
 
 ---

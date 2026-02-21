@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.CoverageTargets_v1`  
 **Purpose (1 sentence):** Define deterministic test coverage targets and enforcement rules by subsystem and test type.  
 **Spec Version:** `UML_OS.Test.CoverageTargets_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Test quality governance.
 
 ---

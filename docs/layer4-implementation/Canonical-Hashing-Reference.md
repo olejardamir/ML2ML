@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Serialization.CanonicalHashingReference_v1`  
 **Purpose (1 sentence):** Provide canonical implementation formulas and preimages for all contract-critical hashes.  
 **Spec Version:** `UML_OS.Serialization.CanonicalHashingReference_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic commitment hashing.
 
 ---

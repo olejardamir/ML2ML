@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.StorageRecoveryMatrix_v1`  
 **Purpose (1 sentence):** Define deterministic storage crash-recovery tests for WAL segments, commit pointers, and artifact integrity.  
 **Spec Version:** `UML_OS.Test.StorageRecoveryMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Storage reliability testing.
 
 ---

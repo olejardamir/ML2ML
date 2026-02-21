@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.DifferentialPrivacy.Apply_v3`  
 **Purpose (1 sentence):** Apply deterministic clipping (with FlashDP-fused and PEFT-aware paths), smart privacy budget allocation, heterogeneous per-layer/per-group noise, pre-computed sigma schedules, scaling-law projections, and PLD-default accounting with safety-reserve abort-on-budget semantics for regulated frontier LLM training.  
 **Spec Version:** `UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** DP-SGD and related private first-order optimization at LLM/frontier scale.
 
 ---

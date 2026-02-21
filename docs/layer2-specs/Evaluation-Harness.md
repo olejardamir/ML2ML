@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Eval.Harness_v1`  
 **Purpose (1 sentence):** Define deterministic safety/bias/robustness evaluation runs and evidence bundles linked to registry/deployment policy gates.  
 **Spec Version:** `UML_OS.Eval.Harness_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Evaluation governance and evidence generation.
 
 ---

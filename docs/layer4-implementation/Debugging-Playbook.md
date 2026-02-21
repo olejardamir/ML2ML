@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.DebuggingPlaybook_v1`  
 **Purpose (1 sentence):** Define deterministic debugging workflows for replay divergences, hash mismatches, and contract failures.  
 **Spec Version:** `UML_OS.Implementation.DebuggingPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Incident triage and deterministic diagnostics.
 
 ---

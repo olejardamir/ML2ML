@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Error.CodeRegistry_v1`  
 **Purpose (1 sentence):** Define a deterministic unified error taxonomy and emission contract across all UML_OS operators.  
 **Spec Version:** `UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Error semantics and interoperability.
 
 ---

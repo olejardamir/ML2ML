@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.PerformanceGovernance_v1`  
 **Purpose (1 sentence):** Define deterministic performance measurement, thresholds, and regression-gating for core UML_OS operators.  
 **Spec Version:** `UML_OS.Implementation.PerformanceGovernance_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Reproducible performance benchmarking and policy enforcement.
 
 ---

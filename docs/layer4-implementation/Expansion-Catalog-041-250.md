@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ExpansionCatalog041_250_v1`  
 **Purpose (1 sentence):** Formalize high-scope expansion ideas (items 41-250) into a deterministic intake catalog with execution gates and profile-aware prioritization.  
 **Spec Version:** `UML_OS.Implementation.ExpansionCatalog041_250_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Strategic roadmap intake and governance.
 
 ---

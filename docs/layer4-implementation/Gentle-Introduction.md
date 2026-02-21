@@ -1,5 +1,7 @@
 # UML_OS Gentle Introduction
 **Spec Version:** v1.0.0 | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **EQC Compliance:** Informational companion, non-authoritative for contract semantics.
 
 **Purpose (1 sentence):** Provide a beginner-friendly conceptual path before deep contract details.

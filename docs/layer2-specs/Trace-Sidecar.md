@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Trace.SidecarSchema_v1`  
 **Purpose (1 sentence):** Define a canonical machine-readable trace schema shared by all UML_OS components.  
 **Spec Version:** `UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Trace interoperability and comparability.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Security.AuthZCapabilityMatrix_v1`  
 **Purpose (1 sentence):** Define deterministic operator-to-capability authorization requirements and policy evaluation outputs.  
 **Spec Version:** `UML_OS.Security.AuthZCapabilityMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** RBAC/capability enforcement and auditability.
 
 ---

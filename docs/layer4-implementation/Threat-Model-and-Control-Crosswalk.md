@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Security.ThreatModelCrosswalk_v1`  
 **Purpose (1 sentence):** Formalize attacker model, trust boundaries, and control-to-evidence mapping for auditor-ready verification.  
 **Spec Version:** `UML_OS.Security.ThreatModelCrosswalk_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) Threat Model Scope

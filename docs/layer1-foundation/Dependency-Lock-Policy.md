@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.DependencyLockPolicy_v1`
 **Purpose (1 sentence):** Define deterministic dependency pinning, lock validation, artifact integrity verification, and upgrade-governance semantics for reproducible builds and runs.
 **Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Build/runtime dependency control.
 
 ---

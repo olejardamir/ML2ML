@@ -1,5 +1,7 @@
 # UML_OS Common Pitfalls and How to Avoid Them
 **Spec Version:** v1.0.0 | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **EQC Compliance:** Informational companion; normative behavior remains in contract docs.
 
 ## 1) Pitfall: Mixing Non-Canonical Serialization

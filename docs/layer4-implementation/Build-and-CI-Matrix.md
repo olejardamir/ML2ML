@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.BuildCIMatrix_v1`  
 **Purpose (1 sentence):** Define deterministic build targets, CI gates, and matrix validation rules for UML_OS implementation.  
 **Spec Version:** `UML_OS.Implementation.BuildCIMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Build orchestration and CI gate governance.
 
 ---

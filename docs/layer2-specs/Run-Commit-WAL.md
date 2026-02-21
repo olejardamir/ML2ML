@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Commit.RunCommitWAL_v1`  
 **Purpose (1 sentence):** Define deterministic write-ahead logging and recovery rules for atomic run commit of trace/checkpoint/lineage/certificate artifacts.  
 **Spec Version:** `UML_OS.Commit.RunCommitWAL_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Crash-consistent artifact finalization.
 
 ---

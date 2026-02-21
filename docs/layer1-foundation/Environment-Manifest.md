@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Environment.Manifest_v1`  
 **Purpose (1 sentence):** Define canonical environment/runtime fingerprint schema and hashing used by replay tokens, checkpoints, and certificates.  
 **Spec Version:** `UML_OS.Environment.Manifest_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic environment identity and compatibility gating.
 
 ---

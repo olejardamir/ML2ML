@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Certificate.ExecutionCertificate_v1`  
 **Purpose (1 sentence):** Define a signed proof-carrying execution certificate that gates registry, deployment, and audit workflows.  
 **Spec Version:** `UML_OS.Certificate.ExecutionCertificate_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Verifiable execution provenance and policy gating.
 
 ---

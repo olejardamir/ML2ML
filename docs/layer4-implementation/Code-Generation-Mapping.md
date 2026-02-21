@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.CodeGenerationMapping_v1`  
 **Purpose (1 sentence):** Define deterministic mappings from EQC operators to concrete code modules, files, and generated stubs.  
 **Spec Version:** `UML_OS.Implementation.CodeGenerationMapping_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Build-time operator-to-code realization.
 
 ---

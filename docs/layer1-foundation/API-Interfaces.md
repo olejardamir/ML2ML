@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.APIInterfaceContract_v1`  
 **Purpose (1 sentence):** Define deterministic, typed, versioned callable interfaces for kernel and core operators.  
 **Spec Version:** `UML_OS.Implementation.APIInterfaceContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** API contract specification and interoperability.
 
 ---
@@ -37,7 +39,12 @@
 
 ### 0.D Ordering and Tie-Break Policy
 - Parameter order is canonical and positional.
-- Tie-break: lexical ordering on field names for deterministic serialization.
+- Tie-break for map-like fields MUST follow canonical CBOR key ordering from `docs/layer1-foundation/Canonical-CBOR-Profile.md` (canonical encoded-key byte ordering per RFC 8949).
+
+### 0.D.1 Canonicalization Procedure (Normative)
+- Interface signatures MUST be represented as CBOR data-model objects and encoded with `CBOR_CANONICAL` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
+- Optional fields are represented by key omission (not implicit `null`) unless a consuming schema explicitly permits `null`.
+- String content is consumed as provided by upstream contracts; canonicalization does not apply locale transforms.
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Contract validation is deterministic and single-pass.
@@ -47,6 +54,7 @@
 - Reference runtime: language-agnostic schema validator.
 - Dependencies: deterministic canonical CBOR canonicalization.
 - Determinism level: `BITWISE` for signature serialization and hashes.
+- Canonicalization procedure is normative and profile-bound to `CanonicalSerialization_v1` in `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
 
 ### 0.G Operator Manifest
 - `UML_OS.Implementation.ValidateAPISignature_v1`
@@ -81,27 +89,15 @@
 ---
 
 ### 0.Z EQC Mandatory Declarations Addendum
-- Note: This contract is deterministic; stochastic declarations below are non-operative placeholders for EQC template completeness.
-- Seed space: `seed ∈ {0..2^64-1}` when stochastic sub-operators are used.
-- PRNG family: `Philox4x32-10` for declared stochastic operators.
-- Randomness locality: all sampling occurs only inside declared stochastic operators in section 5.
-- Replay guarantee: replayable given (seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy).
-- Replay token: deterministic per-run token contribution is defined and included in trace records.
-- Floating-point format: IEEE-754 binary64 unless explicitly declared otherwise.
-- Rounding mode: round-to-nearest ties-to-even unless explicitly overridden.
-- Fast-math policy: forbidden for critical checks and verdict paths.
-- Named tolerances: `EPS_EQ=1e-10`, `EPS_DENOM=1e-12`, and domain-specific thresholds as declared.
-- NaN/Inf policy: invalid values trigger deterministic failure handling per 0.K.
-- Normalized exponentials: stable log-sum-exp required when exponential paths are used (otherwise N/A).
-- Overflow/underflow: explicit abort or clamp behavior must be declared (this contract uses deterministic abort on critical paths).
-- Approx-equality: `a ≈ b` iff `|a-b| <= EPS_EQ` when tolerance checks apply.
-- Transcendental functions policy: deterministic implementation requirements are inherited from consuming operators.
-- Reference runtime class: CPU-only/GPU-enabled/distributed as required by the consuming workflow.
-- Compiler/flags: deterministic compilation; fast-math disabled for critical paths.
-- Dependency manifest: pinned runtime dependencies and versions are required.
-- Determinism level: `BITWISE` for contract-critical outputs unless a stricter local declaration exists.
-- Error trace rule: final failure record includes `t`, `failure_code`, `failure_operator`, replay token, and minimal diagnostics.
-- Recovery policy: none unless explicitly declared; default is deterministic abort-only.
+- `stochastic_used: false`
+- `seed_space: N/A`
+- `prng_family: N/A`
+- `rng_ownership: N/A`
+- `numeric_kernel: N/A`
+- `tolerances: N/A`
+- `determinism_level: BITWISE` (for signature serialization + hashes)
+- `error_trace: inherited from docs/layer1-foundation/Error-Codes.md`
+- `note: this contract performs deterministic validation only`
 
 ## 2) System Model
 
@@ -269,7 +265,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Preconditions / Postconditions:** inputs canonicalized.  
 **Edge cases:** missing optional fields.  
 **Numerical considerations:** N/A.  
-**Ordering/tie handling:** lexical field order.  
+**Ordering/tie handling:** field traversal order is canonical CBOR key order of the CBOR-encoded field-name text strings (see `Canonical-CBOR-Profile.md`).  
 **Complexity note:** O(total_fields).  
 **Failure behavior:** emit deterministic mismatch record.  
 **Dependencies:** canonical schema encoder.  
@@ -295,11 +291,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Signature:** `(registry -> interface_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** canonical hash over a registry map (`operator_fqn -> signature`) after deterministic sort by operator_fqn (bytewise UTF-8 lexicographic).  
+**Definition:** construct `registry_map` as a canonical CBOR map (`operator_fqn -> signature_object`) and compute `interface_hash = SHA-256(CBOR_CANONICAL(["api_interfaces_v1", registry_map]))`.  
 **Preconditions / Postconditions:** unique registry keys.  
 **Edge cases:** empty registry.  
 **Numerical considerations:** N/A.  
-**Ordering/tie handling:** sorted operator names.  
+**Ordering/tie handling:** map ordering is canonical CBOR key ordering; no ad-hoc secondary sort is allowed.  
 **Complexity note:** O(registry_size).  
 **Failure behavior:** abort on hash serialization failure.  
 **Dependencies:** canonical serializer + hash function.  
@@ -332,7 +328,7 @@ Each validation run emits deterministic mismatch and summary records.
 - `validated_operators`, `schema_mismatches`, `hash`
 
 ### Comparability guarantee
-Comparable iff identical schema keys, typing, and hash definition.
+Comparable iff identical schema keys/typing, identical interface hash domain tag (`"api_interfaces_v1"`), and identical canonical serialization profile/version (`CanonicalSerialization_v1`).
 
 ---
 
@@ -385,5 +381,9 @@ Compare full report and interface hash.
   - at minimum Python/Go/TypeScript SDK generation must consume these artifacts without altering canonical request/response semantics.
 - Conformance requirement:
   - generated clients must pass interface conformance suites with the same canonicalization and signature-digest rules as runtime operators.
+- Conformance catalog identity:
+  - `api_artifact_conformance_catalog_hash = SHA-256(CBOR_CANONICAL([test_vector_set_hash, conformance_runner_version_hash, canonical_profile_id]))`.
+- Deterministic round-trip requirement:
+  - generated client -> server stub -> canonical request/response bytes MUST be byte-identical to runtime canonicalization rules under `CanonicalSerialization_v1`.
 - Interoperability bridge reference:
   - `docs/layer4-implementation/Interoperability-Standards-Bridge.md`.

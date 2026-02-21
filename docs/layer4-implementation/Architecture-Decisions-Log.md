@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Architecture.DecisionLog_v1`  
 **Purpose (1 sentence):** Define deterministic recording, hashing, and lifecycle of architecture decisions (ADR-style) for implementation governance.  
 **Spec Version:** `UML_OS.Architecture.DecisionLog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Architecture governance and traceability.
 
 ---

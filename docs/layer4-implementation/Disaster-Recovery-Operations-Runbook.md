@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Operations.DisasterRecovery_v1`  
 **Purpose (1 sentence):** Define deterministic operations procedures for severe failures, including full cluster loss and data corruption events.  
 **Spec Version:** `UML_OS.Operations.DisasterRecovery_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) Full Cluster Failure Recovery

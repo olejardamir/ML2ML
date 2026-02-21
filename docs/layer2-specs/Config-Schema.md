@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Config.SchemaValidator_v1`  
 **Purpose (1 sentence):** Define and validate the canonical manifest/config schema used by all UML_OS components.  
 **Spec Version:** `UML_OS.Config.SchemaValidator_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic configuration validation.
 
 ---

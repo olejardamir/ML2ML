@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Replay.DeterminismProfiles_v1`  
 **Purpose (1 sentence):** Define normative determinism profiles (`BITWISE`, `TOLERANCE`) with machine-checkable runtime constraints and replay comparison rules.  
 **Spec Version:** `UML_OS.Replay.DeterminismProfiles_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Reproducibility profile governance.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Interop.StandardsBridge_v1`  
 **Purpose (1 sentence):** Define normative mappings between UML_OS artifacts and major industry standards for runtime integration.  
 **Spec Version:** `UML_OS.Interop.StandardsBridge_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) ONNX Interop

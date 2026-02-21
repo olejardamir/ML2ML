@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.FailureInjection_v1`  
 **Purpose (1 sentence):** Define deterministic fault-injection scenarios and expected recovery outcomes across core runtime and governance paths.  
 **Spec Version:** `UML_OS.Test.FailureInjection_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Resilience and recovery verification.
 
 ---

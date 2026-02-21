@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Serialization.CanonicalCBORProfile_v1`  
 **Purpose (1 sentence):** Define the single canonical CBOR encoding profile used for all commitment hashes and signatures.  
 **Spec Version:** `UML_OS.Serialization.CanonicalCBORProfile_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic serialization and cryptographic commitment consistency.
 
 ---
@@ -69,7 +71,9 @@
 - RFC 8949 canonical CBOR baseline with profile overrides below.
 - Additional restrictions:
   - map keys must be UTF-8 strings,
-  - string keys are compared and encoded as raw UTF-8 bytes of the provided code-point sequence; no Unicode normalization (NFC/NFD/etc.) is applied,
+  - encoder MUST NOT normalize Unicode (no NFC/NFD transformation step is applied by canonicalization),
+  - where a consuming contract requires NFC validity, non-NFC strings MUST be rejected deterministically by that consuming contract before commitment/hashing,
+  - string keys are compared and encoded as raw UTF-8 bytes of the provided code-point sequence,
   - map-key ordering MUST follow canonical encoded-key byte ordering (RFC 8949 canonical ordering),
   - integers (positive and negative) MUST be encoded in the shortest possible canonical form,
   - integer shortest-form examples: `0 -> 0x00`, `23 -> 0x17`, `24 -> 0x1818`, `-1 -> 0x20`,

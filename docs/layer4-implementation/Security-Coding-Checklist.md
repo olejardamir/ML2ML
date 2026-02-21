@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Security.CodingChecklist_v1`  
 **Purpose (1 sentence):** Define deterministic secure-coding requirements and enforcement checks for implementation and review pipelines.  
 **Spec Version:** `UML_OS.Security.CodingChecklist_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Secure implementation governance.
 
 ---

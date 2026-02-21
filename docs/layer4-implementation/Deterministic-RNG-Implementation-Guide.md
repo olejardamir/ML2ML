@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.DeterministicRNGGuide_v1`  
 **Purpose (1 sentence):** Define deterministic RNG implementation rules across kernel, data, model, and DP operators.  
 **Spec Version:** `UML_OS.Implementation.DeterministicRNGGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** RNG determinism and replay.
 
 ---

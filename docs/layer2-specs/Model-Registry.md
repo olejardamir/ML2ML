@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Registry.ModelRegistry_v1`  
 **Purpose (1 sentence):** Define deterministic model/version registry and approval gates bound to execution evidence.  
 **Spec Version:** `UML_OS.Registry.ModelRegistry_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Model governance and promotion workflows.
 
 ---

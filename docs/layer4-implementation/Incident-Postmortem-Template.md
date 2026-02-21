@@ -1,5 +1,7 @@
 # UML_OS Incident Post-Mortem Template
 **Spec Version:** v1.0.0 | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ## 1) Incident Metadata
 - incident_id:

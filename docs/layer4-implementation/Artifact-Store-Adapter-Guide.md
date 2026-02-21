@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Storage.ArtifactStoreAdapterGuide_v1`  
 **Purpose (1 sentence):** Define deterministic adapter behavior for local/object-store artifact persistence, commit pointers, and recovery-safe semantics.  
 **Spec Version:** `UML_OS.Storage.ArtifactStoreAdapterGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Storage adapter implementation.
 
 ---

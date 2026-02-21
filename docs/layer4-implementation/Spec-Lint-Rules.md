@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.SpecLintRules_v1`
 **Purpose (1 sentence):** Define the normative lint-rule catalog and severities for deterministic cross-document contract validation.
 **Spec Version:** `UML_OS.Implementation.SpecLintRules_v1` | 2026-02-19 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Lint rules governance.
 
 ---

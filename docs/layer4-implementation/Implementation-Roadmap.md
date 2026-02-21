@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.RoadmapPlanner_v1`  
 **Purpose (1 sentence):** Define deterministic implementation phases, dependency order, and delivery gates for the final UML_OS product.  
 **Spec Version:** `UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Program planning and delivery governance.
 
 ---
@@ -93,7 +95,7 @@
 | `P3_codegen_runtime` | `P2_registries` | adapters, mapping, interface stubs | backend conformance suite pass |
 | `P4_validation` | `P3_codegen_runtime` | golden traces + replay harness | E0/E1 equivalence suite pass |
 | `P5_release` | `P4_validation` | deployment runbook + signed artifacts | deployment canary gates pass |
-| `P6_profile_packaging` | `P5_release` | Core/Managed/Regulated profile bundles | profile promotion checks pass |
+| `P6_profile_packaging` | `P5_release` | Core/Enterprise/Regulated profile bundles (`managed` remains execution_mode mapping for enterprise) | profile promotion checks pass |
 | `P7_observability_bridge` | `P5_release` | OpenTelemetry/Prometheus deterministic mapping bundle | mapping conformance + exporter determinism pass |
 | `P8_adapter_certification_program` | `P5_release` | external backend/store certification evidence bundles | vendor-verifiable certification bundle checks pass |
 | `P9_reference_stack` | `P5_release` | runnable end-to-end local reference stack (WAL->trace->checkpoint->certificate->replay) | golden demo reproducibility pass |

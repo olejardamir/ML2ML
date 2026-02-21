@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Registry.DigestCatalog_v1`  
 **Purpose (1 sentence):** Define an authoritative catalog mapping digest labels to full bytes32 values and deterministic resolution rules.  
 **Spec Version:** `UML_OS.Registry.DigestCatalog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Digest governance and consistency control.
 
 ---

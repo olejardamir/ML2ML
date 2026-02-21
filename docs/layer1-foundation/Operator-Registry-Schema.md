@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Registry.OperatorRegistrySchema_v1`  
 **Purpose (1 sentence):** Define the authoritative machine-readable schema for `contracts/operator_registry.cbor` and its deterministic validation rules.  
 **Spec Version:** `UML_OS.Registry.OperatorRegistrySchema_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Interface governance and contract integrity.
 
 ---
@@ -23,7 +25,9 @@
 - Integer fields are unsigned fixed ranges.
 - Resolved digest values are `bytes32`; `digest_ref` fields are textual references resolved deterministically to `bytes32`.
 ### 0.D Ordering and Tie-Break Policy
-- Registry records sorted by `(operator_id, version)` where each string comparison is bytewise UTF-8 lexicographic, case-sensitive, locale-independent.
+- Registry records sorted by `(operator_id, version_num)` where:
+  - `operator_id` comparison is bytewise UTF-8 lexicographic, case-sensitive, locale-independent.
+  - `version_num = parse_uint(version[1:])` from `version` format `^v[0-9]+$`, compared numerically (not lexicographically).
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Validation can be parallelized but merged in deterministic key order.
 ### 0.F Environment and Dependency Policy
@@ -80,7 +84,8 @@
   - resolved digest is always `bytes32`.
   - resolution cycles are invalid and MUST fail deterministically with `DIGEST_RESOLUTION_FAILURE`.
 - Text constraints (all string fields in operator records):
-  - strings MUST be valid UTF-8 and NFC-normalized prior to validation/hashing.
+  - strings MUST be valid UTF-8.
+  - fields requiring NFC validity (including `operator_id`, `version`, `method`, `required_capabilities[*]`, `owner_team`, `replacement_operator_id`) MUST already be NFC-normalized; non-NFC values MUST be rejected deterministically during validation.
   - comparisons are bytewise UTF-8, case-sensitive, locale-independent.
   - `operator_id`, `version`, `method`, and `required_capabilities[*]` MUST match `^[A-Za-z0-9_\\-\\.]{1,128}$`.
 
@@ -136,8 +141,8 @@
   - map keys must follow canonical sorting rules from `Canonical-CBOR-Profile.md`.
 
 ### II.G Registry Hash (Normative)
-- Canonical operator list is `sorted_operator_records` in the ordering defined by `0.D`.
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", sorted_operator_records]))`.
+- Canonical operator list is `operator_records` in the ordering defined by `0.D`.
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))`.
 - `registry_hash` is an exact alias of `operator_registry_root_hash` for backward compatibility.
 - Version/tag consistency check:
   - the numeric suffix in domain tag `operator_registry_vN` used for hash preimage MUST equal top-level `registry_schema_version`.
@@ -210,7 +215,7 @@
 **Signature:** `(validated_registry -> operator_registry_root_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes canonical operator registry root hash from sorted operator records.
+**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))` using canonical serialization profile `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
 
 External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 

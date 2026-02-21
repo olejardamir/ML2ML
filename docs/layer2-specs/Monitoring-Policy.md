@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Monitoring.Policy_v1`  
 **Purpose (1 sentence):** Define deterministic monitoring, drift detection, and alert policy with privacy-safe telemetry contracts.  
 **Spec Version:** `UML_OS.Monitoring.Policy_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Production monitoring and drift governance.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** Deterministic training OS kernel with operator contracts, namespace isolation, and hardware attestation.  
 **Purpose (1 sentence):** Execute declarative machine learning training, evaluation, inference, and confidential operations under contract-enforced determinism, namespace isolation, hardware-rooted attestation, and verifiable provenance.  
 **Spec Version:** UML_OS-v3.22-OS | 2026-02-17 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Reproducible neural-network training, evaluation, inference, and confidential lifecycle management.
 
 ---

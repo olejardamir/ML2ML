@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ConformanceCIPipeline_v1`  
 **Purpose (1 sentence):** Define deterministic CI pipeline stages for contract linting, conformance suites, replay checks, and release gating.  
 **Spec Version:** `UML_OS.Implementation.ConformanceCIPipeline_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** CI/CD conformance governance.
 
 ---

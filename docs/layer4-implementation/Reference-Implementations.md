@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ReferenceImplementations_v1`  
 **Purpose (1 sentence):** Define canonical coding-level signatures and pseudocode for critical operators to eliminate implementation ambiguity.  
 **Spec Version:** `UML_OS.Implementation.ReferenceImplementations_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Developer implementation guidance.
 
 ---

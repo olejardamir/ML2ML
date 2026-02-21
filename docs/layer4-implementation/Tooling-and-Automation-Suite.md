@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ToolingSuite_v1`  
 **Purpose (1 sentence):** Define a comprehensive tooling surface that makes UML_OS contracts directly executable, inspectable, and automatable.  
 **Spec Version:** `UML_OS.Implementation.ToolingSuite_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) Mandatory Tools

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ReleaseGates_v1`  
 **Purpose (1 sentence):** Define deterministic merge/release gating criteria across correctness, replay, security, and performance evidence.  
 **Spec Version:** `UML_OS.Implementation.ReleaseGates_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Release readiness governance.
 
 ---

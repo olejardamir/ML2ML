@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.ReferenceExample.HelloWorld_v1`  
 **Purpose (1 sentence):** Provide a full, concrete worked example from manifest to final certificate for a tiny model.  
 **Spec Version:** `UML_OS.ReferenceExample.HelloWorld_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Integrated tutorial-grade deterministic workflow.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.ReferenceStack.Minimal_v1`  
 **Purpose (1 sentence):** Define a minimal runnable reference implementation that proves the full deterministic lifecycle from manifest to certificate and replay.  
 **Spec Version:** `UML_OS.ReferenceStack.Minimal_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Executable reference implementation.
 
 ---

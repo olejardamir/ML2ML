@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.DataStructureContract_v1`  
 **Purpose (1 sentence):** Define deterministic canonical runtime data structures for kernel, model IR, TMMU, data, and DP modules.  
 **Spec Version:** `UML_OS.Implementation.DataStructureContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Type/layout specification for interoperable deterministic execution.
 
 ---
@@ -183,7 +185,7 @@
   - integers encoded in shortest canonical form,
   - signed fields must encode floats as IEEE-754 binary64 only,
   - `NaN` and `Inf` are forbidden in signed/hash-critical payloads unless explicitly normalized by operator contract,
-  - strings must be valid UTF-8; non-normalized forms are invalid for signed payloads,
+  - strings must be valid UTF-8; non-NFC forms are invalid for signed payloads when the consuming contract requires NFC validity,
   - fixed-length digests (`bytes32`) must be exactly 32 bytes.
 - Domain separation labels (for chained hashes/signatures) must be explicit CBOR string tags in the hashed tuple.
 - Redaction determinism rule:

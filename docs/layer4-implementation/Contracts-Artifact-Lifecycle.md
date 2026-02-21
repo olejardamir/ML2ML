@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ContractsArtifactLifecycle_v1`
 **Purpose (1 sentence):** Define deterministic build, sign, publish, verify, deprecate, and retire lifecycle rules for machine-readable contract artifacts.
 **Spec Version:** `UML_OS.Implementation.ContractsArtifactLifecycle_v1` | 2026-02-19 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Artifact governance for contract integrity.
 
 ---

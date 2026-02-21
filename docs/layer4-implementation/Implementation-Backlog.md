@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.Backlog_v1`  
 **Purpose (1 sentence):** Define deterministic implementation task inventory and status semantics for operator-level delivery tracking.  
 **Spec Version:** `UML_OS.Implementation.Backlog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Engineering execution planning.
 
 ---
@@ -55,7 +57,7 @@
 ### I.E Invariants and Assertions
 - Task IDs unique; transitions append-only.
 - Productization invariants:
-  - every release train contains profile packaging tasks (`core`, `managed`, `regulated`),
+  - every release train contains profile packaging tasks (`core`, `enterprise`, `regulated`), where `managed` is used only as execution mode mapping for `enterprise`,
   - observability bridge tasks produce deterministic mapping artifacts,
   - certification tasks emit externally-verifiable evidence bundles,
   - reference-stack tasks cover WAL -> trace -> checkpoint -> certificate -> replay end-to-end flow.
@@ -63,7 +65,7 @@
 ### II.F Mandatory Productization Epics (Normative)
 | epic_id | required_tasks | done_criteria |
 |---|---|---|
-| `EPIC_profiles` | define/validate `core`, `managed`, `regulated` profile bundles | profile bundle hashes published and promotion policy validated |
+| `EPIC_profiles` | define/validate `core`, `enterprise`, `regulated` profile bundles | profile bundle hashes published and promotion policy validated; execution-mode mapping note preserved (`enterprise -> managed` unless stricter mode selected) |
 | `EPIC_observability_bridge` | map UML_OS trace/metrics to OTel + Prometheus semantics | mapping hash published; exporter determinism tests pass |
 | `EPIC_adapter_certification` | backend/store certification evidence generation | certification bundle hash + signed verification report published |
 | `EPIC_reference_stack` | runnable local end-to-end reference stack + golden demo | demo evidence hashes match across environments |
@@ -89,7 +91,7 @@
 | `EPIC_policy_as_code` | data-usage and regulation-as-code bundles | policy versioning and reproducibility checks pass |
 | `EPIC_economic_models` | marketplace/billing/licensing evidence contracts | accounting/reconciliation tests pass |
 | `EPIC_sustainability` | carbon-aware scheduling + energy accounting + green guide | sustainability metrics integrated into release evidence |
-| `EPIC_archival_notarization` | .umlospack + timestamp/notary + bit-rot detection workflows | long-term replay and integrity proofs pass |
+| `EPIC_archival_notarization` | define canonical `.umlospack` layout; generate archive hash manifest; bind RFC3161/TSA or equivalent notarization proof; schedule deterministic bit-rot revalidation workflow and restore drills | archive bundle hash + notarization proof hash + restore-verdict hash published; release gate requires successful replay from archived package and no unresolved bit-rot alerts |
 | `EPIC_multitenancy_scale` | hierarchical tenancy + fairness/quota + immutable tenant audit logs | tenant isolation/fairness tests pass |
 | `EPIC_obs_plus` | distributed traces + structured logs + real-time dashboards | telemetry correlation conformance passes |
 | `EPIC_cross_version_lts` | long-window compatibility corpora + deprecation enforcement | cross-version regression suites pass |

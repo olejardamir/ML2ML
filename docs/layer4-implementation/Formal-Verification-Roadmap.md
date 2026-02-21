@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Verification.FormalRoadmap_v1`  
 **Purpose (1 sentence):** Define mechanized proof targets for critical correctness and determinism properties.  
 **Spec Version:** `UML_OS.Verification.FormalRoadmap_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) Priority Proof Targets

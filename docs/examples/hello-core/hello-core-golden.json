@@ -1,0 +1,10 @@
+{
+  "fixture_id": "hello-core-v1",
+  "canonical_profile_id": "CanonicalSerialization_v1",
+  "expected_identities": {
+    "trace_final_hash": "2f2f3b84dd88b5a5924abfe6051b7f2e0d669bcdb42bb4ff6d9f38eb43f57d9a",
+    "certificate_hash": "a7a0df61d05228fc2f8f5c682f5c98b80139a9f64cb857b99e1815f6de7f6e74",
+    "interface_hash": "58b05ce4f2f4a3f36d102d3691cb37f1d95c9fe06cb6f2426f62d3939272c6d0"
+  },
+  "comparison_rule": "exact_bytes32_equality"
+}

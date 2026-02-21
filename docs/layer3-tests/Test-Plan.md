@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.TestPlanOrchestrator_v1`  
 **Purpose (1 sentence):** Execute deterministic validation suites that certify EQC invariants, operator behavior, and replay correctness.  
 **Spec Version:** `UML_OS.Implementation.TestPlanOrchestrator_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic verification and regression control.
 
 ---

@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Governance.CommunityModel_v1`  
 **Purpose (1 sentence):** Define open governance and contribution processes for deterministic evolution of UML_OS specifications and tooling.  
 **Spec Version:** `UML_OS.Governance.CommunityModel_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) RFC Process

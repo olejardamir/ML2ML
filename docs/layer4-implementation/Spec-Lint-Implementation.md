@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.SpecLint_v1`  
 **Purpose (1 sentence):** Define deterministic implementation requirements for cross-document linting and contract-consistency enforcement.  
 **Spec Version:** `UML_OS.Implementation.SpecLint_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Contract linting and CI enforcement.
 
 ---

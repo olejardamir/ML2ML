@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.IntegrationMatrix_v1`  
 **Purpose (1 sentence):** Define deterministic cross-module integration suites and pass/fail semantics for end-to-end UML_OS correctness.  
 **Spec Version:** `UML_OS.Test.IntegrationMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** System integration verification.
 
 ---

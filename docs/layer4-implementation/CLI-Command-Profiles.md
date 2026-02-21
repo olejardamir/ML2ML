@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.CLICommandProfiles_v1`  
 **Purpose (1 sentence):** Define deterministic CLI command profiles for local development, CI, replay, and release workflows.  
 **Spec Version:** `UML_OS.Implementation.CLICommandProfiles_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Developer operations and automation.
 
 ---

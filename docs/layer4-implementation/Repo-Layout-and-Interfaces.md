@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.RepoLayoutInterfaces_v1`  
 **Purpose (1 sentence):** Define canonical repository structure, module boundaries, and ownership aligned to operator interface contracts.  
 **Spec Version:** `UML_OS.Implementation.RepoLayoutInterfaces_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Implementation architecture and module governance.
 
 ---

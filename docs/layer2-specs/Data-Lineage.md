@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Data.Lineage_v1`  
 **Purpose (1 sentence):** Define deterministic dataset snapshot lineage and transform-chain provenance for replayable training/evaluation runs.  
 **Spec Version:** `UML_OS.Data.Lineage_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Data provenance and versioning.
 
 ---

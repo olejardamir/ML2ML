@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Registry.OperatorRegistryCBOR_v1`
 **Purpose (1 sentence):** Define the canonical machine-readable `operator_registry.cbor` artifact used by codegen, lint, runtime validation, and release evidence.
 **Spec Version:** `UML_OS.Registry.OperatorRegistryCBOR_v1` | 2026-02-19 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Operator interface artifact governance.
 
 ---
@@ -18,7 +20,8 @@
 ### 0.C Numeric Policy
 - N/A except deterministic integer ordering and binary-safe digest handling.
 ### 0.D Ordering and Tie-Break Policy
-- Operator records sorted by `(operator_id, version)`; fields sorted by canonical CBOR rules.
+- Operator records sorted by authoritative ordering from `docs/layer1-foundation/Operator-Registry-Schema.md` (numeric `version_num` compare for `vN`).
+- Field ordering follows canonical CBOR rules only.
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Registry generation may parallelize parsing, but final merge order is deterministic.
 ### 0.F Environment and Dependency Policy
@@ -47,33 +50,24 @@
 - Operator entries, schema digests, error-code allowlists, purity classes, capability requirements.
 ### I.C Constraints and Feasible Set
 - `operator_id` unique per version; no duplicate `(operator_id, version)` entries.
+- Canonical ordering for `operator_records` is inherited from `docs/layer1-foundation/Operator-Registry-Schema.md`:
+  - sort by `(operator_id, version_num)`,
+  - `version_num = parse_uint(version[1:])` for `version` format `^v[0-9]+$`.
 ### I.D Transient Variables
 - parse table, normalized entry list, digest resolution cache.
 ### I.E Invariants and Assertions
 - `signature_digest` must match canonical preimage formula from `docs/layer1-foundation/Operator-Registry-Schema.md`.
 
 ### II.F Canonical Artifact Schema (Normative)
-```yaml
-operator_registry:
-  registry_version: string
-  generated_at: date
-  entries:
-    - operator_id: string
-      version: string
-      surface: string
-      method: string
-      request_schema_digest: bytes32
-      response_schema_digest: bytes32
-      signature_digest: bytes32
-      side_effects: [enum]
-      allowed_error_codes: [enum]
-      purity_class: enum
-      required_capabilities: [string]
-```
+- Authoritative schema is defined in `docs/layer1-foundation/Operator-Registry-Schema.md` (Section `II.F Canonical Operator Record Schema`).
+- This contract MUST NOT redefine required fields, names, or top-level layout for `contracts/operator_registry.cbor`.
+- Optional non-authoritative build metadata (for example `generated_at`) may be emitted in sidecar documentation artifacts only; it is not part of the canonical registry object.
 
 ### II.G Artifact Hash (Normative)
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", operator_registry]))`
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))`
 - This hash must match `operator_contracts_root_hash` in `docs/layer2-specs/Execution-Certificate.md`.
+- Any informational metadata not present in the authoritative schema (for example `generated_at`) is excluded from this hash preimage.
+- Canonical serialization profile for this preimage is `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
 
 ---
 ## 3) Procedure

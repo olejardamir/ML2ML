@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Pipeline.Orchestrator_v1`  
 **Purpose (1 sentence):** Define deterministic job lifecycle orchestration and signed transition recording for multi-stage ML pipelines.  
 **Spec Version:** `UML_OS.Pipeline.Orchestrator_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Job scheduling and pipeline state governance.
 
 ---

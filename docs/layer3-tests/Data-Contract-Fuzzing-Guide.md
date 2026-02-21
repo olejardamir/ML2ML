@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Test.DataContractFuzzing_v1`  
 **Purpose (1 sentence):** Define deterministic fuzzing strategy for contract-critical parsers, validators, and canonicalization paths.  
 **Spec Version:** `UML_OS.Test.DataContractFuzzing_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Robustness testing and parser hardening.
 
 ---

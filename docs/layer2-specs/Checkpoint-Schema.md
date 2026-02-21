@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Checkpoint.SchemaContract_v1`  
 **Purpose (1 sentence):** Define deterministic checkpoint structure, compatibility rules, and restore guarantees across UML_OS subsystems.  
 **Spec Version:** `UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** State persistence and restore compatibility.
 
 ---

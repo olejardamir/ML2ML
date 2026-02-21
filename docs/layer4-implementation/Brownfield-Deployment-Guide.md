@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.BrownfieldAdoption_v1`  
 **Purpose (1 sentence):** Define deterministic patterns for incremental UML_OS adoption in existing ML infrastructures without big-bang rewrites.  
 **Spec Version:** `UML_OS.Implementation.BrownfieldAdoption_v1` | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 
 ---
 ## 1) Adoption Patterns

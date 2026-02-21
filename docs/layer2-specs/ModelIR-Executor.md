@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Model.ModelIR_Executor_v1`  
 **Purpose (1 sentence):** Deterministically execute any valid UML_Model_IR DAG on a contract-validated backend driver using TMMU-managed memory with strict topological ordering, static liveness analysis for slot reuse, **mode-aware forward/reverse scheduling**, and full support for forward/backward/inference passes, guaranteeing E0/E1 reproducibility per declared adapter/hardware tier while scaling to 100 B+ parameter models.  
 **Spec Version:** `UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Declarative neural-network graph execution with memory isolation and bit-identical reproducibility.
 
 ---

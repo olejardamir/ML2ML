@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Implementation.ConformanceHarnessGuide_v1`  
 **Purpose (1 sentence):** Define deterministic execution of conformance harness suites that validate contract, replay, and evidence integrity.  
 **Spec Version:** `UML_OS.Implementation.ConformanceHarnessGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Test harness execution and conformance gating.
 
 ---

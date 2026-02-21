@@ -4,6 +4,8 @@
 **Algorithm:** `UML_OS.Data.NextBatch_v2`  
 **Purpose (1 sentence):** Deliver fully deterministic, memory-efficient, world_size-independent global batch sampling with block-shuffled epoch permutations for training and strict sequential access for evaluation/inference, scalable to 100 B+ sample datasets with O(1) per-sample index resolution after O(num_blocks) preprocessing.  
 **Spec Version:** `UML_OS.Data.NextBatch_v2` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **Domain / Problem Class:** Deterministic data loading and shuffling for reproducible large-scale distributed ML training and evaluation.
 
 ---

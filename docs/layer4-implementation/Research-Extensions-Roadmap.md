@@ -1,5 +1,7 @@
 # UML_OS Research Extensions Roadmap
 **Spec Version:** v1.0.0 | 2026-02-20 | Authors: Olejar Damir
+**Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
+
 **EQC Compliance:** Informational roadmap; non-normative for current production profile guarantees.
 
 ## 1) Federated Learning Extension
