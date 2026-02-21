@@ -153,8 +153,7 @@
     - shard-leaf encoding shared with checkpoint Merkle leaves:
       - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))`,
     - `tensors_root_hash = SHA-256(CBOR_CANONICAL(["tensors_root_v1", tensor_leaves_sorted]))` where `tensor_leaves_sorted` contains leaves for shards with normalized path prefix `tensors/`, sorted by `shard_path`,
-    - `optimizer_state_root_hash = SHA-256(CBOR_CANONICAL(["optimizer_root_v1", optimizer_leaves_sorted]))` where `optimizer_leaves_sorted` contains leaves for shards with normalized path prefix `optimizer/`, sorted by `shard_path`,
-    - empty-set rule: if the filtered shard set is empty, root is `CommitHash("tensors_root_v1", [])` for tensors and `CommitHash("optimizer_root_v1", [])` for optimizer state.
+    - `optimizer_state_root_hash =     - empty-set rule: if the filtered shard set is empty, root is `SHA-256(CBOR_CANONICAL(["tensors_root_v1", []]))` for `tensors_root_hash` and `SHA-256(CBOR_CANONICAL(["optimizer_root_v1", []]))` for `optimizer_state_root_hash`. empty, root is `CommitHash("tensors_root_v1", [])` for tensors and `CommitHash("optimizer_root_v1", [])` for optimizer state.
   - `checkpoint_hash = checkpoint_manifest_hash`
   - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.

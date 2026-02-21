@@ -374,9 +374,12 @@ Compare full report and interface hash.
 - API interface registry MUST be translatable to:
   - OpenAPI artifact bundle,
   - Protobuf artifact bundle.
+- Hash typing for generated artifact identities:
+  - `ObjectDigest(obj) = SHA-256(CBOR_CANONICAL(obj))`
+  - `openapi_bundle_hash` and `protobuf_bundle_hash` are `ObjectDigest` identities (not domain-separated commitments).
 - Generation identity:
-  - `openapi_bundle_hash = SHA-256(CBOR_CANONICAL(openapi_bundle))`
-  - `protobuf_bundle_hash = SHA-256(CBOR_CANONICAL(protobuf_bundle))`
+  - `openapi_bundle_hash = ObjectDigest(openapi_bundle)`
+  - `protobuf_bundle_hash = ObjectDigest(protobuf_bundle)`
 - Generated SDK requirement:
   - at minimum Python/Go/TypeScript SDK generation must consume these artifacts without altering canonical request/response semantics.
 - Conformance requirement:
