@@ -762,10 +762,10 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Determinism:** deterministic
 **Definition:** Write-ahead log: append cryptographically chained record (`SHA-256(CBOR_CANONICAL(["journal_link_v1", [previous_hash, event, uint64(t)]]))`) to journal before any state mutation is visible.
 Journal operator computes deterministic hashes internally:
-  - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors))`
-  - `rng_offsets_hash = SHA-256(CBOR_CANONICAL(rng_offsets))`
-  - `resource_ledger_hash = SHA-256(CBOR_CANONICAL(resource_ledger))`
-  - `dp_accountant_state_hash = SHA-256(CBOR_CANONICAL(dp_accountant_state))` when present.
+  - `data_cursors_hash = ObjectDigest(data_cursors)` where `ObjectDigest(x) = SHA-256(CBOR_CANONICAL(x))`
+  - `rng_offsets_hash = ObjectDigest(rng_offsets)`
+  - `resource_ledger_hash = ObjectDigest(resource_ledger)`
+  - `dp_accountant_state_hash = ObjectDigest(dp_accountant_state)` when present.
 Canonical journal event shape (normative): CBOR map containing
 `{t:uint64, stage_id:string, data_cursors_hash:bytes32, rng_offsets_hash:bytes32, resource_ledger_hash:bytes32, dp_accountant_state_hash?:bytes32, state_fp?:bytes32}`.
 Storage location (normative): append-only per-run file under namespace journal path (e.g., `<namespace>/journal/run_journal.cborlog`); concrete filesystem target is resolved via `UML_OS.OS.ResolvePath_v1`.

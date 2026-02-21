@@ -25,7 +25,8 @@
 - rules may run in parallel; merged findings must preserve deterministic ordering.
 ### 0.F Environment and Dependency Policy
 - parser and regex engine versions pinned in tooling manifest.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.SpecLint_v1`
 - `UML_OS.Implementation.LoadRuleCatalog_v1`
 - `UML_OS.Implementation.EvaluateRuleSet_v1`
@@ -53,6 +54,7 @@
 | `EQC.EDGE.DECLARED` | BLOCKER | Graph edge types must be declared in source doc `DeclaredEdgeTypes`. | `CONTRACT_VIOLATION` |
 | `EQC.LAYER.IMPORTS` | BLOCKER | `IMPORTS/EXTENDS` must not target higher layer. | `CONTRACT_VIOLATION` |
 | `EQC.HASH.COMMIT.SHAPE` | BLOCKER | Any hash declared as signature/commitment and written as `SHA-256(CBOR_CANONICAL([...]))` MUST have an outer 2-element array `[domain_tag, data_object]` (no flattening). | `CONTRACT_VIOLATION` |
+| `OP_MANIFEST_UNRESOLVED_SYMBOL` | BLOCKER | Any backticked `UML_OS.*_vN` listed under an Operator Manifest/Referenced Operators section must resolve to exactly one `**Operator:**` definition in the doc set, unless explicitly declared as `External operator reference: <op> is defined in <doc>`. | `CONTRACT_VIOLATION` |
 | `EQC.GRAPH.REACHABLE` | MAJOR | All docs must be reachable from `CORE-MASTER-001` via metadata/governance edges. | `CONTRACT_VIOLATION` |
 | `EQC.DOCID.UNIQUE` | BLOCKER | Registry `DocID` values must be unique. | `CONTRACT_VIOLATION` |
 | `EQC.FILEPATH.UNIQUE` | BLOCKER | Registry `FilePath` values must be unique. | `CONTRACT_VIOLATION` |

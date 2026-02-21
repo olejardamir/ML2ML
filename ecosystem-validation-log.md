@@ -2554,3 +2554,47 @@
 ## Verification
 - Search for known bad forms in docs and merged snapshot: none found.
 - `python tools/verify_doc_artifacts.py` => `PASS`.
+
+# 2026-02-21 — Operator Manifest Resolution Pass
+
+## Scope
+- Closed normative unresolved-operator blocker for layer4 implementation docs by enforcing explicit resolution policy and converting roadmap-only manifests to template-only where appropriate.
+
+## Normative Rule Added
+- `docs/layer4-implementation/Spec-Lint-Rules.md`
+  - added blocker rule `OP_MANIFEST_UNRESOLVED_SYMBOL`:
+    - any `UML_OS.*_vN` listed under Operator Manifest / Referenced Operators must resolve to exactly one `**Operator:**` definition, unless explicitly declared as external reference.
+
+## Core Definition Fixes
+- `docs/layer4-implementation/Determinism-Audit-Playbook.md`
+  - added `**Operator:** UML_OS.Replay.VerifyReplayToken_v1`
+  - added `**Operator:** UML_OS.Certificate.VerifyBoundHashes_v1`
+- `docs/layer4-implementation/Determinism-Debug-Checklist.md`
+  - added `**Operator:** UML_OS.Replay.CheckRNGProgression_v1`
+  - added `**Operator:** UML_OS.Replay.CheckBackendProfile_v1`
+- `docs/layer4-implementation/Spec-Lint-Implementation.md`
+  - added `**Operator:** UML_OS.Implementation.LoadDocSet_v1`
+  - added `**Operator:** UML_OS.Implementation.AggregateLintVerdict_v1`
+
+## Template-only Conversions
+- Converted selected unresolved-manifest docs from:
+  - `### 0.G Operator Manifest` / `## 4) Operator Manifest`
+- to:
+  - `### 0.G Referenced Operators (Template-only)` / `## 4) Referenced Operators (Template-only)`
+- and added required note:
+  - `Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.`
+
+## Verification
+- Regenerated merged snapshot:
+  - `python tools/merge_markdown_to_txt.py docs -o tools/merged_docs.txt`
+- Normative-manifest unresolved symbol count:
+  - `normative_manifest_unresolved = 0`
+- Core requested definitions present:
+  - `VerifyReplayToken_v1`: true
+  - `VerifyBoundHashes_v1`: true
+  - `CheckRNGProgression_v1`: true
+  - `CheckBackendProfile_v1`: true
+  - `LoadDocSet_v1`: true
+  - `AggregateLintVerdict_v1`: true
+- Artifact verification:
+  - `python tools/verify_doc_artifacts.py` => `PASS`

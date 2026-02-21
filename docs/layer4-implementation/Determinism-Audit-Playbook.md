@@ -54,6 +54,19 @@
 ## 4) Error Taxonomy Reference
 - Authoritative codes: `docs/layer1-foundation/Error-Codes.md`.
 
+## 5) Operator Definitions
+**Operator:** `UML_OS.Replay.VerifyReplayToken_v1`
+**Signature:** `(replay_token, manifest_hash, env_manifest_hash, policy_bundle_hash, determinism_profile_hash, operator_contracts_root_hash, driver_runtime_fingerprint_hash, seed -> replay_token_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Recomputes expected replay-token commitment from bound inputs, compares bytewise with provided `replay_token`, and emits deterministic pass/fail with mismatch diagnostics.
+
+**Operator:** `UML_OS.Certificate.VerifyBoundHashes_v1`
+**Signature:** `(execution_certificate, manifest_hash, trace_final_hash, checkpoint_hash, policy_bundle_hash, determinism_profile_hash, operator_contracts_root_hash -> bound_hash_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Verifies certificate signed-payload bound hash fields against provided evidence identities and emits deterministic pass/fail report.
+
 ## 6) Procedure
 ```text
 1. Verify replay-token and environment/registry bindings.

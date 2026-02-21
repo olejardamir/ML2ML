@@ -56,7 +56,7 @@ FILE: START-HERE.md
 ---
 ## 7) Golden Demo Evidence Bundle (Normative)
 - Bundle identity:
-  - `hello_core_demo_bundle_hash = SHA-256(CBOR_CANONICAL(["hello_core_demo_v1", fixture_ids, expected_identities]))`.
+  - `hello_core_demo_bundle_hash = SHA-256(CBOR_CANONICAL(["hello_core_demo_v1", [fixture_ids, expected_identities]]))`.
 - Required fixture bindings:
   - `manifest_fixture_ref = fixtures/hello-core/manifest.core.yaml`
   - `fixture_manifest_ref = fixtures/hello-core/fixture-manifest.json`
@@ -107,7 +107,7 @@ FILE: layer1-foundation/API-Interfaces.md
 - PRNG family: inherited from calling operator.
 - Randomness locality: no sampling in interface contract checks.
 - Replay guarantee: replayable given `(spec_version, interface_hash)`.
-- Replay token: `api_replay_t = SHA-256(CBOR_CANONICAL(["api_interfaces_v1", spec_version, interface_hash]))`.
+- Replay token: `api_replay_t = SHA-256(CBOR_CANONICAL(["api_interfaces_v1", [spec_version, interface_hash]]))`.
 
 ### 0.C Numeric Policy
 - Numeric fields specify explicit scalar kinds (`uint64`, `float64`, etc.).
@@ -263,8 +263,8 @@ Canonical display note:
 ### II.J Capability/RBAC Binding (Normative)
 - Every callable operator must declare `required_capabilities` in the canonical operator registry.
 - Authorization verdict per call must be deterministic:
-  - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
-  - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+  - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, [principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]]))`.
+  - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, [verdict_enum, granted_capabilities_hash, decision_reason_code]]))`.
 - Denied calls must emit a deterministic failure record and trace event with `authz_decision_hash`.
 
 ### II.K Kernel Syscall Registry (Kernel Subset View)
@@ -460,7 +460,7 @@ Compare full report and interface hash.
 - Conformance requirement:
   - generated clients must pass interface conformance suites with the same canonicalization and signature-digest rules as runtime operators.
 - Conformance catalog identity:
-  - `api_artifact_conformance_catalog_hash = SHA-256(CBOR_CANONICAL([test_vector_set_hash, conformance_runner_version_hash, canonical_profile_id]))`.
+  - `api_artifact_conformance_catalog_hash = SHA-256(CBOR_CANONICAL(["api_artifact_conformance_v1", [test_vector_set_hash, conformance_runner_version_hash, canonical_profile_id]]))`.
 - Deterministic round-trip requirement:
   - generated client -> server stub -> canonical request/response bytes MUST be byte-identical to runtime canonicalization rules under `CanonicalSerialization_v1`.
 - Interoperability bridge reference:
@@ -582,6 +582,14 @@ FILE: layer1-foundation/Canonical-CBOR-Profile.md
 - Domain-separation tag MUST be the first element of `commit_array`.
 - If the committed data object is itself an array, it remains nested as element 1 (no flattening).
 - Domain-separation tag is a CBOR data item defined by the higher-level protocol using this profile (commonly integer or byte string), and it MUST itself follow all canonical rules in this document.
+- Canonical helper:
+  - `CommitHash(domain_tag, data_object) := SHA-256(CBOR_CANONICAL([domain_tag, data_object]))`.
+- Prohibition:
+  - Any signature/commitment definition that hashes `CBOR_CANONICAL(...)` with an outer array length not equal to 2 is a deterministic `CONTRACT_VIOLATION`.
+- Object digest distinction:
+  - A plain object digest is `ObjectDigest(data_object) := SHA-256(CBOR_CANONICAL(data_object))` and is not domain-separated.
+  - Contracts MUST explicitly label each hash identity as either `CommitHash` (domain-separated) or `ObjectDigest` (plain digest).
+  - Fields bound into certificates, replay identities, and release gates MUST use the hash type declared by their defining contract and MUST NOT be reinterpreted across types.
 
 ### II.H Conformance Vectors (Normative)
 - Implementations MUST pass canonicalization vectors for key ordering, integer shortest-form encoding, float consistency, simple-value encoding, and optional-field semantics.
@@ -835,7 +843,7 @@ FILE: layer1-foundation/Data-Structures.md
 - `TraceIterRecord` (CBOR map): `{kind:"ITER", t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, state_fp?:bytes32, functional_fp?:bytes32, trace_extensions?:map<string,diagnostics_scalar>, privacy_class:privacy_class}`.
 - `TraceRunHeader`: `{kind:"RUN_HEADER", schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_binary_hash:bytes32, driver_runtime_fingerprint_hash:bytes32, policy_bundle_hash:bytes32, monitor_policy_hash:bytes32, operator_contracts_root_hash:bytes32, policy_gate_hash?:bytes32, authz_decision_hash?:bytes32, redaction_mode:redaction_mode, redaction_key_id?:string, redaction_policy_hash?:bytes32, hash_gate_M:uint64, hash_gate_K:uint64}`.
   - `hash_gate_M`/`hash_gate_K` define deterministic hash-gated trace sampling parameters; invariant `0 < M` and `0 <= K <= M`.
-  - `H` is the unsigned big-endian integer interpretation of `SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq, rank]))`.
+  - `H` is the unsigned big-endian integer interpretation of `SHA-256(CBOR_CANONICAL([replay_token, [t, operator_seq, rank]]))`.
 - `TracePolicyGateVerdictRecord`: `{kind:"POLICY_GATE_VERDICT", t:uint64, policy_gate_hash:bytes32, transcript_hash:bytes32}`.
 - `TraceCheckpointCommitRecord`: `{kind:"CHECKPOINT_COMMIT", t:uint64, checkpoint_hash:bytes32, checkpoint_header_hash:bytes32, checkpoint_merkle_root:bytes32, trace_snapshot_hash:bytes32}`.
 - `TraceCertificateInputsRecord`: `{kind:"CERTIFICATE_INPUTS", t:uint64, certificate_inputs_hash:bytes32}`.
@@ -861,11 +869,15 @@ FILE: layer1-foundation/Data-Structures.md
 - Registry format (normative): `struct_registry: map<string, StructDecl>`; `ValidateSchemaDecl_v1` validates declarations against this meta-model.
 - Checkpoint hash preimage rule (normative):
   - `checkpoint_header_hash = SHA-256(CBOR_CANONICAL(CheckpointHeader excluding fields {checkpoint_header_hash, checkpoint_hash}))`
-  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit_v1", checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]))`
+  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit_v1", [checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]]))`
   - Stored `checkpoint_header_hash` and `checkpoint_hash` are derived outputs, never recursive inputs.
 
 ### II.G Canonical Serialization v1 (Normative)
 - All contract-critical hashes/signatures must be computed over canonical CBOR bytes only.
+- Hash identity classes:
+  - `CommitHash(domain_tag, data_object) = SHA-256(CBOR_CANONICAL([domain_tag, data_object]))` (domain-separated commitment/signature identity).
+  - `ObjectDigest(data_object) = SHA-256(CBOR_CANONICAL(data_object))` (plain object digest, no domain separation).
+  - Every hash field in this contract and consuming contracts MUST declare which class it uses; values are not interchangeable across classes.
 - Serialization domains:
   - **Schema serialization:** canonical CBOR of `StructDecl` / registry objects.
   - **Instance serialization:** canonical CBOR of runtime records conforming to a declared `StructDecl`.
@@ -1122,7 +1134,7 @@ FILE: layer1-foundation/Dependency-Lock-Policy.md
 ### 0.B Reproducibility Contract
 - Replayable given `(lockfile_blob, policy_blob, artifact_index_blob, sbom_hash, toolchain_hash, runtime_env_hash)`.
 - `toolchain_hash` and `runtime_env_hash` are replay inputs.
-- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
+- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
 - Artifact verification replay requires content-addressed immutable artifact retrieval from `artifact_index_blob` locations; this store assumption is part of runtime environment reproducibility (anchored by `runtime_env_hash`).
 
 ### 0.C Numeric Policy
@@ -1332,10 +1344,10 @@ A run is feasible iff all of the following hold:
 - `lockfile_hash = SHA-256(CBOR_CANONICAL(sorted_lock_tuples))`.
 
 `DependenciesLockDigest_v1`:
-- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
+- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
 
 `policy_bundle_hash`:
-- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", policy_version, policy_blob]))`.
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", [policy_version, policy_blob]]))`.
 
 `artifact_index_hash`:
 - `artifact_index_hash = SHA-256(CBOR_CANONICAL(artifact_index_blob))`.
@@ -1825,7 +1837,14 @@ Trace metadata MUST include `collective_algorithm_id`, `collective_chunking_poli
 - check-id convention:
   - `check_id` uniquely identifies a comparison point in deterministic traversal (for example `step_0/loss`, `step_3/layer1.weight`).
   - generation MUST be deterministic from traversal position/path (for example derived from path plus traversal index), and reproducible for identical inputs and traversal order.
-  - path delimiter safety: this contract assumes trace keys do not contain `.`; if they may, escaping rules MUST be defined by `UML_OS.Trace.Format_v1`.
+- path escaping rule (normative, applies to report `path`, `iter.path`, and `tolerance_map` keys):
+  - segment join delimiter is `.`.
+  - escape character is `\\`.
+  - while encoding a segment: literal `\\` MUST be encoded as `\\\\`; literal `.` MUST be encoded as `\\.`.
+  - while decoding: only `\\.` and `\\\\` are valid escape sequences; any other escaped byte or trailing `\\` is deterministic `CONTRACT_VIOLATION`.
+  - round-trip invariant MUST hold: `decode_path(encode_path(segments)) == segments`.
+  - tolerance-map path matching uses exact bytewise equality on encoded path strings.
+  - `UML_OS.Trace.Format_v1` implementations MUST implement this exact path encoding/decoding rule.
 
 ---
 ## 6) Procedure
@@ -1989,7 +2008,7 @@ FILE: layer1-foundation/Digest-Catalog.md
 ### II.H Catalog Commitment (Normative)
 - `entries_sorted` are sorted by `digest_label` ascending (bytewise UTF-8, case-sensitive).
 - `catalog_version` is encoded as CBOR unsigned integer (`uint32` domain constraint).
-- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", catalog_version, entries_sorted]))`.
+- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", [catalog_version, entries_sorted]]))`.
 - Any document using `sha256:<label>` references is valid only against the committed `catalog_hash`.
 
 ### II.G Resolution Rule (Normative)
@@ -2008,7 +2027,7 @@ FILE: layer1-foundation/Digest-Catalog.md
 2. Validate schema and uniqueness.
 3. Build lookup index.
 4. Compute and store `catalog_hash` using §II.H exactly:
-   - `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", catalog_version, entries_sorted]))`,
+   - `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", [catalog_version, entries_sorted]]))`,
    - where `entries_sorted` is the catalog `entries` array sorted by `digest_label` ascending (bytewise UTF-8, case-sensitive).
 
 ---
@@ -2990,7 +3009,7 @@ FILE: layer1-foundation/Operator-Registry-Schema.md
 
 ### II.G Registry Hash (Normative)
 - Canonical operator list is `operator_records` in the ordering defined by `0.D`.
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))`.
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))`.
 - `registry_hash` is an exact alias of `operator_registry_root_hash` for backward compatibility.
 - Version/tag consistency check:
   - the numeric suffix in domain tag `operator_registry_vN` used for hash preimage MUST equal top-level `registry_schema_version`.
@@ -2998,7 +3017,7 @@ FILE: layer1-foundation/Operator-Registry-Schema.md
 ### II.H SignatureDigest Rule (Normative, Global)
 - Signature digest computation is defined only here and consumed by all interface/mapping/backend docs.
 - Preimage:
-  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig_v1", operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]))`.
+  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig_v1", [operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]]))`.
 - Sorting semantics for preimage arrays:
   - `sorted(side_effects)` and `sorted(allowed_error_codes)` use the same bytewise UTF-8 lexicographic order defined in `0.D`.
 - `request_schema_digest_resolved` and `response_schema_digest_resolved` are resolved bytes32 values after `digest_ref` resolution.
@@ -3063,7 +3082,7 @@ FILE: layer1-foundation/Operator-Registry-Schema.md
 **Signature:** `(validated_registry -> operator_registry_root_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))` using canonical serialization profile `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
+**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))` using canonical serialization profile `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
 
 External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
@@ -3329,7 +3348,7 @@ Canonical field value:
 - Canonical CBOR reference: RFC 8949 deterministic encoding + project Canonical-CBOR profile.
 
 HMAC preimage:
-- `CBOR_CANONICAL(["redaction_v1", schema_version, field_path, field_value_canonical])`.
+- `CBOR_CANONICAL(["redaction_v1", [schema_version, field_path, field_value_canonical]])`.
 - HMAC output MUST be encoded in output record as CBOR byte string length 32.
 
 Bucketization (`BUCKET_V1`):
@@ -3363,7 +3382,7 @@ These fields are mandatory at top-level paths and must remain unredacted:
 - `["execution_certificate_hash"]`
 
 ### II.I Policy Hash Definition
-- `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy_v1", policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules]))`.
+- `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy_v1", [policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules]]))`.
 
 ---
 ## 3) Initialization
@@ -3585,7 +3604,7 @@ FILE: layer2-specs/AuthZ-Capability-Matrix.md
     - each `granted_capabilities` array sorted lexicographically and duplicate-free.
 
 ### II.G Deterministic Verdict Hash (Normative)
-- `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+- `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, [principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]]))`.
 - `granted_capabilities_hash = SHA-256(CBOR_CANONICAL(sorted(granted_capabilities)))`.
 - `granted_capabilities` is the deterministic policy-evaluation output set for `(tenant_id, principal_id)` under `authz_policy_hash`, sorted lexicographically before hashing.
 - `granted_capabilities` MUST NOT contain duplicate capability names (duplicate presence is deterministic failure).
@@ -3600,7 +3619,7 @@ FILE: layer2-specs/AuthZ-Capability-Matrix.md
   - `DENY_OPERATOR_UNREGISTERED`
   - `DENY_TENANT_SCOPE`
   - `DENY_TENANT_SCOPE` semantics: authorization subject is outside allowed tenant namespace/scope for the requested operation.
-- `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+- `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, [verdict_enum, granted_capabilities_hash, decision_reason_code]]))`.
 - Execution certificates MUST bind `authz_decision_hash` (not only query hash).
 
 ---
@@ -3794,8 +3813,8 @@ FILE: layer2-specs/Checkpoint-Schema.md
 - `lineage_root_hash:bytes32` (snapshot-at-checkpoint value; MUST match certificate lineage commitment for the finalized run branch that includes this checkpoint)
   - lineage consistency rule: `lineage_root_hash` MUST equal the deterministic lineage root recomputed from checkpoint-scoped lineage objects/artifacts referenced by this checkpoint snapshot.
   - `dp_enabled:bool`
-  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `SHA-256(CBOR_CANONICAL([]))` per hash identities below)
-  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `SHA-256(CBOR_CANONICAL([]))` per hash identities below)
+  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `CommitHash("tensors_root_v1", [])` per hash identities below)
+  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `CommitHash("optimizer_root_v1", [])` per hash identities below)
   - `rng_state_hash:bytes32`
   - `data_cursors_hash:bytes32`
   - `dp_accountant_state_hash?:bytes32`
@@ -3807,8 +3826,12 @@ FILE: layer2-specs/Checkpoint-Schema.md
   - `checkpoint_hash:bytes32`
   - `checkpoint_hash_prev?:bytes32`
 - Hash identities (normative):
+  - Hash typing:
+    - `CommitHash(tag, data) = SHA-256(CBOR_CANONICAL([tag, data]))`
+    - `ObjectDigest(obj) = SHA-256(CBOR_CANONICAL(obj))`
+    - identities declared as `ObjectDigest` MUST NOT be reinterpreted as commitment hashes in certificates/release gates.
   - `checkpoint_header_cbor` is the canonical CBOR map of checkpoint header fields excluding `checkpoint_header_hash` itself.
-  - `checkpoint_header_hash = SHA-256(checkpoint_header_cbor)`
+  - `checkpoint_header_hash = ObjectDigest(checkpoint_header_cbor)`
   - `checkpoint_manifest_cbor` is a canonical CBOR map with keys:
     - `manifest_version:string`
     - `checkpoint_merkle_root:bytes32`
@@ -3819,29 +3842,29 @@ FILE: layer2-specs/Checkpoint-Schema.md
     - `dp_accountant_manifest_hash?:bytes32`
     - `dataset_snapshot_id?:string`
     - `artifact_index_hash?:bytes32`
-  - `checkpoint_manifest_hash = SHA-256(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
-  - `weights_manifest_hash = SHA-256(CBOR_CANONICAL(weights_manifest_cbor))`
-  - `optimizer_manifest_hash = SHA-256(CBOR_CANONICAL(optimizer_manifest_cbor))`
-  - `dp_accountant_manifest_hash = SHA-256(CBOR_CANONICAL(dp_accountant_manifest_cbor))`
-  - `rng_state_hash = SHA-256(CBOR_CANONICAL(rng_state_cbor))`
+  - `checkpoint_manifest_hash = ObjectDigest(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
+  - `weights_manifest_hash = ObjectDigest(weights_manifest_cbor)`
+  - `optimizer_manifest_hash = ObjectDigest(optimizer_manifest_cbor)`
+  - `dp_accountant_manifest_hash = ObjectDigest(dp_accountant_manifest_cbor)`
+  - `rng_state_hash = ObjectDigest(rng_state_cbor)`
   - `rng_state_cbor` canonical schema (normative):
     - `["rng_state_v1", key_u32_0, key_u32_1, ctr_u32_0, ctr_u32_1, ctr_u32_2, ctr_u32_3]`
     - where key is Philox key `[u32;2]` and counter is `[u32;4]` in little-endian logical word order.
-  - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors_cbor))`
+  - `data_cursors_hash = ObjectDigest(data_cursors_cbor)`
   - `tensors_root_hash` and `optimizer_state_root_hash` derivation (normative):
     - shard-leaf encoding shared with checkpoint Merkle leaves:
-      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))`,
+      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))`,
     - `tensors_root_hash = SHA-256(CBOR_CANONICAL(["tensors_root_v1", tensor_leaves_sorted]))` where `tensor_leaves_sorted` contains leaves for shards with normalized path prefix `tensors/`, sorted by `shard_path`,
     - `optimizer_state_root_hash = SHA-256(CBOR_CANONICAL(["optimizer_root_v1", optimizer_leaves_sorted]))` where `optimizer_leaves_sorted` contains leaves for shards with normalized path prefix `optimizer/`, sorted by `shard_path`,
-    - empty-set rule: if the filtered shard set is empty, root is `SHA-256(CBOR_CANONICAL([]))`.
+    - empty-set rule: if the filtered shard set is empty, root is `CommitHash("tensors_root_v1", [])` for tensors and `CommitHash("optimizer_root_v1", [])` for optimizer state.
   - `checkpoint_hash = checkpoint_manifest_hash`
-  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
+  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
 - `checkpoint_merkle_root` construction over shard payloads:
-    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))` with shards ordered by `shard_path`,
-    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", left, right]))`,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))` with shards ordered by `shard_path`,
+    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", [left, right]]))`,
     - odd-leaf rule duplicates the last leaf.
-    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL([]))`.
+    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root_v1", []]))`.
     - for streaming writes, root is computed only after all shard hashes are finalized; placeholder roots are invalid.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
@@ -4210,7 +4233,7 @@ FILE: layer2-specs/Config-Schema.md
   - optional fields: `requirements_hash:string`, `container_image:string`.
 
 ### II.F.1 Policy Bundle Commitment (Normative)
-- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]))`.
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", [security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]]))`.
 - `policy_hash` references in other contracts are aliases of `policy_bundle_hash` and must resolve to the same bytes32 value.
 - Presence rule:
   - if `policy_bundle_hash` is present and individual component hashes are also present, they MUST match the `policy_bundle_v1` decomposition exactly;
@@ -4483,8 +4506,8 @@ FILE: layer2-specs/Data-Lineage.md
   - `dataset_root_hash` is computed over dataset files as:
     - enumerate files under dataset root with normalized POSIX-style relative paths (forward slashes, no `.`/`..`, no repeated separators, no leading slash) sorted lexicographically,
     - `file_hash_i = SHA-256(file_bytes_i)`,
-    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf_v1", relative_path_i, file_hash_i]))`,
-    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node_v1", left, right]))` with odd-leaf duplication,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf_v1", [relative_path_i, file_hash_i]]))`,
+    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node_v1", [left, right]]))` with odd-leaf duplication,
     - root is `dataset_root_hash`.
   - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs_v1", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
   - split-name uniqueness rule: `split_name` values MUST be unique within `split_defs`; duplicates are deterministic validation failure.
@@ -4502,11 +4525,11 @@ FILE: layer2-specs/Data-Lineage.md
       - any remaining samples after these assignments are assigned to the final split.
     - after computing split counts, validation rule: split fractions must satisfy `abs(sum(split_fraction_i) - 1.0) <= EPS_EQ`; otherwise deterministic validation failure.
   - canonical split entry encoding: `{"split_name":string,"split_fraction":float64,"split_seed?:uint64}` encoded as canonical CBOR map.
-  - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`
+  - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, [dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]]))`
 - Run/access-plan identity:
   - `world_size_policy = "rank_contiguous_shard_v1"` (must match `docs/layer2-specs/Data-NextBatch.md`).
   - `epoch_seed_rule = "epoch_seed_rule_v2"` (must match `docs/layer2-specs/Data-NextBatch.md`).
-  - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]))`
+  - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, [manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]]))`
 - `dataset_snapshot_id` and `data_access_plan_hash` are distinct and MUST NOT be conflated.
 - Both `dataset_snapshot_id` and `data_access_plan_hash` MUST be emitted in trace and bound in execution certificate payload.
 - Cross-tenant rule: all lineage objects are namespaced by `(tenant_id, object_id)`; cross-tenant references must hard-fail deterministically.
@@ -4523,12 +4546,12 @@ FILE: layer2-specs/Data-Lineage.md
 - Transform ordering rule: each transform entry MUST include `seq:uint64`; `transforms_sorted_by_seq` sorts ascending by `seq` (ties are deterministic failure).
 - `object_type` domain (normative): one of `{ "dataset", "transform", "split", "artifact", "policy", "checkpoint" }`.
 - `object_id` domain (normative): content-addressed identifier of the lineage object payload in its namespace.
-- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object_v1", object_type, object_id, payload]))`.
+- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object_v1", [object_type, object_id, payload]]))`.
   - `payload` is the canonical CBOR serialization of the lineage object's committed content.
 - `lineage_root_hash` uses deterministic Merkle construction:
   - leaf list: sorted by `(object_type, object_id)` ascending,
-  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf_v1", object_type_i, object_id_i, lineage_object_hash_i]))`,
-  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node_v1", left, right]))`,
+  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf_v1", [object_type_i, object_id_i, lineage_object_hash_i]]))`,
+  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node_v1", [left, right]]))`,
   - odd-leaf rule: duplicate last leaf.
 
 ---
@@ -4652,7 +4675,7 @@ FILE: layer2-specs/Data-NextBatch.md
 - PRNG family: `Philox4x32-10`
 - Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
 - Replay guarantee: fully replayable given `(kernel_replay_token, manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
-- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
+- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", [kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]]))`
 - Contract-critical hash primitive: `SHA-256(CBOR_CANONICAL(...))`.
 
 ### 0.C Numeric Policy
@@ -4700,7 +4723,7 @@ FILE: layer2-specs/Data-NextBatch.md
   - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
   - `sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"` in train mode, `"SEQUENTIAL_V1"` in eval/infer mode
   - encoding rule: all mode strings used in hashes are UTF-8 CBOR text strings with no alternate normalization.
-  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))`
+  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]]))`
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
@@ -4785,7 +4808,7 @@ FILE: layer2-specs/Data-NextBatch.md
 
 1. `cursor <- cursor_in` (caller-owned persistent cursor; default `{epoch:0, global_index:0}` at first use)
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", [kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]]))[0:16]` (Philox seed)
 
 ---
 
@@ -4901,7 +4924,7 @@ This is bijective because `gcd(a,m)=1` by construction.
            orig_idx = SeededIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
            batch_indices.append(orig_idx)
 
-9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))
+9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]]))
 10. epoch_limit_for_advance = N
     if stage_type == "train" and manifest.data.drop_last == true:
         epoch_limit_for_advance = (N // global_batch_size) * global_batch_size
@@ -5111,13 +5134,13 @@ FILE: layer2-specs/Deployment-Runbook.md
     - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
     - `ExecutionCertificate.signed_payload.policy_bundle_hash == deployment_policy_bundle_hash`
     - `ExecutionCertificate.signed_payload.lockfile_hash == lockfile_hash`
-    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
+    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
     - `ExecutionCertificate.signed_payload.determinism_profile_hash == runtime_determinism_profile_hash`
     - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
     - `ExecutionCertificate.signed_payload.lineage_root_hash == expected_lineage_root_hash`
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Artifact commitment formulas:
-  - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", image_digest, code_commit_hash, lockfile_hash, toolchain_hash]))`.
+  - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", [image_digest, code_commit_hash, lockfile_hash, toolchain_hash]]))`.
   - `image_digest` is the immutable OCI manifest digest (`sha256:<hex>`) resolved from registry manifest bytes.
   - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` is canonical SPDX JSON (UTF-8, lexicographically sorted object keys, no insignificant whitespace).
 - Secrets and keys:
@@ -5302,7 +5325,7 @@ FILE: layer2-specs/DifferentialPrivacy-Apply.md
 - PRNG family: `Philox4x32-10`
 - Randomness locality: all sampling occurs only inside `UML_OS.DifferentialPrivacy.GenerateNoise_v1`
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`
+- Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", [kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]]))`
 - `noise_seed_per_step: bool` (default `false`); when true, counter derivation is `counter = (uint128(t) << 40) + uint128(param_index_hash)` (128-bit arithmetic, no 64-bit wrap)
   - `param_index_hash` is the lower 40 bits of `U64_BE(SHA-256(CBOR_CANONICAL(["dp_param_v1", param_fqn])))`.
 
@@ -6505,20 +6528,20 @@ FILE: layer2-specs/Experiment-Tracking.md
 - For regulated/confidential modes, retention rules must preserve all gate-referenced records until retention expiry.
 
 ### II.I Artifact and Index Commitments (Normative)
-- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", artifact_bytes_hash, metadata_hash]))`.
+- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", [artifact_bytes_hash, metadata_hash]]))`.
 - `artifact_index_hash` is computed as:
   - `metadata_hash_i = SHA-256(CBOR_CANONICAL(artifact_metadata_i))`, where `artifact_metadata_i` is the canonical metadata map stored for artifact `i`.
-  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", artifact_id_i, metadata_hash_i, status_i]))`,
+  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", [artifact_id_i, metadata_hash_i, status_i]]))`,
   - sorted by `artifact_id`,
   - Merkle odd-leaf rule duplicates the last leaf.
 - Idempotency rule: repeated `ArtifactPut_v1` with identical `(run_id, artifact_id)` must return the existing record deterministically.
 - `run_record_hash = SHA-256(CBOR_CANONICAL(RunRecord))`.
   - mutability note: `RunRecord` is mutable until `RunEnd_v1` finalizes terminal fields; `run_record_hash` is final only after run end, and pre-final uses are undefined.
 - `tracking_store_hash` definition (normative):
-  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", run_record_hash, metric_stream_hash, artifact_index_hash]))`,
+  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", [run_record_hash, metric_stream_hash, artifact_index_hash]]))`,
   - `metric_stream_hash` is computed as a deterministic hash-chain over `MetricRecord` hashes sorted by `(metric_step, metric_name, record_hash)`:
-    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain_v1"]))`,
-    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain_v1", h_{i-1}, record_hash_i]))`,
+    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain_v1", []]))`,
+    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain_v1", [h_{i-1}, record_hash_i]]))`,
     - final `metric_stream_hash = h_n`.
   - `recorded_at` is informational metadata only and MUST NOT affect deterministic ordering/hash commitments.
 
@@ -6756,7 +6779,7 @@ FILE: layer2-specs/Model-Registry.md
   - each transition requires valid `evidence_bundle_ref`,
   - transition writes are append-only and keyed by monotone `transition_seq`,
   - retries use deterministic `idempotency_key` and must not duplicate state changes.
-  - `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, model_id, model_version_id, transition_seq, from_stage, to_stage]))`.
+  - `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, [model_id, model_version_id, transition_seq, from_stage, to_stage]]))`.
 
 ### II.H Canonical Registry Record Schemas (Normative)
 - `ModelRecord` (CBOR map):
@@ -6922,7 +6945,7 @@ FILE: layer2-specs/ModelIR-Executor.md
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
 - Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive_v1`.
 - Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, replay_token, tmmu_context, backend_binary_hash, driver_runtime_fingerprint_hash)`.
-- Replay token contribution: `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
+- Replay token contribution: `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", [kernel_replay_token, ir_hash, mode, uint64(global_position)]]))`.
 - Proof-carrying IR fields:
   - `ir_schema_hash`
   - `ir_operator_set_hash`
@@ -7413,7 +7436,7 @@ FILE: layer2-specs/Monitoring-Policy.md
 - Reproducibility:
   - `binning_rule = "quantile_10_bins"`.
   - `nan_rule = "separate_bin"`.
-  - `drift_algorithm_hash = SHA-256(CBOR_CANONICAL([drift_algorithm_id, drift_algorithm_version, binning_rule, nan_rule]))`.
+  - `drift_algorithm_hash = SHA-256(CBOR_CANONICAL([drift_algorithm_id, [drift_algorithm_version, binning_rule, nan_rule]]))`.
 
 ### II.G Auditable Policy Transcript (Normative)
 - Policy evaluation must emit deterministic transcript entries:
@@ -7421,14 +7444,14 @@ FILE: layer2-specs/Monitoring-Policy.md
 - Transcript ordering rule (normative):
   - sort entries by `(window_id, rule_id, threshold_id, metric_name)`.
 - Transcript hash:
-  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_gate_v1", monitor_policy_hash, ordered_transcript_entries]))`.
+  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_gate_v1", [monitor_policy_hash, ordered_transcript_entries]]))`.
 - `policy_gate_hash` must be emitted as a mandatory trace field and bound to execution certificate evidence in regulated modes.
 - Network calls are forbidden during policy verdict evaluation unless all external inputs are pre-committed by hash.
 
 ### II.H Telemetry Window Commitment (Normative)
-- `telemetry_window_hash = SHA-256(CBOR_CANONICAL(["telemetry_window_v1", window_id, start_t, end_t, aggregation_rules_hash, filter_hash]))`.
+- `telemetry_window_hash = SHA-256(CBOR_CANONICAL(["telemetry_window_v1", [window_id, start_t, end_t, aggregation_rules_hash, filter_hash]]))`.
 - Monitoring transcripts and gate verdicts must reference `telemetry_window_hash` for every evaluated window.
-- Alert ID rule: `alert_id = SHA-256(CBOR_CANONICAL(["alert_v1", drift_report, threshold_policy]))`.
+- Alert ID rule: `alert_id = SHA-256(CBOR_CANONICAL(["alert_v1", [drift_report, threshold_policy]]))`.
 - Alert lifecycle state machine (normative): `OPEN -> ACKNOWLEDGED -> RESOLVED` with deterministic transition validation.
   - Allowed transitions only:
     - `OPEN -> ACKNOWLEDGED` (explicit acknowledgement),
@@ -7656,7 +7679,7 @@ FILE: layer2-specs/Pipeline-Orchestrator.md
   - only the partition owner may emit state transitions for that job.
 ### I.D Transient Variables
 - scheduling diagnostics.
-- `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, job_id, attempt_id, transition_seq]))`
+- `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, [job_id, attempt_id, transition_seq]]))`
 ### I.E Invariants and Assertions
 - no skipped lifecycle states; transition records are append-only.
 - running jobs require valid lease and heartbeat.
@@ -7677,7 +7700,7 @@ FILE: layer2-specs/Pipeline-Orchestrator.md
   - selection rule: retry `k` uses `delays_ms[min(k, len(delays_ms)-1)]`; no random jitter allowed.
 - `LeasePolicy` artifact:
   - schema fields: `{lease_policy_id, lease_ttl_ticks:uint64, heartbeat_extension_ticks:uint64, expiry_transition:"RUNNING->RETRYING"}`.
-  - lease id: `lease_id = SHA-256(CBOR_CANONICAL([tenant_id, job_id, attempt_id, transition_seq]))`.
+  - lease id: `lease_id = SHA-256(CBOR_CANONICAL([tenant_id, [job_id, attempt_id, transition_seq]]))`.
 
 ### II.H Job State Machine (Closed Set, Normative)
 - States: `QUEUED`, `RUNNING`, `RETRYING`, `SUCCEEDED`, `FAILED`, `CANCELED`.
@@ -7914,12 +7937,12 @@ FILE: layer2-specs/Replay-Determinism.md
 - deterministic comparator order and complete reporting.
 
 ### II.F Replay Token Formulas (Authoritative)
-- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`.
+- `kernel_replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", [spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]]))`.
 - `env_manifest_hash` is computed per `docs/layer1-foundation/Environment-Manifest.md` (alias `runtime_env_hash` must resolve to same bytes32).
-- `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))[0:16]`.
-- `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`.
-- `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", kernel_replay_token, ir_hash, mode, uint64(global_position)]))`.
-- `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`.
+- `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", [kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]]))[0:16]`.
+- `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", [kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]]))`.
+- `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", [kernel_replay_token, ir_hash, mode, uint64(global_position)]]))`.
+- `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", [kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]]))`.
 - Required comparator keys in traces: `t`, `rank`, `operator_seq`, `operator_id`, `status`, `replay_token`, plus optional domain metrics.
 - Canonical compare order is `(t, rank, operator_seq)`.
 - Clarification: `data_replay_t` is a per-step trace token; sampler RNG seed source is `epoch_seed` above.
@@ -8471,8 +8494,8 @@ FILE: layer2-specs/Security-Compliance-Profile.md
   - `breakglass_policy` must be explicit, time-bounded, and fully audited.
   - operator-level capability enforcement is mandatory via `required_capabilities` from canonical operator registry.
   - authorization decision hash:
-    - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
-    - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+    - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, [principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]]))`.
+    - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, [verdict_enum, granted_capabilities_hash, decision_reason_code]]))`.
     - definitions and canonical field semantics are normative as specified in `docs/layer2-specs/AuthZ-Capability-Matrix.md` section II.G.
   - denied authorization decisions must be recorded as deterministic trace events and included in certificate evidence binding.
 - Registry governance roles:
@@ -8844,7 +8867,7 @@ FILE: layer2-specs/TMMU-Allocation.md
 ### II.K Plan Hash (Normative)
 - `execution_order_hash = SHA-256(CBOR_CANONICAL(execution_order))`.
 - `shard_spec_hash = SHA-256(CBOR_CANONICAL(shard_spec))`, where `shard_spec` is resolved from manifest parallelism/sharding configuration.
-- `tmmu_plan_hash = SHA-256(CBOR_CANONICAL(["tmmu_plan_v1", ir_hash, mode, arena_config_hash, execution_order_hash, rank, world_size, shard_spec_hash, slot_assignment_table, logical_address_table]))`.
+- `tmmu_plan_hash = SHA-256(CBOR_CANONICAL(["tmmu_plan_v1", [ir_hash, mode, arena_config_hash, execution_order_hash, rank, world_size, shard_spec_hash, slot_assignment_table, logical_address_table]]))`.
 - `replay_token` is `bytes32` and is included in `slot_assignment_table` derivation inputs.
 
 ### II.J Resource Ledger Emission (Normative)
@@ -9215,8 +9238,8 @@ FILE: layer2-specs/Trace-Sidecar.md
 - Hash algorithms:
   - `record_hash_i = SHA-256(CBOR_CANONICAL(normalized_record_i))`
   - Whole-run hash chain:
-    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
-    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
+    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1", []]))`
+    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", [h_{i-1}, record_hash_i]]))` for records in canonical order
     - `trace_final_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
@@ -9264,7 +9287,7 @@ FILE: layer2-specs/Trace-Sidecar.md
   - `max_record_bytes:uint32`
   - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
   - defaults for `HASH_GATED`: `hash_gate_M=100`, `hash_gate_K=1`.
-  - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq]))) mod hash_gate_M < hash_gate_K`.
+  - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, [t, operator_seq]]))) mod hash_gate_M < hash_gate_K`.
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
   - Validation requirement: `UML_OS.Trace.ValidateSchema_v1` MUST enforce `hash_gate_M > 0` and `hash_gate_K <= hash_gate_M`; violation is deterministic schema failure.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with fixed priority ordering:
@@ -9428,7 +9451,7 @@ FILE: layer2-specs/UML_OS-Kernel-v3.22-OS.md
 - Single master stream with fixed sub-stream offsets: `init`, `cluster`, `misc`
 - Randomness locality: all sampling occurs **only inside operators**
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]))`
+- Replay token: `replay_token = SHA-256(CBOR_CANONICAL(["replay_token_v1", [spec_version, policy_bundle_hash, env_manifest_hash, operator_contracts_root_hash, determinism_profile_hash, driver_runtime_fingerprint_hash, uint64(seed)]]))`
 - `env_manifest_hash` is defined normatively in `docs/layer1-foundation/Environment-Manifest.md` (`runtime_env_hash` alias allowed in checkpoint contracts).
 - Replay context must also bind:
   - `sampler_config_hash`,
@@ -9513,7 +9536,7 @@ Migration: update manifest operator versions and replay_token.
   - Driver (deterministic device primitives)
   - Runtime (pinned dependencies)
   - Module (verified operator packages)
-  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + SHA-256(CBOR_CANONICAL(["daemon_sched_v1", manifest_hash, hardware_attest_id, job_id])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/checkpoints/tapes/lineage plus persisted kernel namespace state) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `docs/layer2-specs/TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation for traced tensors and contract-critical buffers. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
+  - Daemon (mandatory in managed, confidential, regulated modes or when UML_OS_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at UML_OS_ROOT, deterministic scheduling (job_priority + FIFO + SHA-256(CBOR_CANONICAL(["daemon_sched_v1", [manifest_hash, hardware_attest_id, job_id]])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/checkpoints/tapes/lineage plus persisted kernel namespace state) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap_v1 embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `docs/layer2-specs/TMMU-Allocation.md` (`MapToVirtualAddresses_v1`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation for traced tensors and contract-critical buffers. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
   - Management (CLI entrypoints)
   - User (manifests only)
 - Filesystem roots:
@@ -9580,7 +9603,7 @@ Supported presets in `ExpandPreset_v1`: `mlp_classifier`, `basic_cnn`, `resnet18
 - `global_batch_size % world_size == 0` required for distributed runs
 - Global batch sequence is world-size invariant by data contract; update values are E0 only within fixed distributed configuration and E1 across compatible re-shards; sharding remains contiguous rank-ordered after global deterministic permutation; collective order fixed by ascending rank.
 - E0 distributed requirement: all ranks MUST report identical `driver_runtime_fingerprint_hash`; mismatch is deterministic failure (or explicit downgrade to non-E0 mode if policy allows).
-- Per-rank RNG derivation (normative): `rank_rng_seed = SHA-256(CBOR_CANONICAL(["rank_rng_v1", replay_token, uint32(rank)]))`; each rank initializes its RNG master from this seed to avoid cross-rank stream collisions.
+- Per-rank RNG derivation (normative): `rank_rng_seed = SHA-256(CBOR_CANONICAL(["rank_rng_v1", [replay_token, uint32(rank)]]))`; each rank initializes its RNG master from this seed to avoid cross-rank stream collisions.
 - In `daemon_mode=cluster`, all collectives respect manifest `distributed.timeout_seconds` (default 300); any timeout or communication error aborts deterministically with `DISTRIBUTED_COMMUNICATION_FAILURE` record (included in trace and certificate).
 - Declared parallelism.strategy is implemented by the loaded driver under Contract.Validate_v1 and the ReproducibilityTest suite (sharding of model parameters and data consistent with NextBatch_v2 and UML_Model_IR node annotations). Hybrid strategies combine via manifest-defined stage or node partitioning.
 
@@ -9849,7 +9872,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(dataset_key, world_size, rank, data_cursor_in -> batch, data_cursor_next)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic with declared RNG  
-**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `docs/layer2-specs/Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). `NextBatch_v2` is cursor-pure; kernel persists `data_cursor_next` into `data_cursors[dataset_key]`.
+**Definition:** Uses manifest.datasets[dataset_key]. Implements memory-efficient deterministic global sampling independent of dataset size. Epoch permutation seeded by `SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", [kernel_replay_token, manifest_hash, dataset_key, uint64(epoch)]]))` using Philox4x32-10. Partition into blocks of size manifest.data.sampler_block_size (default 1<<20). Materialize only the block permutation list (size N/B, always ≪ dataset size); within each block compute intra-block positions via the bijective mapping specified in `docs/layer2-specs/Data-NextBatch.md` (`SeededIntraBlockMap_v1`) with explicit short-tail handling. For any global position p compute originating sample index in O(1) per sample after block list is built. Form global batches sequentially from the virtual sequence; split into contiguous rank-ordered shards. Guarantees identical global batch sequence across world_size values; update dynamics are E0 only within fixed distributed configuration and E1 across compatible re-shards. Eval and infer stages always use strict ascending original index order (no shuffle). `NextBatch_v2` is cursor-pure; kernel persists `data_cursor_next` into `data_cursors[dataset_key]`.
 **Preconditions / Postconditions:** `global_batch_size % world_size == 0`.  
 **Edge cases:** world_size=1, final batch boundary.  
 **Numerical considerations:** preprocessing stable in binary64 for reductions.  
@@ -10096,7 +10119,7 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(probe_outputs_bytes, functional_fp, security.functional_commitment -> commitment?)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR_CANONICAL(["functional_commitment_v1", probe_outputs_bytes, functional_fp]))` and attach to trace/certificate. `probe_outputs_bytes` is canonical CBOR serialization of probe outputs in deterministic probe order.
+**Definition:** if enabled, compute `functional_commitment = SHA-256(CBOR_CANONICAL(["functional_commitment_v1", [probe_outputs_bytes, functional_fp]]))` and attach to trace/certificate. `probe_outputs_bytes` is canonical CBOR serialization of probe outputs in deterministic probe order.
 **Preconditions / Postconditions:** functional_fp available.  
 **Edge cases:** disabled path returns no commitment.  
 **Numerical considerations:** N/A.  
@@ -10155,12 +10178,12 @@ All system calls follow the EQC template and may be invoked **only** through the
 **Signature:** `(t, stage_id, data_cursors, rng_offsets, resource_ledger, dp_accountant_state?, state_fp? -> journal_state')`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** Write-ahead log: append cryptographically chained record (`SHA-256(CBOR_CANONICAL(["journal_link_v1", previous_hash, event, uint64(t)]))`) to journal before any state mutation is visible.
+**Definition:** Write-ahead log: append cryptographically chained record (`SHA-256(CBOR_CANONICAL(["journal_link_v1", [previous_hash, event, uint64(t)]]))`) to journal before any state mutation is visible.
 Journal operator computes deterministic hashes internally:
-  - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors))`
-  - `rng_offsets_hash = SHA-256(CBOR_CANONICAL(rng_offsets))`
-  - `resource_ledger_hash = SHA-256(CBOR_CANONICAL(resource_ledger))`
-  - `dp_accountant_state_hash = SHA-256(CBOR_CANONICAL(dp_accountant_state))` when present.
+  - `data_cursors_hash = ObjectDigest(data_cursors)` where `ObjectDigest(x) = SHA-256(CBOR_CANONICAL(x))`
+  - `rng_offsets_hash = ObjectDigest(rng_offsets)`
+  - `resource_ledger_hash = ObjectDigest(resource_ledger)`
+  - `dp_accountant_state_hash = ObjectDigest(dp_accountant_state)` when present.
 Canonical journal event shape (normative): CBOR map containing
 `{t:uint64, stage_id:string, data_cursors_hash:bytes32, rng_offsets_hash:bytes32, resource_ledger_hash:bytes32, dp_accountant_state_hash?:bytes32, state_fp?:bytes32}`.
 Storage location (normative): append-only per-run file under namespace journal path (e.g., `<namespace>/journal/run_journal.cborlog`); concrete filesystem target is resolved via `UML_OS.OS.ResolvePath_v1`.
@@ -11832,7 +11855,7 @@ FILE: layer3-tests/Performance-Plan.md
 - Gate verdict record must include `metric_snapshot_hash`; comparisons and audits must use this hash as the authoritative metric evidence identity.
 
 ### II.I Baseline Commitment (Normative)
-- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline_v1", workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]))`.
+- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline_v1", [workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]]))`.
 - Performance comparisons are valid only when baseline and candidate share compatible workload and environment commitment sets.
 
 ---
@@ -11983,7 +12006,7 @@ Compare aggregate metrics and verdicts exactly/tolerance as declared.
   - `baseline_hash`,
   - regression gate verdict and diagnostics hash.
 - Baseline identity:
-  - `tier_baseline_hash = SHA-256(CBOR_CANONICAL([tier_id, env_manifest_hash, workload_ids_sorted, baseline_metrics]))`.
+  - `tier_baseline_hash = SHA-256(CBOR_CANONICAL([tier_id, [env_manifest_hash, workload_ids_sorted, baseline_metrics]]))`.
 - External comparability requirement:
   - performance claims are externally valid only when tier id + environment fingerprint + workload set match.
 
@@ -14076,7 +14099,7 @@ FILE: layer4-implementation/Canonical-Hashing-Reference.md
 **Signature:** `(digest_id, normalized_preimage -> digest_bytes32)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** Computes `SHA-256(CBOR_CANONICAL([domain_tag, ...]))` where `domain_tag` is loaded from the formula registry for `digest_id`.
+**Definition:** Computes `SHA-256(CBOR_CANONICAL([domain_tag, normalized_preimage]))` where `domain_tag` is loaded from the formula registry for `digest_id`.
 
 ---
 ## 6) Procedure
@@ -14326,7 +14349,7 @@ Canonical registry consumption invariant:
 Deterministic mapping commitments (normative):
 - `template_hash = SHA-256(template_bytes)` (or canonical template bundle bytes).
 - `operator_manifest_hash = SHA-256(CBOR_CANONICAL(["operator_manifest_v1", operators_sorted]))`.
-- `mapping_hash = SHA-256(CBOR_CANONICAL(["codegen_mapping_v1", mapping_version, operator_manifest_hash, template_hash, rules_sorted]))`.
+- `mapping_hash = SHA-256(CBOR_CANONICAL(["codegen_mapping_v1", [mapping_version, operator_manifest_hash, template_hash, rules_sorted]]))`.
 - If generated code participates in release commitments, include `codegen_output_hash = SHA-256(CBOR_CANONICAL(generated_file_hashes_sorted))` in evidence binding.
 
 ---
@@ -15247,6 +15270,19 @@ FILE: layer4-implementation/Determinism-Audit-Playbook.md
 ## 4) Error Taxonomy Reference
 - Authoritative codes: `docs/layer1-foundation/Error-Codes.md`.
 
+## 5) Operator Definitions
+**Operator:** `UML_OS.Replay.VerifyReplayToken_v1`
+**Signature:** `(replay_token, manifest_hash, env_manifest_hash, policy_bundle_hash, determinism_profile_hash, operator_contracts_root_hash, driver_runtime_fingerprint_hash, seed -> replay_token_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Recomputes expected replay-token commitment from bound inputs, compares bytewise with provided `replay_token`, and emits deterministic pass/fail with mismatch diagnostics.
+
+**Operator:** `UML_OS.Certificate.VerifyBoundHashes_v1`
+**Signature:** `(execution_certificate, manifest_hash, trace_final_hash, checkpoint_hash, policy_bundle_hash, determinism_profile_hash, operator_contracts_root_hash -> bound_hash_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Verifies certificate signed-payload bound hash fields against provided evidence identities and emits deterministic pass/fail report.
+
 ## 6) Procedure
 ```text
 1. Verify replay-token and environment/registry bindings.
@@ -15335,6 +15371,18 @@ FILE: layer4-implementation/Determinism-Debug-Checklist.md
 **Purity class:** PURE  
 **Definition:** Verifies hash-chain and artifact binding coherence.
 
+**Operator:** `UML_OS.Replay.CheckRNGProgression_v1`
+**Signature:** `(baseline_trace, candidate_trace, replay_token -> rng_progression_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Validates RNG offset progression and stream ownership invariants across runs under identical replay context.
+
+**Operator:** `UML_OS.Replay.CheckBackendProfile_v1`
+**Signature:** `(baseline_runtime_profile, candidate_runtime_profile, determinism_profile_hash -> backend_profile_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Compares backend/runtime determinism profile bindings and emits deterministic compatibility verdict.
+
 **Operator:** `UML_OS.Replay.LocalizeFirstDivergence_v1`  
 **Signature:** `(trace_a, trace_b -> divergence_location)`  
 **Purity class:** PURE  
@@ -15397,7 +15445,8 @@ FILE: layer4-implementation/Deterministic-RNG-Implementation-Guide.md
 - substreams deterministic by `(rank, operator_seq, tensor_index)`.
 ### 0.F Environment and Dependency Policy
 - pinned PRNG implementation and version.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Random.InitializePRNG_v1`
 - `UML_OS.Random.DeriveSubstream_v1`
 - `UML_OS.Random.ConsumeDeterministic_v1`
@@ -15433,7 +15482,8 @@ FILE: layer4-implementation/Deterministic-RNG-Implementation-Guide.md
 3. Initialize offset audit log.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Random.InitializePRNG_v1`
 - `UML_OS.Random.DeriveSubstream_v1`
 - `UML_OS.Random.ConsumeDeterministic_v1`
@@ -16005,7 +16055,7 @@ Stage order is fixed and deterministic.
 
 ---
 ## 4) Deterministic Verdict Contract
-`ci_verdict_hash = SHA-256(CBOR_CANONICAL([pipeline_id, commit_hash, stage_outcomes, lint_verdict, conformance_verdict, replay_verdict]))`
+`ci_verdict_hash = SHA-256(CBOR_CANONICAL([pipeline_id, [commit_hash, stage_outcomes, lint_verdict, conformance_verdict, replay_verdict]]))`
 
 `ci_verdict_hash` is logged in release evidence and validation logs.
 
@@ -16065,7 +16115,8 @@ FILE: layer4-implementation/Ecosystem-Expansion-Roadmap.md
 - Independent workstreams may execute in parallel; final readiness verdict is deterministic fail-dominant reduction.
 ### 0.F Environment and Dependency Policy
 - All outputs must bind `env_manifest_hash` and release profile id.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.PlanWorkstream_v1`
 - `UML_OS.Implementation.EvaluateWorkstreamReadiness_v1`
 - `UML_OS.Implementation.EmitExpansionReport_v1`
@@ -16300,7 +16351,8 @@ FILE: layer4-implementation/Evidence-Catalog.md
 - Validation may run in parallel; verdict merge is fail-dominant.
 ### 0.F Environment and Dependency Policy
 - Canonical serialization profile: `CanonicalSerialization_v1`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Release.CollectEvidence_v1`
 - `UML_OS.Release.ValidateEvidenceBundle_v1`
 - `UML_OS.Error.Emit_v1`
@@ -16377,7 +16429,8 @@ FILE: layer4-implementation/Expansion-Catalog-041-250.md
 - Independent tracks may run in parallel; release eligibility is fail-dominant reduction over required track gates.
 ### 0.F Environment and Dependency Policy
 - Any promoted item must declare required profile(s), dependencies, and evidence format.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.RegisterExpansionIdea_v1`
 - `UML_OS.Implementation.ScoreExpansionIdea_v1`
 - `UML_OS.Implementation.BindExpansionToBacklog_v1`
@@ -16629,7 +16682,8 @@ FILE: layer4-implementation/External-Interface-Standard.md
 - Generator steps may parallelize; emitted artifacts must be byte-identical.
 ### 0.F Environment and Dependency Policy
 - Canonical profile: `CanonicalSerialization_v1`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Product.GenerateExternalInterfaces_v1`
 - `UML_OS.Error.Emit_v1`
 ### 0.H Namespacing and Packaging
@@ -16656,7 +16710,7 @@ FILE: layer4-implementation/External-Interface-Standard.md
 - See: `docs/layer4-implementation/API-Lifecycle-and-Deprecation-Policy.md`.
 
 ## 4) Conformance Identity (Normative)
-- `interface_conformance_hash = SHA-256(CBOR_CANONICAL(["iface_conf_v1", test_vector_set_hash, runner_version_hash, openapi_bundle_hash, protobuf_bundle_hash, sdk_bundle_hash]))`.
+- `interface_conformance_hash = SHA-256(CBOR_CANONICAL(["iface_conf_v1", [test_vector_set_hash, runner_version_hash, openapi_bundle_hash, protobuf_bundle_hash, sdk_bundle_hash]]))`.
 
 ## 6) Procedure
 ```text
@@ -17489,7 +17543,8 @@ FILE: layer4-implementation/Industry-Productization-Upgrade-Plan.md
 - Workstreams may execute in parallel only when cross-workstream dependencies are absent; aggregate readiness verdict is deterministic fail-dominant reduction.
 ### 0.F Environment and Dependency Policy
 - All generated evidence must bind `env_manifest_hash` and `determinism_profile_hash`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Product.ResolveProfile_v1`
 - `UML_OS.Product.EmitObservabilityMapping_v1`
 - `UML_OS.Product.BuildCertificationBundle_v1`
@@ -18146,7 +18201,8 @@ FILE: layer4-implementation/Operator-Conformance-Matrix.md
 - operator checks may run in parallel; merged deterministically.
 ### 0.F Environment and Dependency Policy
 - conformance checks run under lockfile-pinned toolchain.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.LoadOperatorRegistry_v1`
 - `UML_OS.Implementation.ResolveOperatorEvidence_v1`
 - `UML_OS.Implementation.ScoreOperatorConformance_v1`
@@ -18182,7 +18238,8 @@ FILE: layer4-implementation/Operator-Conformance-Matrix.md
 3. Initialize conformance accumulator.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.LoadOperatorRegistry_v1`
 - `UML_OS.Implementation.ResolveOperatorEvidence_v1`
 - `UML_OS.Implementation.ScoreOperatorConformance_v1`
@@ -18274,7 +18331,8 @@ FILE: layer4-implementation/Operator-Registry-CBOR-Contract.md
 - Registry generation may parallelize parsing, but final merge order is deterministic.
 ### 0.F Environment and Dependency Policy
 - Canonical serialization uses `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Registry.BuildOperatorRegistryArtifact_v1`
 - `UML_OS.Registry.ValidateOperatorRegistryArtifact_v1`
 - `UML_OS.Implementation.SpecLint_v1`
@@ -18312,7 +18370,7 @@ FILE: layer4-implementation/Operator-Registry-CBOR-Contract.md
 - Optional non-authoritative build metadata (for example `generated_at`) may be emitted in sidecar documentation artifacts only; it is not part of the canonical registry object.
 
 ### II.G Artifact Hash (Normative)
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))`
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))`
 - This hash must match `operator_contracts_root_hash` in `docs/layer2-specs/Execution-Certificate.md`.
 - Any informational metadata not present in the authoritative schema (for example `generated_at`) is excluded from this hash preimage.
 - Canonical serialization profile for this preimage is `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
@@ -18379,7 +18437,8 @@ FILE: layer4-implementation/Operator-SDK-Scaffold-Template.md
 - scaffolds can generate in parallel with deterministic file naming.
 ### 0.F Environment and Dependency Policy
 - SDK version pinned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.GenerateOperatorScaffold_v1`
 - `UML_OS.Implementation.ValidateScaffoldHooks_v1`
 - `UML_OS.Error.Emit_v1`
@@ -18414,7 +18473,8 @@ FILE: layer4-implementation/Operator-SDK-Scaffold-Template.md
 3. Initialize generation context.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.GenerateOperatorScaffold_v1`
 - `UML_OS.Implementation.ValidateScaffoldHooks_v1`
 - `UML_OS.Error.Emit_v1`
@@ -18602,7 +18662,8 @@ FILE: layer4-implementation/Profiling-and-Optimization-Guide.md
 - per-rank profiling reduced deterministically.
 ### 0.F Environment and Dependency Policy
 - profiling requires pinned determinism profile and toolchain.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Perf.CaptureProfileWindow_v1`
 - `UML_OS.Perf.AggregatePerfMetrics_v1`
 - `UML_OS.Perf.EvaluatePerfGate_v1`
@@ -18638,7 +18699,8 @@ FILE: layer4-implementation/Profiling-and-Optimization-Guide.md
 3. Initialize sampling buffers.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Perf.CaptureProfileWindow_v1`
 - `UML_OS.Perf.AggregatePerfMetrics_v1`
 - `UML_OS.Perf.EvaluatePerfGate_v1`
@@ -18787,13 +18849,13 @@ FILE: layer4-implementation/Reference-Implementations.md
   - if tail matches `^[0-9a-f]{64}$`, return inline bytes32 digest.
   - else resolve label in `digest_catalog`; abort with `CONTRACT_VIOLATION` if missing.
 - `TraceRecordHashChain_v1(normalized_records)`:
-  - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
+  - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", []]))`
   - for each record in canonical order:
     - `r = SHA-256(CBOR_CANONICAL(record))`
-    - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h, r]))`
+    - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", [h, r]]))`
   - return `h` as `trace_final_hash` in linear-chain mode.
 - `WalChainAndFinalize_v1(records)`:
-  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]))`.
+  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", [tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]]))`.
   - terminal `FINALIZE` record hash is `commit_record_hash`.
   - `wal_terminal_hash = commit_record_hash`.
 - `PublishCommitPointer_v1(pointer_payload)`:
@@ -18930,7 +18992,8 @@ FILE: layer4-implementation/Reference-Stack-Minimal.md
 - No parallel execution in minimal stack.
 ### 0.F Environment and Dependency Policy
 - Locked dependency manifest required.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Config.NormalizeDefaults_v1`
 - `UML_OS.Data.NextBatch_v2`
 - `UML_OS.Model.ModelIR_Executor_v1`
@@ -19042,7 +19105,8 @@ FILE: layer4-implementation/Release-Evidence-Assembler.md
 - evidence fetches parallel; final assembly deterministic.
 ### 0.F Environment and Dependency Policy
 - assembler runtime and policy pinned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Release.CollectEvidenceRefs_v1`
 - `UML_OS.Release.BuildEvidenceBundle_v1`
 - `UML_OS.Release.ValidateEvidenceBundle_v1`
@@ -19094,7 +19158,8 @@ FILE: layer4-implementation/Release-Evidence-Assembler.md
 3. Initialize assembly context.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Release.CollectEvidenceRefs_v1`
 - `UML_OS.Release.BuildEvidenceBundle_v1`
 - `UML_OS.Release.ValidateEvidenceBundle_v1`
@@ -19154,7 +19219,7 @@ FILE: layer4-implementation/Release-Evidence-Assembler.md
   - `evidence_signatures/`
   - `verification_instructions.txt`
 - Interchange package hash:
-  - `evidence_interchange_hash = SHA-256(CBOR_CANONICAL([evidence_bundle_hash, evidence_manifest_hash, signatures_hash]))`.
+  - `evidence_interchange_hash = SHA-256(CBOR_CANONICAL([evidence_bundle_hash, [evidence_manifest_hash, signatures_hash]]))`.
 - Third-party verification requirement:
   - package must be verifiable without repository-local state beyond published contract hashes and trust roots.
 - Regulated releases MUST embed or reference:
@@ -19210,7 +19275,8 @@ FILE: layer4-implementation/Repo-Layout-and-Interfaces.md
 - build graph resolution deterministic by declared dependencies.
 ### 0.F Environment and Dependency Policy
 - dependency boundaries enforced by static import rules.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.ValidateRepoLayout_v1`
 - `UML_OS.Implementation.ValidateModuleBoundaries_v1`
 - `UML_OS.Implementation.ValidateOwnershipMap_v1`
@@ -19300,7 +19366,8 @@ FILE: layer4-implementation/Repo-Layout-and-Interfaces.md
 3. Load operator mapping manifest.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.ValidateRepoLayout_v1`
 - `UML_OS.Implementation.ValidateModuleBoundaries_v1`
 - `UML_OS.Implementation.ValidateOwnershipMap_v1`
@@ -19439,7 +19506,8 @@ FILE: layer4-implementation/Runtime-State-Machine-Reference.md
 - competing transitions resolved by deterministic CAS policy.
 ### 0.F Environment and Dependency Policy
 - runtime transition engine version pinned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Runtime.ValidateTransition_v1`
 - `UML_OS.Runtime.ApplyTransitionCAS_v1`
 - `UML_OS.Runtime.EmitTransitionTrace_v1`
@@ -19475,7 +19543,8 @@ FILE: layer4-implementation/Runtime-State-Machine-Reference.md
 3. Initialize transition evaluator.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Runtime.ValidateTransition_v1`
 - `UML_OS.Runtime.ApplyTransitionCAS_v1`
 - `UML_OS.Runtime.EmitTransitionTrace_v1`
@@ -19691,7 +19760,8 @@ FILE: layer4-implementation/SRE-Incident-Triage-Playbook.md
 - independent incident checks parallelizable; verdict merge deterministic.
 ### 0.F Environment and Dependency Policy
 - incident analysis uses frozen evidence artifacts only.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Operations.ClassifyIncident_v1`
 - `UML_OS.Operations.RunTriageChecklist_v1`
 - `UML_OS.Operations.EmitRemediationPlan_v1`
@@ -19727,7 +19797,8 @@ FILE: layer4-implementation/SRE-Incident-Triage-Playbook.md
 3. Initialize triage context.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Operations.ClassifyIncident_v1`
 - `UML_OS.Operations.RunTriageChecklist_v1`
 - `UML_OS.Operations.EmitRemediationPlan_v1`
@@ -19798,7 +19869,8 @@ FILE: layer4-implementation/Schema-Evolution-Playbook.md
 - independent objects migrate in parallel; deterministic merge order.
 ### 0.F Environment and Dependency Policy
 - migration toolchain locked and versioned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.ValidateSchemaChange_v1`
 - `UML_OS.Implementation.RunSchemaMigration_v1`
 - `UML_OS.Implementation.VerifyMigrationEquivalence_v1`
@@ -19834,7 +19906,8 @@ FILE: layer4-implementation/Schema-Evolution-Playbook.md
 3. Prepare migration plan.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.ValidateSchemaChange_v1`
 - `UML_OS.Implementation.RunSchemaMigration_v1`
 - `UML_OS.Implementation.VerifyMigrationEquivalence_v1`
@@ -19975,7 +20048,8 @@ FILE: layer4-implementation/Security-Case-Template.md
 - Control checks parallelizable; verdict aggregation deterministic fail-dominant.
 ### 0.F Environment and Dependency Policy
 - Required evidence must be content-addressed and canonical.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Product.EmitSecurityCase_v1`
 - `UML_OS.Error.Emit_v1`
 ### 0.H Namespacing and Packaging
@@ -20047,7 +20121,8 @@ FILE: layer4-implementation/Security-Coding-Checklist.md
 - static checks parallelized; finding merge deterministic.
 ### 0.F Environment and Dependency Policy
 - scanner versions and rule packs pinned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Security.RunStaticSecurityChecks_v1`
 - `UML_OS.Security.VerifySecretHandlingRules_v1`
 - `UML_OS.Security.VerifyAuthzPathCoverage_v1`
@@ -20083,7 +20158,8 @@ FILE: layer4-implementation/Security-Coding-Checklist.md
 3. Initialize findings sink.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Security.RunStaticSecurityChecks_v1`
 - `UML_OS.Security.VerifySecretHandlingRules_v1`
 - `UML_OS.Security.VerifyAuthzPathCoverage_v1`
@@ -20204,11 +20280,23 @@ FILE: layer4-implementation/Spec-Lint-Implementation.md
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Implementation.LoadDocSet_v1`
+**Signature:** `(docs_root, include_globs, exclude_globs -> doc_set, doc_set_hash)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** Loads documentation corpus under deterministic path ordering and computes stable `doc_set_hash`.
+
 **Operator:** `UML_OS.Implementation.RunSpecLintRules_v1`  
 **Signature:** `(doc_set, rule_set -> findings)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Executes rule suite over parsed docs and emits normalized findings.
+
+**Operator:** `UML_OS.Implementation.AggregateLintVerdict_v1`
+**Signature:** `(findings -> lint_verdict, lint_metrics)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Reduces normalized findings into deterministic verdict and aggregate metrics using fixed severity precedence.
 
 ---
 ## 6) Procedure
@@ -20267,7 +20355,8 @@ FILE: layer4-implementation/Spec-Lint-Rules.md
 - rules may run in parallel; merged findings must preserve deterministic ordering.
 ### 0.F Environment and Dependency Policy
 - parser and regex engine versions pinned in tooling manifest.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.SpecLint_v1`
 - `UML_OS.Implementation.LoadRuleCatalog_v1`
 - `UML_OS.Implementation.EvaluateRuleSet_v1`
@@ -20294,6 +20383,8 @@ FILE: layer4-implementation/Spec-Lint-Rules.md
 | `EQC.REG.VERSION.MATCH` | BLOCKER | Registry version declaration must match file-declared version token policy. | `CONTRACT_VIOLATION` |
 | `EQC.EDGE.DECLARED` | BLOCKER | Graph edge types must be declared in source doc `DeclaredEdgeTypes`. | `CONTRACT_VIOLATION` |
 | `EQC.LAYER.IMPORTS` | BLOCKER | `IMPORTS/EXTENDS` must not target higher layer. | `CONTRACT_VIOLATION` |
+| `EQC.HASH.COMMIT.SHAPE` | BLOCKER | Any hash declared as signature/commitment and written as `SHA-256(CBOR_CANONICAL([...]))` MUST have an outer 2-element array `[domain_tag, data_object]` (no flattening). | `CONTRACT_VIOLATION` |
+| `OP_MANIFEST_UNRESOLVED_SYMBOL` | BLOCKER | Any backticked `UML_OS.*_vN` listed under an Operator Manifest/Referenced Operators section must resolve to exactly one `**Operator:**` definition in the doc set, unless explicitly declared as `External operator reference: <op> is defined in <doc>`. | `CONTRACT_VIOLATION` |
 | `EQC.GRAPH.REACHABLE` | MAJOR | All docs must be reachable from `CORE-MASTER-001` via metadata/governance edges. | `CONTRACT_VIOLATION` |
 | `EQC.DOCID.UNIQUE` | BLOCKER | Registry `DocID` values must be unique. | `CONTRACT_VIOLATION` |
 | `EQC.FILEPATH.UNIQUE` | BLOCKER | Registry `FilePath` values must be unique. | `CONTRACT_VIOLATION` |
@@ -20353,7 +20444,8 @@ FILE: layer4-implementation/Test-Harness-Implementation.md
 - parallel vector execution allowed with deterministic result merge.
 ### 0.F Environment and Dependency Policy
 - harness env pinned; deterministic profile required.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Test.LoadVectorSet_v1`
 - `UML_OS.Test.ExecuteVector_v1`
 - `UML_OS.Test.CompareExpected_v1`
@@ -20390,7 +20482,8 @@ FILE: layer4-implementation/Test-Harness-Implementation.md
 3. Initialize comparator state.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Test.LoadVectorSet_v1`
 - `UML_OS.Test.ExecuteVector_v1`
 - `UML_OS.Test.CompareExpected_v1`
@@ -20578,7 +20671,8 @@ FILE: layer4-implementation/Tooling-Suite.md
 - Parallel execution allowed; output merge is deterministic fail-dominant.
 ### 0.F Environment and Dependency Policy
 - Canonical serialization profile is `CanonicalSerialization_v1`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Tooling.ManifestInit_v1`
 - `UML_OS.Tooling.MigrationAssist_v1`
 - `UML_OS.Tooling.ReplayShadowMonitor_v1`
@@ -20641,7 +20735,7 @@ FILE: layer4-implementation/Tooling-Suite.md
 - Tooling bundle identity:
   - `tooling_bundle_hash = SHA-256(CBOR_CANONICAL(["tooling_suite_v1", tool_outputs_map]))`
 - Per-tool output identity:
-  - `tool_output_hash = SHA-256(CBOR_CANONICAL(["tool_output_v1", tool_id, output_object]))`
+  - `tool_output_hash = SHA-256(CBOR_CANONICAL(["tool_output_v1", [tool_id, output_object]]))`
 
 ---
 ## 4) Procedure

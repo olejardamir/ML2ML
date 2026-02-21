@@ -25,7 +25,8 @@
 - Independent tracks may run in parallel; release eligibility is fail-dominant reduction over required track gates.
 ### 0.F Environment and Dependency Policy
 - Any promoted item must declare required profile(s), dependencies, and evidence format.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.RegisterExpansionIdea_v1`
 - `UML_OS.Implementation.ScoreExpansionIdea_v1`
 - `UML_OS.Implementation.BindExpansionToBacklog_v1`

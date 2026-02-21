@@ -24,7 +24,8 @@
 - Generator steps may parallelize; emitted artifacts must be byte-identical.
 ### 0.F Environment and Dependency Policy
 - Canonical profile: `CanonicalSerialization_v1`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Product.GenerateExternalInterfaces_v1`
 - `UML_OS.Error.Emit_v1`
 ### 0.H Namespacing and Packaging

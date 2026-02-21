@@ -29,7 +29,8 @@
 - build graph resolution deterministic by declared dependencies.
 ### 0.F Environment and Dependency Policy
 - dependency boundaries enforced by static import rules.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.ValidateRepoLayout_v1`
 - `UML_OS.Implementation.ValidateModuleBoundaries_v1`
 - `UML_OS.Implementation.ValidateOwnershipMap_v1`
@@ -119,7 +120,8 @@
 3. Load operator mapping manifest.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.ValidateRepoLayout_v1`
 - `UML_OS.Implementation.ValidateModuleBoundaries_v1`
 - `UML_OS.Implementation.ValidateOwnershipMap_v1`

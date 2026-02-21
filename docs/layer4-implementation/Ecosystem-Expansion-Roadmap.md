@@ -25,7 +25,8 @@
 - Independent workstreams may execute in parallel; final readiness verdict is deterministic fail-dominant reduction.
 ### 0.F Environment and Dependency Policy
 - All outputs must bind `env_manifest_hash` and release profile id.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.PlanWorkstream_v1`
 - `UML_OS.Implementation.EvaluateWorkstreamReadiness_v1`
 - `UML_OS.Implementation.EmitExpansionReport_v1`

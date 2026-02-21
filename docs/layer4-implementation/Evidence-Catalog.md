@@ -24,7 +24,8 @@
 - Validation may run in parallel; verdict merge is fail-dominant.
 ### 0.F Environment and Dependency Policy
 - Canonical serialization profile: `CanonicalSerialization_v1`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Release.CollectEvidence_v1`
 - `UML_OS.Release.ValidateEvidenceBundle_v1`
 - `UML_OS.Error.Emit_v1`

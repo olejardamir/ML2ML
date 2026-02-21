@@ -25,7 +25,8 @@
 - Workstreams may execute in parallel only when cross-workstream dependencies are absent; aggregate readiness verdict is deterministic fail-dominant reduction.
 ### 0.F Environment and Dependency Policy
 - All generated evidence must bind `env_manifest_hash` and `determinism_profile_hash`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Product.ResolveProfile_v1`
 - `UML_OS.Product.EmitObservabilityMapping_v1`
 - `UML_OS.Product.BuildCertificationBundle_v1`

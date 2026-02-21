@@ -25,7 +25,8 @@
 - static checks parallelized; finding merge deterministic.
 ### 0.F Environment and Dependency Policy
 - scanner versions and rule packs pinned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Security.RunStaticSecurityChecks_v1`
 - `UML_OS.Security.VerifySecretHandlingRules_v1`
 - `UML_OS.Security.VerifyAuthzPathCoverage_v1`
@@ -61,7 +62,8 @@
 3. Initialize findings sink.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Security.RunStaticSecurityChecks_v1`
 - `UML_OS.Security.VerifySecretHandlingRules_v1`
 - `UML_OS.Security.VerifyAuthzPathCoverage_v1`

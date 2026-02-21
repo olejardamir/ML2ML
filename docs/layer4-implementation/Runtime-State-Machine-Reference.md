@@ -25,7 +25,8 @@
 - competing transitions resolved by deterministic CAS policy.
 ### 0.F Environment and Dependency Policy
 - runtime transition engine version pinned.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Runtime.ValidateTransition_v1`
 - `UML_OS.Runtime.ApplyTransitionCAS_v1`
 - `UML_OS.Runtime.EmitTransitionTrace_v1`
@@ -61,7 +62,8 @@
 3. Initialize transition evaluator.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Runtime.ValidateTransition_v1`
 - `UML_OS.Runtime.ApplyTransitionCAS_v1`
 - `UML_OS.Runtime.EmitTransitionTrace_v1`

@@ -25,7 +25,8 @@
 - operator checks may run in parallel; merged deterministically.
 ### 0.F Environment and Dependency Policy
 - conformance checks run under lockfile-pinned toolchain.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.LoadOperatorRegistry_v1`
 - `UML_OS.Implementation.ResolveOperatorEvidence_v1`
 - `UML_OS.Implementation.ScoreOperatorConformance_v1`
@@ -61,7 +62,8 @@
 3. Initialize conformance accumulator.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Implementation.LoadOperatorRegistry_v1`
 - `UML_OS.Implementation.ResolveOperatorEvidence_v1`
 - `UML_OS.Implementation.ScoreOperatorConformance_v1`

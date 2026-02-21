@@ -25,7 +25,8 @@
 - independent incident checks parallelizable; verdict merge deterministic.
 ### 0.F Environment and Dependency Policy
 - incident analysis uses frozen evidence artifacts only.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Operations.ClassifyIncident_v1`
 - `UML_OS.Operations.RunTriageChecklist_v1`
 - `UML_OS.Operations.EmitRemediationPlan_v1`
@@ -61,7 +62,8 @@
 3. Initialize triage context.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Operations.ClassifyIncident_v1`
 - `UML_OS.Operations.RunTriageChecklist_v1`
 - `UML_OS.Operations.EmitRemediationPlan_v1`

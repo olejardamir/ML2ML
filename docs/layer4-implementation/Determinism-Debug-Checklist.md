@@ -76,6 +76,18 @@
 **Purity class:** PURE  
 **Definition:** Verifies hash-chain and artifact binding coherence.
 
+**Operator:** `UML_OS.Replay.CheckRNGProgression_v1`
+**Signature:** `(baseline_trace, candidate_trace, replay_token -> rng_progression_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Validates RNG offset progression and stream ownership invariants across runs under identical replay context.
+
+**Operator:** `UML_OS.Replay.CheckBackendProfile_v1`
+**Signature:** `(baseline_runtime_profile, candidate_runtime_profile, determinism_profile_hash -> backend_profile_report)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Compares backend/runtime determinism profile bindings and emits deterministic compatibility verdict.
+
 **Operator:** `UML_OS.Replay.LocalizeFirstDivergence_v1`  
 **Signature:** `(trace_a, trace_b -> divergence_location)`  
 **Purity class:** PURE  

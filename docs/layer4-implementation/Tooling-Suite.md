@@ -23,7 +23,8 @@
 - Parallel execution allowed; output merge is deterministic fail-dominant.
 ### 0.F Environment and Dependency Policy
 - Canonical serialization profile is `CanonicalSerialization_v1`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Tooling.ManifestInit_v1`
 - `UML_OS.Tooling.MigrationAssist_v1`
 - `UML_OS.Tooling.ReplayShadowMonitor_v1`

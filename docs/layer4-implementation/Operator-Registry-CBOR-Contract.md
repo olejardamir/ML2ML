@@ -26,7 +26,8 @@
 - Registry generation may parallelize parsing, but final merge order is deterministic.
 ### 0.F Environment and Dependency Policy
 - Canonical serialization uses `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Registry.BuildOperatorRegistryArtifact_v1`
 - `UML_OS.Registry.ValidateOperatorRegistryArtifact_v1`
 - `UML_OS.Implementation.SpecLint_v1`

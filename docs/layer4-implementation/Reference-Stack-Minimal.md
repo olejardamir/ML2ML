@@ -25,7 +25,8 @@
 - No parallel execution in minimal stack.
 ### 0.F Environment and Dependency Policy
 - Locked dependency manifest required.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Config.NormalizeDefaults_v1`
 - `UML_OS.Data.NextBatch_v2`
 - `UML_OS.Model.ModelIR_Executor_v1`

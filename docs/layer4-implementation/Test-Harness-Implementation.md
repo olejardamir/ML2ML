@@ -25,7 +25,8 @@
 - parallel vector execution allowed with deterministic result merge.
 ### 0.F Environment and Dependency Policy
 - harness env pinned; deterministic profile required.
-### 0.G Operator Manifest
+### 0.G Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Test.LoadVectorSet_v1`
 - `UML_OS.Test.ExecuteVector_v1`
 - `UML_OS.Test.CompareExpected_v1`
@@ -62,7 +63,8 @@
 3. Initialize comparator state.
 
 ---
-## 4) Operator Manifest
+## 4) Referenced Operators (Template-only)
+- Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
 - `UML_OS.Test.LoadVectorSet_v1`
 - `UML_OS.Test.ExecuteVector_v1`
 - `UML_OS.Test.CompareExpected_v1`

@@ -70,11 +70,23 @@
 
 ---
 ## 5) Operator Definitions
+**Operator:** `UML_OS.Implementation.LoadDocSet_v1`
+**Signature:** `(docs_root, include_globs, exclude_globs -> doc_set, doc_set_hash)`
+**Purity class:** IO
+**Determinism:** deterministic
+**Definition:** Loads documentation corpus under deterministic path ordering and computes stable `doc_set_hash`.
+
 **Operator:** `UML_OS.Implementation.RunSpecLintRules_v1`  
 **Signature:** `(doc_set, rule_set -> findings)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Executes rule suite over parsed docs and emits normalized findings.
+
+**Operator:** `UML_OS.Implementation.AggregateLintVerdict_v1`
+**Signature:** `(findings -> lint_verdict, lint_metrics)`
+**Purity class:** PURE
+**Determinism:** deterministic
+**Definition:** Reduces normalized findings into deterministic verdict and aggregate metrics using fixed severity precedence.
 
 ---
 ## 6) Procedure
