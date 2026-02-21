@@ -113,13 +113,13 @@
     - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
     - `ExecutionCertificate.signed_payload.policy_bundle_hash == deployment_policy_bundle_hash`
     - `ExecutionCertificate.signed_payload.lockfile_hash == lockfile_hash`
-    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
+    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
     - `ExecutionCertificate.signed_payload.determinism_profile_hash == runtime_determinism_profile_hash`
     - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
     - `ExecutionCertificate.signed_payload.lineage_root_hash == expected_lineage_root_hash`
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Artifact commitment formulas:
-  - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", image_digest, code_commit_hash, lockfile_hash, toolchain_hash]))`.
+  - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", [image_digest, code_commit_hash, lockfile_hash, toolchain_hash]]))`.
   - `image_digest` is the immutable OCI manifest digest (`sha256:<hex>`) resolved from registry manifest bytes.
   - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` is canonical SPDX JSON (UTF-8, lexicographically sorted object keys, no insignificant whitespace).
 - Secrets and keys:

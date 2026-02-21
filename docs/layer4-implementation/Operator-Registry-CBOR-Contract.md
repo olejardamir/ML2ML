@@ -64,7 +64,7 @@
 - Optional non-authoritative build metadata (for example `generated_at`) may be emitted in sidecar documentation artifacts only; it is not part of the canonical registry object.
 
 ### II.G Artifact Hash (Normative)
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))`
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))`
 - This hash must match `operator_contracts_root_hash` in `docs/layer2-specs/Execution-Certificate.md`.
 - Any informational metadata not present in the authoritative schema (for example `generated_at`) is excluded from this hash preimage.
 - Canonical serialization profile for this preimage is `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`.

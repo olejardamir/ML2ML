@@ -1,0 +1,38 @@
+{
+  "graph": [
+    {
+      "inputs": [
+        "x",
+        "w"
+      ],
+      "node_id": "n1",
+      "op": "MatMul",
+      "outputs": [
+        "z1"
+      ]
+    },
+    {
+      "inputs": [
+        "z1",
+        "b"
+      ],
+      "node_id": "n2",
+      "op": "Add",
+      "outputs": [
+        "y_hat"
+      ]
+    },
+    {
+      "inputs": [
+        "y_hat",
+        "y"
+      ],
+      "node_id": "n3",
+      "op": "MSE",
+      "outputs": [
+        "loss"
+      ]
+    }
+  ],
+  "ir_version": "v1"
+}

@@ -137,7 +137,7 @@
   - `evidence_signatures/`
   - `verification_instructions.txt`
 - Interchange package hash:
-  - `evidence_interchange_hash = SHA-256(CBOR_CANONICAL([evidence_bundle_hash, evidence_manifest_hash, signatures_hash]))`.
+  - `evidence_interchange_hash = SHA-256(CBOR_CANONICAL([evidence_bundle_hash, [evidence_manifest_hash, signatures_hash]]))`.
 - Third-party verification requirement:
   - package must be verifiable without repository-local state beyond published contract hashes and trust roots.
 - Regulated releases MUST embed or reference:
@@ -145,3 +145,17 @@
   - `conformance_coverage_report_hash`,
   - `sbom_hash`,
   - `operator_registry_root_hash`.
+
+## 13) Canonical Artifact Inputs (Normative)
+- Canonical contracts and catalogs for doc-phase verifiable assembly:
+  - `contracts/operator_registry.cbor`
+  - `contracts/digest_catalog.cbor`
+  - `contracts/error_codes.cbor`
+  - `contracts/capability_catalog.cbor`
+  - `contracts/schema_catalog.cbor`
+  - `contracts/vectors_catalog.cbor`
+  - `contracts/catalog-manifest.json`
+- Minimal pinned fixture/evidence inputs:
+  - `fixtures/hello-core/fixture-manifest.json`
+  - `goldens/hello-core/golden-manifest.json`
+  - `vectors/hello-core/vectors-manifest.json`

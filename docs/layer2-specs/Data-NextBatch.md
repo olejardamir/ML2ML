@@ -32,7 +32,7 @@
 - PRNG family: `Philox4x32-10`
 - Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
 - Replay guarantee: fully replayable given `(kernel_replay_token, manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
-- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]))`
+- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", [kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]]))`
 - Contract-critical hash primitive: `SHA-256(CBOR_CANONICAL(...))`.
 
 ### 0.C Numeric Policy
@@ -80,7 +80,7 @@
   - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
   - `sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"` in train mode, `"SEQUENTIAL_V1"` in eval/infer mode
   - encoding rule: all mode strings used in hashes are UTF-8 CBOR text strings with no alternate normalization.
-  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))`
+  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]]))`
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
@@ -165,7 +165,7 @@
 
 1. `cursor <- cursor_in` (caller-owned persistent cursor; default `{epoch:0, global_index:0}` at first use)
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]))[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", [kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]]))[0:16]` (Philox seed)
 
 ---
 
@@ -281,7 +281,7 @@ This is bijective because `gcd(a,m)=1` by construction.
            orig_idx = SeededIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
            batch_indices.append(orig_idx)
 
-9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]))
+9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]]))
 10. epoch_limit_for_advance = N
     if stage_type == "train" and manifest.data.drop_last == true:
         epoch_limit_for_advance = (N // global_batch_size) * global_batch_size

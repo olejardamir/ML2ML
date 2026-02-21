@@ -92,7 +92,7 @@
   - only the partition owner may emit state transitions for that job.
 ### I.D Transient Variables
 - scheduling diagnostics.
-- `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, job_id, attempt_id, transition_seq]))`
+- `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, [job_id, attempt_id, transition_seq]]))`
 ### I.E Invariants and Assertions
 - no skipped lifecycle states; transition records are append-only.
 - running jobs require valid lease and heartbeat.
@@ -113,7 +113,7 @@
   - selection rule: retry `k` uses `delays_ms[min(k, len(delays_ms)-1)]`; no random jitter allowed.
 - `LeasePolicy` artifact:
   - schema fields: `{lease_policy_id, lease_ttl_ticks:uint64, heartbeat_extension_ticks:uint64, expiry_transition:"RUNNING->RETRYING"}`.
-  - lease id: `lease_id = SHA-256(CBOR_CANONICAL([tenant_id, job_id, attempt_id, transition_seq]))`.
+  - lease id: `lease_id = SHA-256(CBOR_CANONICAL([tenant_id, [job_id, attempt_id, transition_seq]]))`.
 
 ### II.H Job State Machine (Closed Set, Normative)
 - States: `QUEUED`, `RUNNING`, `RETRYING`, `SUCCEEDED`, `FAILED`, `CANCELED`.

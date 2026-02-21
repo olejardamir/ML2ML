@@ -2390,3 +2390,167 @@
   - `missing_struct = 0`
   - `registry_missing_docs = 0`
   - `registry_hash_mismatches = 0`
+
+# 2026-02-21 — 10/10 Evidence-First Doc Surface Pass
+
+## Scope
+- Implemented the product-stage “externally verifiable adoptability” document surface:
+  - deterministic onboarding bundle,
+  - generated interface contract surface,
+  - evidence catalog,
+  - security case template,
+  - chaos proof-pack index,
+  - benchmark evidence spec,
+  - determinism audit playbook.
+
+## New Documents
+- `docs/layer4-implementation/Evidence-Catalog.md`
+- `docs/layer4-implementation/External-Interface-Standard.md`
+- `docs/layer4-implementation/Security-Case-Template.md`
+- `docs/layer3-tests/Failure-Injection-Index.md`
+- `docs/layer4-implementation/Benchmark-Evidence-Spec.md`
+- `docs/layer4-implementation/Determinism-Audit-Playbook.md`
+
+## Existing Docs Upgraded
+- `docs/START-HERE.md`:
+  - added deterministic golden demo evidence bundle section with identity rule.
+- `docs/layer4-implementation/Industry-Productization-Upgrade-Plan.md`:
+  - linked new 10/10 references.
+- `docs/layer3-tests/Release-Gates.md`:
+  - linked evidence catalog / benchmark / security-case references.
+- `docs/layer4-implementation/Interoperability-Standards-Bridge.md`:
+  - linked authoritative external interface contract.
+- `docs/layer4-implementation/Threat-Model-and-Control-Crosswalk.md`:
+  - linked security case template.
+- `docs/layer3-tests/Failure-Injection-Scenarios.md`:
+  - linked scenario index reference.
+- `docs/layer3-tests/Performance-Plan.md`:
+  - linked benchmark evidence spec reference.
+
+## Ecosystem Wiring
+- Added registry entries and graph nodes/edges for:
+  - `L4-064`..`L4-068`, `L3-014`.
+- Refreshed all affected docs SHA records.
+
+## Verification Snapshot
+- `docs = 113`
+- `missing_struct = 0`
+- `missing_normativity_ref = 0`
+- `registry_missing_docs = 0`
+- `registry_hash_mismatches = 0`
+- `graph_missing_ids = 0`
+
+# 2026-02-21 — Proof Artifacts Materialization Pass
+
+## Scope
+- Closed remaining documentation-executability gaps by materializing canonical artifact directories and pinned manifests referenced by docs.
+
+## Created Artifact Sets
+- `contracts/`
+  - `operator_registry.cbor`
+  - `digest_catalog.cbor`
+  - `error_codes.cbor`
+  - `capability_catalog.cbor`
+  - `schema_catalog.cbor`
+  - `vectors_catalog.cbor`
+  - `catalog-manifest.json`
+- `fixtures/hello-core/`
+  - `manifest.core.yaml`
+  - `tiny_synth_dataset.jsonl`
+  - `model_ir.json`
+  - `fixture-manifest.json`
+- `goldens/hello-core/`
+  - `trace_snippet.json`
+  - `checkpoint_header.json`
+  - `execution_certificate.json`
+  - `golden-identities.json`
+  - `golden-manifest.json`
+- `vectors/hello-core/`
+  - `vectors.json`
+  - `vectors-manifest.json`
+
+## Tooling Added
+- `tools/materialize_doc_artifacts.py`
+  - deterministic CBOR/JSON materialization of contracts/fixtures/goldens/vectors and manifest hashes.
+- `tools/verify_doc_artifacts.py`
+  - deterministic hash/size verification for all pinned manifests.
+
+## Docs Updated
+- `docs/START-HERE.md`
+  - switched fixture/golden refs to root artifact directories and added verification command section.
+- `docs/layer4-implementation/Reference-Stack-Minimal.md`
+  - added explicit required artifact paths and hash-verification references.
+- `docs/layer4-implementation/Release-Evidence-Assembler.md`
+  - added canonical artifact input list and pinned manifests.
+- `docs/layer3-tests/Release-Gates.md`
+  - added pinned gate input manifests and deterministic verification command.
+
+## Verification Snapshot
+- `python tools/verify_doc_artifacts.py` => `PASS`
+
+# 2026-02-21 — Commitment Preimage Normalization + Path Escaping Pass
+
+## Scope
+- Removed cross-document hashing inconsistency by enforcing canonical two-element commitment preimages for domain-tagged commitment/signature formulas.
+- Eliminated path-delimiter ambiguity in determinism comparison by replacing assumption text with explicit escaping semantics.
+
+## Normative Contract Updates
+- `docs/layer1-foundation/Canonical-CBOR-Profile.md`
+  - added canonical helper `CommitHash(domain_tag, data_object)`.
+  - added explicit prohibition for non-2-element commitment arrays (`CONTRACT_VIOLATION`).
+  - added explicit distinction between `CommitHash` (domain-separated) and `ObjectDigest` (plain digest).
+- `docs/layer4-implementation/Spec-Lint-Rules.md`
+  - added blocker rule `EQC.HASH.COMMIT.SHAPE` for commitment preimage shape.
+- `docs/layer1-foundation/Determinism-Profiles.md`
+  - replaced prior path delimiter assumption with normative escape/decode rules (`.` delimiter, `\\` escape, `\\.` and `\\\\` only) and round-trip invariant.
+
+## Mechanical Formula Rewrites
+- Applied repo-wide rewrite for domain-tagged commitment/signature formulas:
+  - from flattened forms like `SHA-256(CBOR_CANONICAL(["tag", a, b, ...]))`
+  - to canonical two-element forms `SHA-256(CBOR_CANONICAL(["tag", [a, b, ...]]))`.
+- Updated 32 markdown files with 79 formula rewrites, including:
+  - registry root/signature digest,
+  - digest catalog commitment,
+  - policy/dependency bundle commitments,
+  - checkpoint merkle leaf/node commitments,
+  - trace-chain commitments (`h_0`/`h_i`),
+  - replay/seed/token and evidence commitments.
+
+## Additional Alignment
+- `docs/layer4-implementation/Canonical-Hashing-Reference.md`
+  - updated digest definition to explicit two-element preimage (`[domain_tag, normalized_preimage]`).
+- `docs/layer1-foundation/API-Interfaces.md`
+  - normalized API conformance catalog hash to domain-separated tagged commitment.
+- `docs/layer1-foundation/Data-Structures.md`
+  - added explicit hash identity class definitions (`CommitHash` vs `ObjectDigest`).
+
+## Verification Snapshot
+- `python tools/verify_doc_artifacts.py` => `PASS`.
+- old delimiter-assumption phrase search => not present.
+- domain-tagged `SHA-256(CBOR_CANONICAL([ ... ]))` formulas with non-2 outer elements => `0`.
+
+## Ecosystem Metadata
+- Refreshed `ecosystem-registry.yaml` SHA entries for changed files.
+
+# 2026-02-21 — Commitment Consistency Final Cleanup
+
+## Scope
+- Closed residual hash-formula inconsistencies reported from merged snapshot review.
+- Enforced single-form commitment formulas and explicit hash typing in checkpoint contract.
+
+## Changes
+- `docs/layer2-specs/Checkpoint-Schema.md`
+  - replaced empty-root untagged forms with tagged commitments:
+    - `CommitHash("tensors_root_v1", [])`
+    - `CommitHash("optimizer_root_v1", [])`
+    - `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root_v1", []]))` for empty shard set.
+  - added explicit hash typing section:
+    - `CommitHash(tag, data)`
+    - `ObjectDigest(obj)`
+  - labeled checkpoint object hashes (`checkpoint_header_hash`, `checkpoint_manifest_hash`, `weights_manifest_hash`, `optimizer_manifest_hash`, `dp_accountant_manifest_hash`, `rng_state_hash`, `data_cursors_hash`) as `ObjectDigest`.
+- `tools/merged_docs.txt`
+  - regenerated from current docs to remove stale pre-fix formulas.
+
+## Verification
+- Search for known bad forms in docs and merged snapshot: none found.
+- `python tools/verify_doc_artifacts.py` => `PASS`.

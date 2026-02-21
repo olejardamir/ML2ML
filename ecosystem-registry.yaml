@@ -51,8 +51,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 565fa4594529c0159bdaf6f01494d760f65456e1da4e79ab6e389172b87d753f
-  PreviousSHA256: cfb18520eee339edff73426c963d01dd2e170249abbf030ab3df2f875ae0db83
+  SHA256Hash: d1e6bf214d5723390f6f9009467e2ba813c7aac41379619d4b69e17964dc44ad
+  PreviousSHA256: 565fa4594529c0159bdaf6f01494d760f65456e1da4e79ab6e389172b87d753f
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -71,8 +71,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 4ceed630494154d0b8363bb799f10110b2254cbc63d17c6b4bc68eed77231272
-  PreviousSHA256: 6c9c095a944825ff424256d8bc26d4bfbfcd955775ae8df9dbeffe5326385c58
+  SHA256Hash: 3277b15bb68bf27476eb0c808c67195a8ce54ebb08a3b979b1637318da6bce99
+  PreviousSHA256: 4ceed630494154d0b8363bb799f10110b2254cbc63d17c6b4bc68eed77231272
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -91,8 +91,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 43681757f10a5089873ea59153fd6a410ec334e5932b51f417f4286113cf837c
-  PreviousSHA256: 757e47710c469eedf7ed7d13330be57ff09c7f3595c7867a7b56e2d0465c1972
+  SHA256Hash: 9939f5b5719ddf355d884417d2d0b47941c5c95107621ff0f557d478fa329583
+  PreviousSHA256: 43681757f10a5089873ea59153fd6a410ec334e5932b51f417f4286113cf837c
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
@@ -111,8 +111,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: ab8da5f3d289821b0d3123b9900826967ff8980c63e46569b5f92e95dcc545f9
-  PreviousSHA256: ac9e17b23b56a3efad5796ee4ce113e8341ced82095d5cc634be940ef8ed6e96
+  SHA256Hash: 7acf100e00abb7152881954f9c51199f6776fff56b1ffeb0428ce7fde0fa9c30
+  PreviousSHA256: ab8da5f3d289821b0d3123b9900826967ff8980c63e46569b5f92e95dcc545f9
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -131,8 +131,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 0a883cc186f090a004efd2ae6a35fef760b2f603ec4463238b48483a0f6794ea
-  PreviousSHA256: 2ffd463c971840a2d9bf18299e4c4e421956c99ebd4538e8cc9182421a9b5376
+  SHA256Hash: cd0cfc17635494f1e532b510ba965562a672ffbeaba671e0b17c83dcc0e7df4d
+  PreviousSHA256: 0a883cc186f090a004efd2ae6a35fef760b2f603ec4463238b48483a0f6794ea
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -151,8 +151,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 74caaef28796df3e1b6465df451b3ed95c9bba1b8bab84d7ac785197edc3e201
-  PreviousSHA256: 3c1ecb9540f8f8a1e2ec0cd49be0112297470c7466a6694493022a2a7c5136b3
+  SHA256Hash: de4341573c0e940cb54dcd5839d90dd05d4c82db1982904f19faf0eb3644c0f1
+  PreviousSHA256: 74caaef28796df3e1b6465df451b3ed95c9bba1b8bab84d7ac785197edc3e201
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -210,8 +210,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 47f8c68a01aea3137aee1701cf0b3a4ad2f48ed4dee2bfc9cf7a2b46cbe53595
-  PreviousSHA256: c7c2a018512329ed41238bbb5cdb46b2679699b0553657daa1e6d21dcb833596
+  SHA256Hash: 5c529a6a7fd5f90c264d1872b89d1ba91c26c82832be7ad36b0671322c966009
+  PreviousSHA256: 47f8c68a01aea3137aee1701cf0b3a4ad2f48ed4dee2bfc9cf7a2b46cbe53595
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -230,8 +230,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 177c6439773200cbd35e82f5f664667c3bd47fb956afceaf10d173f6fda2e29b
-  PreviousSHA256: 6de8cecf602b11d82422e6ce40736c85fbf2d1585c1983f1d7bef3871ef3078e
+  SHA256Hash: 0ea6791dd4eae61813c2fd7c54bd8ee88ccb5b7fb15e08f8aa576b6ed62d2a34
+  PreviousSHA256: 177c6439773200cbd35e82f5f664667c3bd47fb956afceaf10d173f6fda2e29b
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -250,8 +250,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 4f3433769d898ba65507bcac1cfdc94328eb1134ba49a03365a7babbd6b7d5a6
-  PreviousSHA256: bd4e28895953edb503d98c923131ff640ff0c834425e22be02af0532aef171f9
+  SHA256Hash: bae72b45f865d5c30d2372b079ba19a22abe3057506da510e78828f6c5bb64e8
+  PreviousSHA256: 4f3433769d898ba65507bcac1cfdc94328eb1134ba49a03365a7babbd6b7d5a6
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -270,8 +270,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 573dc8b0f256e29af0d8a7dcc0e8212a36d990955c0a6e20ba38a143732678c6
-  PreviousSHA256: ec9603d7f3fb851c44bb979b567e8a052b67c7ee458ed5898c730d73b95aac73
+  SHA256Hash: b51cacfa5da7f5b9b0c98dfdee53886cff841f44a39b270451d4cb20c2faa17b
+  PreviousSHA256: 1b1a8664d4150072c608925cbe81f23245edeaf55ab2f4a98dda908d84076477
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -290,8 +290,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 641333a144c7d7a7d0792a8b621c50ef1fe7e2750f63694a1a08e2489e28b9e8
-  PreviousSHA256: b1f913188df8b96e33025653034cae7e6df5f8be367c8b70eed46b76647c0d6d
+  SHA256Hash: bbe608032689f81388b5c4d1b8a9696f5a6e1ab12889942abe241895a5049705
+  PreviousSHA256: 641333a144c7d7a7d0792a8b621c50ef1fe7e2750f63694a1a08e2489e28b9e8
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -309,8 +309,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: c528e6383b12d2b8eed3a8a0715a8b77d5ec8f4934727e526944e00b389e4d39
-  PreviousSHA256: 99757ab8974f68b7af2e142bb62a6ef1889ce96f44fe7750798ef3d6e7f78baa
+  SHA256Hash: 0c0ea5ce60b9acc4c5a9e4ffc0618e96e13510cac52159823b53708adb3fa71f
+  PreviousSHA256: c528e6383b12d2b8eed3a8a0715a8b77d5ec8f4934727e526944e00b389e4d39
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
@@ -329,8 +329,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: a6125b0e39b9db870ed4e311c82f1597176581ac2af6ec1b79bb183f98b00bbb
-  PreviousSHA256: 3e503345729c37aea1dcd066d65cbc9835718118e9af82e83e1c16e9c8cd27d1
+  SHA256Hash: d0c0b63500fea78ce034349faa497895a875e8598b6ea651ea95a7f55804e8ac
+  PreviousSHA256: a6125b0e39b9db870ed4e311c82f1597176581ac2af6ec1b79bb183f98b00bbb
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
@@ -349,8 +349,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: c3fc21c266836d734d722ed3be4e70e57f671fbddaeb709eb514dbe88dd96342
-  PreviousSHA256: abd18bc60caaa85ff51e27e054e24c94074eb1982af6faf78b9adc77bc3a7a81
+  SHA256Hash: 7e169a3511f5e176c7d385f7d642a444d8cdc870e55f40756ef30fc9d5942443
+  PreviousSHA256: c3fc21c266836d734d722ed3be4e70e57f671fbddaeb709eb514dbe88dd96342
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -369,8 +369,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: d9f84ac5e154461c52d8399cabb5550db043b7717fb0ff64950470333defd3df
-  PreviousSHA256: d6ccf993316d8647ef0a48e9b7d19a6a68ee0fdfbb716cca209f5d0c4a15bf25
+  SHA256Hash: 8ea9477f41007c6c99baca1b4a7aeabde6488e8a93895a56a0513d64f79a6b36
+  PreviousSHA256: d9f84ac5e154461c52d8399cabb5550db043b7717fb0ff64950470333defd3df
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -428,8 +428,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: aaf78fdaae9a13d5bd7b3d8257342d73980922000318145679bf4bbefb0da394
-  PreviousSHA256: de7249d9ac424312cc21a291751d6b9748588a27b4b4d58bb7453a5f93a82f6e
+  SHA256Hash: e791cc776ec13211985d059caeb8b9209b7a4a780747c21f04f320094f408716
+  PreviousSHA256: aaf78fdaae9a13d5bd7b3d8257342d73980922000318145679bf4bbefb0da394
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
@@ -448,8 +448,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 70057729689ad644223382edaa2cd82213f48b359e786c3b2e231c528d480dbd
-  PreviousSHA256: d051593d5a73b1fcba4f2f824a7541fd6efc1fac5c1b006e4a1bcd670ef883b9
+  SHA256Hash: 95fba3f8ebf77bb9eb28e35f3c28d3c2b5b3326bae8d4db980bcd46ff644394f
+  PreviousSHA256: 70057729689ad644223382edaa2cd82213f48b359e786c3b2e231c528d480dbd
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -468,8 +468,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 0f4ede44377d2665a11a0b3f4b968ca48a1f33bc78970f4465f997fdad965a65
-  PreviousSHA256: 8d73564a90e2496a49e80c6975aa6957708a66da300a094cb65ab684949beac4
+  SHA256Hash: 7d0f8eebce5c14fe4f2d39d596d5bf5232f7851d3da8fd6ce236adc2e8b55be5
+  PreviousSHA256: 0f4ede44377d2665a11a0b3f4b968ca48a1f33bc78970f4465f997fdad965a65
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -487,8 +487,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: a0b52d079553b2b55ace61e4cc9450734ab0d89578c38c2580610e2e4d975db7
-  PreviousSHA256: 8c26ae8d7d8c6385ed1562b1dc9b35d280ad5e2906abd0dac345cd857ece82fd
+  SHA256Hash: 11a2268e0c4c73e8629eda8cba76ae2135b64f449b1375b8a137de8709366627
+  PreviousSHA256: a0b52d079553b2b55ace61e4cc9450734ab0d89578c38c2580610e2e4d975db7
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
@@ -507,8 +507,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: da86c923b2ba9efc6f7e51b585d4915b33a7e51d3e4c25ea974a671a1e3b0db8
-  PreviousSHA256: 978db4ce6be1b2c20af0f1e8ce7d4bc070dc86732595b35f2172abfce36c25dd
+  SHA256Hash: b98f22a002e641de6ac20582179a98ecfa8ac9560acac53baf7a101f9474d7fb
+  PreviousSHA256: da86c923b2ba9efc6f7e51b585d4915b33a7e51d3e4c25ea974a671a1e3b0db8
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -527,8 +527,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 4fe710d0c6d36a04f20382107a03e99c3ef92ec0ffe3757ffa02583c5704653f
-  PreviousSHA256: b5eb315874b7955cac9a981c046f79a53c2e1e5dd80f3f52ed79d19100fa9b30
+  SHA256Hash: aad639615e3ac7de8248ceb5d4d1e0507f9aa8988b19231a95599f92f4720878
+  PreviousSHA256: 4fe710d0c6d36a04f20382107a03e99c3ef92ec0ffe3757ffa02583c5704653f
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -567,8 +567,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: e47ff14fad19fd866a781b453d649138f1402f8c842ef528d0272344f60338c7
-  PreviousSHA256: b83670fc4a9b071874bb19a224eccec7d7d6eb57daa902b3da5d6a0a01e03de2
+  SHA256Hash: f54aed215a94e9d5a34b9898e07e70480287212ccd0e88c6e5ebc855e983c150
+  PreviousSHA256: e47ff14fad19fd866a781b453d649138f1402f8c842ef528d0272344f60338c7
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -587,8 +587,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 8d7359f95387abe9b508040a3121ef12dfe19e572820dc5b83552ab8fc8859a0
-  PreviousSHA256: 640081f57678afc27ee13e4a17f9f04c00da9ea664514c0390c15697d5620fab
+  SHA256Hash: 628c6fc9d9787c3bd773ccad957e0633ae0ee07eed17c990960613952ca0f0c7
+  PreviousSHA256: 8d7359f95387abe9b508040a3121ef12dfe19e572820dc5b83552ab8fc8859a0
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -607,8 +607,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 06db595fdf6a370e9e8d124f84af17e2fd69bc7acdcfe9b9b12249bd422bf519
-  PreviousSHA256: d5a943699156f5b1b3b7987e6166d634cc78173b64323c19ac00e39515731894
+  SHA256Hash: 3d09d91b8e2b79f8b705f5b27a8642a1181fd4d59b79a9a2586335a4f1029c1a
+  PreviousSHA256: 06db595fdf6a370e9e8d124f84af17e2fd69bc7acdcfe9b9b12249bd422bf519
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -626,8 +626,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 510478cda3c0ba39e5f094de9f44745f07721ea02e458ec5aea73bcf868bf588
-  PreviousSHA256: e042686b889624b75d71e237e7c0dedeb2639edd654f2aedf5e799a4e2e4b993
+  SHA256Hash: 36ba7b6f277d0af61a2bd4f0d1412aac41780a78d565d2a0c4b7fe6e76e35dca
+  PreviousSHA256: 510478cda3c0ba39e5f094de9f44745f07721ea02e458ec5aea73bcf868bf588
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -746,8 +746,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 58a0ca82d787157bedf4e8703815c9a4b1ff581c56c9869cc82ad47e834976eb
-  PreviousSHA256: 47ed970938d1bd76f1f05c3b6a13a92f82d973339f9c123f51e24162d4edb21b
+  SHA256Hash: 45f8103dde809877a02207244f13cf5b6308590745e5b491d7d5d4e900a5d7ce
+  PreviousSHA256: 58a0ca82d787157bedf4e8703815c9a4b1ff581c56c9869cc82ad47e834976eb
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -786,8 +786,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 1b1511f470ec40ed7908c108d91608b7c4d3a39cde6db38aa1f705634a83d8ce
-  PreviousSHA256: abe70fa743490ed933e3afbdab3396a4bb1713a2b58653a279477586669009b9
+  SHA256Hash: 9e9dafcdcb4c02c66bc494b1702d65e5a56accbcf6a45f67e15a3c853f5de558
+  PreviousSHA256: 6799c4f0145c95a519c644b03e47a458ebcf801ce7e24d5a921d1e097a1d9f3a
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -806,8 +806,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 135c96254c21a8880138dd6f24b25c5f6774c115ac188ba94096ea8cafc9350a
-  PreviousSHA256: 9fdd71bef72c18a7ce5e5f8c1253b989898dd637e1ea4f9ab8820fe0073937ea
+  SHA256Hash: d2d70bc7c85bc19b2274e435eb28c89fc1a8b6751e347534c45d448cbd928c7e
+  PreviousSHA256: 1e1a34806a4d11e6642accdd62a94d2719066ad6bd075c730484c73aa7d66844
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1006,8 +1006,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 99eb535b3ab8f6d6fb62a7b0bc2906ef09ad1afe3d4a6de6207c8c09faf96e44
-  PreviousSHA256: 72645bec70115992a1a8ff0d268e99f3fbd366a1763bbcb7c3aed67c897be6b8
+  SHA256Hash: 3a120ec35625730de8940165a6d12fbdde95fed99482291a2e31efc708f3552e
+  PreviousSHA256: 99eb535b3ab8f6d6fb62a7b0bc2906ef09ad1afe3d4a6de6207c8c09faf96e44
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1026,8 +1026,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 82f924fbb64eb797c7f5ce5ffbd0af420ae2878287ad71396eb5fd2567e552e6
-  PreviousSHA256: 4a0664ee360b1cdbda3dd9d442dda1518405e4ded33fa8a9a90125cd90a523c6
+  SHA256Hash: 90fd53fb700443acb768c64cda9c20ce310698872c29ddb04be767681eac1694
+  PreviousSHA256: 82f924fbb64eb797c7f5ce5ffbd0af420ae2878287ad71396eb5fd2567e552e6
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1426,8 +1426,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 5774ffd2f82c7cfbf83f23607746d0cf278494875a343b6d67e671af96ad61a3
-  PreviousSHA256: c5979f5088ed7883ea2ae9868a581614bfda28a5e47f3277c5ea380f93bfcc4f
+  SHA256Hash: f53b1d3419a2b046f10492227c82643bc57d2512c5ece3cb32c07b8d3a87c271
+  PreviousSHA256: 5774ffd2f82c7cfbf83f23607746d0cf278494875a343b6d67e671af96ad61a3
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1446,8 +1446,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 4a9f8b644d9270e8cb3a9bd2a4e707256cb1106278e349697c7b251a057ec933
-  PreviousSHA256: 0b8e4ea8b97e5acf218f9527c2b676ba897a9347442aaff120db1401a6a6050f
+  SHA256Hash: 7b2cfd1b143f2cfd3a84c2a7b70a47ad907f3c63f6ca3fabfea9701a6382e246
+  PreviousSHA256: 4a9f8b644d9270e8cb3a9bd2a4e707256cb1106278e349697c7b251a057ec933
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1641,10 +1641,10 @@ records:
   FilePath: ecosystem-validation-log.md
   CurrentVersion: v1.0.0
   Status: active
-  LastUpdated: '2026-02-20'
+  LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 7943acdb8cbaeeae9eddaf7b1443846b79df9b519536fa1d44fcdc96c9129323
-  PreviousSHA256: 68926bb47aaee9de4e8e85b2be44a60aaa3173f4956b660c62f74678df152ffc
+  SHA256Hash: 5821e395bcd618981bb1ec21716deb4aad43867ba68025d94aed8347f59b5df3
+  PreviousSHA256: 108634a4096040ac936d9816c1b31f5c44f9053f5278656f7ccda063ae4a99be
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1682,8 +1682,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 1e3bbe5c463dadff68dfa891bf9f301ebeecc128c11c9dac744bfc16b64299d1
-  PreviousSHA256: 67b5b9285677d5f8f424e66847241b49a1f9d73af14821ee3cc03b875ded5f96
+  SHA256Hash: ca72da05deba16afa65a2a534febcb9f712708ed07ebe7e8edefd8d473590525
+  PreviousSHA256: 1e3bbe5c463dadff68dfa891bf9f301ebeecc128c11c9dac744bfc16b64299d1
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1702,8 +1702,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 8752676a2670e01dd30b49e33b1506e2372bb96f7bd9c8d1d0624f4e0933513b
-  PreviousSHA256: 1d2b983d48cfba92e82edd793fef75ea798007765df80eb496666afc4cc7144f
+  SHA256Hash: 6de5ab0b8685fe2c2139c848b99537abf850da008982f2a64c3faee4b81d9acc
+  PreviousSHA256: 8752676a2670e01dd30b49e33b1506e2372bb96f7bd9c8d1d0624f4e0933513b
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -1762,8 +1762,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 3276ae433b7482cf0b981f395401dddd75543c23b280fe9feca1108e941f5607
-  PreviousSHA256: 17ee794a05db20ab7fdaf5d45f306e863f0c868bfbea05f3c7b2b4f70c955328
+  SHA256Hash: 34baa18055298cddcd5d3a218620e357be744d528392329d4e9b2425828f30e1
+  PreviousSHA256: 3276ae433b7482cf0b981f395401dddd75543c23b280fe9feca1108e941f5607
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -2019,8 +2019,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: ef56e11db1e4e30787ac0f2ad934fe2f0cc1ac303a93325dc891eb6b39223629
-  PreviousSHA256: da290efee215c471f36e32e1753265a749ba4a8e58d6a57f6795d0ad30b20958
+  SHA256Hash: 0e30836110a13a3816f579890288d99f1992ac3074a1367e8fb9b4cd14b73840
+  PreviousSHA256: ef56e11db1e4e30787ac0f2ad934fe2f0cc1ac303a93325dc891eb6b39223629
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -2039,8 +2039,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 6aa1390ba86fedf544f39084d7c5d85ce4972e05e3e4df7b00ec019e15c35286
-  PreviousSHA256: 9da7ee1fb64376c1bee794beb89f88a4b532eddd9a6a7108c6c7c3d5c86b9bd7
+  SHA256Hash: 0e2cba2ba7a00cfe80d4af6ba98b5df50acc2778281a05893b89efcd61b21f4a
+  PreviousSHA256: 6aa1390ba86fedf544f39084d7c5d85ce4972e05e3e4df7b00ec019e15c35286
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -2059,8 +2059,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: 5eb2fd4c317014b604312a8e3157105074ac44655cea6973b954ffddbfa59538
-  PreviousSHA256: 3ee465923e1e887ff622755454b682ba2480cb5a329c8a3a30657d12e912cc58
+  SHA256Hash: b46f79cc9062a687a4a44a5c99c0b6eac230d7e27a25db5a6fbd34196d3492e5
+  PreviousSHA256: 5eb2fd4c317014b604312a8e3157105074ac44655cea6973b954ffddbfa59538
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -2137,8 +2137,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: d090ba0fe1aaa9dcbc5f4f9555dfd3df45e9182536228b3703c668c7b9052a95
-  PreviousSHA256: 018fa3c3df1246f4e8e18d2b12976cab94cd3712c5726d80d8a615be8a46d158
+  SHA256Hash: 42e45d8aa75ef2c8930993192de45dc57b0f5aea6841daecd32ab8db308d6e9f
+  PreviousSHA256: d090ba0fe1aaa9dcbc5f4f9555dfd3df45e9182536228b3703c668c7b9052a95
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -2197,8 +2197,8 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: f01104b30db3ece64f09f650ab7d4d7c6273e3beb6e6f82f9b4bfb3bdf695cd4
-  PreviousSHA256: 1817d31639dc8b070a31e2b1a501beff67ec6e49cdd4db1fb6cf91686c756281
+  SHA256Hash: a3816f9e19b83e586a94ef4b1ab92b686908748e17651d8cec2770defaa54d8d
+  PreviousSHA256: f01104b30db3ece64f09f650ab7d4d7c6273e3beb6e6f82f9b4bfb3bdf695cd4
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none
@@ -2217,8 +2217,128 @@ records:
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
-  SHA256Hash: e47a820780efdbad58abd634b57394ca4bd206fdea0b2797bd72f44958d04082
-  PreviousSHA256: 325c10132b1d99dbb24405804292276feb6c1593da1670fd8a6cf0f42233d302
+  SHA256Hash: 44ff6cbfffdb9e5bba6d77c0fe66d6ca98328ac890331113c9eae5b7df09a2d2
+  PreviousSHA256: e3533d7fe598e746dde4161b8dcfeb304027f24c4fdeb2834f56abb98b9caa4b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-064
+  Title: UML_OS Evidence Catalog
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Evidence-Catalog.md
+  CurrentVersion: '`UML_OS.Release.EvidenceCatalog_v1` | 2026-02-21 | Authors: Olejar
+    Damir'
+  Status: active
+  LastUpdated: '2026-02-21'
+  Owner: ML2ML
+  SHA256Hash: 648a2df8a19b0d8ddf885ad6200857436ddb6156ffc4e68b0877ba9b45cda24c
+  PreviousSHA256: 648a2df8a19b0d8ddf885ad6200857436ddb6156ffc4e68b0877ba9b45cda24c
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-065
+  Title: UML_OS External Interface Standard
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/External-Interface-Standard.md
+  CurrentVersion: '`UML_OS.API.ExternalInterfaceStandard_v1` | 2026-02-21 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-21'
+  Owner: ML2ML
+  SHA256Hash: b988d8f196c97bd8384716b3d7180dfbc4bc555d2ad9b4c0f5ba3a5205f8db7e
+  PreviousSHA256: 2fdf71646e1e6a23dfb3184da40d5e213aeef795eee375f85f56b64bc773fe09
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-066
+  Title: UML_OS Security Case Template
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Security-Case-Template.md
+  CurrentVersion: '`UML_OS.Security.SecurityCaseTemplate_v1` | 2026-02-21 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-21'
+  Owner: ML2ML
+  SHA256Hash: b5809df275ae42f28dff5022b7a73b6873f4296583e2371e04c741927fb1bea4
+  PreviousSHA256: b5809df275ae42f28dff5022b7a73b6873f4296583e2371e04c741927fb1bea4
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L3-014
+  Title: UML_OS Failure Injection Scenario Index
+  Type: test-plan
+  Layer: 3
+  FilePath: docs/layer3-tests/Failure-Injection-Index.md
+  CurrentVersion: '`UML_OS.Test.FailureInjectionIndex_v1` | 2026-02-21 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-21'
+  Owner: ML2ML
+  SHA256Hash: dff89c511e040d315d8cc92bf1d242595cc9cb6068513da047f9f824429ba22b
+  PreviousSHA256: dff89c511e040d315d8cc92bf1d242595cc9cb6068513da047f9f824429ba22b
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-067
+  Title: UML_OS Benchmark Evidence Specification
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Benchmark-Evidence-Spec.md
+  CurrentVersion: '`UML_OS.Perf.BenchmarkEvidenceSpec_v1` | 2026-02-21 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-21'
+  Owner: ML2ML
+  SHA256Hash: b24bcc2bb480e522067dbe59abb9b333c6e42888083ea14ea5cb46ba2f217805
+  PreviousSHA256: b24bcc2bb480e522067dbe59abb9b333c6e42888083ea14ea5cb46ba2f217805
+  MinimumEquivalence: E2
+  ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
+  DataProvenanceRef: none
+  DeclaredEdgeTypes:
+  - IMPORTS
+  - REFERENCES
+  - RECOGNIZES
+  PurityClass: PURE
+- DocID: L4-068
+  Title: UML_OS Determinism Audit Playbook
+  Type: derived-impl
+  Layer: 4
+  FilePath: docs/layer4-implementation/Determinism-Audit-Playbook.md
+  CurrentVersion: '`UML_OS.Replay.DeterminismAuditPlaybook_v1` | 2026-02-21 | Authors:
+    Olejar Damir'
+  Status: active
+  LastUpdated: '2026-02-21'
+  Owner: ML2ML
+  SHA256Hash: 059c3f863b09dba74ed9a5bc3bb12aa211a6ef47e661ddf0f5de947289579af0
+  PreviousSHA256: 059c3f863b09dba74ed9a5bc3bb12aa211a6ef47e661ddf0f5de947289579af0
   MinimumEquivalence: E2
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
   DataProvenanceRef: none

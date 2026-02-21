@@ -51,3 +51,6 @@
 2. Preserve deterministic ordering and evidence linkage requirements declared by those contracts.
 3. Emit deterministic documentation compliance record for governance tracking.
 ```
+
+## 6) Security Case Template Reference (Normative)
+- `docs/layer4-implementation/Security-Case-Template.md` defines hash-addressed auditor package structure for this crosswalk.

@@ -142,7 +142,7 @@
 
 ### II.G Registry Hash (Normative)
 - Canonical operator list is `operator_records` in the ordering defined by `0.D`.
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))`.
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))`.
 - `registry_hash` is an exact alias of `operator_registry_root_hash` for backward compatibility.
 - Version/tag consistency check:
   - the numeric suffix in domain tag `operator_registry_vN` used for hash preimage MUST equal top-level `registry_schema_version`.
@@ -150,7 +150,7 @@
 ### II.H SignatureDigest Rule (Normative, Global)
 - Signature digest computation is defined only here and consumed by all interface/mapping/backend docs.
 - Preimage:
-  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig_v1", operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]))`.
+  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig_v1", [operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]]))`.
 - Sorting semantics for preimage arrays:
   - `sorted(side_effects)` and `sorted(allowed_error_codes)` use the same bytewise UTF-8 lexicographic order defined in `0.D`.
 - `request_schema_digest_resolved` and `response_schema_digest_resolved` are resolved bytes32 values after `digest_ref` resolution.
@@ -215,7 +215,7 @@
 **Signature:** `(validated_registry -> operator_registry_root_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", registry_schema_version, operator_records]))` using canonical serialization profile `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
+**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))` using canonical serialization profile `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
 
 External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 

@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "fixtures/hello-core/manifest.core.yaml",
+      "sha256": "66538784dcdf67e7c9867c9d9a5cbcb584280a87d8f4d24e483d196717a21901",
+      "size_bytes": 960
+    },
+    {
+      "path": "fixtures/hello-core/tiny_synth_dataset.jsonl",
+      "sha256": "85197968a9dba786c8bb4a0b76b71d119a00b44e0b11482c9ccd0be8e595e575",
+      "size_bytes": 96
+    },
+    {
+      "path": "fixtures/hello-core/model_ir.json",
+      "sha256": "ece68407b471f53e517a48cf2109c9ff689966d9bef0655473895f1ab96ae3fa",
+      "size_bytes": 496
+    }
+  ],
+  "fixture_set_id": "hello-core-fixtures-v1"
+}

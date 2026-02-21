@@ -29,7 +29,7 @@
 - PRNG family: inherited from calling operator.
 - Randomness locality: no sampling in interface contract checks.
 - Replay guarantee: replayable given `(spec_version, interface_hash)`.
-- Replay token: `api_replay_t = SHA-256(CBOR_CANONICAL(["api_interfaces_v1", spec_version, interface_hash]))`.
+- Replay token: `api_replay_t = SHA-256(CBOR_CANONICAL(["api_interfaces_v1", [spec_version, interface_hash]]))`.
 
 ### 0.C Numeric Policy
 - Numeric fields specify explicit scalar kinds (`uint64`, `float64`, etc.).
@@ -185,8 +185,8 @@ Canonical display note:
 ### II.J Capability/RBAC Binding (Normative)
 - Every callable operator must declare `required_capabilities` in the canonical operator registry.
 - Authorization verdict per call must be deterministic:
-  - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
-  - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+  - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, [principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]]))`.
+  - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, [verdict_enum, granted_capabilities_hash, decision_reason_code]]))`.
 - Denied calls must emit a deterministic failure record and trace event with `authz_decision_hash`.
 
 ### II.K Kernel Syscall Registry (Kernel Subset View)
@@ -382,7 +382,7 @@ Compare full report and interface hash.
 - Conformance requirement:
   - generated clients must pass interface conformance suites with the same canonicalization and signature-digest rules as runtime operators.
 - Conformance catalog identity:
-  - `api_artifact_conformance_catalog_hash = SHA-256(CBOR_CANONICAL([test_vector_set_hash, conformance_runner_version_hash, canonical_profile_id]))`.
+  - `api_artifact_conformance_catalog_hash = SHA-256(CBOR_CANONICAL(["api_artifact_conformance_v1", [test_vector_set_hash, conformance_runner_version_hash, canonical_profile_id]]))`.
 - Deterministic round-trip requirement:
   - generated client -> server stub -> canonical request/response bytes MUST be byte-identical to runtime canonicalization rules under `CanonicalSerialization_v1`.
 - Interoperability bridge reference:

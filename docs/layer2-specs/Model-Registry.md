@@ -100,7 +100,7 @@
   - each transition requires valid `evidence_bundle_ref`,
   - transition writes are append-only and keyed by monotone `transition_seq`,
   - retries use deterministic `idempotency_key` and must not duplicate state changes.
-  - `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, model_id, model_version_id, transition_seq, from_stage, to_stage]))`.
+  - `idempotency_key = SHA-256(CBOR_CANONICAL([tenant_id, [model_id, model_version_id, transition_seq, from_stage, to_stage]]))`.
 
 ### II.H Canonical Registry Record Schemas (Normative)
 - `ModelRecord` (CBOR map):

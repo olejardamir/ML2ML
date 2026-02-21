@@ -194,7 +194,7 @@
   - optional fields: `requirements_hash:string`, `container_image:string`.
 
 ### II.F.1 Policy Bundle Commitment (Normative)
-- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]))`.
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", [security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]]))`.
 - `policy_hash` references in other contracts are aliases of `policy_bundle_hash` and must resolve to the same bytes32 value.
 - Presence rule:
   - if `policy_bundle_hash` is present and individual component hashes are also present, they MUST match the `policy_bundle_v1` decomposition exactly;

@@ -1,0 +1,15 @@
+{
+  "records": [
+    {
+      "event_hash": "9f4af21c3f1f6f0f6b95c6154312ecfda4f0a77e8626ced6f1938ad4b3f6f2a0",
+      "operator_id": "UML_OS.Data.NextBatch_v2",
+      "step": 1
+    },
+    {
+      "event_hash": "b61d2e4de12799d86659895b3ee2ef9b4f14f183de6a2728e6017b1979b7e6c5",
+      "operator_id": "UML_OS.Model.ModelIR_Executor_v1",
+      "step": 1
+    }
+  ],
+  "run_id": "hello-core-run-v1"
+}

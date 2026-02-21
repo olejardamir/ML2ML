@@ -146,7 +146,7 @@
 - `TraceIterRecord` (CBOR map): `{kind:"ITER", t:uint64, stage_id:string, operator_id:string, operator_seq:uint64, rank:uint32, status:string, replay_token:bytes32, rng_offset_before?:uint64, rng_offset_after?:uint64, dp_accountant_state_hash?:bytes32, sampler_config_hash?:bytes32, tmmu_plan_hash?:bytes32, determinism_profile_hash?:bytes32, state_fp?:bytes32, functional_fp?:bytes32, trace_extensions?:map<string,diagnostics_scalar>, privacy_class:privacy_class}`.
 - `TraceRunHeader`: `{kind:"RUN_HEADER", schema_version:string, tenant_id:string, run_id:string, replay_token:bytes32, task_type:string, world_size:uint32, backend_binary_hash:bytes32, driver_runtime_fingerprint_hash:bytes32, policy_bundle_hash:bytes32, monitor_policy_hash:bytes32, operator_contracts_root_hash:bytes32, policy_gate_hash?:bytes32, authz_decision_hash?:bytes32, redaction_mode:redaction_mode, redaction_key_id?:string, redaction_policy_hash?:bytes32, hash_gate_M:uint64, hash_gate_K:uint64}`.
   - `hash_gate_M`/`hash_gate_K` define deterministic hash-gated trace sampling parameters; invariant `0 < M` and `0 <= K <= M`.
-  - `H` is the unsigned big-endian integer interpretation of `SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq, rank]))`.
+  - `H` is the unsigned big-endian integer interpretation of `SHA-256(CBOR_CANONICAL([replay_token, [t, operator_seq, rank]]))`.
 - `TracePolicyGateVerdictRecord`: `{kind:"POLICY_GATE_VERDICT", t:uint64, policy_gate_hash:bytes32, transcript_hash:bytes32}`.
 - `TraceCheckpointCommitRecord`: `{kind:"CHECKPOINT_COMMIT", t:uint64, checkpoint_hash:bytes32, checkpoint_header_hash:bytes32, checkpoint_merkle_root:bytes32, trace_snapshot_hash:bytes32}`.
 - `TraceCertificateInputsRecord`: `{kind:"CERTIFICATE_INPUTS", t:uint64, certificate_inputs_hash:bytes32}`.
@@ -172,11 +172,15 @@
 - Registry format (normative): `struct_registry: map<string, StructDecl>`; `ValidateSchemaDecl_v1` validates declarations against this meta-model.
 - Checkpoint hash preimage rule (normative):
   - `checkpoint_header_hash = SHA-256(CBOR_CANONICAL(CheckpointHeader excluding fields {checkpoint_header_hash, checkpoint_hash}))`
-  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit_v1", checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]))`
+  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit_v1", [checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]]))`
   - Stored `checkpoint_header_hash` and `checkpoint_hash` are derived outputs, never recursive inputs.
 
 ### II.G Canonical Serialization v1 (Normative)
 - All contract-critical hashes/signatures must be computed over canonical CBOR bytes only.
+- Hash identity classes:
+  - `CommitHash(domain_tag, data_object) = SHA-256(CBOR_CANONICAL([domain_tag, data_object]))` (domain-separated commitment/signature identity).
+  - `ObjectDigest(data_object) = SHA-256(CBOR_CANONICAL(data_object))` (plain object digest, no domain separation).
+  - Every hash field in this contract and consuming contracts MUST declare which class it uses; values are not interchangeable across classes.
 - Serialization domains:
   - **Schema serialization:** canonical CBOR of `StructDecl` / registry objects.
   - **Instance serialization:** canonical CBOR of runtime records conforming to a declared `StructDecl`.

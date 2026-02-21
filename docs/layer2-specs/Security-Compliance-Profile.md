@@ -111,8 +111,8 @@
   - `breakglass_policy` must be explicit, time-bounded, and fully audited.
   - operator-level capability enforcement is mandatory via `required_capabilities` from canonical operator registry.
   - authorization decision hash:
-    - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
-    - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+    - `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, [principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]]))`.
+    - `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, [verdict_enum, granted_capabilities_hash, decision_reason_code]]))`.
     - definitions and canonical field semantics are normative as specified in `docs/layer2-specs/AuthZ-Capability-Matrix.md` section II.G.
   - denied authorization decisions must be recorded as deterministic trace events and included in certificate evidence binding.
 - Registry governance roles:

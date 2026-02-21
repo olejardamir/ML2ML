@@ -98,13 +98,13 @@
   - if tail matches `^[0-9a-f]{64}$`, return inline bytes32 digest.
   - else resolve label in `digest_catalog`; abort with `CONTRACT_VIOLATION` if missing.
 - `TraceRecordHashChain_v1(normalized_records)`:
-  - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
+  - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", []]))`
   - for each record in canonical order:
     - `r = SHA-256(CBOR_CANONICAL(record))`
-    - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h, r]))`
+    - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", [h, r]]))`
   - return `h` as `trace_final_hash` in linear-chain mode.
 - `WalChainAndFinalize_v1(records)`:
-  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]))`.
+  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", [tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]]))`.
   - terminal `FINALIZE` record hash is `commit_record_hash`.
   - `wal_terminal_hash = commit_record_hash`.
 - `PublishCommitPointer_v1(pointer_payload)`:

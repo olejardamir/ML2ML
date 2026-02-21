@@ -164,3 +164,6 @@
 - Canonical CBOR.
 ### Restore semantics
 - Resumed scenario must produce identical recovery verdict.
+
+## 13) Failure Injection Index Reference (Normative)
+- `docs/layer3-tests/Failure-Injection-Index.md` is the authoritative mapping index from mandatory scenarios to invariants, recovery procedures, and proof-pack field expectations.

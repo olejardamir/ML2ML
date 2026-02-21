@@ -35,7 +35,7 @@ Stage order is fixed and deterministic.
 
 ---
 ## 4) Deterministic Verdict Contract
-`ci_verdict_hash = SHA-256(CBOR_CANONICAL([pipeline_id, commit_hash, stage_outcomes, lint_verdict, conformance_verdict, replay_verdict]))`
+`ci_verdict_hash = SHA-256(CBOR_CANONICAL([pipeline_id, [commit_hash, stage_outcomes, lint_verdict, conformance_verdict, replay_verdict]]))`
 
 `ci_verdict_hash` is logged in release evidence and validation logs.
 

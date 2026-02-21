@@ -132,7 +132,7 @@ Canonical registry consumption invariant:
 Deterministic mapping commitments (normative):
 - `template_hash = SHA-256(template_bytes)` (or canonical template bundle bytes).
 - `operator_manifest_hash = SHA-256(CBOR_CANONICAL(["operator_manifest_v1", operators_sorted]))`.
-- `mapping_hash = SHA-256(CBOR_CANONICAL(["codegen_mapping_v1", mapping_version, operator_manifest_hash, template_hash, rules_sorted]))`.
+- `mapping_hash = SHA-256(CBOR_CANONICAL(["codegen_mapping_v1", [mapping_version, operator_manifest_hash, template_hash, rules_sorted]]))`.
 - If generated code participates in release commitments, include `codegen_output_hash = SHA-256(CBOR_CANONICAL(generated_file_hashes_sorted))` in evidence binding.
 
 ---

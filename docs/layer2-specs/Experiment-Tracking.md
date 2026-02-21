@@ -114,20 +114,20 @@
 - For regulated/confidential modes, retention rules must preserve all gate-referenced records until retention expiry.
 
 ### II.I Artifact and Index Commitments (Normative)
-- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", artifact_bytes_hash, metadata_hash]))`.
+- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", [artifact_bytes_hash, metadata_hash]]))`.
 - `artifact_index_hash` is computed as:
   - `metadata_hash_i = SHA-256(CBOR_CANONICAL(artifact_metadata_i))`, where `artifact_metadata_i` is the canonical metadata map stored for artifact `i`.
-  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", artifact_id_i, metadata_hash_i, status_i]))`,
+  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", [artifact_id_i, metadata_hash_i, status_i]]))`,
   - sorted by `artifact_id`,
   - Merkle odd-leaf rule duplicates the last leaf.
 - Idempotency rule: repeated `ArtifactPut_v1` with identical `(run_id, artifact_id)` must return the existing record deterministically.
 - `run_record_hash = SHA-256(CBOR_CANONICAL(RunRecord))`.
   - mutability note: `RunRecord` is mutable until `RunEnd_v1` finalizes terminal fields; `run_record_hash` is final only after run end, and pre-final uses are undefined.
 - `tracking_store_hash` definition (normative):
-  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", run_record_hash, metric_stream_hash, artifact_index_hash]))`,
+  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", [run_record_hash, metric_stream_hash, artifact_index_hash]]))`,
   - `metric_stream_hash` is computed as a deterministic hash-chain over `MetricRecord` hashes sorted by `(metric_step, metric_name, record_hash)`:
-    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain_v1"]))`,
-    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain_v1", h_{i-1}, record_hash_i]))`,
+    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain_v1", []]))`,
+    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain_v1", [h_{i-1}, record_hash_i]]))`,
     - final `metric_stream_hash = h_n`.
   - `recorded_at` is informational metadata only and MUST NOT affect deterministic ordering/hash commitments.
 

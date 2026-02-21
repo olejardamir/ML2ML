@@ -86,8 +86,8 @@
   - `dataset_root_hash` is computed over dataset files as:
     - enumerate files under dataset root with normalized POSIX-style relative paths (forward slashes, no `.`/`..`, no repeated separators, no leading slash) sorted lexicographically,
     - `file_hash_i = SHA-256(file_bytes_i)`,
-    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf_v1", relative_path_i, file_hash_i]))`,
-    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node_v1", left, right]))` with odd-leaf duplication,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf_v1", [relative_path_i, file_hash_i]]))`,
+    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node_v1", [left, right]]))` with odd-leaf duplication,
     - root is `dataset_root_hash`.
   - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs_v1", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
   - split-name uniqueness rule: `split_name` values MUST be unique within `split_defs`; duplicates are deterministic validation failure.
@@ -105,11 +105,11 @@
       - any remaining samples after these assignments are assigned to the final split.
     - after computing split counts, validation rule: split fractions must satisfy `abs(sum(split_fraction_i) - 1.0) <= EPS_EQ`; otherwise deterministic validation failure.
   - canonical split entry encoding: `{"split_name":string,"split_fraction":float64,"split_seed?:uint64}` encoded as canonical CBOR map.
-  - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]))`
+  - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, [dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]]))`
 - Run/access-plan identity:
   - `world_size_policy = "rank_contiguous_shard_v1"` (must match `docs/layer2-specs/Data-NextBatch.md`).
   - `epoch_seed_rule = "epoch_seed_rule_v2"` (must match `docs/layer2-specs/Data-NextBatch.md`).
-  - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]))`
+  - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, [manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]]))`
 - `dataset_snapshot_id` and `data_access_plan_hash` are distinct and MUST NOT be conflated.
 - Both `dataset_snapshot_id` and `data_access_plan_hash` MUST be emitted in trace and bound in execution certificate payload.
 - Cross-tenant rule: all lineage objects are namespaced by `(tenant_id, object_id)`; cross-tenant references must hard-fail deterministically.
@@ -126,12 +126,12 @@
 - Transform ordering rule: each transform entry MUST include `seq:uint64`; `transforms_sorted_by_seq` sorts ascending by `seq` (ties are deterministic failure).
 - `object_type` domain (normative): one of `{ "dataset", "transform", "split", "artifact", "policy", "checkpoint" }`.
 - `object_id` domain (normative): content-addressed identifier of the lineage object payload in its namespace.
-- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object_v1", object_type, object_id, payload]))`.
+- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object_v1", [object_type, object_id, payload]]))`.
   - `payload` is the canonical CBOR serialization of the lineage object's committed content.
 - `lineage_root_hash` uses deterministic Merkle construction:
   - leaf list: sorted by `(object_type, object_id)` ascending,
-  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf_v1", object_type_i, object_id_i, lineage_object_hash_i]))`,
-  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node_v1", left, right]))`,
+  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf_v1", [object_type_i, object_id_i, lineage_object_hash_i]]))`,
+  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node_v1", [left, right]]))`,
   - odd-leaf rule: duplicate last leaf.
 
 ---

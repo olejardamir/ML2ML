@@ -50,3 +50,7 @@
 2. Preserve deterministic ordering and evidence linkage requirements declared by those contracts.
 3. Emit deterministic documentation compliance record for governance tracking.
 ```
+
+## 5) External Interface Contract Reference (Normative)
+- `docs/layer4-implementation/External-Interface-Standard.md` is the authoritative generated-interface contract.
+- This bridge document is compatible with and constrained by that contract.

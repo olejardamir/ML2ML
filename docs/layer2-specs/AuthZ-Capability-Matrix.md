@@ -79,7 +79,7 @@
     - each `granted_capabilities` array sorted lexicographically and duplicate-free.
 
 ### II.G Deterministic Verdict Hash (Normative)
-- `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]))`.
+- `authz_query_hash = SHA-256(CBOR_CANONICAL([tenant_id, [principal_id, operator_id, sorted(required_capabilities), authz_policy_hash, capability_matrix_hash]]))`.
 - `granted_capabilities_hash = SHA-256(CBOR_CANONICAL(sorted(granted_capabilities)))`.
 - `granted_capabilities` is the deterministic policy-evaluation output set for `(tenant_id, principal_id)` under `authz_policy_hash`, sorted lexicographically before hashing.
 - `granted_capabilities` MUST NOT contain duplicate capability names (duplicate presence is deterministic failure).
@@ -94,7 +94,7 @@
   - `DENY_OPERATOR_UNREGISTERED`
   - `DENY_TENANT_SCOPE`
   - `DENY_TENANT_SCOPE` semantics: authorization subject is outside allowed tenant namespace/scope for the requested operation.
-- `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, verdict_enum, granted_capabilities_hash, decision_reason_code]))`.
+- `authz_decision_hash = SHA-256(CBOR_CANONICAL([authz_query_hash, [verdict_enum, granted_capabilities_hash, decision_reason_code]]))`.
 - Execution certificates MUST bind `authz_decision_hash` (not only query hash).
 
 ---

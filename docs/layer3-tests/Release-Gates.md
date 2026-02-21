@@ -170,3 +170,17 @@
 - Coverage source of truth:
   - `docs/layer4-implementation/Operator-Conformance-Matrix.md` output bundle.
 - Any unresolved blocker in required operator sets MUST produce deterministic `RELEASE_BLOCKED`.
+
+- External-auditor references:
+  - `docs/layer4-implementation/Evidence-Catalog.md`
+  - `docs/layer4-implementation/Benchmark-Evidence-Spec.md`
+  - `docs/layer4-implementation/Security-Case-Template.md`
+
+## 13) Pinned Gate Fixture Inputs (Normative)
+- Release-gate dry-run pin set:
+  - `contracts/catalog-manifest.json`
+  - `fixtures/hello-core/fixture-manifest.json`
+  - `goldens/hello-core/golden-manifest.json`
+  - `vectors/hello-core/vectors-manifest.json`
+- Deterministic verification command:
+  - `python tools/verify_doc_artifacts.py`

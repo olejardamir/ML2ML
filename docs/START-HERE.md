@@ -50,3 +50,24 @@
 4. Compare emitted values against docs/examples/hello-core/hello-core-golden.json.
 5. Emit deterministic onboarding verdict.
 ```
+
+---
+## 7) Golden Demo Evidence Bundle (Normative)
+- Bundle identity:
+  - `hello_core_demo_bundle_hash = SHA-256(CBOR_CANONICAL(["hello_core_demo_v1", [fixture_ids, expected_identities]]))`.
+- Required fixture bindings:
+  - `manifest_fixture_ref = fixtures/hello-core/manifest.core.yaml`
+  - `fixture_manifest_ref = fixtures/hello-core/fixture-manifest.json`
+  - `golden_identity_ref = goldens/hello-core/golden-identities.json`
+  - `golden_manifest_ref = goldens/hello-core/golden-manifest.json`
+  - `catalog_manifest_ref = contracts/catalog-manifest.json`
+- Required verifier refs:
+  - `docs/layer4-implementation/Evidence-Catalog.md`
+  - `docs/layer4-implementation/Determinism-Audit-Playbook.md`
+  - `tools/verify_doc_artifacts.py`
+
+## 8) Artifact Verification Command (Normative)
+- Verification command:
+  - `python tools/verify_doc_artifacts.py`
+- Result policy:
+  - PASS is required before profile onboarding can be considered complete.

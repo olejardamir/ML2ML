@@ -178,3 +178,11 @@
 2. Preserve deterministic ordering and evidence linkage requirements declared by those contracts.
 3. Emit deterministic documentation compliance record for governance tracking.
 ```
+
+- Additional 10/10 references:
+  - `docs/layer4-implementation/External-Interface-Standard.md`
+  - `docs/layer4-implementation/Evidence-Catalog.md`
+  - `docs/layer4-implementation/Security-Case-Template.md`
+  - `docs/layer3-tests/Failure-Injection-Index.md`
+  - `docs/layer4-implementation/Benchmark-Evidence-Spec.md`
+  - `docs/layer4-implementation/Determinism-Audit-Playbook.md`

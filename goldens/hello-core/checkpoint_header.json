@@ -1,0 +1,6 @@
+{
+  "checkpoint_id": "hello-core-ckpt-v1",
+  "global_step": 1,
+  "manifest_hash": "66538784dcdf67e7c9867c9d9a5cbcb584280a87d8f4d24e483d196717a21901",
+  "operator_registry_root_hash": "310384f52acaa2a91cdc34dc4965ee53d8298ce9e62221fab11908002b4e1ac7"
+}

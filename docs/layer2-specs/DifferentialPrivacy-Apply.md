@@ -30,7 +30,7 @@
 - PRNG family: `Philox4x32-10`
 - Randomness locality: all sampling occurs only inside `UML_OS.DifferentialPrivacy.GenerateNoise_v1`
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]))`
+- Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", [kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]]))`
 - `noise_seed_per_step: bool` (default `false`); when true, counter derivation is `counter = (uint128(t) << 40) + uint128(param_index_hash)` (128-bit arithmetic, no 64-bit wrap)
   - `param_index_hash` is the lower 40 bits of `U64_BE(SHA-256(CBOR_CANONICAL(["dp_param_v1", param_fqn])))`.
 

@@ -86,7 +86,7 @@
 - Tooling bundle identity:
   - `tooling_bundle_hash = SHA-256(CBOR_CANONICAL(["tooling_suite_v1", tool_outputs_map]))`
 - Per-tool output identity:
-  - `tool_output_hash = SHA-256(CBOR_CANONICAL(["tool_output_v1", tool_id, output_object]))`
+  - `tool_output_hash = SHA-256(CBOR_CANONICAL(["tool_output_v1", [tool_id, output_object]]))`
 
 ---
 ## 4) Procedure

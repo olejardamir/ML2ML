@@ -52,6 +52,7 @@
 | `EQC.REG.VERSION.MATCH` | BLOCKER | Registry version declaration must match file-declared version token policy. | `CONTRACT_VIOLATION` |
 | `EQC.EDGE.DECLARED` | BLOCKER | Graph edge types must be declared in source doc `DeclaredEdgeTypes`. | `CONTRACT_VIOLATION` |
 | `EQC.LAYER.IMPORTS` | BLOCKER | `IMPORTS/EXTENDS` must not target higher layer. | `CONTRACT_VIOLATION` |
+| `EQC.HASH.COMMIT.SHAPE` | BLOCKER | Any hash declared as signature/commitment and written as `SHA-256(CBOR_CANONICAL([...]))` MUST have an outer 2-element array `[domain_tag, data_object]` (no flattening). | `CONTRACT_VIOLATION` |
 | `EQC.GRAPH.REACHABLE` | MAJOR | All docs must be reachable from `CORE-MASTER-001` via metadata/governance edges. | `CONTRACT_VIOLATION` |
 | `EQC.DOCID.UNIQUE` | BLOCKER | Registry `DocID` values must be unique. | `CONTRACT_VIOLATION` |
 | `EQC.FILEPATH.UNIQUE` | BLOCKER | Registry `FilePath` values must be unique. | `CONTRACT_VIOLATION` |

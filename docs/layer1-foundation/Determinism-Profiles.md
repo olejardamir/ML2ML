@@ -241,7 +241,14 @@ Trace metadata MUST include `collective_algorithm_id`, `collective_chunking_poli
 - check-id convention:
   - `check_id` uniquely identifies a comparison point in deterministic traversal (for example `step_0/loss`, `step_3/layer1.weight`).
   - generation MUST be deterministic from traversal position/path (for example derived from path plus traversal index), and reproducible for identical inputs and traversal order.
-  - path delimiter safety: this contract assumes trace keys do not contain `.`; if they may, escaping rules MUST be defined by `UML_OS.Trace.Format_v1`.
+- path escaping rule (normative, applies to report `path`, `iter.path`, and `tolerance_map` keys):
+  - segment join delimiter is `.`.
+  - escape character is `\\`.
+  - while encoding a segment: literal `\\` MUST be encoded as `\\\\`; literal `.` MUST be encoded as `\\.`.
+  - while decoding: only `\\.` and `\\\\` are valid escape sequences; any other escaped byte or trailing `\\` is deterministic `CONTRACT_VIOLATION`.
+  - round-trip invariant MUST hold: `decode_path(encode_path(segments)) == segments`.
+  - tolerance-map path matching uses exact bytewise equality on encoded path strings.
+  - `UML_OS.Trace.Format_v1` implementations MUST implement this exact path encoding/decoding rule.
 
 ---
 ## 6) Procedure

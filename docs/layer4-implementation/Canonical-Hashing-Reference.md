@@ -82,7 +82,7 @@
 **Signature:** `(digest_id, normalized_preimage -> digest_bytes32)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** Computes `SHA-256(CBOR_CANONICAL([domain_tag, ...]))` where `domain_tag` is loaded from the formula registry for `digest_id`.
+**Definition:** Computes `SHA-256(CBOR_CANONICAL([domain_tag, normalized_preimage]))` where `domain_tag` is loaded from the formula registry for `digest_id`.
 
 ---
 ## 6) Procedure

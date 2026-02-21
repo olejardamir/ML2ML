@@ -181,7 +181,7 @@ Canonical field value:
 - Canonical CBOR reference: RFC 8949 deterministic encoding + project Canonical-CBOR profile.
 
 HMAC preimage:
-- `CBOR_CANONICAL(["redaction_v1", schema_version, field_path, field_value_canonical])`.
+- `CBOR_CANONICAL(["redaction_v1", [schema_version, field_path, field_value_canonical]])`.
 - HMAC output MUST be encoded in output record as CBOR byte string length 32.
 
 Bucketization (`BUCKET_V1`):
@@ -215,7 +215,7 @@ These fields are mandatory at top-level paths and must remain unredacted:
 - `["execution_certificate_hash"]`
 
 ### II.I Policy Hash Definition
-- `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy_v1", policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules]))`.
+- `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy_v1", [policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules]]))`.
 
 ---
 ## 3) Initialization

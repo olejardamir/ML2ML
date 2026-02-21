@@ -111,8 +111,8 @@
 - `lineage_root_hash:bytes32` (snapshot-at-checkpoint value; MUST match certificate lineage commitment for the finalized run branch that includes this checkpoint)
   - lineage consistency rule: `lineage_root_hash` MUST equal the deterministic lineage root recomputed from checkpoint-scoped lineage objects/artifacts referenced by this checkpoint snapshot.
   - `dp_enabled:bool`
-  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `SHA-256(CBOR_CANONICAL([]))` per hash identities below)
-  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `SHA-256(CBOR_CANONICAL([]))` per hash identities below)
+  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `CommitHash("tensors_root_v1", [])` per hash identities below)
+  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `CommitHash("optimizer_root_v1", [])` per hash identities below)
   - `rng_state_hash:bytes32`
   - `data_cursors_hash:bytes32`
   - `dp_accountant_state_hash?:bytes32`
@@ -124,8 +124,12 @@
   - `checkpoint_hash:bytes32`
   - `checkpoint_hash_prev?:bytes32`
 - Hash identities (normative):
+  - Hash typing:
+    - `CommitHash(tag, data) = SHA-256(CBOR_CANONICAL([tag, data]))`
+    - `ObjectDigest(obj) = SHA-256(CBOR_CANONICAL(obj))`
+    - identities declared as `ObjectDigest` MUST NOT be reinterpreted as commitment hashes in certificates/release gates.
   - `checkpoint_header_cbor` is the canonical CBOR map of checkpoint header fields excluding `checkpoint_header_hash` itself.
-  - `checkpoint_header_hash = SHA-256(checkpoint_header_cbor)`
+  - `checkpoint_header_hash = ObjectDigest(checkpoint_header_cbor)`
   - `checkpoint_manifest_cbor` is a canonical CBOR map with keys:
     - `manifest_version:string`
     - `checkpoint_merkle_root:bytes32`
@@ -136,29 +140,29 @@
     - `dp_accountant_manifest_hash?:bytes32`
     - `dataset_snapshot_id?:string`
     - `artifact_index_hash?:bytes32`
-  - `checkpoint_manifest_hash = SHA-256(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
-  - `weights_manifest_hash = SHA-256(CBOR_CANONICAL(weights_manifest_cbor))`
-  - `optimizer_manifest_hash = SHA-256(CBOR_CANONICAL(optimizer_manifest_cbor))`
-  - `dp_accountant_manifest_hash = SHA-256(CBOR_CANONICAL(dp_accountant_manifest_cbor))`
-  - `rng_state_hash = SHA-256(CBOR_CANONICAL(rng_state_cbor))`
+  - `checkpoint_manifest_hash = ObjectDigest(checkpoint_manifest_cbor)` where manifest commits all shard digests and `checkpoint_merkle_root`
+  - `weights_manifest_hash = ObjectDigest(weights_manifest_cbor)`
+  - `optimizer_manifest_hash = ObjectDigest(optimizer_manifest_cbor)`
+  - `dp_accountant_manifest_hash = ObjectDigest(dp_accountant_manifest_cbor)`
+  - `rng_state_hash = ObjectDigest(rng_state_cbor)`
   - `rng_state_cbor` canonical schema (normative):
     - `["rng_state_v1", key_u32_0, key_u32_1, ctr_u32_0, ctr_u32_1, ctr_u32_2, ctr_u32_3]`
     - where key is Philox key `[u32;2]` and counter is `[u32;4]` in little-endian logical word order.
-  - `data_cursors_hash = SHA-256(CBOR_CANONICAL(data_cursors_cbor))`
+  - `data_cursors_hash = ObjectDigest(data_cursors_cbor)`
   - `tensors_root_hash` and `optimizer_state_root_hash` derivation (normative):
     - shard-leaf encoding shared with checkpoint Merkle leaves:
-      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))`,
+      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))`,
     - `tensors_root_hash = SHA-256(CBOR_CANONICAL(["tensors_root_v1", tensor_leaves_sorted]))` where `tensor_leaves_sorted` contains leaves for shards with normalized path prefix `tensors/`, sorted by `shard_path`,
     - `optimizer_state_root_hash = SHA-256(CBOR_CANONICAL(["optimizer_root_v1", optimizer_leaves_sorted]))` where `optimizer_leaves_sorted` contains leaves for shards with normalized path prefix `optimizer/`, sorted by `shard_path`,
-    - empty-set rule: if the filtered shard set is empty, root is `SHA-256(CBOR_CANONICAL([]))`.
+    - empty-set rule: if the filtered shard set is empty, root is `CommitHash("tensors_root_v1", [])` for tensors and `CommitHash("optimizer_root_v1", [])` for optimizer state.
   - `checkpoint_hash = checkpoint_manifest_hash`
-  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash]))`
+  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
 - `checkpoint_merkle_root` construction over shard payloads:
-    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", shard_path_i, shard_sha256_i, shard_size_i]))` with shards ordered by `shard_path`,
-    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", left, right]))`,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))` with shards ordered by `shard_path`,
+    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", [left, right]]))`,
     - odd-leaf rule duplicates the last leaf.
-    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL([]))`.
+    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root_v1", []]))`.
     - for streaming writes, root is computed only after all shard hashes are finalized; placeholder roots are invalid.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.

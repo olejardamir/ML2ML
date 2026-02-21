@@ -78,7 +78,7 @@
 ### II.H Catalog Commitment (Normative)
 - `entries_sorted` are sorted by `digest_label` ascending (bytewise UTF-8, case-sensitive).
 - `catalog_version` is encoded as CBOR unsigned integer (`uint32` domain constraint).
-- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", catalog_version, entries_sorted]))`.
+- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", [catalog_version, entries_sorted]]))`.
 - Any document using `sha256:<label>` references is valid only against the committed `catalog_hash`.
 
 ### II.G Resolution Rule (Normative)
@@ -97,7 +97,7 @@
 2. Validate schema and uniqueness.
 3. Build lookup index.
 4. Compute and store `catalog_hash` using §II.H exactly:
-   - `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", catalog_version, entries_sorted]))`,
+   - `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", [catalog_version, entries_sorted]]))`,
    - where `entries_sorted` is the catalog `entries` array sorted by `digest_label` ascending (bytewise UTF-8, case-sensitive).
 
 ---

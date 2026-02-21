@@ -112,6 +112,14 @@
 - Domain-separation tag MUST be the first element of `commit_array`.
 - If the committed data object is itself an array, it remains nested as element 1 (no flattening).
 - Domain-separation tag is a CBOR data item defined by the higher-level protocol using this profile (commonly integer or byte string), and it MUST itself follow all canonical rules in this document.
+- Canonical helper:
+  - `CommitHash(domain_tag, data_object) := SHA-256(CBOR_CANONICAL([domain_tag, data_object]))`.
+- Prohibition:
+  - Any signature/commitment definition that hashes `CBOR_CANONICAL(...)` with an outer array length not equal to 2 is a deterministic `CONTRACT_VIOLATION`.
+- Object digest distinction:
+  - A plain object digest is `ObjectDigest(data_object) := SHA-256(CBOR_CANONICAL(data_object))` and is not domain-separated.
+  - Contracts MUST explicitly label each hash identity as either `CommitHash` (domain-separated) or `ObjectDigest` (plain digest).
+  - Fields bound into certificates, replay identities, and release gates MUST use the hash type declared by their defining contract and MUST NOT be reinterpreted across types.
 
 ### II.H Conformance Vectors (Normative)
 - Implementations MUST pass canonicalization vectors for key ordering, integer shortest-form encoding, float consistency, simple-value encoding, and optional-field semantics.

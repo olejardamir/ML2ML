@@ -133,7 +133,7 @@
 - Gate verdict record must include `metric_snapshot_hash`; comparisons and audits must use this hash as the authoritative metric evidence identity.
 
 ### II.I Baseline Commitment (Normative)
-- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline_v1", workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]))`.
+- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline_v1", [workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]]))`.
 - Performance comparisons are valid only when baseline and candidate share compatible workload and environment commitment sets.
 
 ---
@@ -284,6 +284,9 @@ Compare aggregate metrics and verdicts exactly/tolerance as declared.
   - `baseline_hash`,
   - regression gate verdict and diagnostics hash.
 - Baseline identity:
-  - `tier_baseline_hash = SHA-256(CBOR_CANONICAL([tier_id, env_manifest_hash, workload_ids_sorted, baseline_metrics]))`.
+  - `tier_baseline_hash = SHA-256(CBOR_CANONICAL([tier_id, [env_manifest_hash, workload_ids_sorted, baseline_metrics]]))`.
 - External comparability requirement:
   - performance claims are externally valid only when tier id + environment fingerprint + workload set match.
+
+## 13) Benchmark Evidence Specification Reference (Normative)
+- `docs/layer4-implementation/Benchmark-Evidence-Spec.md` defines required benchmark evidence fields and release-gate identity bindings.

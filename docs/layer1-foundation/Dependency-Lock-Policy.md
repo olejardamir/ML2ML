@@ -24,7 +24,7 @@
 ### 0.B Reproducibility Contract
 - Replayable given `(lockfile_blob, policy_blob, artifact_index_blob, sbom_hash, toolchain_hash, runtime_env_hash)`.
 - `toolchain_hash` and `runtime_env_hash` are replay inputs.
-- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
+- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
 - Artifact verification replay requires content-addressed immutable artifact retrieval from `artifact_index_blob` locations; this store assumption is part of runtime environment reproducibility (anchored by `runtime_env_hash`).
 
 ### 0.C Numeric Policy
@@ -234,10 +234,10 @@ A run is feasible iff all of the following hold:
 - `lockfile_hash = SHA-256(CBOR_CANONICAL(sorted_lock_tuples))`.
 
 `DependenciesLockDigest_v1`:
-- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]))`.
+- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
 
 `policy_bundle_hash`:
-- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", policy_version, policy_blob]))`.
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", [policy_version, policy_blob]]))`.
 
 `artifact_index_hash`:
 - `artifact_index_hash = SHA-256(CBOR_CANONICAL(artifact_index_blob))`.

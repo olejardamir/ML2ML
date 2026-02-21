@@ -91,8 +91,8 @@
 - Hash algorithms:
   - `record_hash_i = SHA-256(CBOR_CANONICAL(normalized_record_i))`
   - Whole-run hash chain:
-    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1"]))`
-    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", h_{i-1}, record_hash_i]))` for records in canonical order
+    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1", []]))`
+    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", [h_{i-1}, record_hash_i]]))` for records in canonical order
     - `trace_final_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
@@ -140,7 +140,7 @@
   - `max_record_bytes:uint32`
   - `sample_policy: enum("HASH_GATED","FIXED_RATE","OFF")`
   - defaults for `HASH_GATED`: `hash_gate_M=100`, `hash_gate_K=1`.
-  - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, t, operator_seq]))) mod hash_gate_M < hash_gate_K`.
+  - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, [t, operator_seq]]))) mod hash_gate_M < hash_gate_K`.
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
   - Validation requirement: `UML_OS.Trace.ValidateSchema_v1` MUST enforce `hash_gate_M > 0` and `hash_gate_K <= hash_gate_M`; violation is deterministic schema failure.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with fixed priority ordering:
