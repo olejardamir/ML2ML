@@ -99,3 +99,11 @@ operator_registry:
 - `docs/layer4-implementation/Code-Generation-Mapping.md`
 - `docs/layer4-implementation/Backend-Adapter-Guide.md`
 - `docs/layer4-implementation/Repo-Layout-and-Interfaces.md`
+
+---
+## 6) Procedure
+```text
+1. Read and apply this document together with its referenced normative contracts.
+2. Preserve deterministic ordering and evidence linkage requirements declared by those contracts.
+3. Emit deterministic documentation compliance record for governance tracking.
+```

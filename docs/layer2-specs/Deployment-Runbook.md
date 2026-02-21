@@ -253,3 +253,17 @@ Exact compare of stage transitions and final status.
 - deterministic canonical CBOR.
 ### Restore semantics
 - resumed rollout yields identical stage sequence and decisions.
+
+---
+## 11) Packaging and Usage-Metering Addendum (Normative)
+- Turnkey deployment artifacts MUST be published per release:
+  - versioned Helm chart,
+  - versioned Terraform module,
+  - hardened default runtime configuration set.
+- Upgrade/rollback playbooks MUST be version-locked and evidence-bound.
+- Canonical usage record schema (for chargeback/internal accounting):
+  - `{tenant_id, run_id, window_start_utc, window_end_utc, cpu_time_ms, gpu_time_ms, io_bytes, storage_bytes_peak, quota_policy_hash, usage_record_hash}`.
+- Usage aggregation policy:
+  - fixed deterministic windows, no overlapping attribution, stable ordering by `(tenant_id, run_id, window_start_utc)`.
+- Enforcement loop rule:
+  - quota checks and usage records must be emitted from the same deterministic resource ledger snapshot.

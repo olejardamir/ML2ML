@@ -64,6 +64,23 @@
 ### I.E Invariants and Assertions
 - First divergence and final verdict must be deterministic.
 
+### II.F Mandatory Chaos Scenarios and Recovery Proof Packs (Normative)
+- Mandatory baseline chaos scenarios:
+  - `network_partition_primary_quorum`
+  - `artifact_store_partial_unavailable`
+  - `wal_corruption_truncated_tail`
+  - `wal_corruption_checksum_mismatch`
+- Regulated-mode requirement:
+  - each mandatory scenario MUST emit a `recovery_proof_pack`.
+- Recovery proof pack minimum contents:
+  - `scenario_id`,
+  - injected fault descriptor hash,
+  - recovery transcript hash,
+  - invariant check results,
+  - final recovery verdict.
+- Identity rule:
+  - `recovery_proof_pack_hash = SHA-256(CBOR_CANONICAL(recovery_proof_pack))`.
+
 ---
 ## 3) Initialization
 1. Load scenario definitions.

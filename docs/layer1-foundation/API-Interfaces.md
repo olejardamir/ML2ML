@@ -372,3 +372,18 @@ Compare full report and interface hash.
 
 ### Restore semantics
 - restored registry yields identical validation outputs.
+
+---
+## 11) External API Artifact Generation Addendum (Normative)
+- API interface registry MUST be translatable to:
+  - OpenAPI artifact bundle,
+  - Protobuf artifact bundle.
+- Generation identity:
+  - `openapi_bundle_hash = SHA-256(CBOR_CANONICAL(openapi_bundle))`
+  - `protobuf_bundle_hash = SHA-256(CBOR_CANONICAL(protobuf_bundle))`
+- Generated SDK requirement:
+  - at minimum Python/Go/TypeScript SDK generation must consume these artifacts without altering canonical request/response semantics.
+- Conformance requirement:
+  - generated clients must pass interface conformance suites with the same canonicalization and signature-digest rules as runtime operators.
+- Interoperability bridge reference:
+  - `docs/layer4-implementation/Interoperability-Standards-Bridge.md`.

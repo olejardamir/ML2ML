@@ -269,3 +269,19 @@ Compare aggregate metrics and verdicts exactly/tolerance as declared.
 
 ### Restore semantics
 - resumed run yields identical aggregate metrics and verdict.
+
+---
+## 11) Performance-as-Contract Baseline Tiers (Normative)
+- Official benchmark tiers:
+  - `cpu_tier`
+  - `single_gpu_tier`
+  - `multi_gpu_tier`
+- For each tier, release evidence MUST include:
+  - `env_manifest_hash`,
+  - ordered `workload_ids`,
+  - `baseline_hash`,
+  - regression gate verdict and diagnostics hash.
+- Baseline identity:
+  - `tier_baseline_hash = SHA-256(CBOR_CANONICAL([tier_id, env_manifest_hash, workload_ids_sorted, baseline_metrics]))`.
+- External comparability requirement:
+  - performance claims are externally valid only when tier id + environment fingerprint + workload set match.

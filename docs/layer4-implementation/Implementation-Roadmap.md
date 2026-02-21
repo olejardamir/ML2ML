@@ -93,6 +93,15 @@
 | `P3_codegen_runtime` | `P2_registries` | adapters, mapping, interface stubs | backend conformance suite pass |
 | `P4_validation` | `P3_codegen_runtime` | golden traces + replay harness | E0/E1 equivalence suite pass |
 | `P5_release` | `P4_validation` | deployment runbook + signed artifacts | deployment canary gates pass |
+| `P6_profile_packaging` | `P5_release` | Core/Managed/Regulated profile bundles | profile promotion checks pass |
+| `P7_observability_bridge` | `P5_release` | OpenTelemetry/Prometheus deterministic mapping bundle | mapping conformance + exporter determinism pass |
+| `P8_adapter_certification_program` | `P5_release` | external backend/store certification evidence bundles | vendor-verifiable certification bundle checks pass |
+| `P9_reference_stack` | `P5_release` | runnable end-to-end local reference stack (WAL->trace->checkpoint->certificate->replay) | golden demo reproducibility pass |
+| `P10_external_interfaces` | `P3_codegen_runtime` | generated OpenAPI/Protobuf + Python/Go/TypeScript SDKs | generated SDK conformance tests pass |
+| `P11_security_case` | `P5_release` | control-mapped auditor-ready threat/security case | managed/confidential/regulated proof checks pass |
+| `P12_evolution_contract` | `P2_registries` | deprecation windows + mandatory migration economics policy | compatibility and migration gate pass |
+| `P13_performance_tiers` | `P4_validation` | official CPU/single-GPU/multi-GPU benchmark baselines | baseline hash + regression verdict pass |
+| `P14_chaos_proof_packs` | `P5_release` | mandatory chaos/recovery proof packs | regulated recovery evidence gates pass |
 
 Deterministic gate evaluation:
 - Gates evaluate a fixed ordered checklist with boolean outcomes.
@@ -112,6 +121,20 @@ Deterministic gate evaluation:
   - `UML_OS.Trace.TraceMigrate_v1`
 - Operational merge workflow reference:
   - `docs/layer4-implementation/Change-Control-Playbook.md`
+- Productization reference:
+  - `docs/layer4-implementation/Industry-Productization-Upgrade-Plan.md`
+  - `docs/layer4-implementation/Reference-Stack-Minimal.md`
+  - `docs/layer4-implementation/Third-Party-Operator-Certification-Program.md`
+  - `docs/layer4-implementation/API-Lifecycle-and-Deprecation-Policy.md`
+  - `docs/layer4-implementation/Brownfield-Deployment-Guide.md`
+  - `docs/layer4-implementation/Tooling-and-Automation-Suite.md`
+  - `docs/layer4-implementation/Formal-Verification-Roadmap.md`
+  - `docs/layer4-implementation/Interoperability-Standards-Bridge.md`
+  - `docs/layer4-implementation/Community-Governance-Model.md`
+  - `docs/layer4-implementation/Disaster-Recovery-Operations-Runbook.md`
+  - `docs/layer4-implementation/Research-Extensions-Roadmap.md`
+  - `docs/layer4-implementation/Ecosystem-Expansion-Roadmap.md`
+  - `docs/layer4-implementation/Expansion-Catalog-041-250.md`
 
 ---
 ## 3) Initialization

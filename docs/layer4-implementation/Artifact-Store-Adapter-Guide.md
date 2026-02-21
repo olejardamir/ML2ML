@@ -108,6 +108,19 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 - backend matrix tests (local fs, s3-compatible, gcs-compatible).
 - crash-recovery tests for partial upload states.
 
+### VIII.D External Certification Program (Normative)
+- Certification label format:
+  - `UML_OS Certified Artifact Store v<adapter_contract_version>`.
+- Required vendor-publishable evidence bundle:
+  - backend matrix suite reports,
+  - crash-recovery report hash,
+  - commit-pointer integrity report hash,
+  - `storage_report`, `commit_status`, `recovery_report`,
+  - signed certification statement hash.
+- Certification evidence must be independently verifiable through:
+  - `docs/layer3-tests/Conformance-Harness-Guide.md`
+  - `docs/layer4-implementation/Release-Evidence-Assembler.md`.
+
 ---
 ## 9) Refactor & Equivalence
 - E0 for commit-pointer payload and committed artifact linkage.

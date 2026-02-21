@@ -36,7 +36,7 @@
 ### 0.H Namespacing and Packaging
 - under `UML_OS.Test.*` and `UML_OS.Implementation.*`.
 ### 0.I Outputs and Metric Schema
-- outputs: `(suite_reports, harness_verdict, harness_metrics)`.
+- outputs: `(suite_reports, harness_verdict, harness_metrics, certification_evidence_bundle_hash)`.
 ### 0.J Spec Lifecycle Governance
 - mandatory suite set changes are MAJOR.
 ### 0.K Failure and Error Semantics
@@ -64,6 +64,31 @@
 - per-suite pass/fail and diagnostics.
 ### I.E Invariants and Assertions
 - every required suite produces deterministic verdict.
+- certification evidence bundle is reproducible and hash-stable for identical suite inputs.
+
+### II.F Certification Evidence Bundle (Normative)
+- Harness MUST produce a canonical certification evidence bundle for adapter/store/vendor publication.
+- Bundle minimum contents:
+  - suite selection and profile hash,
+  - per-suite report hashes,
+  - failing vector ids (if any),
+  - final `harness_verdict`,
+  - fixture catalog hash,
+  - harness runtime/environment hash.
+- Identity rule:
+  - `certification_evidence_bundle_hash = SHA-256(CBOR_CANONICAL(certification_evidence_bundle))`.
+
+### II.G Portable Vendor Package Format (Normative)
+- Harness MUST support packaging certification outputs as portable artifact:
+  - `conformance_package.cbor`,
+  - `fixtures_manifest.json`,
+  - `verdicts.json`,
+  - `hash_manifest.json`.
+- Package identity:
+  - `conformance_package_hash = SHA-256(CBOR_CANONICAL(conformance_package))`.
+- Third parties MUST be able to verify package integrity with published contract hashes and trust roots only.
+- Certification workflow reference:
+  - `docs/layer4-implementation/Third-Party-Operator-Certification-Program.md`.
 
 ---
 ## 3) Initialization
@@ -137,6 +162,7 @@
 6. run evidence-integrity suite
 7. aggregate deterministic verdict
 8. abort on required-suite failure
+9. emit certification_evidence_bundle_hash
 ```
 
 ---

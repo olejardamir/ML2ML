@@ -1097,3 +1097,13 @@ Breaking observables require trace schema update + MAJOR version bump.
 - `training_certificate.cbor`
 - `model.onnx`
 - `model_card.json`
+
+---
+## 11) Sealed Execution and Extension Governance (Normative)
+- Sealed execution mode:
+  - user-provided training/eval loops are forbidden,
+  - execution proceeds only via manifest-driven registered operators.
+- Extension points:
+  - custom behavior allowed only via declared `RegisterCustom_v1` style registry pathways with digest-pinned contracts.
+- Governance rule:
+  - any extension must preserve deterministic trace/certificate semantics and pass conformance gating for the active profile.

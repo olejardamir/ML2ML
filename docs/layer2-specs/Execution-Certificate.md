@@ -255,3 +255,16 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 - deterministic CBOR.
 ### Restore semantics
 - restored verifier produces identical verdict on identical evidence bundle.
+
+---
+## 11) Trust Report and Human-Auditable Outputs (Normative)
+- `Verify_v1` MUST produce a stable trust report projection in addition to binary verdict:
+  - trust roots used,
+  - revocation mode/status,
+  - attestation verification status,
+  - policy gate linkage status,
+  - authorization linkage status.
+- Trust report identity:
+  - `trust_report_hash = SHA-256(CBOR_CANONICAL(trust_report))`.
+- Regulated profile certificate evidence MUST include:
+  - `chaos_recovery_proof_pack_hash` when recovery scenarios are required by policy.

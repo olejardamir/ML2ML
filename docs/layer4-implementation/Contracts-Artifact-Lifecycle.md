@@ -62,3 +62,21 @@ Every artifact manifest entry must include:
 - `docs/layer2-specs/Execution-Certificate.md`
 - `docs/layer2-specs/Run-Commit-WAL.md`
 - `docs/layer1-foundation/Digest-Catalog.md`
+
+---
+## 1) Header & Global Semantics
+### 0.0 Identity
+- **Algorithm:** `UML_OS.Structural.Addendum_v1`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Contracts Artifact Lifecycle" without altering existing semantics.
+- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Domain / Problem Class:** Documentation governance and structural conformance.
+### 0.Z EQC Mandatory Declarations Addendum
+- This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.
+
+---
+## 6) Procedure
+```text
+1. Read and apply this document together with its referenced normative contracts.
+2. Preserve deterministic ordering and evidence linkage requirements declared by those contracts.
+3. Emit deterministic documentation compliance record for governance tracking.
+```

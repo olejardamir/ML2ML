@@ -214,3 +214,16 @@ External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/E
 - deterministic CBOR.
 ### Restore semantics
 - restored registry yields identical gate decisions for same inputs.
+
+---
+## 11) Export Interface Stability and Marketplace Policy (Normative)
+- Exported model artifacts (`model.onnx`, `model_card.json`) are treated as versioned compatibility surfaces.
+- Model card schema MUST declare explicit version and compatibility window.
+- Third-party publishability policy:
+  - operator/module listings in marketplace contexts require:
+    - conformance evidence bundle,
+    - security/compliance profile declaration,
+    - registry-root/hash provenance,
+    - deprecation/support window declaration.
+- Governance reference:
+  - `docs/layer4-implementation/Community-Governance-Model.md`.

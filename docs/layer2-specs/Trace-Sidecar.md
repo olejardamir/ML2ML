@@ -248,3 +248,19 @@ Exact normalized record and hash comparison.
 - deterministic canonical CBOR.
 ### Restore semantics
 - resumed validation yields identical outputs.
+
+---
+## 11) Observability Bridge Mapping (Normative)
+- UML_OS trace/metrics MUST support deterministic export mapping to OpenTelemetry and Prometheus conventions.
+- Minimum mapping requirements:
+  - `run_header.run_id` -> OTel trace resource attribute `uml_os.run_id`.
+  - `iter.operator` -> OTel span attribute `uml_os.operator_id`.
+  - `iter.t` -> OTel span attribute `uml_os.step`.
+  - `trace_final_hash` -> OTel trace attribute `uml_os.trace_final_hash`.
+  - deterministic metric names map to Prometheus-safe snake_case names with fixed units.
+- Export mapping identity:
+  - `observability_mapping_hash = SHA-256(CBOR_CANONICAL(mapping_table_v1))`.
+- Determinism requirement:
+  - identical UML_OS trace input MUST produce identical OTel/Prometheus export payloads and identical `observability_mapping_hash`.
+- Reference implementation location:
+  - `docs/layer4-implementation/Interoperability-Standards-Bridge.md`.

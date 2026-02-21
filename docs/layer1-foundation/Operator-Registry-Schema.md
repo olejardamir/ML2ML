@@ -281,3 +281,12 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ### Restore semantics
 - Validation is a pure function; checkpoints store final results only.
 - Intermediate resume is not supported; interrupted validation MUST be rerun from the beginning.
+
+---
+## 11) Strict-Ingest-by-Default Policy (Normative)
+- All ingest paths (SDKs, services, CI tooling, registry publishers) MUST run strict validation mode by default:
+  - reject unknown fields,
+  - reject non-canonical ordering,
+  - reject duplicate entries in sorted arrays,
+  - reject digest/signature mismatches.
+- Compatibility shims MAY exist only behind explicit opt-in flags and MUST emit warnings with migration deadlines.

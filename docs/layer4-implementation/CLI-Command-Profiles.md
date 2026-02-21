@@ -111,3 +111,17 @@
 ## 10) Checkpoint/Restore
 - execution checkpoint stores completed step index and result hashes.
 - restore resumes at next step deterministically.
+
+---
+## 11) Deterministic Diagnostics Bundle (Normative)
+- `quickstart` and `doctor` profile flows MUST support emitting a deterministic diagnostics bundle:
+  - `env_manifest_hash`,
+  - compatibility report hash,
+  - key contract hashes (registry/config/trace profile),
+  - first-failure digest when present.
+- Bundle identity:
+  - `diagnostics_bundle_hash = SHA-256(CBOR_CANONICAL(diagnostics_bundle))`.
+- Output stability:
+  - identical inputs produce byte-identical diagnostics bundle.
+- Tooling suite reference:
+  - `docs/layer4-implementation/Tooling-and-Automation-Suite.md`.

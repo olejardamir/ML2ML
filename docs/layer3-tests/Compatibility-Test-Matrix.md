@@ -124,3 +124,13 @@
 ## 10) Checkpoint/Restore
 - checkpoint stores case cursor and partial matrix hash.
 - restore resumes matrix execution deterministically.
+
+---
+## 11) Published Compatibility Guarantees (Normative)
+- Matrix output MUST include a customer-facing compatibility table by profile:
+  - supported version ranges,
+  - required migration operators,
+  - unsupported pair rationale codes.
+- Compatibility table hash:
+  - `compatibility_table_hash = SHA-256(CBOR_CANONICAL(compatibility_table))`.
+- Release consumers may rely on published compatibility table as normative contract for upgrade planning.

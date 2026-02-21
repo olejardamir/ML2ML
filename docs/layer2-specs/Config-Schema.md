@@ -359,3 +359,18 @@ Exact diff on normalized manifest/report.
 - deterministic canonical CBOR.
 ### Restore semantics
 - resume yields identical validation output.
+
+---
+## 11) Product Profile Packaging Addendum (Normative)
+- In addition to `execution_mode`, deployments MUST support profile packaging IDs:
+  - `core`, `enterprise`, `regulated`.
+- Profile packaging intent:
+  - `core`: minimal, week-one adoption path (single-node default, one backend adapter, one artifact-store adapter, default trace policy).
+  - `enterprise`: production operations profile with deployment/runbook and full gate policy.
+  - `regulated`: enterprise profile + security/compliance and audit-proof requirements.
+- Runtime-mode mapping note:
+  - `enterprise` packaging commonly targets `execution_mode=managed`.
+- Profile bundle identity:
+  - `profile_bundle_hash = SHA-256(CBOR_CANONICAL(profile_bundle))`.
+- Promotion requirement:
+  - profile transitions (`core -> enterprise -> regulated`) require successful conformance and evidence gates defined in layer3/layer4 contracts.

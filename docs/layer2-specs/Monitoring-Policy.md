@@ -227,3 +227,26 @@
 - deterministic CBOR.
 ### Restore semantics
 - restored monitoring continues with identical window boundaries and alerts.
+
+---
+## 11) Policy Transcript Viewer Projection (Normative)
+- In addition to hash commitments, policy-gate evaluation MUST expose a deterministic human-readable projection:
+  - ordered rule evaluations,
+  - input metric snapshots (redacted as required),
+  - per-rule decision reason codes,
+  - final pass/fail rationale.
+- Viewer projection is informational but deterministic:
+  - identical policy transcript input yields byte-identical viewer output.
+- Projection hash:
+  - `policy_transcript_view_hash = SHA-256(CBOR_CANONICAL(policy_transcript_view))`.
+
+---
+## 12) Telemetry Standards Compatibility Policy (Normative)
+- Prometheus/OpenMetrics naming rules:
+  - metric names MUST be lowercase snake_case with stable unit suffixes.
+  - tenant/profile labels MUST use fixed canonical keys.
+- OpenTelemetry mapping rules:
+  - resource attributes MUST include `tenant_id`, `run_id`, `profile_id`, `env_manifest_hash`.
+  - span/log identity fields MUST be deterministically derived from trace records.
+- Upgrade compatibility requirement:
+  - telemetry field renames/removals require a compatibility mapping table and one deprecation window.

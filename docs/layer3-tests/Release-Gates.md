@@ -146,3 +146,25 @@
 - Canonical CBOR.
 ### Restore semantics
 - Resumed gate evaluation must produce identical verdict.
+
+---
+## 11) External Verification Gate Extensions (Normative)
+- For `enterprise` and `regulated` release profiles, release gates MUST include:
+  - backend certification evidence bundle verification,
+  - artifact-store certification evidence bundle verification,
+  - observability mapping hash verification,
+  - platform-tier performance baseline verification.
+- For `regulated` profile, release gates MUST additionally include:
+  - mandatory chaos/recovery proof-pack verification.
+- Missing any required external-verification artifact is deterministic release block.
+
+---
+## 12) Conformance Coverage Gate (Normative)
+- Conformance coverage is a hard release requirement (not advisory).
+- Minimum required coverage by profile:
+  - `core`: `coverage_pct >= 95.0` and zero `required_operator` blockers.
+  - `enterprise`: `coverage_pct >= 98.0` and zero blockers.
+  - `regulated`: `coverage_pct == 100.0` and zero blockers.
+- Coverage source of truth:
+  - `docs/layer4-implementation/Operator-Conformance-Matrix.md` output bundle.
+- Any unresolved blocker in required operator sets MUST produce deterministic `RELEASE_BLOCKED`.

@@ -106,3 +106,27 @@
 ## 10) Checkpoint/Restore
 - Migration checkpoint stores cursor and partially migrated object list hash.
 - Restore continues deterministically.
+
+---
+## 11) Deprecation Economics Addendum (Normative)
+- Time-bounded deprecation windows are mandatory:
+  - every deprecated field/operator/schema variant MUST declare `sunset_release`.
+  - default minimum grace window is `N=2` MINOR releases unless superseded by stricter profile policy.
+- Breaking schema changes MUST include:
+  - an explicit migration operator reference,
+  - migration evidence vectors,
+  - customer-visible compatibility statement.
+- Customer-facing guarantee:
+  - artifacts produced before `sunset_release` remain readable/migratable through published migration operators.
+
+---
+## 12) LTS and Compatibility Window Policy (Normative)
+- Contract lifecycle classes:
+  - `stable`, `lts`, `experimental`.
+- LTS guarantees:
+  - LTS-tagged schemas/operators remain supported for at least one MAJOR + four MINOR releases.
+- Compatibility statement MUST declare:
+  - forward-read window,
+  - backward-read window,
+  - migration path obligations,
+  - removal date for deprecated forms.

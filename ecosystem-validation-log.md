@@ -2311,3 +2311,21 @@
 - Registry updates:
   - Refreshed hashes and `LastUpdated` for touched Layer1 records in `ecosystem-registry.yaml`:
     - `L1-003`, `L1-004`, `L1-005`, `L1-007`, `L1-009`, `L1-010`.
+
+## 2026-02-20 — Full Docs EQC/Wiring Compliance Pass
+- Scope: all `docs/**/*.md` plus ecosystem sidecars (`ecosystem-registry.yaml`, `ecosystem-graph.yaml`) checked against EQC structural baseline and ecosystem wiring invariants.
+- Structural conformance actions:
+  - Added non-destructive EQC structural addenda to documents missing mandatory section markers (`## 1) Header & Global Semantics`, `### 0.0 Identity`, `## 6) Procedure`).
+  - Preserved all original content; only additive sections were appended.
+- Ecosystem wiring actions:
+  - Registered all previously unregistered docs in `ecosystem-registry.yaml` (20 records added):
+    - `L3-013`, `L4-043` .. `L4-061`.
+  - Added corresponding nodes and root recognition edges in `ecosystem-graph.yaml`.
+  - Updated `CurrentVersion` values for newly added records to match document `Spec Version` strings where available.
+  - Added explicit `Spec Version: v1.0.0` lines to informational docs that used `v1.0.0` in registry entries, to satisfy strict version-string presence checks.
+- Verification results:
+  - EQC structural marker check across all docs: **pass** (0 missing).
+  - Registry coverage for `docs/**/*.md`: **pass** (0 missing paths).
+  - Graph node coverage for registry DocIDs: **pass** (0 missing nodes).
+  - Broken in-doc `docs/...md` references: **pass** (0 broken links).
+  - Registry duplicate `DocID` check: **pass** (0 duplicates).

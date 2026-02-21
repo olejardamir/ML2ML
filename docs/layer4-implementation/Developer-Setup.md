@@ -133,3 +133,18 @@
 - Canonical CBOR.
 ### Restore semantics
 - Restored setup context must reproduce identical validation verdict.
+
+---
+## 11) Time-to-First-Success Profile Promise (Normative)
+- `core` profile setup target:
+  - deterministic quickstart completion in under 10 seconds on supported baseline hardware.
+- `enterprise` and `regulated` profiles:
+  - may require additional controls, but MUST declare incremental setup deltas relative to `core`.
+- Setup reports MUST include:
+  - profile id,
+  - time-to-first-success measurement (informational),
+  - deterministic verdict fields unaffected by timing variance.
+- Onboarding companion references:
+  - `docs/layer4-implementation/Gentle-Introduction.md`
+  - `docs/layer4-implementation/Hello-World-End-to-End-Example.md`
+  - `docs/layer4-implementation/Common-Pitfalls-Guide.md`

@@ -250,3 +250,30 @@ Exact compliance report + signature verification comparison.
 - deterministic canonical CBOR.
 ### Restore semantics
 - resumed compliance evaluation yields identical verdict/signature.
+
+---
+## 11) Auditor-Ready Security Case Addendum (Normative)
+- Security/compliance implementations MUST maintain a control-mapped security case artifact containing:
+  - assets and trust boundaries,
+  - attacker capabilities and assumptions,
+  - required mitigations,
+  - evidence locations in UML_OS artifacts (trace fields, certificate payload fields, policy transcripts).
+- Mode-specific proof obligations:
+  - `managed`: prove policy enforcement, key provenance, and authorization binding.
+  - `confidential`: prove attestation and runtime measurement integrity.
+  - `regulated`: prove all managed/confidential obligations plus revocation capture and immutable audit evidence completeness.
+- Security case identity:
+  - `security_case_hash = SHA-256(CBOR_CANONICAL(security_case_bundle))`.
+
+---
+## 12) Control Crosswalk Format (Normative)
+- Security case bundle MUST include a control crosswalk table:
+  - `control_id`,
+  - `requirement_text`,
+  - `evidence_field_refs`,
+  - `evidence_artifact_refs`,
+  - `verification_procedure_id`,
+  - `pass_fail_criteria`.
+- Crosswalk entries MUST be machine-readable and deterministic to enable automated audit verification.
+- Threat/crosswalk implementation guidance:
+  - `docs/layer4-implementation/Threat-Model-and-Control-Crosswalk.md`.

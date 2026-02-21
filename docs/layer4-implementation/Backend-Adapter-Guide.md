@@ -123,6 +123,20 @@
 - Deprecated aliases:
   - `driver_hash` and `backend_hash` are non-authoritative aliases and must not be used for checkpoint/certificate commitments.
 
+### II.J External Certification Program (Normative)
+- Certification label format:
+  - `UML_OS Certified Backend v<adapter_contract_version>`.
+- Mandatory publishable evidence bundle for certification:
+  - `adapter_report`,
+  - `primitive_semantics_hash`,
+  - `determinism_compliance_report_hash`,
+  - `backend_binary_hash`,
+  - `driver_runtime_fingerprint_hash`,
+  - conformance harness report hashes,
+  - signed certification statement hash.
+- Vendor-facing verification requirement:
+  - published evidence must be independently verifiable using `docs/layer4-implementation/Release-Evidence-Assembler.md` and `docs/layer3-tests/Conformance-Harness-Guide.md`.
+
 ---
 ## 3) Initialization
 1. Load driver metadata.

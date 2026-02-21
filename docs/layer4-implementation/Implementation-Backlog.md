@@ -54,6 +54,52 @@
 - update diffs and validation diagnostics.
 ### I.E Invariants and Assertions
 - Task IDs unique; transitions append-only.
+- Productization invariants:
+  - every release train contains profile packaging tasks (`core`, `managed`, `regulated`),
+  - observability bridge tasks produce deterministic mapping artifacts,
+  - certification tasks emit externally-verifiable evidence bundles,
+  - reference-stack tasks cover WAL -> trace -> checkpoint -> certificate -> replay end-to-end flow.
+
+### II.F Mandatory Productization Epics (Normative)
+| epic_id | required_tasks | done_criteria |
+|---|---|---|
+| `EPIC_profiles` | define/validate `core`, `managed`, `regulated` profile bundles | profile bundle hashes published and promotion policy validated |
+| `EPIC_observability_bridge` | map UML_OS trace/metrics to OTel + Prometheus semantics | mapping hash published; exporter determinism tests pass |
+| `EPIC_adapter_certification` | backend/store certification evidence generation | certification bundle hash + signed verification report published |
+| `EPIC_reference_stack` | runnable local end-to-end reference stack + golden demo | demo evidence hashes match across environments |
+| `EPIC_external_api` | OpenAPI/Protobuf generation + SDK generation (py/go/ts) | generated client conformance passes |
+| `EPIC_security_case` | threat model + control mapping + mode proof obligations | auditor-ready security case report approved |
+| `EPIC_evolution_economics` | bounded deprecation windows + migration operator coverage | compatibility policy checks pass |
+| `EPIC_performance_contract` | tier baselines and regression evidence | baseline hashes + regression verdicts published |
+| `EPIC_chaos_recovery` | mandatory chaos scenarios + proof packs | regulated recovery proof pack checks pass |
+| `EPIC_onboarding_examples` | runnable minimal stack + hello-world workflow + beginner docs | new contributor can produce deterministic trace/cert in first run |
+| `EPIC_third_party_certification` | third-party operator certification process + package format | publishable certified module packages validated |
+| `EPIC_brownfield_adoption` | phased migration patterns and anti-pattern guidance | incremental adoption path validated on legacy integration fixture |
+| `EPIC_tooling_suite` | manifest generator, IR explorer, migration assistant, replay monitor, semantic trace diff | tooling conformance and deterministic output checks pass |
+| `EPIC_formal_verification` | mechanized proof artifacts for TMMU optimality, DP accounting, IR type safety | proof package hashes published and verification checks pass |
+| `EPIC_interop_bridge` | ONNX bridge, OTLP exporter profile, Prometheus metric contract, K8s operator CRDs | interoperability conformance vectors pass |
+| `EPIC_governance_model` | RFC workflow, TSC charter, backport/version policy, contribution ladder | governance artifacts approved and linked from release notes |
+| `EPIC_disaster_ops` | full cluster failure + data corruption runbooks + postmortem template adoption | drill evidence bundles validated in release gates |
+| `EPIC_research_extensions` | federated/VDF/zk extension design docs with adoption criteria | extension proposals include deterministic migration/conformance plan |
+| `EPIC_ecosystem_connectors` | first-class external data/model/feature-store connectors with deterministic wrappers | connector conformance + lineage integrity checks pass |
+| `EPIC_streaming_runtime` | streaming NextBatch variant + stateful stream snapshots + watermark policy | streaming determinism and exactly-once suites pass |
+| `EPIC_model_lifecycle_automation` | retraining triggers, rollout automation, performance decay rollback, model family lineage | lifecycle automation gates pass by profile |
+| `EPIC_compliance_automation` | residency controls + framework crosswalk reports + TEE chain unification | auditor-export evidence bundle pass |
+| `EPIC_devex_plus` | debugger/jupyter/snippets/language-server | deterministic UX output contracts validated |
+| `EPIC_policy_as_code` | data-usage and regulation-as-code bundles | policy versioning and reproducibility checks pass |
+| `EPIC_economic_models` | marketplace/billing/licensing evidence contracts | accounting/reconciliation tests pass |
+| `EPIC_sustainability` | carbon-aware scheduling + energy accounting + green guide | sustainability metrics integrated into release evidence |
+| `EPIC_archival_notarization` | .umlospack + timestamp/notary + bit-rot detection workflows | long-term replay and integrity proofs pass |
+| `EPIC_multitenancy_scale` | hierarchical tenancy + fairness/quota + immutable tenant audit logs | tenant isolation/fairness tests pass |
+| `EPIC_obs_plus` | distributed traces + structured logs + real-time dashboards | telemetry correlation conformance passes |
+| `EPIC_cross_version_lts` | long-window compatibility corpora + deprecation enforcement | cross-version regression suites pass |
+| `EPIC_iam_federation` | SAML/OIDC/LDAP + federated roles + JIT break-glass lifecycle | IAM auditability gates pass |
+| `EPIC_multicloud` | unified storage semantics and cloud-agnostic manifests | cross-cloud reproducibility tests pass |
+| `EPIC_collaboration` | model branching/merging and deterministic collaborative edits | merge/conflict determinism tests pass |
+| `EPIC_online_learning` | incremental update operators + freshness attestations | online-learning replay/gate tests pass |
+| `EPIC_hsm_enforcement` | HSM signing + key usage attestation + rotation policies | cryptographic governance checks pass |
+| `EPIC_regulatory_sandbox` | sandbox profile, regulator bundles, signed regulator exports | sandbox-to-production transition checks pass |
+| `EPIC_expansion_catalog_041_250` | intake, scoring, and staged promotion of catalog items EC-041..EC-250 | catalog hash published; promoted subset fully contract-bound |
 
 ---
 ## 3) Initialization
@@ -91,7 +137,8 @@
 1. CreateTask_v1 for uncovered required operators
 2. UpdateStatus_v1 as implementation progresses
 3. ValidateCoverage_v1 before release gates
-4. Emit backlog_report
+4. Validate mandatory productization epics before release gates
+5. Emit backlog_report + coverage_report
 ```
 
 ---

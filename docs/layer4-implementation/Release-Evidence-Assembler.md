@@ -45,12 +45,28 @@
 - evidence policy catalog and assembler version.
 ### I.B Inputs and Hyperparameters
 - release manifest, trace/checkpoint/certificate refs, registry refs.
+ - optional external-verification artifacts:
+   - certification evidence bundles (backend/store),
+   - observability mapping bundle hash,
+   - performance tier baseline artifacts,
+   - chaos/recovery proof packs.
 ### I.C Constraints and Feasible Set
 - mandatory evidence set must be complete.
 ### I.D Transient Variables
 - resolved evidence rows and validation diagnostics.
 ### I.E Invariants and Assertions
 - bundle hash uniquely identifies assembled evidence set.
+- external-verification-ready releases MUST include certification and observability evidence when target profile is `enterprise` or `regulated`.
+
+### II.F External Verification Evidence Extensions (Normative)
+- When release target profile is `enterprise` or `regulated`, evidence bundle MUST include:
+  - `backend_certification_bundle_hash`,
+  - `artifact_store_certification_bundle_hash`,
+  - `certification_evidence_bundle_hash` from conformance harness,
+  - `observability_mapping_hash` (OTel/Prometheus mapping),
+  - `performance_tier_report_hash`,
+  - `chaos_recovery_proof_pack_hash` (mandatory in `regulated` mode).
+- Bundle completeness failure on any mandatory extension is deterministic fatal.
 
 ---
 ## 3) Initialization
@@ -106,3 +122,24 @@
 - `docs/layer4-implementation/Contracts-Artifact-Lifecycle.md`
 - `docs/layer2-specs/Execution-Certificate.md`
 - `docs/layer2-specs/Run-Commit-WAL.md`
+- `docs/layer3-tests/Game-Day-Scenarios.md`
+- `docs/layer4-implementation/Third-Party-Operator-Certification-Program.md`
+ - `docs/layer4-implementation/Disaster-Recovery-Operations-Runbook.md`
+ - `docs/layer4-implementation/Incident-Postmortem-Template.md`
+
+---
+## 12) Evidence Interchange and Recovery Proof Binding (Normative)
+- Release evidence MUST be exportable as a portable interchange package:
+  - `evidence_bundle.cbor`
+  - `evidence_manifest.json`
+  - `evidence_signatures/`
+  - `verification_instructions.txt`
+- Interchange package hash:
+  - `evidence_interchange_hash = SHA-256(CBOR_CANONICAL([evidence_bundle_hash, evidence_manifest_hash, signatures_hash]))`.
+- Third-party verification requirement:
+  - package must be verifiable without repository-local state beyond published contract hashes and trust roots.
+- Regulated releases MUST embed or reference:
+  - `chaos_recovery_proof_pack_hash`,
+  - `conformance_coverage_report_hash`,
+  - `sbom_hash`,
+  - `operator_registry_root_hash`.

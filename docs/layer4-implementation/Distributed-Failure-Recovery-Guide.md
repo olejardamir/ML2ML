@@ -122,3 +122,18 @@
 ## 10) Checkpoint/Restore
 - checkpoint stores recovery epoch, lease table, pending plan hash.
 - restore resumes recovery workflow deterministically.
+
+---
+## 11) Distributed Failure Fingerprint Standard (Normative)
+- Every distributed recovery incident MUST emit a compact deterministic failure fingerprint:
+  - `failure_operator`,
+  - `failure_code`,
+  - `first_divergence_step`,
+  - `rank_set_hash`,
+  - `network_state_hash`,
+  - `recovery_plan_hash`,
+  - `trace_segment_hash`.
+- Fingerprint identity:
+  - `distributed_failure_fingerprint_hash = SHA-256(CBOR_CANONICAL(failure_fingerprint_v1))`.
+- Support workflow requirement:
+  - fingerprint is the primary cross-environment triage key.

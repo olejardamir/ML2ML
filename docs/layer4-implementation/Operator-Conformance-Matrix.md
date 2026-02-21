@@ -107,3 +107,16 @@
 ## 10) Checkpoint/Restore
 - checkpoint stores processed operator cursor + partial summary.
 - restore resumes and yields identical final matrix.
+
+---
+## 11) Profile Threshold Policy (Normative)
+- Conformance matrix MUST classify each operator as:
+  - `required_core`, `required_enterprise`, `required_regulated`, or `optional`.
+- Coverage thresholds are enforced by profile:
+  - `core`: at most 5% optional gaps; no required-core blockers.
+  - `enterprise`: at most 2% optional gaps; no required-enterprise blockers.
+  - `regulated`: no gaps in required-regulated set.
+- Output contract extension:
+  - `conformance_summary` MUST include `coverage_pct_by_profile` and `blockers_by_profile`.
+- External certification label mapping:
+  - operators/modules with `CERTIFIED` status and zero blockers in target profile MAY be labeled `UML_OS Certified Module`.
