@@ -716,10 +716,10 @@ All system calls follow the EQC template and may be invoked **only** through the
 
 **Operator:** `UML_OS.Security.VerifyCertificate_v1`
 **Category:** Security
-**Signature:** `(certificate_input, trust_roots? -> valid: bool, report: dict)`
+**Signature:** `(certificate_input_or_path, trust_roots? -> valid: bool, report: dict)`
 **Purity class:** IO
 **Determinism:** deterministic
-**Definition:** Accepts canonical certificate object or path as `certificate_input`; if path is provided, deterministic loading is part of this operator. Verifies daemon/HSM/electronic signatures, Merkle trace root, all pipeline lineage hashes, state_fp/functional_fp consistency (within EPS_EQ where applicable), privacy budget <= target (if present), and attestation quote (if confidential/regulated). Returns structured report with per-section pass/fail.
+**Definition:** Accepts canonical certificate object/bytes or path as `certificate_input_or_path`; if path is provided, deterministic loading is part of this operator. Verifies daemon/HSM/electronic signatures, Merkle trace root, all pipeline lineage hashes, state_fp/functional_fp consistency (within EPS_EQ where applicable), privacy budget <= target (if present), and attestation quote (if confidential/regulated). Returns structured report with per-section pass/fail.
 **Preconditions / Postconditions:** certificate readable and schema-valid.
 **Edge cases:** missing quote, signature mismatch, token mismatch.
 **Numerical considerations:** binary64 EPS_EQ for fingerprint checks.
