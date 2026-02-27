@@ -1,8 +1,8 @@
 {
   "certificate_id": "hello-core-cert-v1",
-  "checkpoint_hash": "400687409f6420a335bd500d841552f4bb64d63b6705599a7b42c9cacf7103a9",
-  "operator_contracts_root_hash": "8bb4c39ae0b6f81f80f1a005d814c4ffb19a5277691773fe3160dc0234e4ba1b",
+  "checkpoint_hash": "3c699941c0c341a7a514b73d56e2f0673a3dcade3488fee0adca5ef9d789e83c",
+  "operator_contracts_root_hash": "6773411ce21616159c1574d1d98460d89c2cda06191c11845ebb1e08e84dc712",
   "policy_gate_hash": "5a5e629c6f1bece7ef8d0b20f8ee99153f7eda4e2ec03eaa7b65db06d20fca67",
   "run_id": "hello-core-run-v1",
-  "trace_final_hash": "2f2f3b84dd88b5a5924abfe6051b7f2e0d669bcdb42bb4ff6d9f38eb43f57d9a"
+  "trace_final_hash": "8876ae235b62feb29dc30f2a4fd39a22667c824c8b0bbc3da58c0383c2348316"
 }

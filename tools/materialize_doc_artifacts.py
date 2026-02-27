@@ -3,10 +3,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from src.glyphser.registry.registry_builder import (  # noqa: E402
+    build_operator_registry_from_list,
+    parse_api_interfaces,
+)
 
 
 def sha256_hex(data: bytes) -> str:
@@ -71,7 +78,6 @@ def canonical_json_bytes(obj: Any) -> bytes:
 
 
 def build_catalogs() -> dict[str, Any]:
-    # Digest catalog entries use bytes32 values derived deterministically from labels.
     digest_labels = [
         "schema.request.minimal",
         "schema.response.minimal",
@@ -93,7 +99,7 @@ def build_catalogs() -> dict[str, Any]:
                 "domain_tag": "glyphser_doc_phase",
             }
         )
-    digest_entries.sort(key=lambda x: x["digest_label"])  # deterministic rule in spec
+    digest_entries.sort(key=lambda x: x["digest_label"])
     digest_catalog = {
         "catalog_version": 1,
         "entries": digest_entries,
@@ -183,79 +189,15 @@ def compute_signature_digest(
 
 
 def build_operator_registry(digest_map: dict[str, bytes]) -> dict[str, Any]:
-    req = digest_map["schema.request.minimal"]
-    resp = digest_map["schema.response.minimal"]
-
-    records = []
-    entries = [
-        {
-            "operator_id": "Glyphser.Data.NextBatch",
-            "version": "v2",
-            "method": "CALL",
-            "surface": "SYSCALL",
-            "request_schema_digest": "sha256:schema.request.minimal",
-            "response_schema_digest": "sha256:schema.response.minimal",
-            "side_effects": ["ADVANCES_CURSOR", "ADVANCES_RNG"],
-            "allowed_error_codes": ["CONTRACT_VIOLATION"],
-            "purity_class": "STATEFUL",
-            "required_capabilities": ["CAP_TRACE_WRITE"],
-            "idempotent": False,
-            "rng_usage": "PHILOX4x32_10",
-            "determinism_class": "DETERMINISTIC",
-            "owner_team": "ml-core",
-            "deprecated": False,
-        },
-        {
-            "operator_id": "Glyphser.Registry.ValidateOperatorRegistry",
-            "version": "v1",
-            "method": "CALL",
-            "surface": "SYSCALL",
-            "request_schema_digest": "sha256:schema.request.minimal",
-            "response_schema_digest": "sha256:schema.response.minimal",
-            "side_effects": [],
-            "allowed_error_codes": ["CATALOG_HASH_MISMATCH", "CONTRACT_VIOLATION"],
-            "purity_class": "PURE",
-            "required_capabilities": ["CAP_REGISTRY_VALIDATE"],
-            "idempotent": True,
-            "rng_usage": "NONE",
-            "determinism_class": "DETERMINISTIC",
-            "owner_team": "governance",
-            "deprecated": False,
-        },
-    ]
-
-    for e in entries:
-        sig = compute_signature_digest(
-            e["operator_id"],
-            e["version"],
-            e["method"],
-            req,
-            resp,
-            e["side_effects"],
-            e["allowed_error_codes"],
-        )
-        e2 = dict(e)
-        e2["signature_digest"] = sig
-        e2["allowed_error_codes"] = sorted(e2["allowed_error_codes"])
-        e2["required_capabilities"] = sorted(e2["required_capabilities"])
-        e2["side_effects"] = sorted(e2["side_effects"])
-        records.append(e2)
-
-    def version_num(v: str) -> int:
-        return int(v[1:])
-
-    records.sort(key=lambda r: (r["operator_id"], version_num(r["version"])))
-
-    return {
-        "registry_schema_version": 1,
-        "operator_records": records,
-    }
+    api_path = ROOT / "docs" / "layer1-foundation" / "API-Interfaces.md"
+    operator_ids = parse_api_interfaces(api_path)
+    return build_operator_registry_from_list(operator_ids, digest_map)
 
 
 def build_vectors_catalog(digest_map: dict[str, bytes]) -> dict[str, Any]:
     vectors = {
-        "catalog_version": "v1",
-        "operators": {
+        "vector_set_id": "hello-core-vectors-v1",
+        "vectors": {
             "Glyphser.Data.NextBatch": [
                 {
                     "vector_id": "vector_nextbatch_001",
@@ -325,7 +267,6 @@ def materialize() -> None:
             "size_bytes": len(blob),
         }
 
-    # Compute root hash per Operator-Registry-Schema II.G
     op_root_preimage = cbor_encode([
         "operator_registry",
         operator_registry["registry_schema_version"],
@@ -350,7 +291,6 @@ def materialize() -> None:
     }
     write_text(contracts_dir / "catalog-manifest.json", json.dumps(catalog_manifest, indent=2, sort_keys=True) + "\n")
 
-    # Fixture materialization
     src_manifest = ROOT / "docs" / "examples" / "hello-core" / "manifest.core.yaml"
     manifest_text = src_manifest.read_text(encoding="utf-8")
     write_text(fixtures_dir / "manifest.core.yaml", manifest_text)
@@ -360,15 +300,17 @@ def materialize() -> None:
         {"x": [1.0, 0.0, 1.0, 0.0], "y": 1.0},
         {"x": [1.0, 1.0, 0.0, 0.0], "y": 2.0},
     ]
-    dataset_jsonl = "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in dataset_rows) + "\n"
-    write_text(fixtures_dir / "tiny_synth_dataset.jsonl", dataset_jsonl)
+    write_text(
+        fixtures_dir / "tiny_synth_dataset.jsonl",
+        "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in dataset_rows) + "\n",
+    )
 
     model_ir = {
-        "ir_version": "v1",
-        "graph": [
-            {"node_id": "n1", "op": "MatMul", "inputs": ["x", "w"], "outputs": ["z1"]},
-            {"node_id": "n2", "op": "Add", "inputs": ["z1", "b"], "outputs": ["y_hat"]},
-            {"node_id": "n3", "op": "MSE", "inputs": ["y_hat", "y"], "outputs": ["loss"]},
+        "ir_version": 1,
+        "operators": [
+            {"id": "input", "op": "INPUT", "shape": [4]},
+            {"id": "dense", "op": "DENSE", "weights": [0.1, 0.2, 0.3, 0.4], "bias": 0.0},
+            {"id": "output", "op": "OUTPUT"},
         ],
     }
     write_text(fixtures_dir / "model_ir.json", json.dumps(model_ir, indent=2, sort_keys=True) + "\n")
@@ -391,7 +333,6 @@ def materialize() -> None:
     }
     write_text(fixtures_dir / "fixture-manifest.json", json.dumps(fixture_manifest, indent=2, sort_keys=True) + "\n")
 
-    # Golden artifacts (doc-phase pinned values)
     trace_snippet = {
         "run_id": "hello-core-run-v1",
         "records": [
@@ -405,22 +346,29 @@ def materialize() -> None:
         "manifest_hash": sha256_hex((fixtures_dir / "manifest.core.yaml").read_bytes()),
         "operator_registry_root_hash": operator_registry_root_hash,
     }
+    trace_final_hash = sha256_hex(canonical_json_bytes(trace_snippet))
     execution_certificate = {
         "certificate_id": "hello-core-cert-v1",
         "run_id": "hello-core-run-v1",
-        "trace_final_hash": "2f2f3b84dd88b5a5924abfe6051b7f2e0d669bcdb42bb4ff6d9f38eb43f57d9a",
+        "trace_final_hash": trace_final_hash,
         "checkpoint_hash": sha256_hex(canonical_json_bytes(checkpoint_header)),
         "operator_contracts_root_hash": operator_registry_root_hash,
         "policy_gate_hash": "5a5e629c6f1bece7ef8d0b20f8ee99153f7eda4e2ec03eaa7b65db06d20fca67",
     }
+    certificate_hash = sha256_hex(canonical_json_bytes(execution_certificate))
 
     write_text(goldens_dir / "trace_snippet.json", json.dumps(trace_snippet, indent=2, sort_keys=True) + "\n")
     write_text(goldens_dir / "checkpoint_header.json", json.dumps(checkpoint_header, indent=2, sort_keys=True) + "\n")
     write_text(goldens_dir / "execution_certificate.json", json.dumps(execution_certificate, indent=2, sort_keys=True) + "\n")
 
-    # keep synchronized with docs/examples golden identities
     hello_golden = json.loads((ROOT / "docs" / "examples" / "hello-core" / "hello-core-golden.json").read_text(encoding="utf-8"))
+    hello_golden["expected_identities"]["trace_final_hash"] = trace_final_hash
+    hello_golden["expected_identities"]["certificate_hash"] = certificate_hash
+    interface_hash = sha256_hex(cbor_encode(["operator_registry", operator_registry["registry_schema_version"], operator_registry["operator_records"]]))
+    hello_golden["expected_identities"]["interface_hash"] = interface_hash
+
     write_text(goldens_dir / "golden-identities.json", json.dumps(hello_golden, indent=2, sort_keys=True) + "\n")
+    write_text(ROOT / "docs" / "examples" / "hello-core" / "hello-core-golden.json", json.dumps(hello_golden, indent=2, sort_keys=True) + "\n")
 
     golden_files = [
         goldens_dir / "trace_snippet.json",
@@ -441,7 +389,6 @@ def materialize() -> None:
     }
     write_text(goldens_dir / "golden-manifest.json", json.dumps(golden_manifest, indent=2, sort_keys=True) + "\n")
 
-    # Vector fixtures
     vector_rows = {
         "vector_set_id": "hello-core-vectors-v1",
         "vectors": [
@@ -459,25 +406,35 @@ def materialize() -> None:
             },
         ],
     }
+
     write_text(vectors_dir / "vectors.json", json.dumps(vector_rows, indent=2, sort_keys=True) + "\n")
     vectors_manifest = {
-        "vectors_set_id": "hello-core-vectors-v1",
-        "vectors_file": "vectors/hello-core/vectors.json",
+        "vector_set_id": "hello-core-vectors-v1",
+        "vectors_file": str((vectors_dir / "vectors.json").relative_to(ROOT)).replace("\\", "/"),
         "vectors_file_sha256": sha256_hex((vectors_dir / "vectors.json").read_bytes()),
-        "vectors_catalog_hash": vectors_catalog_hash,
     }
     write_text(vectors_dir / "vectors-manifest.json", json.dumps(vectors_manifest, indent=2, sort_keys=True) + "\n")
-
-    print("Materialized deterministic doc-phase artifacts:")
-    print(f"  - contracts: {contracts_dir}")
-    print(f"  - fixtures:  {fixtures_dir}")
-    print(f"  - goldens:   {goldens_dir}")
-    print(f"  - vectors:   {vectors_dir}")
-    print("Derived identities:")
-    print(f"  operator_registry_root_hash={operator_registry_root_hash}")
-    print(f"  digest_catalog_hash={digest_catalog_hash}")
-    print(f"  vectors_catalog_hash={vectors_catalog_hash}")
 
 
 if __name__ == "__main__":
     materialize()
+    print("Materialized deterministic doc-phase artifacts:")
+    print(f"  - contracts: {ROOT / 'contracts'}")
+    print(f"  - fixtures:  {ROOT / 'fixtures' / 'hello-core'}")
+    print(f"  - goldens:   {ROOT / 'goldens' / 'hello-core'}")
+    print(f"  - vectors:   {ROOT / 'vectors' / 'hello-core'}")
+    catalogs = build_catalogs()
+    operator_registry = build_operator_registry(catalogs["digest_map"])
+    op_root_preimage = cbor_encode([
+        "operator_registry",
+        operator_registry["registry_schema_version"],
+        operator_registry["operator_records"],
+    ])
+    operator_registry_root_hash = sha256_hex(op_root_preimage)
+    digest_entries_sorted = sorted(catalogs["digest_catalog"]["entries"], key=lambda x: x["digest_label"])
+    digest_catalog_hash = sha256_hex(cbor_encode(["digest_catalog", catalogs["digest_catalog"]["catalog_version"], digest_entries_sorted]))
+    vectors_catalog_hash = sha256_hex(cbor_encode(build_vectors_catalog(catalogs["digest_map"])))
+    print("Derived identities:")
+    print(f"  operator_registry_root_hash={operator_registry_root_hash}")
+    print(f"  digest_catalog_hash={digest_catalog_hash}")
+    print(f"  vectors_catalog_hash={vectors_catalog_hash}")

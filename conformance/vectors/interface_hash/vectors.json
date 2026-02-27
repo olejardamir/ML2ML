@@ -4,7 +4,7 @@
     {
       "id": "operator-registry-interface-hash",
       "operator_registry_ref": "contracts/operator_registry.cbor",
-      "expected_interface_hash": "8bb4c39ae0b6f81f80f1a005d814c4ffb19a5277691773fe3160dc0234e4ba1b"
+      "expected_interface_hash": "6773411ce21616159c1574d1d98460d89c2cda06191c11845ebb1e08e84dc712"
     }
   ]
 }

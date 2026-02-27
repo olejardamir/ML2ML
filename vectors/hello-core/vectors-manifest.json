@@ -1,6 +1,5 @@
 {
-  "vectors_catalog_hash": "8d187118ecc088954190172a2f4ad0713785bcbe45cf0792cdb1200bc899d103",
+  "vector_set_id": "hello-core-vectors-v1",
   "vectors_file": "vectors/hello-core/vectors.json",
-  "vectors_file_sha256": "71a5624c1b81ecac39d6f5bd8b4ee3ddd5da985fb7fa4c73488a25cdbe14304b",
-  "vectors_set_id": "hello-core-vectors-v1"
+  "vectors_file_sha256": "71a5624c1b81ecac39d6f5bd8b4ee3ddd5da985fb7fa4c73488a25cdbe14304b"
 }

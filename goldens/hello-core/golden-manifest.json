@@ -7,17 +7,17 @@
     },
     {
       "path": "goldens/hello-core/checkpoint_header.json",
-      "sha256": "8b7770101687cfc95dc43fd23332a4fe732f49380841ecb0b2d5e38c7cc96bcf",
+      "sha256": "f766ceb90b40ee153a0589770292927d1cbe6a099bd0ef968771b05031c8374a",
       "size_bytes": 252
     },
     {
       "path": "goldens/hello-core/execution_certificate.json",
-      "sha256": "a06f712fad509db61d4d2fb3e29f5b558f1a4fdec62dd9c78d857240ef6f5861",
+      "sha256": "32e7d9bbb37cae5a85aa4695ba53ab1d57e138b973838037083790db3a66e374",
       "size_bytes": 449
     },
     {
       "path": "goldens/hello-core/golden-identities.json",
-      "sha256": "8bb9cd628f515d7eb1449b78dfce5303c021d67c4eb661c408190c3a32af11dd",
+      "sha256": "1a04082907b4f814f1fa15c7a112418f330d2e3a7fb367f6fc54f31633ca2228",
       "size_bytes": 440
     }
   ],

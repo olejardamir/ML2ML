@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,6 +23,19 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _run_hello_core() -> bool:
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "run_hello_core.py")],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        print(proc.stdout)
+        print(proc.stderr)
+    return proc.returncode == 0
+
+
 def run() -> int:
     results = []
 
@@ -33,6 +47,9 @@ def run() -> int:
         results.append({"check": "build_operator_registry", "status": "PASS"})
     except Exception as exc:  # pragma: no cover
         results.append({"check": "build_operator_registry", "status": f"FAIL: {exc}"})
+
+    hello_ok = _run_hello_core()
+    results.append({"check": "hello_core", "status": "PASS" if hello_ok else "FAIL"})
 
     payload = {"status": "PASS" if all(r["status"] == "PASS" for r in results) else "FAIL", "results": results}
     _write_json(RESULTS_DIR / "latest.json", payload)

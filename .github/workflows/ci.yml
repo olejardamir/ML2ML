@@ -20,3 +20,5 @@ jobs:
           python tools/conformance/cli.py run
           python tools/conformance/cli.py verify
           python tools/conformance/cli.py report
+      - name: Build Release Bundle
+        run: python tools/build_release_bundle.py

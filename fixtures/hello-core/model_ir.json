@@ -1,38 +1,27 @@
 {
-  "graph": [
+  "ir_version": 1,
+  "operators": [
     {
-      "inputs": [
-        "x",
-        "w"
-      ],
-      "node_id": "n1",
-      "op": "MatMul",
-      "outputs": [
-        "z1"
+      "id": "input",
+      "op": "INPUT",
+      "shape": [
+        4
       ]
     },
     {
-      "inputs": [
-        "z1",
-        "b"
-      ],
-      "node_id": "n2",
-      "op": "Add",
-      "outputs": [
-        "y_hat"
+      "bias": 0.0,
+      "id": "dense",
+      "op": "DENSE",
+      "weights": [
+        0.1,
+        0.2,
+        0.3,
+        0.4
       ]
     },
     {
-      "inputs": [
-        "y_hat",
-        "y"
-      ],
-      "node_id": "n3",
-      "op": "MSE",
-      "outputs": [
-        "loss"
-      ]
+      "id": "output",
+      "op": "OUTPUT"
     }
-  ],
-  "ir_version": "v1"
+  ]
 }

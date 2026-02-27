@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -12,6 +11,10 @@ sys.path.insert(0, str(ROOT))
 
 from tools import materialize_doc_artifacts as mda  # noqa: E402
 from src.glyphser.registry.interface_hash import compute_interface_hash  # noqa: E402
+from src.glyphser.registry.registry_builder import (  # noqa: E402
+    build_operator_registry_from_list,
+    parse_api_interfaces,
+)
 
 
 def _jsonify(obj: Any) -> Any:
@@ -24,34 +27,17 @@ def _jsonify(obj: Any) -> Any:
     return obj
 
 
-def _parse_api_interfaces(path: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8", errors="ignore")
-    # Matches: **Operator:** `Glyphser.X`
-    pattern = re.compile(r"\*\*Operator:\*\*\s+`([^`]+)`")
-    return sorted({m.group(1) for m in pattern.finditer(text)})
-
-
 def main() -> int:
     catalogs = mda.build_catalogs()
-    registry = mda.build_operator_registry(catalogs["digest_map"])
+
+    api_path = ROOT / "docs" / "layer1-foundation" / "API-Interfaces.md"
+    api_ops = parse_api_interfaces(api_path)
+
+    registry = build_operator_registry_from_list(api_ops, catalogs["digest_map"])
 
     contracts_dir = ROOT / "contracts"
     contracts_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write JSON (bytes -> hex)
-    json_path = contracts_dir / "operator_registry.json"
-    json_path.write_text(
-        json.dumps(_jsonify(registry), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-
-    # Write CBOR
-    cbor_path = contracts_dir / "operator_registry.cbor"
-    cbor_path.write_bytes(mda.cbor_encode(registry))
-
-    # Parse API-Interfaces source list (input validation / traceability)
-    api_path = ROOT / "docs" / "layer1-foundation" / "API-Interfaces.md"
-    api_ops = _parse_api_interfaces(api_path)
     src_path = contracts_dir / "operator_registry_source.json"
     src_path.write_text(
         json.dumps({"source": str(api_path), "operators": api_ops}, indent=2, sort_keys=True)
@@ -59,7 +45,15 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    # Compute interface hash
+    json_path = contracts_dir / "operator_registry.json"
+    json_path.write_text(
+        json.dumps(_jsonify(registry), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    cbor_path = contracts_dir / "operator_registry.cbor"
+    cbor_path.write_bytes(mda.cbor_encode(registry))
+
     interface_hash = compute_interface_hash(registry)
     hash_path = contracts_dir / "interface_hash.json"
     hash_path.write_text(
