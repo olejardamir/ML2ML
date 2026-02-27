@@ -1,0 +1,11 @@
+name: Glyphser OCI
+on: [push, pull_request]
+jobs:
+  oci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build OCI Image
+        run: docker build -t glyphser-hello-core:ci .
+      - name: Run Hello-Core in Container
+        run: docker run --rm glyphser-hello-core:ci python scripts/run_hello_core.py

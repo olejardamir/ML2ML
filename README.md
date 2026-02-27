@@ -2,6 +2,9 @@
 
 Company: **Astrocytech**
 
+Conformance: PASS (local)
+Hello-core: PASS (local)
+
 This repository contains the deterministic runtime specifications, capability contracts, and conformance tooling for the Glyphser ecosystem, maintained by Astrocytech.
 
 Independent implementation; no official affiliation or certification claims are made unless explicitly stated.
