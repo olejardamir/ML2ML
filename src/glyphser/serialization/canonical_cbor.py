@@ -1,7 +1,4 @@
-"""Canonical CBOR encoding (minimal stub).
-
-This is a placeholder that supports a limited subset required by early vectors.
-"""
+"""Canonical CBOR encoding (minimal, deterministic subset)."""
 from __future__ import annotations
 
 from typing import Any
@@ -59,3 +56,9 @@ def encode_canonical(obj: Any) -> bytes:
 
 def encode_canonical_hex(obj: Any) -> str:
     return encode_canonical(obj).hex()
+
+
+def validate_canonical_hex(obj: Any, expected_hex: str) -> None:
+    actual = encode_canonical_hex(obj)
+    if actual != expected_hex:
+        raise ValueError(f"cbor mismatch: expected={expected_hex} got={actual}")
