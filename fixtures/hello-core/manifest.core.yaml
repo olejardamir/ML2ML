@@ -1,4 +1,4 @@
-spec_version: "UML_OS.Config.SchemaValidator_v1"
+spec_version: "Glyphser.Config.SchemaValidator"
 tenant_id: "hello-core-tenant"
 seed: 42
 execution_mode: "local"

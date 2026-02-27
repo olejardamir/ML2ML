@@ -25,7 +25,7 @@
       "size_bytes": 650
     }
   },
-  "canonical_profile": "CanonicalSerialization_v1",
+  "canonical_profile": "CanonicalSerialization",
   "derived_identities": {
     "digest_catalog_hash": "5bac5c8dc8a418ab8358520eff5d5ab82f99710e58d7ef34bdfac8bb1a7d1239",
     "operator_registry_root_hash": "310384f52acaa2a91cdc34dc4965ee53d8298ce9e62221fab11908002b4e1ac7",

@@ -1,9 +1,9 @@
-# UML_OS Coverage Targets Contract
+# Glyphser Coverage Targets Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.CoverageTargets_v1`  
+**Algorithm:** `Glyphser.Test.CoverageTargets`  
 **Purpose (1 sentence):** Define deterministic test coverage targets and enforcement rules by subsystem and test type.  
-**Spec Version:** `UML_OS.Test.CoverageTargets_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.CoverageTargets` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Test quality governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.CoverageTargets_v1`
+- **Algorithm:** `Glyphser.Test.CoverageTargets`
 - **Purpose (1 sentence):** Deterministic coverage gate contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MAXIMIZE`
@@ -29,10 +29,10 @@
 ### 0.F Environment and Dependency Policy
 - Coverage tools and configs must be pinned.
 ### 0.G Operator Manifest
-- `UML_OS.Test.ComputeCoverage_v1`
-- `UML_OS.Test.ValidateCoverageTargets_v1`
-- `UML_OS.Test.EmitCoverageVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.ComputeCoverage`
+- `Glyphser.Test.ValidateCoverageTargets`
+- `Glyphser.Test.EmitCoverageVerdict`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Coverage artifacts under `reports/coverage/`.
 ### 0.I Outputs and Metric Schema
@@ -76,26 +76,26 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.ComputeCoverage_v1`
-- `UML_OS.Test.ValidateCoverageTargets_v1`
-- `UML_OS.Test.EmitCoverageVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.ComputeCoverage`
+- `Glyphser.Test.ValidateCoverageTargets`
+- `Glyphser.Test.EmitCoverageVerdict`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.ComputeCoverage_v1`  
+**Operator:** `Glyphser.Test.ComputeCoverage`  
 **Signature:** `(raw_reports -> coverage_metrics)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `COVERAGE_REPORT_INVALID`.
 
-**Operator:** `UML_OS.Test.ValidateCoverageTargets_v1`  
+**Operator:** `Glyphser.Test.ValidateCoverageTargets`  
 **Signature:** `(coverage_metrics, policy -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `COVERAGE_THRESHOLD_INVALID`.
 
-**Operator:** `UML_OS.Test.EmitCoverageVerdict_v1`  
+**Operator:** `Glyphser.Test.EmitCoverageVerdict`  
 **Signature:** `(validation_report -> coverage_verdict)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
@@ -104,9 +104,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ComputeCoverage_v1
-2. ValidateCoverageTargets_v1
-3. EmitCoverageVerdict_v1
+1. ComputeCoverage
+2. ValidateCoverageTargets
+3. EmitCoverageVerdict
 4. Return coverage_report
 ```
 

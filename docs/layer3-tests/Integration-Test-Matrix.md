@@ -1,9 +1,9 @@
-# UML_OS Integration Test Matrix Contract
+# Glyphser Integration Test Matrix Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.IntegrationMatrix_v1`  
-**Purpose (1 sentence):** Define deterministic cross-module integration suites and pass/fail semantics for end-to-end UML_OS correctness.  
-**Spec Version:** `UML_OS.Test.IntegrationMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Test.IntegrationMatrix`  
+**Purpose (1 sentence):** Define deterministic cross-module integration suites and pass/fail semantics for end-to-end Glyphser correctness.  
+**Spec Version:** `Glyphser.Test.IntegrationMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** System integration verification.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.IntegrationMatrix_v1`
+- **Algorithm:** `Glyphser.Test.IntegrationMatrix`
 - **Purpose (1 sentence):** Deterministic integration coverage contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -29,10 +29,10 @@
 ### 0.F Environment and Dependency Policy
 - Same environment constraints as release CI.
 ### 0.G Operator Manifest
-- `UML_OS.Test.RunIntegrationCase_v1`
-- `UML_OS.Test.CompareIntegrationOutputs_v1`
-- `UML_OS.Test.EvaluateIntegrationMatrix_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunIntegrationCase`
+- `Glyphser.Test.CompareIntegrationOutputs`
+- `Glyphser.Test.EvaluateIntegrationMatrix`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `tests/integration/<suite>/<case>`
 ### 0.I Outputs and Metric Schema
@@ -75,27 +75,27 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.RunIntegrationCase_v1`
-- `UML_OS.Test.CompareIntegrationOutputs_v1`
-- `UML_OS.Test.EvaluateIntegrationMatrix_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunIntegrationCase`
+- `Glyphser.Test.CompareIntegrationOutputs`
+- `Glyphser.Test.EvaluateIntegrationMatrix`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.RunIntegrationCase_v1`  
+**Operator:** `Glyphser.Test.RunIntegrationCase`  
 **Signature:** `(case_id, fixture -> case_output)`  
 **Purity class:** IO  
 **Determinism:** deterministic with fixed seeds.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `CASE_FIXTURE_MISSING`, `EXECUTION_FAILURE`.
 
-**Operator:** `UML_OS.Test.CompareIntegrationOutputs_v1`  
+**Operator:** `Glyphser.Test.CompareIntegrationOutputs`  
 **Signature:** `(case_output, expected_output, comparison_profile -> compare_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 `comparison_profile` schema: `{equivalence_class: "E0"|"E1", abs_tol?: float64, rel_tol?: float64}` with deterministic defaults `abs_tol=EPS_EQ`, `rel_tol=0` when omitted.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `COMPARE_PROFILE_INVALID`, `OUTPUT_MISMATCH`.
 
-**Operator:** `UML_OS.Test.EvaluateIntegrationMatrix_v1`  
+**Operator:** `Glyphser.Test.EvaluateIntegrationMatrix`  
 **Signature:** `(case_reports, matrix_policy -> matrix_verdict)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -104,9 +104,9 @@
 ---
 ## 6) Procedure
 ```text
-1. RunIntegrationCase_v1 for each case
-2. CompareIntegrationOutputs_v1
-3. EvaluateIntegrationMatrix_v1
+1. RunIntegrationCase for each case
+2. CompareIntegrationOutputs
+3. EvaluateIntegrationMatrix
 4. Emit integration_report
 ```
 

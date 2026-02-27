@@ -1,16 +1,16 @@
-# UML_OS External Interface Standard
+# Glyphser External Interface Standard
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.API.ExternalInterfaceStandard_v1`
+**Algorithm:** `Glyphser.API.ExternalInterfaceStandard`
 **Purpose (1 sentence):** Define generated external API artifacts, derivation rules, versioning, and conformance obligations.
-**Spec Version:** `UML_OS.API.ExternalInterfaceStandard_v1` | 2026-02-21 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.API.ExternalInterfaceStandard` | 2026-02-21 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.API.ExternalInterfaceStandard_v1`
+- **Algorithm:** `Glyphser.API.ExternalInterfaceStandard`
 - **Purpose (1 sentence):** Deterministic external API interoperability contract.
-- **Spec Version:** `UML_OS.API.ExternalInterfaceStandard_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.API.ExternalInterfaceStandard` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** interface generation and third-party integration.
 ### 0.A Objective Semantics
 - Generated interfaces are normative artifacts, not advisory exports.
@@ -23,11 +23,11 @@
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Generator steps may parallelize; emitted artifacts must be byte-identical.
 ### 0.F Environment and Dependency Policy
-- Canonical profile: `CanonicalSerialization_v1`.
+- Canonical profile: `CanonicalSerialization`.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Product.GenerateExternalInterfaces_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Product.GenerateExternalInterfaces`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `interfaces/openapi/`, `interfaces/protobuf/`, `sdk/<lang>/`.
 ### 0.I Outputs and Metric Schema
@@ -52,7 +52,7 @@
 - See: `docs/layer4-implementation/API-Lifecycle-and-Deprecation-Policy.md`.
 
 ## 4) Conformance Identity (Normative)
-- `interface_conformance_hash = SHA-256(CBOR_CANONICAL(["iface_conf_v1", [test_vector_set_hash, runner_version_hash, openapi_bundle_hash, protobuf_bundle_hash, sdk_bundle_hash]]))`.
+- `interface_conformance_hash = SHA-256(CBOR_CANONICAL(["iface_conf", [test_vector_set_hash, runner_version_hash, openapi_bundle_hash, protobuf_bundle_hash, sdk_bundle_hash]]))`.
 
 ## 6) Procedure
 ```text

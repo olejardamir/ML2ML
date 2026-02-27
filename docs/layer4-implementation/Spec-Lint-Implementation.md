@@ -1,9 +1,9 @@
-# UML_OS Spec Lint Implementation Contract
+# Glyphser Spec Lint Implementation Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.SpecLint_v1`  
+**Algorithm:** `Glyphser.Implementation.SpecLint`  
 **Purpose (1 sentence):** Define deterministic implementation requirements for cross-document linting and contract-consistency enforcement.  
-**Spec Version:** `UML_OS.Implementation.SpecLint_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.SpecLint` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Contract linting and CI enforcement.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.SpecLint_v1`
+- **Algorithm:** `Glyphser.Implementation.SpecLint`
 - **Purpose (1 sentence):** Deterministic cross-spec lint implementation contract.
 ### 0.A Objective Semantics
 - minimize unresolved contract inconsistencies.
@@ -26,10 +26,10 @@
 ### 0.F Environment and Dependency Policy
 - pinned parser/runtime versions required.
 ### 0.G Operator Manifest
-- `UML_OS.Implementation.LoadDocSet_v1`
-- `UML_OS.Implementation.RunSpecLintRules_v1`
-- `UML_OS.Implementation.AggregateLintVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.LoadDocSet`
+- `Glyphser.Implementation.RunSpecLintRules`
+- `Glyphser.Implementation.AggregateLintVerdict`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - linter entrypoint: `tools/spec_lint.py`.
 - normative rule catalog: `docs/layer4-implementation/Spec-Lint-Rules.md`.
@@ -63,26 +63,26 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Implementation.LoadDocSet_v1`
-- `UML_OS.Implementation.RunSpecLintRules_v1`
-- `UML_OS.Implementation.AggregateLintVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.LoadDocSet`
+- `Glyphser.Implementation.RunSpecLintRules`
+- `Glyphser.Implementation.AggregateLintVerdict`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.LoadDocSet_v1`
+**Operator:** `Glyphser.Implementation.LoadDocSet`
 **Signature:** `(docs_root, include_globs, exclude_globs -> doc_set, doc_set_hash)`
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Loads documentation corpus under deterministic path ordering and computes stable `doc_set_hash`.
 
-**Operator:** `UML_OS.Implementation.RunSpecLintRules_v1`  
+**Operator:** `Glyphser.Implementation.RunSpecLintRules`  
 **Signature:** `(doc_set, rule_set -> findings)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Executes rule suite over parsed docs and emits normalized findings.
 
-**Operator:** `UML_OS.Implementation.AggregateLintVerdict_v1`
+**Operator:** `Glyphser.Implementation.AggregateLintVerdict`
 **Signature:** `(findings -> lint_verdict, lint_metrics)`
 **Purity class:** PURE
 **Determinism:** deterministic

@@ -1,9 +1,9 @@
-# UML_OS Deployment Runbook Contract
+# Glyphser Deployment Runbook Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DeploymentRunbook_v1`  
+**Algorithm:** `Glyphser.Implementation.DeploymentRunbook`  
 **Purpose (1 sentence):** Define deterministic deployment, rollback, and incident-response procedures for dev/staging/prod environments.  
-**Spec Version:** `UML_OS.Implementation.DeploymentRunbook_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.DeploymentRunbook` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Operational deployment governance.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DeploymentRunbook_v1`
+- **Algorithm:** `Glyphser.Implementation.DeploymentRunbook`
 - **Purpose (1 sentence):** Deterministic deployment operations.
-- **Spec Version:** `UML_OS.Implementation.DeploymentRunbook_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Implementation.DeploymentRunbook` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Release operations and reliability.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,11 +32,11 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for gate verdicts and rollback decisions.
 ### 0.G Operator Manifest
-- `UML_OS.Deploy.PreflightChecks_v1`
-- `UML_OS.Deploy.ExecuteRollout_v1`
-- `UML_OS.Deploy.EvaluateHealthGates_v1`
-- `UML_OS.Deploy.ExecuteRollback_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Deploy.PreflightChecks`
+- `Glyphser.Deploy.ExecuteRollout`
+- `Glyphser.Deploy.EvaluateHealthGates`
+- `Glyphser.Deploy.ExecuteRollback`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Deployment operators fully-qualified and environment-scoped.
 ### 0.I Outputs and Metric Schema
@@ -99,7 +99,7 @@
   - `error_rate` = `failed_requests / total_requests` over the fixed canary evaluation window declared in rollout policy.
   - `p95_latency_delta` = `(p95_latency_canary - p95_latency_baseline) / p95_latency_baseline * 100`, with baseline from the last approved production release bound by `baseline_release_hash`.
   - `replay_determinism_failures` = count of E0 replay-check failures over the same fixed window.
-    - failure criterion is a divergence reported by `UML_OS.Replay.CompareTrace_v1` under the applicable comparison profile from `docs/layer2-specs/Replay-Determinism.md`.
+    - failure criterion is a divergence reported by `Glyphser.Replay.CompareTrace` under the applicable comparison profile from `docs/layer2-specs/Replay-Determinism.md`.
   - rollout input MUST include explicit `baseline_release_hash`; baseline selection is not inferred implicitly.
   - All gate metrics are computed from a frozen, canonicalized telemetry snapshot committed as `metrics_snapshot_hash`.
   - `metrics_snapshot_hash = SHA-256(CBOR_CANONICAL(metrics_snapshot_map))`.
@@ -113,13 +113,13 @@
     - `ExecutionCertificate.signed_payload.checkpoint_hash == approved_checkpoint_hash`
     - `ExecutionCertificate.signed_payload.policy_bundle_hash == deployment_policy_bundle_hash`
     - `ExecutionCertificate.signed_payload.lockfile_hash == lockfile_hash`
-    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
+    - `ExecutionCertificate.signed_payload.dependencies_lock_hash == SHA-256(CBOR_CANONICAL(["deps_lock", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
     - `ExecutionCertificate.signed_payload.determinism_profile_hash == runtime_determinism_profile_hash`
     - `ExecutionCertificate.signed_payload.operator_contracts_root_hash == operator_contracts_root_hash`
     - `ExecutionCertificate.signed_payload.lineage_root_hash == expected_lineage_root_hash`
 - Required logged artifacts: `release_hash`, `sbom_hash`, `gate_report_hash`, `rollback_report_hash` (if rollback executed).
 - Artifact commitment formulas:
-  - `release_hash = SHA-256(CBOR_CANONICAL(["release_v1", [image_digest, code_commit_hash, lockfile_hash, toolchain_hash]]))`.
+  - `release_hash = SHA-256(CBOR_CANONICAL(["release", [image_digest, code_commit_hash, lockfile_hash, toolchain_hash]]))`.
   - `image_digest` is the immutable OCI manifest digest (`sha256:<hex>`) resolved from registry manifest bytes.
   - `sbom_hash = SHA-256(sbom_bytes)` where `sbom_bytes` is canonical SPDX JSON (UTF-8, lexicographically sorted object keys, no insignificant whitespace).
 - Secrets and keys:
@@ -165,41 +165,41 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Deploy.PreflightChecks_v1`
-- `UML_OS.Deploy.ExecuteRollout_v1`
-- `UML_OS.Deploy.EvaluateHealthGates_v1`
-- `UML_OS.Deploy.ExecuteRollback_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Deploy.PreflightChecks`
+- `Glyphser.Deploy.ExecuteRollout`
+- `Glyphser.Deploy.EvaluateHealthGates`
+- `Glyphser.Deploy.ExecuteRollback`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Deploy.PreflightChecks_v1`  
+**Operator:** `Glyphser.Deploy.PreflightChecks`  
 **Category:** IO  
 **Signature:** `(release, env -> preflight_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** validates artifact integrity, configuration, and capacity prerequisites.
 
-**Operator:** `UML_OS.Deploy.ExecuteRollout_v1`  
+**Operator:** `Glyphser.Deploy.ExecuteRollout`  
 **Category:** IO  
 **Signature:** `(release, env, strategy -> rollout_state)`  
 **Purity class:** IO  
 **Determinism:** deterministic orchestration  
 **Definition:** executes staged rollout with deterministic canary sequence.
 
-**Operator:** `UML_OS.Deploy.EvaluateHealthGates_v1`  
+**Operator:** `Glyphser.Deploy.EvaluateHealthGates`  
 **Category:** IO  
 **Signature:** `(rollout_state, thresholds -> gate_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** evaluates health and policy gates.
 
-**Operator:** `UML_OS.Deploy.ExecuteRollback_v1`  
+**Operator:** `Glyphser.Deploy.ExecuteRollback`  
 **Category:** IO  
 **Signature:** `(env, previous_release -> rollback_report)`  
 **Purity class:** IO  
@@ -209,10 +209,10 @@ Template conformance note (III.A): each operator definition in this section is i
 ---
 ## 6) Procedure
 ```text
-1. PreflightChecks_v1
-2. ExecuteRollout_v1
-3. EvaluateHealthGates_v1
-4. If gate failure -> ExecuteRollback_v1
+1. PreflightChecks
+2. ExecuteRollout
+3. EvaluateHealthGates
+4. If gate failure -> ExecuteRollback
 5. Emit deployment report
 ```
 

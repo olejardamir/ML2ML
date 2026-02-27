@@ -1,9 +1,9 @@
-# UML_OS Determinism Debug Checklist
+# Glyphser Determinism Debug Checklist
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DeterminismDebugChecklist_v1`  
+**Algorithm:** `Glyphser.Implementation.DeterminismDebugChecklist`  
 **Purpose (1 sentence):** Define deterministic debugging workflow to localize and resolve replay divergence sources across data, model, DP, backend, and runtime layers.  
-**Spec Version:** `UML_OS.Implementation.DeterminismDebugChecklist_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.DeterminismDebugChecklist` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Replay debugging and incident triage.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DeterminismDebugChecklist_v1`
+- **Algorithm:** `Glyphser.Implementation.DeterminismDebugChecklist`
 - **Purpose (1 sentence):** Deterministic divergence triage.
 ### 0.A Objective Semantics
 - minimize time-to-root-cause for determinism failures.
@@ -26,13 +26,13 @@
 ### 0.F Environment and Dependency Policy
 - must compare lockfile + env manifest before other checks.
 ### 0.G Operator Manifest
-- `UML_OS.Replay.CheckArtifactLinkage_v1`
-- `UML_OS.Replay.CheckRNGProgression_v1`
-- `UML_OS.Replay.CheckBackendProfile_v1`
-- `UML_OS.Replay.LocalizeFirstDivergence_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Replay.CheckArtifactLinkage`
+- `Glyphser.Replay.CheckRNGProgression`
+- `Glyphser.Replay.CheckBackendProfile`
+- `Glyphser.Replay.LocalizeFirstDivergence`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- replay/debug operators under `UML_OS.Replay.*`.
+- replay/debug operators under `Glyphser.Replay.*`.
 ### 0.I Outputs and Metric Schema
 - `(debug_report, root_cause, remediation_actions)`.
 ### 0.J Spec Lifecycle Governance
@@ -63,32 +63,32 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Replay.CheckArtifactLinkage_v1`
-- `UML_OS.Replay.CheckRNGProgression_v1`
-- `UML_OS.Replay.CheckBackendProfile_v1`
-- `UML_OS.Replay.LocalizeFirstDivergence_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Replay.CheckArtifactLinkage`
+- `Glyphser.Replay.CheckRNGProgression`
+- `Glyphser.Replay.CheckBackendProfile`
+- `Glyphser.Replay.LocalizeFirstDivergence`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Replay.CheckArtifactLinkage_v1`  
+**Operator:** `Glyphser.Replay.CheckArtifactLinkage`  
 **Signature:** `(baseline_refs, candidate_refs -> linkage_report)`  
 **Purity class:** PURE  
 **Definition:** Verifies hash-chain and artifact binding coherence.
 
-**Operator:** `UML_OS.Replay.CheckRNGProgression_v1`
+**Operator:** `Glyphser.Replay.CheckRNGProgression`
 **Signature:** `(baseline_trace, candidate_trace, replay_token -> rng_progression_report)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Validates RNG offset progression and stream ownership invariants across runs under identical replay context.
 
-**Operator:** `UML_OS.Replay.CheckBackendProfile_v1`
+**Operator:** `Glyphser.Replay.CheckBackendProfile`
 **Signature:** `(baseline_runtime_profile, candidate_runtime_profile, determinism_profile_hash -> backend_profile_report)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Compares backend/runtime determinism profile bindings and emits deterministic compatibility verdict.
 
-**Operator:** `UML_OS.Replay.LocalizeFirstDivergence_v1`  
+**Operator:** `Glyphser.Replay.LocalizeFirstDivergence`  
 **Signature:** `(trace_a, trace_b -> divergence_location)`  
 **Purity class:** PURE  
 **Definition:** Finds first mismatched record by comparator profile.
@@ -96,10 +96,10 @@
 ---
 ## 6) Procedure
 ```text
-1. linkage <- CheckArtifactLinkage_v1(...)      # config/data linkage stage
-2. rng_check <- CheckRNGProgression_v1(...)     # RNG stage
-3. backend_check <- CheckBackendProfile_v1(...) # backend stage
-4. loc <- LocalizeFirstDivergence_v1(linkage, rng_check, backend_check, ...)
+1. linkage <- CheckArtifactLinkage(...)      # config/data linkage stage
+2. rng_check <- CheckRNGProgression(...)     # RNG stage
+3. backend_check <- CheckBackendProfile(...) # backend stage
+4. loc <- LocalizeFirstDivergence(linkage, rng_check, backend_check, ...)
 5. return debug_report with deterministic remediation ordering
 ```
 

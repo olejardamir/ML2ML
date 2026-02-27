@@ -1,9 +1,9 @@
 # Universal Machine Learning Operating System — ModelIR Executor
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
-**Algorithm:** `UML_OS.Model.ModelIR_Executor_v1`  
+**Algorithm:** `Glyphser.Model.ModelIR_Executor`  
 **Purpose (1 sentence):** Deterministically execute any valid UML_Model_IR DAG on a contract-validated backend driver using TMMU-managed memory with strict topological ordering, static liveness analysis for slot reuse, **mode-aware forward/reverse scheduling**, and full support for forward/backward/inference passes, guaranteeing E0/E1 reproducibility per declared adapter/hardware tier while scaling to 100 B+ parameter models.  
-**Spec Version:** `UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Spec Version:** `Glyphser.Model.ModelIR_Executor` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Declarative neural-network graph execution with memory isolation and bit-identical reproducibility.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Model.ModelIR_Executor_v1`
+- **Algorithm:** `Glyphser.Model.ModelIR_Executor`
 - **Purpose (1 sentence):** Execute UML_Model_IR DAGs deterministically on validated drivers with TMMU memory management.
-- **Spec Version:** `UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Model.ModelIR_Executor` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Scalable deterministic ML computation graph execution.
 
 ### 0.A Objective Semantics
@@ -30,9 +30,9 @@
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` inherited from kernel master RNG (no direct draws in core path).
 - PRNG family: Philox4x32-10 (only inside custom operators/driver primitives that declare consumption).
-- Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive_v1`.
+- Randomness locality: strictly inside registered custom operators or backend primitives that explicitly declare RNG consumption through `DispatchPrimitive`.
 - Replay guarantee: fully replayable given `(ir_hash, theta_hash, input_hash, mode, replay_token, tmmu_context, backend_binary_hash, driver_runtime_fingerprint_hash)`.
-- Replay token contribution: `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor_v1", [kernel_replay_token, ir_hash, mode, uint64(global_position)]]))`.
+- Replay token contribution: `modelir_replay_t = SHA-256(CBOR_CANONICAL(["modelir_executor", [kernel_replay_token, ir_hash, mode, uint64(global_position)]]))`.
 - Proof-carrying IR fields:
   - `ir_schema_hash`
   - `ir_operator_set_hash`
@@ -55,31 +55,31 @@
 - Backward ordering contract: execution follows topological order of the explicit gradient dependency graph (`grad_edges`); plain reverse-forward order is valid only when equivalent to `grad_edges` order.
 
 ### 0.E Parallel, Concurrency, and Reduction Policy
-- Driver handles intra-op parallelism (must be deterministic per Contract.Validate_v1).
+- Driver handles intra-op parallelism (must be deterministic per Contract.Validate).
 - Inter-node execution: sequential topological order (no concurrent nodes unless driver proves independence under contract).
 - Reductions: fixed ascending-index tree order per kernel 0.E.
 
 ### 0.F Environment and Dependency Policy
-- Requires loaded compliant backend driver (via UML_OS.Backend.LoadDriver_v1) and active TMMU.
+- Requires loaded compliant backend driver (via Glyphser.Backend.LoadDriver) and active TMMU.
 - Reference runtime: CPU reference driver for E0 verification.
 - Dependencies: UML_Model_IR schema (0.Y of kernel), registered custom operators, TMMU arena.
-- **Backward-mode requirement:** ir_dag contains the same nodes as forward but DispatchPrimitive_v1 uses mode="backward" to invoke gradient kernels; execution order must follow explicit gradient dependency order.
+- **Backward-mode requirement:** ir_dag contains the same nodes as forward but DispatchPrimitive uses mode="backward" to invoke gradient kernels; execution order must follow explicit gradient dependency order.
 - Determinism level: `BITWISE` for critical tensors/fingerprints, `TOLERANCE` for non-critical compute_dtype paths.
 
 ### 0.G Operator Manifest
-- `UML_OS.Model.ModelIR_Executor_v1`
-- `UML_OS.Model.TopoSortNodes_v1`
-- `UML_OS.Model.BuildGradDependencyOrder_v1`
-- `UML_OS.Model.DispatchPrimitive_v1`
-- `UML_OS.Model.CollectGradients_v1`
-- `UML_OS.TMMU.PrepareMemory_v2` (includes static liveness + deterministic slot assignment)
-- `UML_OS.Fingerprint.StateFingerprint_v1`
-- `UML_OS.TMMU.CommitExecution_v1`
-- `UML_OS.Contract.Validate_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Model.ModelIR_Executor`
+- `Glyphser.Model.TopoSortNodes`
+- `Glyphser.Model.BuildGradDependencyOrder`
+- `Glyphser.Model.DispatchPrimitive`
+- `Glyphser.Model.CollectGradients`
+- `Glyphser.TMMU.PrepareMemory` (includes static liveness + deterministic slot assignment)
+- `Glyphser.Fingerprint.StateFingerprint`
+- `Glyphser.TMMU.CommitExecution`
+- `Glyphser.Contract.Validate`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
-- Fully-qualified names: `UML_OS.Model.<Name>_v#`
+- Fully-qualified names: `Glyphser.Model.<Name>_v#`
 
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(outputs: tensor_map, grads?: tensor_map, execution_fp, tmmu_state_next, rng_state_next)`
@@ -179,36 +179,36 @@
 
 ## 3) Initialization
 
-1. `Contract.Validate_v1(ir_dag, driver, mode)`
-2. `execution_order ← UML_OS.Model.TopoSortNodes_v1(ir_dag)`
+1. `Contract.Validate(ir_dag, driver, mode)`
+2. `execution_order ← Glyphser.Model.TopoSortNodes(ir_dag)`
 3. **if mode == "backward":**
-   - **`backward_order, reverse_equivalent_flag ← UML_OS.Model.BuildGradDependencyOrder_v1(ir_dag, execution_order)`**
+   - **`backward_order, reverse_equivalent_flag ← Glyphser.Model.BuildGradDependencyOrder(ir_dag, execution_order)`**
    - **if `reverse_equivalent_flag == 1`: `execution_order ← reversed(execution_order)` else `execution_order ← backward_order`**
-4. `tensor_map ← UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode, replay_token, arena_config)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
+4. `tensor_map ← Glyphser.TMMU.PrepareMemory(ir_dag, execution_order, mode, replay_token, arena_config)` (static liveness + zeroing + deterministic slot reuse; mode-aware activation saving for backward)
 
 ---
 
 ## 4) Operator Manifest
 
 Active operators:
-- `UML_OS.Model.ModelIR_Executor_v1`
-- `UML_OS.Model.TopoSortNodes_v1`
-- `UML_OS.Model.BuildGradDependencyOrder_v1`
-- `UML_OS.Model.DispatchPrimitive_v1`
-- `UML_OS.Model.CollectGradients_v1`
-- `UML_OS.TMMU.PrepareMemory_v2`
-- `UML_OS.Fingerprint.StateFingerprint_v1`
-- `UML_OS.TMMU.CommitExecution_v1`
-- `UML_OS.Contract.Validate_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Model.ModelIR_Executor`
+- `Glyphser.Model.TopoSortNodes`
+- `Glyphser.Model.BuildGradDependencyOrder`
+- `Glyphser.Model.DispatchPrimitive`
+- `Glyphser.Model.CollectGradients`
+- `Glyphser.TMMU.PrepareMemory`
+- `Glyphser.Fingerprint.StateFingerprint`
+- `Glyphser.TMMU.CommitExecution`
+- `Glyphser.Contract.Validate`
+- `Glyphser.Error.Emit`
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
-**Operator:** `UML_OS.Model.ModelIR_Executor_v1`  
+**Operator:** `Glyphser.Model.ModelIR_Executor`  
 **Category:** Model  
 **Signature:** `(ir_dag, theta, input_data, mode, replay_token, tmmu_context, rng_state → outputs, grads?, execution_fp, tmmu_state_next, rng_state_next)`  
 **Purity class:** STATEFUL (TMMU/driver)  
@@ -220,10 +220,10 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Ordering/tie handling:** strict topological order; stable node_id tie-break; backward uses deterministic gradient dependency order (reverse-forward only when proven equivalent).  
 **Complexity note:** O(|nodes| + |edges|) dispatch path after initialization.  
 **Failure behavior:** abort on 0.K failure codes.  
-**Dependencies:** TopoSortNodes_v1, DispatchPrimitive_v1, CollectGradients_v1, PrepareMemory_v2, UML_OS.Fingerprint.StateFingerprint_v1, CommitExecution_v1.  
+**Dependencies:** TopoSortNodes, DispatchPrimitive, CollectGradients, PrepareMemory, Glyphser.Fingerprint.StateFingerprint, CommitExecution.  
 **Test vectors:** see VII.B tiny DAG forward/backward/inference checks.
 
-**Operator:** `UML_OS.Model.TopoSortNodes_v1`  
+**Operator:** `Glyphser.Model.TopoSortNodes`  
 **Category:** Model  
 **Signature:** `(ir_dag → execution_order: node[])`  
 **Purity class:** PURE  
@@ -238,14 +238,14 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** IR schema validation.  
 **Test vectors:** cycle detection and deterministic ordering checks.
 
-**Operator:** `UML_OS.Model.BuildGradDependencyOrder_v1`
+**Operator:** `Glyphser.Model.BuildGradDependencyOrder`
 **Category:** Model
 **Signature:** `(ir_dag, forward_execution_order -> backward_execution_order: node[], reverse_equivalent_flag: {0,1})`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Builds a topological order over explicit gradient dependency graph (`grad_edges`, or default reverse forward-order edges when `grad_edges` absent). `reverse_equivalent_flag` is `1` only when `reversed(forward_execution_order)` is a valid topological order for the gradient dependency graph; otherwise `0` and `backward_execution_order` MUST be used.
 
-**Operator:** `UML_OS.Model.DispatchPrimitive_v1`  
+**Operator:** `Glyphser.Model.DispatchPrimitive`  
 **Category:** Model  
 **Signature:** `(node, tensor_map, theta, mode, tmmu_context, rng_state -> updated_tensor_map, rng_state_next)`  
 **Purity class:** STATEFUL  
@@ -262,7 +262,7 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
 **Dependencies:** backend driver dispatch table, TMMU handles, kernel RNG ownership contract.  
 **Test vectors:** per-primitive deterministic forward/backward outputs.
 
-**Operator:** `UML_OS.Model.CollectGradients_v1`  
+**Operator:** `Glyphser.Model.CollectGradients`  
 **Category:** Model  
 **Signature:** `(tensor_map, ir_dag -> grads: tensor_map)`  
 **Purity class:** PURE  
@@ -277,7 +277,7 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
 **Dependencies:** IR parameter metadata and tensor map.  
 **Test vectors:** gradient extraction on known tiny models.
 
-**Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
+**Operator:** `Glyphser.TMMU.PrepareMemory`  
 **Category:** Memory  
 **Signature:** `(ir_dag, execution_order, mode, replay_token, arena_config -> tensor_map)`  
 **Purity class:** STATEFUL  
@@ -289,26 +289,26 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
 **Ordering/tie handling:** deterministic slot assignment order from liveness plan.  
 **Complexity note:** O(|nodes| log |nodes|) worst-case for allocation planning.  
 **Failure behavior:** abort on allocation failure/alignment violations.  
-**Dependencies:** `UML_OS.TMMU` allocation operators and replay token context.  
+**Dependencies:** `Glyphser.TMMU` allocation operators and replay token context.  
 **Test vectors:** deterministic slot map across repeated runs.
 
 ---
 
-**Operator:** `UML_OS.Contract.Validate_v1`  
+**Operator:** `Glyphser.Contract.Validate`  
 **Category:** Contract  
 **Signature:** `(ir_dag, driver, mode -> contract_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Verifies IR schema, primitive coverage, determinism requirements, and mode constraints before execution.
 
-**Operator:** `UML_OS.Fingerprint.StateFingerprint_v1`  
+**Operator:** `Glyphser.Fingerprint.StateFingerprint`  
 **Category:** Observability  
 **Signature:** `(tensor_map -> execution_fp)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Computes canonical binary64 fingerprint over declared critical tensors using deterministic ordering.
 
-**Operator:** `UML_OS.TMMU.CommitExecution_v1`  
+**Operator:** `Glyphser.TMMU.CommitExecution`  
 **Category:** Memory  
 **Signature:** `(tmmu_context -> tmmu_state_next)`  
 **Purity class:** STATEFUL  
@@ -318,26 +318,26 @@ Each primitive MUST declare deterministic RNG consumption (`rng_draws_per_invoca
 ## 6) Procedure
 
 ```text
-1. Contract.Validate_v1(ir_dag, driver, mode)
-2. execution_order ← TopoSortNodes_v1(ir_dag)
+1. Contract.Validate(ir_dag, driver, mode)
+2. execution_order ← TopoSortNodes(ir_dag)
 3. if mode == "backward":
-       backward_order, reverse_equivalent_flag <- BuildGradDependencyOrder_v1(ir_dag, execution_order)
+       backward_order, reverse_equivalent_flag <- BuildGradDependencyOrder(ir_dag, execution_order)
        if reverse_equivalent_flag == 1:
            execution_order <- reversed(execution_order)
        else:
            execution_order <- backward_order
-4. tensor_map ← TMMU.PrepareMemory_v2(ir_dag, execution_order, mode, replay_token, arena_config)  # static liveness + zeroing + slot reuse (mode-aware)
+4. tensor_map ← TMMU.PrepareMemory(ir_dag, execution_order, mode, replay_token, arena_config)  # static liveness + zeroing + slot reuse (mode-aware)
 
 5. rng_state_work <- rng_state
 6. for node in execution_order:
-       tensor_map, rng_state_work <- DispatchPrimitive_v1(node, tensor_map, theta, mode, tmmu_context, rng_state_work)
+       tensor_map, rng_state_work <- DispatchPrimitive(node, tensor_map, theta, mode, tmmu_context, rng_state_work)
 
 7. if mode == "backward":
-       grads ← CollectGradients_v1(tensor_map, ir_dag)  # now explicitly defined operator
+       grads ← CollectGradients(tensor_map, ir_dag)  # now explicitly defined operator
 
 8. outputs ← extract_output_nodes(tensor_map, ir_dag)
-9. execution_fp ← UML_OS.Fingerprint.StateFingerprint_v1(tensor_map)  # critical tensors only
-10. TMMU.CommitExecution_v1()  # sync barriers for isolation
+9. execution_fp ← Glyphser.Fingerprint.StateFingerprint(tensor_map)  # critical tensors only
+10. TMMU.CommitExecution()  # sync barriers for isolation
 11. return outputs, grads?, execution_fp, tmmu_state_next, rng_state_work
 ```
 
@@ -359,7 +359,7 @@ Each invocation emits deterministic node-level trace records in execution order 
 - `run_header`: `ir_hash`, `mode`, `backend_binary_hash`, `driver_runtime_fingerprint_hash`, `tmmu_arena_size`
 - `node`: `node_id`, `instr`, `shape`, `dtype`, `dispatch_success`
 - `run_end`: `execution_fp`, `memory_peak`, `reuse_ratio`, `nodes_executed`
-- critical reductions set (normative minimum): `loss_total`, `grad_norm`, and tensors used by `StateFingerprint_v1`.
+- critical reductions set (normative minimum): `loss_total`, `grad_norm`, and tensors used by `StateFingerprint`.
 
 ### Metric schema
 - `nodes_executed`, `memory_reuse_ratio`, `peak_tmmu_usage`, `execution_fp`

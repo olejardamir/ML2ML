@@ -1,9 +1,9 @@
-# UML_OS Architecture Decisions Log Contract
+# Glyphser Architecture Decisions Log Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Architecture.DecisionLog_v1`  
+**Algorithm:** `Glyphser.Architecture.DecisionLog`  
 **Purpose (1 sentence):** Define deterministic recording, hashing, and lifecycle of architecture decisions (ADR-style) for implementation governance.  
-**Spec Version:** `UML_OS.Architecture.DecisionLog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Architecture.DecisionLog` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Architecture governance and traceability.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Architecture.DecisionLog_v1`
+- **Algorithm:** `Glyphser.Architecture.DecisionLog`
 - **Purpose (1 sentence):** Deterministic architecture decision contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -29,10 +29,10 @@
 ### 0.F Environment and Dependency Policy
 - Decisions that affect contracts must link affected contract hashes.
 ### 0.G Operator Manifest
-- `UML_OS.Arch.DecisionCreate_v1`
-- `UML_OS.Arch.DecisionSupersede_v1`
-- `UML_OS.Arch.DecisionValidateLinks_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Arch.DecisionCreate`
+- `Glyphser.Arch.DecisionSupersede`
+- `Glyphser.Arch.DecisionValidateLinks`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `adr/` and `decision_log.cbor` canonical roots.
 ### 0.I Outputs and Metric Schema
@@ -81,24 +81,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Arch.DecisionCreate_v1`
-- `UML_OS.Arch.DecisionSupersede_v1`
-- `UML_OS.Arch.DecisionValidateLinks_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Arch.DecisionCreate`
+- `Glyphser.Arch.DecisionSupersede`
+- `Glyphser.Arch.DecisionValidateLinks`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Arch.DecisionCreate_v1`  
+**Operator:** `Glyphser.Arch.DecisionCreate`  
 **Signature:** `(decision_record -> decision_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Arch.DecisionSupersede_v1`  
+**Operator:** `Glyphser.Arch.DecisionSupersede`  
 **Signature:** `(old_decision_id, new_decision_id -> supersede_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Arch.DecisionValidateLinks_v1`  
+**Operator:** `Glyphser.Arch.DecisionValidateLinks`  
 **Signature:** `(decision_log -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -106,9 +106,9 @@
 ---
 ## 6) Procedure
 ```text
-1. DecisionCreate_v1
-2. DecisionValidateLinks_v1
-3. Optional DecisionSupersede_v1
+1. DecisionCreate
+2. DecisionValidateLinks
+3. Optional DecisionSupersede
 4. Build canonical decision report
 5. decision_log_hash <- SHA-256(CBOR_CANONICAL(decision_log))
 6. return (decision_report, decision_log_hash)

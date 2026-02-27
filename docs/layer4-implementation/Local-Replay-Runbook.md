@@ -1,9 +1,9 @@
-# UML_OS Local Replay Runbook
+# Glyphser Local Replay Runbook
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.LocalReplayRunbook_v1`  
+**Algorithm:** `Glyphser.Implementation.LocalReplayRunbook`  
 **Purpose (1 sentence):** Define deterministic local replay execution steps for developers to reproduce and diagnose run divergence.  
-**Spec Version:** `UML_OS.Implementation.LocalReplayRunbook_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.LocalReplayRunbook` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Developer replay operations.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.LocalReplayRunbook_v1`
+- **Algorithm:** `Glyphser.Implementation.LocalReplayRunbook`
 - **Purpose (1 sentence):** Deterministic local replay workflow.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - lockfile-pinned local runtime required.
 ### 0.G Operator Manifest
-- `UML_OS.Replay.LoadArtifacts_v1`
-- `UML_OS.Replay.RunDeterministicReplay_v1`
-- `UML_OS.Replay.CompareOutputs_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Replay.LoadArtifacts`
+- `Glyphser.Replay.RunDeterministicReplay`
+- `Glyphser.Replay.CompareOutputs`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- all operators under `UML_OS.Replay.*`.
+- all operators under `Glyphser.Replay.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(replay_report, divergence_report)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,24 +64,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Replay.LoadArtifacts_v1`
-- `UML_OS.Replay.RunDeterministicReplay_v1`
-- `UML_OS.Replay.CompareOutputs_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Replay.LoadArtifacts`
+- `Glyphser.Replay.RunDeterministicReplay`
+- `Glyphser.Replay.CompareOutputs`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Replay.LoadArtifacts_v1`  
+**Operator:** `Glyphser.Replay.LoadArtifacts`  
 **Signature:** `(artifact_refs -> replay_inputs)`  
 **Purity class:** IO  
 **Definition:** Loads and validates artifact hash links required for replay.
 
-**Operator:** `UML_OS.Replay.RunDeterministicReplay_v1`
+**Operator:** `Glyphser.Replay.RunDeterministicReplay`
 **Signature:** `(replay_inputs -> observed_outputs, replay_report)`
 **Purity class:** IO
 **Definition:** Replays run steps deterministically under the active replay mode and emits canonical replay report.
 
-**Operator:** `UML_OS.Replay.CompareOutputs_v1`  
+**Operator:** `Glyphser.Replay.CompareOutputs`  
 **Signature:** `(expected, observed, replay_mode -> diff)`  
 **Purity class:** PURE  
 **Definition:** Applies E0/E1 comparator rules and emits deterministic diff.
@@ -89,10 +89,10 @@
 ---
 ## 6) Procedure
 ```text
-1. replay_inputs <- LoadArtifacts_v1(...)
-2. observed <- RunDeterministicReplay_v1(replay_inputs)
-3. diff <- CompareOutputs_v1(expected, observed, replay_mode)
-4. if diff.has_divergence: Error.Emit_v1(REPLAY_DIVERGENCE)
+1. replay_inputs <- LoadArtifacts(...)
+2. observed <- RunDeterministicReplay(replay_inputs)
+3. diff <- CompareOutputs(expected, observed, replay_mode)
+4. if diff.has_divergence: Error.Emit(REPLAY_DIVERGENCE)
 5. return (replay_report, divergence_report)
 ```
 

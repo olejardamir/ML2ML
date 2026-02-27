@@ -1,9 +1,9 @@
-# UML_OS Command Reference Contract
+# Glyphser Command Reference Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.CommandReference_v1`  
+**Algorithm:** `Glyphser.Implementation.CommandReference`  
 **Purpose (1 sentence):** Define canonical command entrypoints and deterministic invocation patterns for development, testing, replay, and release workflows.  
-**Spec Version:** `UML_OS.Implementation.CommandReference_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.CommandReference` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Operational command governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.CommandReference_v1`
+- **Algorithm:** `Glyphser.Implementation.CommandReference`
 - **Purpose (1 sentence):** Canonical command contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - Commands must run under validated setup.
 ### 0.G Operator Manifest
-- `UML_OS.CLI.ValidateCommand_v1`
-- `UML_OS.CLI.ExecuteCommand_v1`
-- `UML_OS.CLI.ReportCommandResult_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.CLI.ValidateCommand`
+- `Glyphser.CLI.ExecuteCommand`
+- `Glyphser.CLI.ReportCommandResult`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `umlos <subcommand>` canonical form.
+- `glyphser <subcommand>` canonical form.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(command_report, exit_code)`
 - Metrics: `commands_run`, `commands_failed`
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.CLI.ValidateCommand_v1`
-- `UML_OS.CLI.ExecuteCommand_v1`
-- `UML_OS.CLI.ReportCommandResult_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.CLI.ValidateCommand`
+- `Glyphser.CLI.ExecuteCommand`
+- `Glyphser.CLI.ReportCommandResult`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.CLI.ValidateCommand_v1`  
+**Operator:** `Glyphser.CLI.ValidateCommand`  
 **Signature:** `(argv, command_registry -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.CLI.ExecuteCommand_v1`  
+**Operator:** `Glyphser.CLI.ExecuteCommand`  
 **Signature:** `(validated_command -> command_result)`  
 **Purity class:** IO  
 **Determinism:** deterministic under fixed inputs.
 
-**Operator:** `UML_OS.CLI.ReportCommandResult_v1`  
+**Operator:** `Glyphser.CLI.ReportCommandResult`  
 **Signature:** `(command_result -> command_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateCommand_v1
-2. ExecuteCommand_v1
-3. ReportCommandResult_v1
+1. ValidateCommand
+2. ExecuteCommand
+3. ReportCommandResult
 4. Return (command_report, exit_code)
 ```
 

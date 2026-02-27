@@ -1,9 +1,9 @@
-# UML_OS Dependency Lock Policy
+# Glyphser Dependency Lock Policy
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DependencyLockPolicy_v1`
+**Algorithm:** `Glyphser.Implementation.DependencyLockPolicy`
 **Purpose (1 sentence):** Define deterministic dependency pinning, lock validation, artifact integrity verification, and upgrade-governance semantics for reproducible builds and runs.
-**Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Implementation.DependencyLockPolicy` | 2026-02-19 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Build/runtime dependency control.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DependencyLockPolicy_v1`
+- **Algorithm:** `Glyphser.Implementation.DependencyLockPolicy`
 - **Purpose (1 sentence):** Deterministic dependency governance.
-- **Spec Version:** `UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Implementation.DependencyLockPolicy` | 2026-02-19 | Authors: Olejar Damir
 - **Domain / Problem Class:** Reproducible dependency management.
 
 ### 0.A Objective Semantics
@@ -24,7 +24,7 @@
 ### 0.B Reproducibility Contract
 - Replayable given `(lockfile_blob, policy_blob, artifact_index_blob, sbom_hash, toolchain_hash, runtime_env_hash)`.
 - `toolchain_hash` and `runtime_env_hash` are replay inputs.
-- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
+- `dependencies_lock_hash` is derived output: `SHA-256(CBOR_CANONICAL(["deps_lock", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
 - Artifact verification replay requires content-addressed immutable artifact retrieval from `artifact_index_blob` locations; this store assumption is part of runtime environment reproducibility (anchored by `runtime_env_hash`).
 
 ### 0.C Numeric Policy
@@ -49,10 +49,10 @@
 - Determinism target for contract-critical outputs (`lock_verdict`, `dependencies_lock_hash`, trace commitments) is `E0`.
 
 ### 0.G Operator Manifest
-- `UML_OS.DepLock.ValidateLockfile_v1`
-- `UML_OS.DepLock.VerifyArtifactHashes_v1`
-- `UML_OS.DepLock.EvaluateUpgradeRequest_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.DepLock.ValidateLockfile`
+- `Glyphser.DepLock.VerifyArtifactHashes`
+- `Glyphser.DepLock.EvaluateUpgradeRequest`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
 - Operators are fully-qualified and versioned.
@@ -92,7 +92,7 @@
   - checkpoint SBOM mismatch on restore (`SBOM_HASH_MISMATCH`),
   - checkpoint toolchain hash mismatch on restore (`TOOLCHAIN_HASH_MISMATCH`),
   - checkpoint runtime environment hash mismatch on restore (`RUNTIME_ENV_HASH_MISMATCH`).
-- On abort, emit `UML_OS.Error.Emit_v1` with deterministic `CONTRACT_VIOLATION` payload containing one canonical code above and stop.
+- On abort, emit `Glyphser.Error.Emit` with deterministic `CONTRACT_VIOLATION` payload containing one canonical code above and stop.
 
 ### 0.L Input/Data Provenance
 - Lockfile source and artifact provenance are mandatory.
@@ -201,7 +201,7 @@ A run is feasible iff all of the following hold:
   - if no mapping exists, keep source string unchanged after NFC normalization.
 - `allowed_sources` comparison uses the canonicalized source string only.
 
-`LockfileDigest_v1`:
+`LockfileDigest`:
 - Parse lockfile into `LockTuple` entries using format-specific canonical rules:
   - `requirements.txt` with hashes:
     - comments MUST be whole-line comments only (first non-whitespace char is `#`); inline comments on requirement lines are invalid in v1,
@@ -233,11 +233,11 @@ A run is feasible iff all of the following hold:
 - Sort tuples by `(name, version, source)` using bytewise UTF-8 lexicographic order.
 - `lockfile_hash = SHA-256(CBOR_CANONICAL(sorted_lock_tuples))`.
 
-`DependenciesLockDigest_v1`:
-- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
+`DependenciesLockDigest`:
+- `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock", [lockfile_hash, toolchain_hash, runtime_env_hash, sbom_hash]]))`.
 
 `policy_bundle_hash`:
-- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", [policy_version, policy_blob]]))`.
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle", [policy_version, policy_blob]]))`.
 
 `artifact_index_hash`:
 - `artifact_index_hash = SHA-256(CBOR_CANONICAL(artifact_index_blob))`.
@@ -264,14 +264,14 @@ A run is feasible iff all of the following hold:
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.DepLock.ValidateLockfile_v1`
-- `UML_OS.DepLock.VerifyArtifactHashes_v1`
-- `UML_OS.DepLock.EvaluateUpgradeRequest_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.DepLock.ValidateLockfile`
+- `Glyphser.DepLock.VerifyArtifactHashes`
+- `Glyphser.DepLock.EvaluateUpgradeRequest`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md`.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md`.
 
 `LockValidationReport`:
 - `is_valid:bool`
@@ -304,7 +304,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 - `disallowed_changes:array<UpgradeChange>` sorted by `(name, from_version, to_version, source)`
 - `notes:array<tstr>` sorted ascending
 
-**Operator:** `UML_OS.DepLock.ValidateLockfile_v1`
+**Operator:** `Glyphser.DepLock.ValidateLockfile`
 - **Category:** IO
 - **Signature:** `(lockfile_blob:bytes, policy_blob:bytes -> lock_validation_report:LockValidationReport, lockfile_hash:bytes32, policy_bundle_hash:bytes32)`
 - **Purity class:** PURE
@@ -316,7 +316,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
   - Validates required pins and policy constraints.
   - Returns deterministic sorted violations.
 
-**Operator:** `UML_OS.DepLock.VerifyArtifactHashes_v1`
+**Operator:** `Glyphser.DepLock.VerifyArtifactHashes`
 - **Category:** IO
 - **Signature:** `(lockfile_blob:bytes, artifact_index_blob:bytes -> artifact_verification_report:ArtifactVerificationReport)`
 - **Purity class:** IO
@@ -330,7 +330,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
   - If artifact retrieval fails, records a missing artifact.
   - Records missing artifacts and mismatches deterministically.
 
-**Operator:** `UML_OS.DepLock.EvaluateUpgradeRequest_v1`
+**Operator:** `Glyphser.DepLock.EvaluateUpgradeRequest`
 - **Category:** IO
 - **Signature:** `(current_lockfile_blob:bytes, proposal_blob:bytes, policy_blob:bytes -> upgrade_report:UpgradeReport)`
 - **Purity class:** PURE
@@ -366,13 +366,13 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 ---
 ## 6) Procedure
-1. Run `ValidateLockfile_v1`.
+1. Run `ValidateLockfile`.
 2. If `lock_validation_report.is_valid=false`, emit deterministic `CONTRACT_VIOLATION` and abort.
-3. Run `VerifyArtifactHashes_v1`.
+3. Run `VerifyArtifactHashes`.
 4. If `artifact_verification_report.is_valid=false`, emit deterministic `CONTRACT_VIOLATION` and abort.
 5. Form `dependencies_lock_hash` from `lockfile_hash` and provided inputs `toolchain_hash`, `runtime_env_hash`, and `sbom_hash`.
 6. Include provided `sbom_hash` in trace commitments and dependency-lock commitment calculation.
-7. Optionally run `EvaluateUpgradeRequest_v1` when proposal is provided.
+7. Optionally run `EvaluateUpgradeRequest` when proposal is provided.
 8. Emit `lock_verdict` and optional `upgrade_report`.
 
 ---

@@ -1,9 +1,9 @@
-# UML_OS Developer Troubleshooting FAQ Contract
+# Glyphser Developer Troubleshooting FAQ Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.TroubleshootingFAQ_v1`  
+**Algorithm:** `Glyphser.Implementation.TroubleshootingFAQ`  
 **Purpose (1 sentence):** Define deterministic diagnosis mappings from common development failures to canonical remediation workflows.  
-**Spec Version:** `UML_OS.Implementation.TroubleshootingFAQ_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.TroubleshootingFAQ` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Developer support and failure remediation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.TroubleshootingFAQ_v1`
+- **Algorithm:** `Glyphser.Implementation.TroubleshootingFAQ`
 - **Purpose (1 sentence):** Deterministic troubleshooting reference contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - Remediation steps must preserve evidence and contract bindings.
 ### 0.G Operator Manifest
-- `UML_OS.FAQ.ResolveFailure_v1`
-- `UML_OS.FAQ.GetRemediationSteps_v1`
-- `UML_OS.FAQ.ValidateResolution_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.FAQ.ResolveFailure`
+- `Glyphser.FAQ.GetRemediationSteps`
+- `Glyphser.FAQ.ValidateResolution`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.FAQ.*`
+- `Glyphser.FAQ.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(faq_resolution_report, remediation_plan)`
 - Metrics: `lookups_total`, `resolved_count`, `unresolved_count`
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.FAQ.ResolveFailure_v1`
-- `UML_OS.FAQ.GetRemediationSteps_v1`
-- `UML_OS.FAQ.ValidateResolution_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.FAQ.ResolveFailure`
+- `Glyphser.FAQ.GetRemediationSteps`
+- `Glyphser.FAQ.ValidateResolution`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.FAQ.ResolveFailure_v1`  
+**Operator:** `Glyphser.FAQ.ResolveFailure`  
 **Signature:** `(failure_code, context -> resolution_id)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.FAQ.GetRemediationSteps_v1`  
+**Operator:** `Glyphser.FAQ.GetRemediationSteps`  
 **Signature:** `(resolution_id -> remediation_plan)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.FAQ.ValidateResolution_v1`  
+**Operator:** `Glyphser.FAQ.ValidateResolution`  
 **Signature:** `(remediation_plan, context -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ResolveFailure_v1
-2. GetRemediationSteps_v1
-3. ValidateResolution_v1
+1. ResolveFailure
+2. GetRemediationSteps
+3. ValidateResolution
 4. Return remediation_plan + report
 ```
 

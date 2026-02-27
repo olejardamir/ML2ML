@@ -1,9 +1,9 @@
-# UML_OS Schema Evolution Playbook
+# Glyphser Schema Evolution Playbook
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.SchemaEvolutionPlaybook_v1`  
+**Algorithm:** `Glyphser.Implementation.SchemaEvolutionPlaybook`  
 **Purpose (1 sentence):** Provide deterministic procedures for introducing, validating, and migrating contract schemas without replay or audit breakage.  
-**Spec Version:** `UML_OS.Implementation.SchemaEvolutionPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.SchemaEvolutionPlaybook` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Contract migration governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.SchemaEvolutionPlaybook_v1`
+- **Algorithm:** `Glyphser.Implementation.SchemaEvolutionPlaybook`
 - **Purpose (1 sentence):** Deterministic schema evolution workflow.
 ### 0.A Objective Semantics
 - minimize migration risk and compatibility breaks.
@@ -27,12 +27,12 @@
 - migration toolchain locked and versioned.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.ValidateSchemaChange_v1`
-- `UML_OS.Implementation.RunSchemaMigration_v1`
-- `UML_OS.Implementation.VerifyMigrationEquivalence_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ValidateSchemaChange`
+- `Glyphser.Implementation.RunSchemaMigration`
+- `Glyphser.Implementation.VerifyMigrationEquivalence`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- migration operators under `UML_OS.Implementation.*`.
+- migration operators under `Glyphser.Implementation.*`.
 ### 0.I Outputs and Metric Schema
 - `(migration_report, migrated_hashes, equivalence_report)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,19 +64,19 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.ValidateSchemaChange_v1`
-- `UML_OS.Implementation.RunSchemaMigration_v1`
-- `UML_OS.Implementation.VerifyMigrationEquivalence_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ValidateSchemaChange`
+- `Glyphser.Implementation.RunSchemaMigration`
+- `Glyphser.Implementation.VerifyMigrationEquivalence`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.ValidateSchemaChange_v1`  
+**Operator:** `Glyphser.Implementation.ValidateSchemaChange`  
 **Signature:** `(old_schema, new_schema -> change_report)`  
 **Purity class:** PURE  
 **Definition:** Classifies changes into additive/compatible/breaking classes.
 
-**Operator:** `UML_OS.Implementation.RunSchemaMigration_v1`  
+**Operator:** `Glyphser.Implementation.RunSchemaMigration`  
 **Signature:** `(objects, migration_rules -> migrated_objects)`  
 **Purity class:** PURE  
 **Definition:** Applies deterministic migration transformations.
@@ -84,10 +84,10 @@
 ---
 ## 6) Procedure
 ```text
-1. change_report <- ValidateSchemaChange_v1(...)
-2. if change_report.invalid: Error.Emit_v1(CONTRACT_VIOLATION)
-3. migrated <- RunSchemaMigration_v1(...)
-4. eq <- VerifyMigrationEquivalence_v1(...)
+1. change_report <- ValidateSchemaChange(...)
+2. if change_report.invalid: Error.Emit(CONTRACT_VIOLATION)
+3. migrated <- RunSchemaMigration(...)
+4. eq <- VerifyMigrationEquivalence(...)
 5. return migration_report
 ```
 

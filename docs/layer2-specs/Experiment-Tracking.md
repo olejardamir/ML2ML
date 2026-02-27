@@ -1,9 +1,9 @@
-# UML_OS Experiment Tracking Contract
+# Glyphser Experiment Tracking Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Tracking.ExperimentTracking_v1`  
+**Algorithm:** `Glyphser.Tracking.ExperimentTracking`  
 **Purpose (1 sentence):** Define deterministic run/metric/artifact tracking APIs and storage contracts for lifecycle observability.  
-**Spec Version:** `UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Tracking.ExperimentTracking` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Experiment tracking and artifact lifecycle.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Tracking.ExperimentTracking_v1`
+- **Algorithm:** `Glyphser.Tracking.ExperimentTracking`
 - **Purpose (1 sentence):** Deterministic experiment/run tracking.
-- **Spec Version:** `UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Tracking.ExperimentTracking` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Tracking and artifacts.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,17 +32,17 @@
 ### 0.F Environment and Dependency Policy
 - Tracking backend must expose content-addressable artifact APIs.
 ### 0.G Operator Manifest
-- `UML_OS.Tracking.RunCreate_v1`
-- `UML_OS.Tracking.RunStart_v1`
-- `UML_OS.Tracking.RunEnd_v1`
-- `UML_OS.Tracking.MetricLog_v1`
-- `UML_OS.Tracking.ArtifactPut_v1`
-- `UML_OS.Tracking.ArtifactGet_v1`
-- `UML_OS.Tracking.ArtifactList_v1`
-- `UML_OS.Tracking.ArtifactTombstone_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Tracking.RunCreate`
+- `Glyphser.Tracking.RunStart`
+- `Glyphser.Tracking.RunEnd`
+- `Glyphser.Tracking.MetricLog`
+- `Glyphser.Tracking.ArtifactPut`
+- `Glyphser.Tracking.ArtifactGet`
+- `Glyphser.Tracking.ArtifactList`
+- `Glyphser.Tracking.ArtifactTombstone`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Tracking.*` operators.
+- `Glyphser.Tracking.*` operators.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(tracking_report, artifact_index_hash)`
 - Metrics: `run_count`, `metric_events`, `artifact_count`
@@ -114,20 +114,20 @@
 - For regulated/confidential modes, retention rules must preserve all gate-referenced records until retention expiry.
 
 ### II.I Artifact and Index Commitments (Normative)
-- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact_v1", [artifact_bytes_hash, metadata_hash]]))`.
+- `artifact_id = SHA-256(artifact_bytes)` for raw artifacts; when metadata must be committed, use `SHA-256(CBOR_CANONICAL(["artifact", [artifact_bytes_hash, metadata_hash]]))`.
 - `artifact_index_hash` is computed as:
   - `metadata_hash_i = SHA-256(CBOR_CANONICAL(artifact_metadata_i))`, where `artifact_metadata_i` is the canonical metadata map stored for artifact `i`.
-  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf_v1", [artifact_id_i, metadata_hash_i, status_i]]))`,
+  - `artifact_leaf_i = SHA-256(CBOR_CANONICAL(["artifact_index_leaf", [artifact_id_i, metadata_hash_i, status_i]]))`,
   - sorted by `artifact_id`,
   - Merkle odd-leaf rule duplicates the last leaf.
-- Idempotency rule: repeated `ArtifactPut_v1` with identical `(run_id, artifact_id)` must return the existing record deterministically.
+- Idempotency rule: repeated `ArtifactPut` with identical `(run_id, artifact_id)` must return the existing record deterministically.
 - `run_record_hash = SHA-256(CBOR_CANONICAL(RunRecord))`.
-  - mutability note: `RunRecord` is mutable until `RunEnd_v1` finalizes terminal fields; `run_record_hash` is final only after run end, and pre-final uses are undefined.
+  - mutability note: `RunRecord` is mutable until `RunEnd` finalizes terminal fields; `run_record_hash` is final only after run end, and pre-final uses are undefined.
 - `tracking_store_hash` definition (normative):
-  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store_v1", [run_record_hash, metric_stream_hash, artifact_index_hash]]))`,
+  - `tracking_store_hash = SHA-256(CBOR_CANONICAL(["tracking_store", [run_record_hash, metric_stream_hash, artifact_index_hash]]))`,
   - `metric_stream_hash` is computed as a deterministic hash-chain over `MetricRecord` hashes sorted by `(metric_step, metric_name, record_hash)`:
-    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain_v1", []]))`,
-    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain_v1", [h_{i-1}, record_hash_i]]))`,
+    - `h_0 = SHA-256(CBOR_CANONICAL(["metric_chain", []]))`,
+    - for each sorted record hash `record_hash_i`: `h_i = SHA-256(CBOR_CANONICAL(["metric_chain", [h_{i-1}, record_hash_i]]))`,
     - final `metric_stream_hash = h_n`.
   - `recorded_at` is informational metadata only and MUST NOT affect deterministic ordering/hash commitments.
 
@@ -139,70 +139,70 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Tracking.RunCreate_v1`
-- `UML_OS.Tracking.RunStart_v1`
-- `UML_OS.Tracking.RunEnd_v1`
-- `UML_OS.Tracking.MetricLog_v1`
-- `UML_OS.Tracking.ArtifactPut_v1`
-- `UML_OS.Tracking.ArtifactGet_v1`
-- `UML_OS.Tracking.ArtifactList_v1`
-- `UML_OS.Tracking.ArtifactTombstone_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Tracking.RunCreate`
+- `Glyphser.Tracking.RunStart`
+- `Glyphser.Tracking.RunEnd`
+- `Glyphser.Tracking.MetricLog`
+- `Glyphser.Tracking.ArtifactPut`
+- `Glyphser.Tracking.ArtifactGet`
+- `Glyphser.Tracking.ArtifactList`
+- `Glyphser.Tracking.ArtifactTombstone`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+External operator reference: `Glyphser.Error.Emit` is defined in `docs/layer1-foundation/Error-Codes.md`.
 
-**Operator:** `UML_OS.Tracking.RunCreate_v1`  
+**Operator:** `Glyphser.Tracking.RunCreate`  
 **Category:** IO  
 **Signature:** `(tenant_id, run_manifest -> run_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** creates immutable run metadata anchor with placeholder terminal fields (`trace_final_hash`, `ended_at`) unset.
 
-**Operator:** `UML_OS.Tracking.RunStart_v1`  
+**Operator:** `Glyphser.Tracking.RunStart`  
 **Category:** IO  
 **Signature:** `(run_id, start_metadata -> ok)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** appends deterministic run-start event and transitions run lifecycle to ACTIVE.
 
-**Operator:** `UML_OS.Tracking.RunEnd_v1`  
+**Operator:** `Glyphser.Tracking.RunEnd`  
 **Category:** IO  
 **Signature:** `(run_id, end_metadata -> ok)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** appends deterministic run-end event, atomically sets terminal run fields (`trace_final_hash`, `ended_at`, status), and seals the run event stream.
 
-**Operator:** `UML_OS.Tracking.MetricLog_v1`  
+**Operator:** `Glyphser.Tracking.MetricLog`  
 **Category:** IO  
 **Signature:** `(run_id, metric_event -> ok)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** appends typed metric event.
 
-**Operator:** `UML_OS.Tracking.ArtifactPut_v1`  
+**Operator:** `Glyphser.Tracking.ArtifactPut`  
 **Category:** IO  
 **Signature:** `(run_id, artifact_bytes, metadata -> artifact_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** stores content-addressed artifact and updates index.
 
-**Operator:** `UML_OS.Tracking.ArtifactGet_v1`  
+**Operator:** `Glyphser.Tracking.ArtifactGet`  
 **Category:** IO  
 **Signature:** `(run_id, artifact_id -> artifact_bytes, metadata)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** resolves artifact by content-addressed identifier and returns immutable bytes + metadata.
 
-**Operator:** `UML_OS.Tracking.ArtifactList_v1`  
+**Operator:** `Glyphser.Tracking.ArtifactList`  
 **Category:** IO  
 **Signature:** `(run_id, filter? -> artifact_index)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** lists artifacts in canonical order (artifact_id ascending) with deterministic filtering.
 
-**Operator:** `UML_OS.Tracking.ArtifactTombstone_v1`
+**Operator:** `Glyphser.Tracking.ArtifactTombstone`
 **Category:** IO
 **Signature:** `(run_id, artifact_id, reason -> tombstone_id)`
 **Purity class:** IO
@@ -213,11 +213,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 ---
 ## 6) Procedure
 ```text
-1. RunCreate_v1
-2. RunStart_v1
-3. MetricLog_v1 / ArtifactPut_v1 repeated
-4. ArtifactTombstone_v1 optional
-5. RunEnd_v1
+1. RunCreate
+2. RunStart
+3. MetricLog / ArtifactPut repeated
+4. ArtifactTombstone optional
+5. RunEnd
 6. Return tracking_report
 ```
 

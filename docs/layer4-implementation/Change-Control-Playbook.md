@@ -1,9 +1,9 @@
-# UML_OS Change Control Playbook
+# Glyphser Change Control Playbook
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ChangeControlPlaybook_v1`
+**Algorithm:** `Glyphser.Implementation.ChangeControlPlaybook`
 **Purpose (1 sentence):** Define deterministic coding/document change workflow from proposal through merge and release evidence.
-**Spec Version:** `UML_OS.Implementation.ChangeControlPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Implementation.ChangeControlPlaybook` | 2026-02-19 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Engineering change governance.
@@ -65,9 +65,9 @@ Required artifacts for merge:
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Change Control Playbook" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Change Control Playbook" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

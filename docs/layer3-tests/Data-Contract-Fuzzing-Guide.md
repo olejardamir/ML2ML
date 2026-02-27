@@ -1,9 +1,9 @@
-# UML_OS Data Contract Fuzzing Guide
+# Glyphser Data Contract Fuzzing Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.DataContractFuzzing_v1`  
+**Algorithm:** `Glyphser.Test.DataContractFuzzing`  
 **Purpose (1 sentence):** Define deterministic fuzzing strategy for contract-critical parsers, validators, and canonicalization paths.  
-**Spec Version:** `UML_OS.Test.DataContractFuzzing_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.DataContractFuzzing` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Robustness testing and parser hardening.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.DataContractFuzzing_v1`
+- **Algorithm:** `Glyphser.Test.DataContractFuzzing`
 - **Purpose (1 sentence):** Deterministic fuzzing contract for data/schema parsers.
 ### 0.A Objective Semantics
 - minimize parser crashes, undefined behavior, and non-deterministic parse outcomes.
@@ -27,12 +27,12 @@
 ### 0.F Environment and Dependency Policy
 - fuzz runtime pinned with sanitizer profile.
 ### 0.G Operator Manifest
-- `UML_OS.Test.GenerateFuzzInput_v1`
-- `UML_OS.Test.RunFuzzTarget_v1`
-- `UML_OS.Test.DeduplicateFindings_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.GenerateFuzzInput`
+- `Glyphser.Test.RunFuzzTarget`
+- `Glyphser.Test.DeduplicateFindings`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Test.*` namespace.
+- `Glyphser.Test.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(fuzz_report, findings_catalog_hash)`.
 ### 0.J Spec Lifecycle Governance
@@ -71,21 +71,21 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.GenerateFuzzInput_v1`
-- `UML_OS.Test.RunFuzzTarget_v1`
-- `UML_OS.Test.DeduplicateFindings_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.GenerateFuzzInput`
+- `Glyphser.Test.RunFuzzTarget`
+- `Glyphser.Test.DeduplicateFindings`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.GenerateFuzzInput_v1`
+**Operator:** `Glyphser.Test.GenerateFuzzInput`
 **Signature:** `(target_id, fuzz_seed, corpus_cursor -> input_bytes, corpus_cursor_next)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** deterministically generates fuzz input bytes from seed+corpus state.
 **allowed_error_codes:** `CONTRACT_VIOLATION`.
 
-**Operator:** `UML_OS.Test.RunFuzzTarget_v1`  
+**Operator:** `Glyphser.Test.RunFuzzTarget`  
 **Signature:** `(target_id, input_bytes -> target_result)`  
 **Purity class:** IO  
 **Determinism:** deterministic for identical input bytes  
@@ -93,7 +93,7 @@
 **Preconditions / Postconditions:** target exists; input bytes are bounded by target contract.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `FUZZ_TARGET_CRASH`, `SANITIZER_VIOLATION`.
 
-**Operator:** `UML_OS.Test.DeduplicateFindings_v1`
+**Operator:** `Glyphser.Test.DeduplicateFindings`
 **Signature:** `(findings -> deduped_findings, findings_catalog_hash)`
 **Purity class:** PURE
 **Determinism:** deterministic

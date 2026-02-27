@@ -1,16 +1,16 @@
-# UML_OS Security Case Template
+# Glyphser Security Case Template
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Security.SecurityCaseTemplate_v1`
+**Algorithm:** `Glyphser.Security.SecurityCaseTemplate`
 **Purpose (1 sentence):** Provide a deterministic, hash-addressed template for auditor-ready security case submissions.
-**Spec Version:** `UML_OS.Security.SecurityCaseTemplate_v1` | 2026-02-21 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Security.SecurityCaseTemplate` | 2026-02-21 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Security.SecurityCaseTemplate_v1`
+- **Algorithm:** `Glyphser.Security.SecurityCaseTemplate`
 - **Purpose (1 sentence):** Deterministic security-case packaging template.
-- **Spec Version:** `UML_OS.Security.SecurityCaseTemplate_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Security.SecurityCaseTemplate` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** audit-ready control mapping and evidence binding.
 ### 0.A Objective Semantics
 - Convert threat controls into verifiable evidence obligations.
@@ -26,8 +26,8 @@
 - Required evidence must be content-addressed and canonical.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Product.EmitSecurityCase_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Product.EmitSecurityCase`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `security_case/<profile>/<release_id>/`.
 ### 0.I Outputs and Metric Schema
@@ -53,7 +53,7 @@
     - `verdict`
 
 ## 3) Identity Rule (Normative)
-- `security_case_hash = SHA-256(CBOR_CANONICAL(["security_case_v1", security_case]))`.
+- `security_case_hash = SHA-256(CBOR_CANONICAL(["security_case", security_case]))`.
 
 ## 4) References
 - `docs/layer4-implementation/Threat-Model-and-Control-Crosswalk.md`

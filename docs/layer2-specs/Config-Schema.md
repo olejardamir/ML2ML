@@ -1,9 +1,9 @@
-# UML_OS Config Schema Contract
+# Glyphser Config Schema Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Config.SchemaValidator_v1`  
-**Purpose (1 sentence):** Define and validate the canonical manifest/config schema used by all UML_OS components.  
-**Spec Version:** `UML_OS.Config.SchemaValidator_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Config.SchemaValidator`  
+**Purpose (1 sentence):** Define and validate the canonical manifest/config schema used by all Glyphser components.  
+**Spec Version:** `Glyphser.Config.SchemaValidator` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic configuration validation.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Config.SchemaValidator_v1`
+- **Algorithm:** `Glyphser.Config.SchemaValidator`
 - **Purpose (1 sentence):** Canonical manifest schema enforcement.
-- **Spec Version:** `UML_OS.Config.SchemaValidator_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Config.SchemaValidator` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Config schema validation.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,11 +32,11 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for validation output.
 ### 0.G Operator Manifest
-- `UML_OS.Config.ValidateRequiredFields_v1`
-- `UML_OS.Config.ValidateTypes_v1`
-- `UML_OS.Config.ValidateRanges_v1`
-- `UML_OS.Config.NormalizeDefaults_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Config.ValidateRequiredFields`
+- `Glyphser.Config.ValidateTypes`
+- `Glyphser.Config.ValidateRanges`
+- `Glyphser.Config.NormalizeDefaults`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Fully-qualified config operators required.
 ### 0.I Outputs and Metric Schema
@@ -185,7 +185,7 @@
   - `environment.env_manifest_hash:bytes32` (as defined in `docs/layer1-foundation/Environment-Manifest.md`; alias `runtime_env_hash` must resolve identically)
 
 ### II.F.2 Kernel Manifest Alignment (Normative)
-- To preserve cross-file consistency with `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` section `0.Q`, the following top-level manifest fields are recognized by this schema (required/optional as noted):
+- To preserve cross-file consistency with `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md` section `0.Q`, the following top-level manifest fields are recognized by this schema (required/optional as noted):
   - required: `spec_version`, `tenant_id`, `seed`, `execution_mode`, `datasets`, `pipeline_stages`, `model`, `security`, `optimizer`, `environment`, `policy_bundle`.
   - optional: `task_type`, `alpha`, `fingerprint_frequency`, `grad_clip_norm`, `checkpoint_frequency`, `job_priority`, `policy.rules`, `data`, `custom_operators`, `parallelism`, `manifest_inheritance`, `hardware_affinity`, `profile`, `backend`, `resource_requests`, `memory_arena_config`, `quota`, `rbac`, `storage`, `monitoring_export`, `rbac_source`, `daemon_mode`, `distributed`, `fine_tune`, `evaluation`, `compute_dtype`, `trace`.
   - `policy.rules` and `policy_bundle` serve different purposes and MAY coexist: policy rules drive runtime stage/action decisions; `policy_bundle` carries cryptographic policy commitments.
@@ -194,20 +194,20 @@
   - optional fields: `requirements_hash:string`, `container_image:string`.
 
 ### II.F.1 Policy Bundle Commitment (Normative)
-- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle_v1", [security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]]))`.
+- `policy_bundle_hash = SHA-256(CBOR_CANONICAL(["policy_bundle", [security_policy_hash, authz_policy_hash, monitor_policy_hash, dp_policy_hash?, redaction_policy_hash?]]))`.
 - `policy_hash` references in other contracts are aliases of `policy_bundle_hash` and must resolve to the same bytes32 value.
 - Presence rule:
-  - if `policy_bundle_hash` is present and individual component hashes are also present, they MUST match the `policy_bundle_v1` decomposition exactly;
+  - if `policy_bundle_hash` is present and individual component hashes are also present, they MUST match the `policy_bundle` decomposition exactly;
   - if only `policy_bundle_hash` is present, verifiers treat it as an opaque commitment identifier.
 
 ### II.G Extension Registry (Normative)
 | ext_id | root_prefix | owner_org | signing_key_id | version_range | conflict_policy |
 |---|---|---|---|---|---|
-| `core_data` | `data.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
-| `core_backend` | `backend.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
-| `core_tmmu` | `tmmu.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
-| `core_trace` | `trace.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
-| `core_security` | `security.*` | `UML_OS.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_data` | `data.*` | `Glyphser.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_backend` | `backend.*` | `Glyphser.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_tmmu` | `tmmu.*` | `Glyphser.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_trace` | `trace.*` | `Glyphser.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
+| `core_security` | `security.*` | `Glyphser.Core` | `core-signing-ed25519` | `>=1.0,<2.0` | `FAIL` |
 
 Normative checks in `MODULAR` mode:
 - `schema_extensions[ext_id].owner == manifest.extensions[ext_id].owner`
@@ -234,11 +234,11 @@ Normative checks in `MODULAR` mode:
 |---|---|
 | `data.sampler_block_size` | `1048576` |
 | `data.drop_last` | `false` |
-| `trace.schema_version` | `UML_OS.Trace.SidecarSchema_v1` |
+| `trace.schema_version` | `Glyphser.Trace.SidecarSchema` |
 | `trace.max_bytes_per_step` | `1048576` |
 | `trace.sample_policy` | `HASH_GATED` |
 | `security.differential_privacy.accountant_granularity` | `PER_STEP` |
-| `backend.determinism_profile_id` | `gpu_determinism_v1` |
+| `backend.determinism_profile_id` | `gpu_determinism` |
 | `tracking.store_uri` | `cas://tracking/default` |
 | `tracking.retention_days` | `90` |
 | `security.trust_mode` | `SOFTWARE_ONLY` |
@@ -247,7 +247,7 @@ Normative checks in `MODULAR` mode:
 - Manifest schema versions must declare:
   - `schema_version`,
   - `migration_supported_from`,
-  - `migration_operator` (for manifests: `UML_OS.Config.ManifestMigrate_v1`).
+  - `migration_operator` (for manifests: `Glyphser.Config.ManifestMigrate`).
 - Migration output must be deterministic and hash-identical across conforming implementations.
 - Each migration run must emit a migration certificate binding:
   - `source_manifest_hash -> target_manifest_hash`,
@@ -261,20 +261,20 @@ Normative checks in `MODULAR` mode:
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Config.ValidateRequiredFields_v1`
-- `UML_OS.Config.ValidateTypes_v1`
-- `UML_OS.Config.ValidateRanges_v1`
-- `UML_OS.Config.NormalizeDefaults_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Config.ValidateRequiredFields`
+- `Glyphser.Config.ValidateTypes`
+- `Glyphser.Config.ValidateRanges`
+- `Glyphser.Config.NormalizeDefaults`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Config.ValidateRequiredFields_v1`  
+**Operator:** `Glyphser.Config.ValidateRequiredFields`  
 **Category:** IO  
 **Signature:** `(manifest, schema -> report)`  
 **Purity class:** PURE  
@@ -284,28 +284,28 @@ Template conformance note (III.A): each operator definition in this section is i
   - every `depends_on` reference exists,
   - each dependency references an earlier stage index.
 
-**Operator:** `UML_OS.Config.ValidateTypes_v1`  
+**Operator:** `Glyphser.Config.ValidateTypes`  
 **Category:** IO  
 **Signature:** `(manifest, schema -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** checks scalar/object/list types.
 
-**Operator:** `UML_OS.Config.ValidateRanges_v1`  
+**Operator:** `Glyphser.Config.ValidateRanges`  
 **Category:** IO  
 **Signature:** `(manifest, schema -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** checks numeric ranges/enums.
 
-**Operator:** `UML_OS.Config.NormalizeDefaults_v1`  
+**Operator:** `Glyphser.Config.NormalizeDefaults`  
 **Category:** IO  
 **Signature:** `(manifest, schema -> normalized_manifest)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** fills defaults and produces canonical ordering.
 
-**Operator:** `UML_OS.Config.ManifestMigrate_v1`
+**Operator:** `Glyphser.Config.ManifestMigrate`
 **Category:** IO
 **Signature:** `(manifest, from_version, to_version -> migrated_manifest)`
 **Purity class:** PURE
@@ -315,10 +315,10 @@ Template conformance note (III.A): each operator definition in this section is i
 ---
 ## 6) Procedure
 ```text
-1. ValidateRequiredFields_v1
-2. ValidateTypes_v1
-3. ValidateRanges_v1
-4. NormalizeDefaults_v1
+1. ValidateRequiredFields
+2. ValidateTypes
+3. ValidateRanges
+4. NormalizeDefaults
 5. Return normalized manifest + report
 ```
 

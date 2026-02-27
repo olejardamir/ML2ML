@@ -1,9 +1,9 @@
-# UML_OS Determinism Profiles Contract
+# Glyphser Determinism Profiles Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Replay.DeterminismProfiles_v1`  
+**Algorithm:** `Glyphser.Replay.DeterminismProfiles`  
 **Purpose (1 sentence):** Define normative determinism profiles (`BITWISE`, `TOLERANCE`) with machine-checkable runtime constraints and replay comparison rules.  
-**Spec Version:** `UML_OS.Replay.DeterminismProfiles_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Replay.DeterminismProfiles` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Reproducibility profile governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Replay.DeterminismProfiles_v1`
+- **Algorithm:** `Glyphser.Replay.DeterminismProfiles`
 - **Purpose (1 sentence):** Determinism profile specification.
 
 ### 0.A Objective Semantics
@@ -43,9 +43,9 @@
 - `determinism_profile_hash` is required in replay token and certificate payload.
 
 ### 0.G Operator Manifest
-- `UML_OS.Replay.ValidateDeterminismProfile_v1`
-- `UML_OS.Replay.CompareByProfile_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Replay.ValidateDeterminismProfile`
+- `Glyphser.Replay.CompareByProfile`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
 - Profile registry path: `contracts/determinism_profiles.cbor`.
@@ -53,7 +53,7 @@
 ### 0.I Outputs and Metric Schema
 - Outputs: `(profile_report, comparison_report)`.
 - Metrics:
-  - `profile_violations`: count of runtime/profile rule violations in `ValidateDeterminismProfile_v1`.
+  - `profile_violations`: count of runtime/profile rule violations in `ValidateDeterminismProfile`.
   - `e0_mismatch_count`: count of exact mismatches under `BITWISE`.
   - `e1_out_of_band_count`: count of value comparisons exceeding declared `abs_tol/rel_tol` under `TOLERANCE`.
 
@@ -62,7 +62,7 @@
 
 ### 0.K Failure and Error Semantics
 - Emit deterministic `REPLAY_DIVERGENCE` on comparison failure.
-- If `profile_id` is not found by `CompareByProfile_v1`, emit deterministic `REPLAY_DIVERGENCE` and abort comparison.
+- If `profile_id` is not found by `CompareByProfile`, emit deterministic `REPLAY_DIVERGENCE` and abort comparison.
 
 ### 0.L Input/Data Provenance
 - Profile definitions are hash-addressed.
@@ -78,8 +78,8 @@
 
 ### I.C Constraints and Feasible Set
 - valid iff runtime metadata satisfies selected profile.
-- traces MUST conform to the external trace-format contract (`UML_OS.Trace.Format_v1`) and support deterministic field-path traversal.
-- `UML_OS.Trace.Format_v1` MUST provide trace metadata fields `collective_algorithm_id`, `collective_chunking_policy`, and `rank_order_policy`; without these fields, profile-conformant comparison is not defined.
+- traces MUST conform to the external trace-format contract (`Glyphser.Trace.Format`) and support deterministic field-path traversal.
+- `Glyphser.Trace.Format` MUST provide trace metadata fields `collective_algorithm_id`, `collective_chunking_policy`, and `rank_order_policy`; without these fields, profile-conformant comparison is not defined.
 
 ### I.D Transient Variables
 - comparison diagnostics.
@@ -187,13 +187,13 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Replay.ValidateDeterminismProfile_v1`
-- `UML_OS.Replay.CompareByProfile_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Replay.ValidateDeterminismProfile`
+- `Glyphser.Replay.CompareByProfile`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Replay.ValidateDeterminismProfile_v1`  
+**Operator:** `Glyphser.Replay.ValidateDeterminismProfile`  
 **Category:** Replay  
 **Signature:** `(profile_id, runtime_metadata, backend_binary_hash -> profile_report)`  
 **Purity class:** PURE  
@@ -220,7 +220,7 @@
   - `path=""` (empty string) for global violations not tied to one metadata field (for example `PROFILE_NOT_FOUND`).
   - if multiple violations share identical `(path, code)`, relative order is implementation-defined but MUST be deterministic for identical inputs.
 
-**Operator:** `UML_OS.Replay.CompareByProfile_v1`  
+**Operator:** `Glyphser.Replay.CompareByProfile`  
 **Category:** Replay  
 **Signature:** `(trace_a, trace_b, profile_id -> comparison_report)`  
 **Purity class:** PURE  
@@ -248,13 +248,13 @@ Trace metadata MUST include `collective_algorithm_id`, `collective_chunking_poli
   - while decoding: only `\\.` and `\\\\` are valid escape sequences; any other escaped byte or trailing `\\` is deterministic `CONTRACT_VIOLATION`.
   - round-trip invariant MUST hold: `decode_path(encode_path(segments)) == segments`.
   - tolerance-map path matching uses exact bytewise equality on encoded path strings.
-  - `UML_OS.Trace.Format_v1` implementations MUST implement this exact path encoding/decoding rule.
+  - `Glyphser.Trace.Format` implementations MUST implement this exact path encoding/decoding rule.
 
 ---
 ## 6) Procedure
 ```text
-1. ValidateDeterminismProfile_v1
-2. CompareByProfile_v1
+1. ValidateDeterminismProfile
+2. CompareByProfile
 3. Return profile_report + comparison_report
 ```
 

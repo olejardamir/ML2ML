@@ -1,9 +1,9 @@
-# UML_OS Security and Compliance Profile
+# Glyphser Security and Compliance Profile
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Security.ComplianceProfile_v1`  
+**Algorithm:** `Glyphser.Security.ComplianceProfile`  
 **Purpose (1 sentence):** Define deterministic security/compliance requirements for managed, confidential, and regulated operation modes.  
-**Spec Version:** `UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Security.ComplianceProfile` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Security policy and regulated execution governance.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Security.ComplianceProfile_v1`
+- **Algorithm:** `Glyphser.Security.ComplianceProfile`
 - **Purpose (1 sentence):** Security/compliance policy contract.
-- **Spec Version:** `UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Security.ComplianceProfile` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Auditable secure execution.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,11 +32,11 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for policy verdicts and signatures.
 ### 0.G Operator Manifest
-- `UML_OS.Security.ValidatePolicy_v1`
-- `UML_OS.Security.AttestTEE_v1`
-- `UML_OS.Security.VerifyCertificate_v1`
-- `UML_OS.Security.SignComplianceRecord_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.ValidatePolicy`
+- `Glyphser.Security.AttestTEE`
+- `Glyphser.Security.VerifyCertificate`
+- `Glyphser.Security.SignComplianceRecord`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Fully-qualified security operators and signed sidecars required.
 ### 0.I Outputs and Metric Schema
@@ -137,7 +137,7 @@
     - `ocsp_responses`, `crl_blobs`, and `source_timestamps` MUST be sorted deterministically by bytewise lexicographic order.
 - `AttestationBundle` CBOR map:
     - `tee_type:string`, `measurements_hash:bytes32`, `quote_blob:bytes`, `verification_report_hash:bytes32`, `tcb_version:string`.
-    - `measurements_hash` computation (normative): `SHA-256(CBOR_CANONICAL(["measurements_v1", pcr_values_sorted_by_index]))`.
+    - `measurements_hash` computation (normative): `SHA-256(CBOR_CANONICAL(["measurements", pcr_values_sorted_by_index]))`.
     - `attestation_quote_hash = SHA-256(quote_blob)` is a component hash; certificate binding is authoritative on `attestation_bundle_hash` (and may additionally include `attestation_quote_hash`).
   - Hash rule for each bundle:
     - `*_hash = SHA-256(CBOR_CANONICAL(bundle_map))`.
@@ -161,27 +161,27 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Security.ValidatePolicy_v1`
-- `UML_OS.Security.AttestTEE_v1`
-- `UML_OS.Security.VerifyCertificate_v1`
-- `UML_OS.Security.SignComplianceRecord_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.ValidatePolicy`
+- `Glyphser.Security.AttestTEE`
+- `Glyphser.Security.VerifyCertificate`
+- `Glyphser.Security.SignComplianceRecord`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Security.ValidatePolicy_v1`  
+**Operator:** `Glyphser.Security.ValidatePolicy`  
 **Category:** IO  
 **Signature:** `(runtime_state, policy -> policy_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** validates runtime behavior against policy rules.
 
-**Operator:** `UML_OS.Security.AttestTEE_v1`  
+**Operator:** `Glyphser.Security.AttestTEE`  
 **Category:** Security  
 **Signature:** `(runtime_state -> quote)`  
 **Purity class:** STATEFUL  
@@ -189,14 +189,14 @@ Template conformance note (III.A): each operator definition in this section is i
 **Definition:** collects and validates TEE quote.
 Validation is deterministic against policy-declared expected measurements (`expected_measurements_hash`) and pinned verifier trust roots; mismatch aborts with `ATTESTATION_FAILURE`.
 
-**Operator:** `UML_OS.Security.VerifyCertificate_v1`  
+**Operator:** `Glyphser.Security.VerifyCertificate`  
 **Category:** Security  
 **Signature:** `(certificate_input, trust_roots? -> report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** verifies signature chains and required claims. `certificate_input` MAY be either a loaded certificate object or a canonical certificate path; if path is provided, loading/decoding is deterministic and part of this operator.
 
-**Operator:** `UML_OS.Security.SignComplianceRecord_v1`  
+**Operator:** `Glyphser.Security.SignComplianceRecord`  
 **Category:** Security  
 **Signature:** `(compliance_report, signing_key -> signed_record)`  
 **Purity class:** IO  
@@ -206,10 +206,10 @@ Validation is deterministic against policy-declared expected measurements (`expe
 ---
 ## 6) Procedure
 ```text
-1. ValidatePolicy_v1
-2. AttestTEE_v1 (mode-dependent)
-3. VerifyCertificate_v1
-4. SignComplianceRecord_v1
+1. ValidatePolicy
+2. AttestTEE (mode-dependent)
+3. VerifyCertificate
+4. SignComplianceRecord
 5. Emit compliance_report + signed_record
 ```
 
@@ -259,7 +259,7 @@ Exact compliance report + signature verification comparison.
   - assets and trust boundaries,
   - attacker capabilities and assumptions,
   - required mitigations,
-  - evidence locations in UML_OS artifacts (trace fields, certificate payload fields, policy transcripts).
+  - evidence locations in Glyphser artifacts (trace fields, certificate payload fields, policy transcripts).
 - Mode-specific proof obligations:
   - `managed`: prove policy enforcement, key provenance, and authorization binding.
   - `confidential`: prove attestation and runtime measurement integrity.

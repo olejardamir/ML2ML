@@ -1,9 +1,9 @@
-# UML_OS SDK Usage Guide Contract
+# Glyphser SDK Usage Guide Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.SDK.UsageGuide_v1`  
+**Algorithm:** `Glyphser.SDK.UsageGuide`  
 **Purpose (1 sentence):** Define deterministic SDK usage patterns for syscall/service interfaces, error handling, and replay-safe client behavior.  
-**Spec Version:** `UML_OS.SDK.UsageGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.SDK.UsageGuide` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Client integration and API correctness.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.SDK.UsageGuide_v1`
+- **Algorithm:** `Glyphser.SDK.UsageGuide`
 - **Purpose (1 sentence):** Deterministic SDK integration contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - SDK must validate digests against `docs/layer1-foundation/API-Interfaces.md` and registry artifacts.
 ### 0.G Operator Manifest
-- `UML_OS.SDK.ValidateRequest_v1`
-- `UML_OS.SDK.DispatchCall_v1`
-- `UML_OS.SDK.ValidateResponse_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.SDK.ValidateRequest`
+- `Glyphser.SDK.DispatchCall`
+- `Glyphser.SDK.ValidateResponse`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.SDK.*`
+- `Glyphser.SDK.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(sdk_call_report, response_payload)`
 - Metrics: `calls_total`, `calls_failed`, `schema_mismatch_count`
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.SDK.ValidateRequest_v1`
-- `UML_OS.SDK.DispatchCall_v1`
-- `UML_OS.SDK.ValidateResponse_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.SDK.ValidateRequest`
+- `Glyphser.SDK.DispatchCall`
+- `Glyphser.SDK.ValidateResponse`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.SDK.ValidateRequest_v1`  
+**Operator:** `Glyphser.SDK.ValidateRequest`  
 **Signature:** `(operator_id, request_payload, schema_digest -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.SDK.DispatchCall_v1`  
+**Operator:** `Glyphser.SDK.DispatchCall`  
 **Signature:** `(operator_id, request_payload, auth_context -> response_payload)`  
 **Purity class:** IO  
 **Determinism:** deterministic under fixed inputs and backend state.
 
-**Operator:** `UML_OS.SDK.ValidateResponse_v1`  
+**Operator:** `Glyphser.SDK.ValidateResponse`  
 **Signature:** `(operator_id, response_payload, schema_digest -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateRequest_v1
-2. DispatchCall_v1
-3. ValidateResponse_v1
+1. ValidateRequest
+2. DispatchCall
+3. ValidateResponse
 4. Return response_payload + sdk_call_report
 ```
 

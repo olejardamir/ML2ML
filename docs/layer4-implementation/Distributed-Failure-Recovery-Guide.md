@@ -1,9 +1,9 @@
-# UML_OS Distributed Failure Recovery Guide
+# Glyphser Distributed Failure Recovery Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Runtime.DistributedFailureRecovery_v1`  
+**Algorithm:** `Glyphser.Runtime.DistributedFailureRecovery`  
 **Purpose (1 sentence):** Define deterministic distributed failure detection, lease handling, restart sequencing, and recovery validation.  
-**Spec Version:** `UML_OS.Runtime.DistributedFailureRecovery_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Runtime.DistributedFailureRecovery` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Distributed runtime reliability.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Runtime.DistributedFailureRecovery_v1`
+- **Algorithm:** `Glyphser.Runtime.DistributedFailureRecovery`
 - **Purpose (1 sentence):** Deterministic distributed failure recovery contract.
 ### 0.A Objective Semantics
 - minimize unrecoverable distributed run states and split-brain risk.
@@ -26,13 +26,13 @@
 ### 0.F Environment and Dependency Policy
 - distributed backend profile and timeout policy pinned.
 ### 0.G Operator Manifest
-- `UML_OS.Runtime.DetectFailureEvent_v1`
-- `UML_OS.Runtime.ResolveLeaseState_v1`
-- `UML_OS.Runtime.ComputeRecoveryPlan_v1`
-- `UML_OS.Runtime.ExecuteRecoveryPlan_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Runtime.DetectFailureEvent`
+- `Glyphser.Runtime.ResolveLeaseState`
+- `Glyphser.Runtime.ComputeRecoveryPlan`
+- `Glyphser.Runtime.ExecuteRecoveryPlan`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Runtime.*` namespace.
+- `Glyphser.Runtime.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(recovery_report, restart_plan_hash, final_cluster_state)`.
 ### 0.J Spec Lifecycle Governance
@@ -63,33 +63,33 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Runtime.DetectFailureEvent_v1`
-- `UML_OS.Runtime.ResolveLeaseState_v1`
-- `UML_OS.Runtime.ComputeRecoveryPlan_v1`
-- `UML_OS.Runtime.ExecuteRecoveryPlan_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Runtime.DetectFailureEvent`
+- `Glyphser.Runtime.ResolveLeaseState`
+- `Glyphser.Runtime.ComputeRecoveryPlan`
+- `Glyphser.Runtime.ExecuteRecoveryPlan`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Runtime.DetectFailureEvent_v1`
+**Operator:** `Glyphser.Runtime.DetectFailureEvent`
 **Signature:** `(cluster_state, health_signals -> failure_events)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Canonically classifies rank/node failures and emits ordered failure events.
 
-**Operator:** `UML_OS.Runtime.ResolveLeaseState_v1`
+**Operator:** `Glyphser.Runtime.ResolveLeaseState`
 **Signature:** `(lease_table, failure_events, lease_policy -> lease_state)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Resolves lease ownership with deterministic epoch/rank tie-breaking and split-brain prevention.
 
-**Operator:** `UML_OS.Runtime.ComputeRecoveryPlan_v1`  
+**Operator:** `Glyphser.Runtime.ComputeRecoveryPlan`  
 **Signature:** `(cluster_state, failure_events, lease_state -> recovery_plan)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Produces deterministic restart/eviction/rejoin plan.
 
-**Operator:** `UML_OS.Runtime.ExecuteRecoveryPlan_v1`
+**Operator:** `Glyphser.Runtime.ExecuteRecoveryPlan`
 **Signature:** `(recovery_plan, cluster_state -> recovery_report, final_cluster_state)`
 **Purity class:** IO
 **Determinism:** deterministic
@@ -98,10 +98,10 @@
 ---
 ## 6) Procedure
 ```text
-1. failure_events <- DetectFailureEvent_v1
-2. lease_state <- ResolveLeaseState_v1
-3. recovery_plan <- ComputeRecoveryPlan_v1
-4. recovery_report, final_cluster_state <- ExecuteRecoveryPlan_v1
+1. failure_events <- DetectFailureEvent
+2. lease_state <- ResolveLeaseState
+3. recovery_plan <- ComputeRecoveryPlan
+4. recovery_report, final_cluster_state <- ExecuteRecoveryPlan
 5. restart_plan_hash <- SHA-256(CBOR_CANONICAL(recovery_plan))
 6. return (recovery_report, restart_plan_hash, final_cluster_state)
 ```
@@ -136,6 +136,6 @@
   - `recovery_plan_hash`,
   - `trace_segment_hash`.
 - Fingerprint identity:
-  - `distributed_failure_fingerprint_hash = SHA-256(CBOR_CANONICAL(failure_fingerprint_v1))`.
+  - `distributed_failure_fingerprint_hash = SHA-256(CBOR_CANONICAL(failure_fingerprint))`.
 - Support workflow requirement:
   - fingerprint is the primary cross-environment triage key.

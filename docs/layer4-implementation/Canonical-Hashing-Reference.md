@@ -1,9 +1,9 @@
-# UML_OS Canonical Hashing Reference
+# Glyphser Canonical Hashing Reference
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Serialization.CanonicalHashingReference_v1`  
+**Algorithm:** `Glyphser.Serialization.CanonicalHashingReference`  
 **Purpose (1 sentence):** Provide canonical implementation formulas and preimages for all contract-critical hashes.  
-**Spec Version:** `UML_OS.Serialization.CanonicalHashingReference_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Serialization.CanonicalHashingReference` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic commitment hashing.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Serialization.CanonicalHashingReference_v1`
+- **Algorithm:** `Glyphser.Serialization.CanonicalHashingReference`
 - **Purpose (1 sentence):** Single reference for commitment hash formulas.
 ### 0.A Objective Semantics
 - minimize hashing drift across implementations.
@@ -26,11 +26,11 @@
 ### 0.F Environment and Dependency Policy
 - SHA-256 over `CBOR_CANONICAL` only.
 ### 0.G Operator Manifest
-- `UML_OS.Serialization.ComputeDigest_v1`
-- `UML_OS.Serialization.ValidateDigestInputs_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Serialization.ComputeDigest`
+- `Glyphser.Serialization.ValidateDigestInputs`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Serialization.*` namespace.
+- `Glyphser.Serialization.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(digest_table, validation_report)`.
 ### 0.J Spec Lifecycle Governance
@@ -55,7 +55,7 @@
 
 ### II.F Domain Tag and Digest Table (Normative)
 - `domain_tag` is a fixed UTF-8 string bound to `digest_id` in the formula registry.
-- `ComputeDigest_v1` must prepend this exact `domain_tag` to the canonical preimage tuple.
+- `ComputeDigest` must prepend this exact `domain_tag` to the canonical preimage tuple.
 - `digest_table` output is a canonical map: `map<digest_id:string, digest_bytes32>`, sorted lexicographically by `digest_id` before serialization.
 
 ---
@@ -66,19 +66,19 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Serialization.ComputeDigest_v1`
-- `UML_OS.Serialization.ValidateDigestInputs_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Serialization.ComputeDigest`
+- `Glyphser.Serialization.ValidateDigestInputs`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Serialization.ValidateDigestInputs_v1`
+**Operator:** `Glyphser.Serialization.ValidateDigestInputs`
 **Signature:** `(digest_id, preimage -> validation_report)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Validates required fields/types/order for the given `digest_id` using the formula registry.
 
-**Operator:** `UML_OS.Serialization.ComputeDigest_v1`  
+**Operator:** `Glyphser.Serialization.ComputeDigest`  
 **Signature:** `(digest_id, normalized_preimage -> digest_bytes32)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
@@ -87,7 +87,7 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateDigestInputs_v1
+1. ValidateDigestInputs
 2. Normalize preimage deterministically
 3. Compute digest
 4. Emit digest table entry

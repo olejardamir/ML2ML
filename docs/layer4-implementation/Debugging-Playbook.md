@@ -1,9 +1,9 @@
-# UML_OS Debugging Playbook Contract
+# Glyphser Debugging Playbook Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DebuggingPlaybook_v1`  
+**Algorithm:** `Glyphser.Implementation.DebuggingPlaybook`  
 **Purpose (1 sentence):** Define deterministic debugging workflows for replay divergences, hash mismatches, and contract failures.  
-**Spec Version:** `UML_OS.Implementation.DebuggingPlaybook_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.DebuggingPlaybook` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Incident triage and deterministic diagnostics.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DebuggingPlaybook_v1`
+- **Algorithm:** `Glyphser.Implementation.DebuggingPlaybook`
 - **Purpose (1 sentence):** Deterministic debugging/triage contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - Debugging must preserve original artifact identities.
 ### 0.G Operator Manifest
-- `UML_OS.Debug.LoadEvidence_v1`
-- `UML_OS.Debug.FindFirstDivergence_v1`
-- `UML_OS.Debug.ClassifyRootCause_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Debug.LoadEvidence`
+- `Glyphser.Debug.FindFirstDivergence`
+- `Glyphser.Debug.ClassifyRootCause`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Debug.*`
+- `Glyphser.Debug.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(debug_report, root_cause_class)`
 - Metrics: `divergence_step`, `signals_collected`
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Debug.LoadEvidence_v1`
-- `UML_OS.Debug.FindFirstDivergence_v1`
-- `UML_OS.Debug.ClassifyRootCause_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Debug.LoadEvidence`
+- `Glyphser.Debug.FindFirstDivergence`
+- `Glyphser.Debug.ClassifyRootCause`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Debug.LoadEvidence_v1`  
+**Operator:** `Glyphser.Debug.LoadEvidence`  
 **Signature:** `(run_id -> evidence_bundle)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Debug.FindFirstDivergence_v1`  
+**Operator:** `Glyphser.Debug.FindFirstDivergence`  
 **Signature:** `(trace_a, trace_b, compare_profile -> divergence_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Debug.ClassifyRootCause_v1`  
+**Operator:** `Glyphser.Debug.ClassifyRootCause`  
 **Signature:** `(divergence_report, evidence_bundle -> root_cause_class, debug_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. LoadEvidence_v1
-2. FindFirstDivergence_v1
-3. ClassifyRootCause_v1
+1. LoadEvidence
+2. FindFirstDivergence
+3. ClassifyRootCause
 4. Emit debug_report
 ```
 

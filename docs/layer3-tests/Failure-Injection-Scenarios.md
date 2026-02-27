@@ -1,9 +1,9 @@
-# UML_OS Failure Injection Scenarios Contract
+# Glyphser Failure Injection Scenarios Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.FailureInjection_v1`  
+**Algorithm:** `Glyphser.Test.FailureInjection`  
 **Purpose (1 sentence):** Define deterministic fault-injection scenarios and expected recovery outcomes across core runtime and governance paths.  
-**Spec Version:** `UML_OS.Test.FailureInjection_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.FailureInjection` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Resilience and recovery verification.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.FailureInjection_v1`
+- **Algorithm:** `Glyphser.Test.FailureInjection`
 - **Purpose (1 sentence):** Deterministic fault-injection contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -29,10 +29,10 @@
 ### 0.F Environment and Dependency Policy
 - Faults must not alter contract definitions; only runtime behavior under test.
 ### 0.G Operator Manifest
-- `UML_OS.Test.InjectFault_v1`
-- `UML_OS.Test.RunRecovery_v1`
-- `UML_OS.Test.ValidateRecoveryOutcome_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.InjectFault`
+- `Glyphser.Test.RunRecovery`
+- `Glyphser.Test.ValidateRecoveryOutcome`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `tests/failure_injection/` suites.
 ### 0.I Outputs and Metric Schema
@@ -91,26 +91,26 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.InjectFault_v1`
-- `UML_OS.Test.RunRecovery_v1`
-- `UML_OS.Test.ValidateRecoveryOutcome_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.InjectFault`
+- `Glyphser.Test.RunRecovery`
+- `Glyphser.Test.ValidateRecoveryOutcome`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.InjectFault_v1`  
+**Operator:** `Glyphser.Test.InjectFault`  
 **Signature:** `(scenario_id, runtime_state -> faulted_state)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `FAULT_POINT_INVALID`.
 
-**Operator:** `UML_OS.Test.RunRecovery_v1`  
+**Operator:** `Glyphser.Test.RunRecovery`  
 **Signature:** `(faulted_state, recovery_policy -> recovery_state)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `RECOVERY_FAILURE`.
 
-**Operator:** `UML_OS.Test.ValidateRecoveryOutcome_v1`  
+**Operator:** `Glyphser.Test.ValidateRecoveryOutcome`  
 **Signature:** `(recovery_state, expected_outcome -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -119,9 +119,9 @@
 ---
 ## 6) Procedure
 ```text
-1. InjectFault_v1
-2. RunRecovery_v1
-3. ValidateRecoveryOutcome_v1
+1. InjectFault
+2. RunRecovery
+3. ValidateRecoveryOutcome
 4. Emit fault_report
 ```
 

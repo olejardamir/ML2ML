@@ -1,17 +1,17 @@
-# UML_OS Start Here (Core Profile)
+# Glyphser Start Here (Core Profile)
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Onboarding.StartHereCore_v1`  
+**Algorithm:** `Glyphser.Onboarding.StartHereCore`  
 **Purpose (1 sentence):** Provide the minimum deterministic onboarding path for first successful Core profile execution.  
-**Spec Version:** `UML_OS.Onboarding.StartHereCore_v1` | 2026-02-21 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Onboarding.StartHereCore` | 2026-02-21 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Onboarding.StartHereCore_v1`
+- **Algorithm:** `Glyphser.Onboarding.StartHereCore`
 - **Purpose (1 sentence):** Deterministic onboarding contract for Core profile first run.
-- **Spec Version:** `UML_OS.Onboarding.StartHereCore_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Onboarding.StartHereCore` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** onboarding and first-run determinism verification.
 
 ### 0.A Objective Semantics
@@ -26,7 +26,7 @@
 ## 3) Required File Set (Normative)
 - `docs/layer4-implementation/Reference-Stack-Minimal.md`
 - `docs/layer4-implementation/Hello-World-End-to-End-Example.md`
-- `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md`
+- `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md`
 - `docs/layer2-specs/Run-Commit-WAL.md`
 - `docs/layer2-specs/Trace-Sidecar.md`
 - `docs/layer2-specs/Execution-Certificate.md`
@@ -54,7 +54,7 @@
 ---
 ## 7) Golden Demo Evidence Bundle (Normative)
 - Bundle identity:
-  - `hello_core_demo_bundle_hash = SHA-256(CBOR_CANONICAL(["hello_core_demo_v1", [fixture_ids, expected_identities]]))`.
+  - `hello_core_demo_bundle_hash = SHA-256(CBOR_CANONICAL(["hello_core_demo", [fixture_ids, expected_identities]]))`.
 - Required fixture bindings:
   - `manifest_fixture_ref = fixtures/hello-core/manifest.core.yaml`
   - `fixture_manifest_ref = fixtures/hello-core/fixture-manifest.json`

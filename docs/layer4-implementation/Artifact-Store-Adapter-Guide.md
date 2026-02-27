@@ -1,9 +1,9 @@
-# UML_OS Artifact Store Adapter Guide
+# Glyphser Artifact Store Adapter Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Storage.ArtifactStoreAdapterGuide_v1`  
+**Algorithm:** `Glyphser.Storage.ArtifactStoreAdapterGuide`  
 **Purpose (1 sentence):** Define deterministic adapter behavior for local/object-store artifact persistence, commit pointers, and recovery-safe semantics.  
-**Spec Version:** `UML_OS.Storage.ArtifactStoreAdapterGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Storage.ArtifactStoreAdapterGuide` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Storage adapter implementation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Storage.ArtifactStoreAdapterGuide_v1`
+- **Algorithm:** `Glyphser.Storage.ArtifactStoreAdapterGuide`
 - **Purpose (1 sentence):** Deterministic storage adapter contract.
 ### 0.A Objective Semantics
 - minimize commit inconsistency and recovery ambiguity.
@@ -27,12 +27,12 @@
 ### 0.F Environment and Dependency Policy
 - adapter must declare backend type and consistency model.
 ### 0.G Operator Manifest
-- `UML_OS.Storage.PutImmutableObject_v1`
-- `UML_OS.Storage.PublishCommitPointer_v1`
-- `UML_OS.Storage.ValidateCommittedRun_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Storage.PutImmutableObject`
+- `Glyphser.Storage.PublishCommitPointer`
+- `Glyphser.Storage.ValidateCommittedRun`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Storage.*` namespace.
+- `Glyphser.Storage.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(storage_report, commit_status, recovery_report)`.
 ### 0.J Spec Lifecycle Governance
@@ -63,40 +63,40 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Storage.PutImmutableObject_v1`
-- `UML_OS.Storage.PublishCommitPointer_v1`
-- `UML_OS.Storage.ValidateCommittedRun_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Storage.PutImmutableObject`
+- `Glyphser.Storage.PublishCommitPointer`
+- `Glyphser.Storage.ValidateCommittedRun`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Storage.PutImmutableObject_v1`
+**Operator:** `Glyphser.Storage.PutImmutableObject`
 **Signature:** `(object_key, object_bytes, expected_hash -> put_status)`
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Writes object exactly once under immutable semantics; validates `SHA-256(object_bytes) == expected_hash` before commit.
 
-**Operator:** `UML_OS.Storage.PublishCommitPointer_v1`  
+**Operator:** `Glyphser.Storage.PublishCommitPointer`  
 **Signature:** `(tenant_id, run_id, pointer_payload -> publish_status)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Publishes COMMITTED pointer atomically using conditional semantics.
 
-**Operator:** `UML_OS.Storage.ValidateCommittedRun_v1`
+**Operator:** `Glyphser.Storage.ValidateCommittedRun`
 **Signature:** `(tenant_id, run_id, pointer_payload, object_index -> recovery_report, commit_status)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Verifies that all pointer-linked objects exist and hashes match; returns deterministic `commit_status`.
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+External operator reference: `Glyphser.Error.Emit` is defined in `docs/layer1-foundation/Error-Codes.md`.
 
 ---
 ## 6) Procedure
 ```text
 1. Sort `object_keys` canonically
-2. For each key: PutImmutableObject_v1
+2. For each key: PutImmutableObject
 3. Publish COMMITTED pointer via conditional create
-4. ValidateCommittedRun_v1
+4. ValidateCommittedRun
 5. return (storage_report, commit_status, recovery_report)
 ```
 
@@ -112,7 +112,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 
 ### VIII.D External Certification Program (Normative)
 - Certification label format:
-  - `UML_OS Certified Artifact Store v<adapter_contract_version>`.
+  - `Glyphser Certified Artifact Store v<adapter_contract_version>`.
 - Required vendor-publishable evidence bundle:
   - backend matrix suite reports,
   - crash-recovery report hash,

@@ -1,9 +1,9 @@
-# UML_OS Migration Execution Guide Contract
+# Glyphser Migration Execution Guide Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.MigrationExecutionGuide_v1`  
+**Algorithm:** `Glyphser.Implementation.MigrationExecutionGuide`  
 **Purpose (1 sentence):** Define deterministic operational procedures for executing and validating manifest/trace/checkpoint migrations.  
-**Spec Version:** `UML_OS.Implementation.MigrationExecutionGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.MigrationExecutionGuide` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Schema and artifact migration operations.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.MigrationExecutionGuide_v1`
+- **Algorithm:** `Glyphser.Implementation.MigrationExecutionGuide`
 - **Purpose (1 sentence):** Deterministic migration execution contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,13 +28,13 @@
 ### 0.F Environment and Dependency Policy
 - Migration tools must run under pinned lockfile/toolchain.
 ### 0.G Operator Manifest
-- `UML_OS.Migrate.Manifest_v1`
-- `UML_OS.Migrate.Checkpoint_v1`
-- `UML_OS.Migrate.Trace_v1`
-- `UML_OS.Migrate.ValidateOutcome_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Migrate.Manifest`
+- `Glyphser.Migrate.Checkpoint`
+- `Glyphser.Migrate.Trace`
+- `Glyphser.Migrate.ValidateOutcome`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Migrate.*`
+- `Glyphser.Migrate.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(migration_report, migration_certificate_hash)`
 - Metrics: `objects_migrated`, `objects_failed`
@@ -66,30 +66,30 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Migrate.Manifest_v1`
-- `UML_OS.Migrate.Checkpoint_v1`
-- `UML_OS.Migrate.Trace_v1`
-- `UML_OS.Migrate.ValidateOutcome_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Migrate.Manifest`
+- `Glyphser.Migrate.Checkpoint`
+- `Glyphser.Migrate.Trace`
+- `Glyphser.Migrate.ValidateOutcome`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Migrate.Manifest_v1`  
+**Operator:** `Glyphser.Migrate.Manifest`  
 **Signature:** `(source_manifest, target_version -> target_manifest)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Migrate.Checkpoint_v1`  
+**Operator:** `Glyphser.Migrate.Checkpoint`  
 **Signature:** `(source_checkpoint, target_version -> target_checkpoint)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Migrate.Trace_v1`  
+**Operator:** `Glyphser.Migrate.Trace`  
 **Signature:** `(source_trace, target_version -> target_trace)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Migrate.ValidateOutcome_v1`  
+**Operator:** `Glyphser.Migrate.ValidateOutcome`  
 **Signature:** `(source_obj, target_obj, invariants -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -97,8 +97,8 @@
 ---
 ## 6) Procedure
 ```text
-1. Migrate.Manifest_v1 / Migrate.Checkpoint_v1 / Migrate.Trace_v1
-2. ValidateOutcome_v1 for each migrated object
+1. Migrate.Manifest / Migrate.Checkpoint / Migrate.Trace
+2. ValidateOutcome for each migrated object
 3. Emit migration certificate
 4. Return migration_report
 ```

@@ -1,9 +1,9 @@
-# UML_OS Implementation Backlog Contract
+# Glyphser Implementation Backlog Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.Backlog_v1`  
+**Algorithm:** `Glyphser.Implementation.Backlog`  
 **Purpose (1 sentence):** Define deterministic implementation task inventory and status semantics for operator-level delivery tracking.  
-**Spec Version:** `UML_OS.Implementation.Backlog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.Backlog` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Engineering execution planning.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.Backlog_v1`
+- **Algorithm:** `Glyphser.Implementation.Backlog`
 - **Purpose (1 sentence):** Deterministic implementation backlog governance.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - Backlog status changes require linked artifact hashes (PR/test/report).
 ### 0.G Operator Manifest
-- `UML_OS.ImplBacklog.CreateTask_v1`
-- `UML_OS.ImplBacklog.UpdateStatus_v1`
-- `UML_OS.ImplBacklog.ValidateCoverage_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.ImplBacklog.CreateTask`
+- `Glyphser.ImplBacklog.UpdateStatus`
+- `Glyphser.ImplBacklog.ValidateCoverage`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.ImplBacklog.*`
+- `Glyphser.ImplBacklog.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(backlog_report, coverage_report)`
 - Metrics: `tasks_total`, `tasks_done`, `coverage_pct`
@@ -66,7 +66,7 @@
 | epic_id | required_tasks | done_criteria |
 |---|---|---|
 | `EPIC_profiles` | define/validate `core`, `enterprise`, `regulated` profile bundles | profile bundle hashes published and promotion policy validated; execution-mode mapping note preserved (`enterprise -> managed` unless stricter mode selected) |
-| `EPIC_observability_bridge` | map UML_OS trace/metrics to OTel + Prometheus semantics | mapping hash published; exporter determinism tests pass |
+| `EPIC_observability_bridge` | map Glyphser trace/metrics to OTel + Prometheus semantics | mapping hash published; exporter determinism tests pass |
 | `EPIC_adapter_certification` | backend/store certification evidence generation | certification bundle hash + signed verification report published |
 | `EPIC_reference_stack` | runnable local end-to-end reference stack + golden demo | demo evidence hashes match across environments |
 | `EPIC_external_api` | OpenAPI/Protobuf generation + SDK generation (py/go/ts) | generated client conformance passes |
@@ -91,7 +91,7 @@
 | `EPIC_policy_as_code` | data-usage and regulation-as-code bundles | policy versioning and reproducibility checks pass |
 | `EPIC_economic_models` | marketplace/billing/licensing evidence contracts | accounting/reconciliation tests pass |
 | `EPIC_sustainability` | carbon-aware scheduling + energy accounting + green guide | sustainability metrics integrated into release evidence |
-| `EPIC_archival_notarization` | define canonical `.umlospack` layout; generate archive hash manifest; bind RFC3161/TSA or equivalent notarization proof; schedule deterministic bit-rot revalidation workflow and restore drills | archive bundle hash + notarization proof hash + restore-verdict hash published; release gate requires successful replay from archived package and no unresolved bit-rot alerts |
+| `EPIC_archival_notarization` | define canonical `.glyphserpack` layout; generate archive hash manifest; bind RFC3161/TSA or equivalent notarization proof; schedule deterministic bit-rot revalidation workflow and restore drills | archive bundle hash + notarization proof hash + restore-verdict hash published; release gate requires successful replay from archived package and no unresolved bit-rot alerts |
 | `EPIC_multitenancy_scale` | hierarchical tenancy + fairness/quota + immutable tenant audit logs | tenant isolation/fairness tests pass |
 | `EPIC_obs_plus` | distributed traces + structured logs + real-time dashboards | telemetry correlation conformance passes |
 | `EPIC_cross_version_lts` | long-window compatibility corpora + deprecation enforcement | cross-version regression suites pass |
@@ -111,24 +111,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.ImplBacklog.CreateTask_v1`
-- `UML_OS.ImplBacklog.UpdateStatus_v1`
-- `UML_OS.ImplBacklog.ValidateCoverage_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.ImplBacklog.CreateTask`
+- `Glyphser.ImplBacklog.UpdateStatus`
+- `Glyphser.ImplBacklog.ValidateCoverage`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.ImplBacklog.CreateTask_v1`  
+**Operator:** `Glyphser.ImplBacklog.CreateTask`  
 **Signature:** `(task_spec -> task_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.ImplBacklog.UpdateStatus_v1`  
+**Operator:** `Glyphser.ImplBacklog.UpdateStatus`  
 **Signature:** `(task_id, from_state, to_state, evidence_refs -> transition_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.ImplBacklog.ValidateCoverage_v1`  
+**Operator:** `Glyphser.ImplBacklog.ValidateCoverage`  
 **Signature:** `(backlog, required_operator_set -> coverage_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -136,9 +136,9 @@
 ---
 ## 6) Procedure
 ```text
-1. CreateTask_v1 for uncovered required operators
-2. UpdateStatus_v1 as implementation progresses
-3. ValidateCoverage_v1 before release gates
+1. CreateTask for uncovered required operators
+2. UpdateStatus as implementation progresses
+3. ValidateCoverage before release gates
 4. Validate mandatory productization epics before release gates
 5. Emit backlog_report + coverage_report
 ```

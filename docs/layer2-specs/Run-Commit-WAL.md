@@ -1,9 +1,9 @@
-# UML_OS Run Commit WAL Contract
+# Glyphser Run Commit WAL Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Commit.RunCommitWAL_v1`  
+**Algorithm:** `Glyphser.Commit.RunCommitWAL`  
 **Purpose (1 sentence):** Define deterministic write-ahead logging and recovery rules for atomic run commit of trace/checkpoint/lineage/certificate artifacts.  
-**Spec Version:** `UML_OS.Commit.RunCommitWAL_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Commit.RunCommitWAL` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Crash-consistent artifact finalization.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Commit.RunCommitWAL_v1`
+- **Algorithm:** `Glyphser.Commit.RunCommitWAL`
 - **Purpose (1 sentence):** Atomic, replayable run finalization.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,10 +30,10 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE`.
 ### 0.G Operator Manifest
-- `UML_OS.Commit.WALAppend_v1`
-- `UML_OS.Commit.WALRecover_v1`
-- `UML_OS.Commit.FinalizeRunCommit_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Commit.WALAppend`
+- `Glyphser.Commit.WALRecover`
+- `Glyphser.Commit.FinalizeRunCommit`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - WAL paths:
   - `wal/run_commit/<tenant_id>/<run_id>/records/<wal_seq>.cbor`
@@ -89,7 +89,7 @@
 
 WAL hash-chain rule:
 - Define `wal_record_payload_i` as the canonical CBOR map of the WAL record with all present fields except `record_hash`.
-- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", wal_record_payload_i]))`
+- `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record", wal_record_payload_i]))`
 - `commit_record_hash = record_hash` of the terminal `FINALIZE` WAL record.
 - `wal_terminal_hash = commit_record_hash`.
 - WAL framing integrity rule:
@@ -110,7 +110,7 @@ Terminal commit record rule:
   - and SHOULD include `policy_bundle_hash` + `determinism_profile_hash` to bind signing context.
 
 ### II.G Recovery Rule (Normative)
-- Deterministic `WALRecover_v1` algorithm:
+- Deterministic `WALRecover` algorithm:
   1. Enumerate records for `(tenant_id, run_id)` by strictly ascending `wal_seq`.
   2. Validate continuity: first record MUST have `wal_seq=0`; each next record MUST increment by exactly 1.
   3. Validate framing/checksum for each record (`record_length_u32`, `record_crc32c`); detect and reject torn writes.
@@ -139,14 +139,14 @@ Canonical commit barrier:
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Commit.WALAppend_v1`
-- `UML_OS.Commit.WALRecover_v1`
-- `UML_OS.Commit.FinalizeRunCommit_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Commit.WALAppend`
+- `Glyphser.Commit.WALRecover`
+- `Glyphser.Commit.FinalizeRunCommit`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Commit.WALAppend_v1`  
+**Operator:** `Glyphser.Commit.WALAppend`  
 **Category:** IO  
 **Signature:** `(tenant_id, run_id, wal_record -> wal_state')`  
 **Purity class:** IO  
@@ -154,14 +154,14 @@ Canonical commit barrier:
 **Definition:** resolves run-scoped WAL path from `(tenant_id, run_id)`, then appends canonical record with monotone `wal_seq`.
 Caller contract: `wal_record` MUST contain at least `record_type` plus required payload fields for that type; caller MUST NOT provide `wal_seq`, `prev_record_hash`, `record_hash`, `record_length_u32`, or `record_crc32c` (these are deterministically filled by the operator).
 
-**Operator:** `UML_OS.Commit.WALRecover_v1`  
+**Operator:** `Glyphser.Commit.WALRecover`  
 **Category:** IO  
 **Signature:** `(tenant_id, run_id -> recovery_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Executes II.G algorithm exactly using `(tenant_id, run_id)` to resolve `wal_stream` and `artifact_store` deterministically (tenant/run scoped namespace paths), validates sequence/hash-chain, then deterministically finalize-or-rollback with idempotent artifact handling and explicit corruption failure.
 
-**Operator:** `UML_OS.Commit.FinalizeRunCommit_v1`  
+**Operator:** `Glyphser.Commit.FinalizeRunCommit`  
 **Category:** IO  
 **Signature:** `(tenant_id, run_id -> commit_status)`  
 **Purity class:** IO  
@@ -171,11 +171,11 @@ Caller contract: `wal_record` MUST contain at least `record_type` plus required 
 ---
 ## 6) Procedure
 ```text
-0. WALRecover_v1(tenant_id, run_id) on startup/resume
-1. WALAppend_v1(tenant_id, run_id, {record_type:"PREPARE"})
-2. WALAppend_v1(tenant_id, run_id, {record_type:"CERT_SIGNED", certificate_tmp_hash})
-3. FinalizeRunCommit_v1(tenant_id, run_id)
-4. WALAppend_v1(tenant_id, run_id, {record_type:"FINALIZE", trace_final_hash, checkpoint_hash, lineage_root_hash, certificate_hash, manifest_hash, policy_bundle_hash, operator_registry_hash, determinism_profile_hash})
+0. WALRecover(tenant_id, run_id) on startup/resume
+1. WALAppend(tenant_id, run_id, {record_type:"PREPARE"})
+2. WALAppend(tenant_id, run_id, {record_type:"CERT_SIGNED", certificate_tmp_hash})
+3. FinalizeRunCommit(tenant_id, run_id)
+4. WALAppend(tenant_id, run_id, {record_type:"FINALIZE", trace_final_hash, checkpoint_hash, lineage_root_hash, certificate_hash, manifest_hash, policy_bundle_hash, operator_registry_hash, determinism_profile_hash})
 ```
 
 ---

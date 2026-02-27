@@ -1,9 +1,9 @@
-# UML_OS Release Evidence Assembler Contract
+# Glyphser Release Evidence Assembler Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Release.EvidenceAssembler_v1`  
+**Algorithm:** `Glyphser.Release.EvidenceAssembler`  
 **Purpose (1 sentence):** Define deterministic assembly of release evidence bundles consumed by certificate signing and deployment gates.  
-**Spec Version:** `UML_OS.Release.EvidenceAssembler_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Release.EvidenceAssembler` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Release governance and evidence binding.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Release.EvidenceAssembler_v1`
+- **Algorithm:** `Glyphser.Release.EvidenceAssembler`
 - **Purpose (1 sentence):** Deterministic release evidence assembly contract.
 ### 0.A Objective Semantics
 - minimize missing or inconsistent release evidence.
@@ -27,12 +27,12 @@
 - assembler runtime and policy pinned.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Release.CollectEvidenceRefs_v1`
-- `UML_OS.Release.BuildEvidenceBundle_v1`
-- `UML_OS.Release.ValidateEvidenceBundle_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Release.CollectEvidenceRefs`
+- `Glyphser.Release.BuildEvidenceBundle`
+- `Glyphser.Release.ValidateEvidenceBundle`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Release.*` namespace.
+- `Glyphser.Release.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(evidence_bundle_ref, evidence_bundle_hash, validation_report)`.
 ### 0.J Spec Lifecycle Governance
@@ -80,14 +80,14 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Release.CollectEvidenceRefs_v1`
-- `UML_OS.Release.BuildEvidenceBundle_v1`
-- `UML_OS.Release.ValidateEvidenceBundle_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Release.CollectEvidenceRefs`
+- `Glyphser.Release.BuildEvidenceBundle`
+- `Glyphser.Release.ValidateEvidenceBundle`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Release.BuildEvidenceBundle_v1`  
+**Operator:** `Glyphser.Release.BuildEvidenceBundle`  
 **Signature:** `(evidence_refs, policy -> evidence_bundle)`  
 **Purity class:** IO  
 **Determinism:** deterministic  

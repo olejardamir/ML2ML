@@ -1,9 +1,9 @@
-# UML_OS Module Scaffolding Guide Contract
+# Glyphser Module Scaffolding Guide Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ModuleScaffold_v1`  
+**Algorithm:** `Glyphser.Implementation.ModuleScaffold`  
 **Purpose (1 sentence):** Define deterministic module scaffolding templates and required wiring for new operator implementations.  
-**Spec Version:** `UML_OS.Implementation.ModuleScaffold_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ModuleScaffold` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Code generation and module bootstrap governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ModuleScaffold_v1`
+- **Algorithm:** `Glyphser.Implementation.ModuleScaffold`
 - **Purpose (1 sentence):** Deterministic module skeleton contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,10 +28,10 @@
 ### 0.F Environment and Dependency Policy
 - Scaffold must be generated from operator registry metadata only.
 ### 0.G Operator Manifest
-- `UML_OS.Scaffold.GenerateModule_v1`
-- `UML_OS.Scaffold.ValidateScaffold_v1`
-- `UML_OS.Scaffold.BindTests_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Scaffold.GenerateModule`
+- `Glyphser.Scaffold.ValidateScaffold`
+- `Glyphser.Scaffold.BindTests`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `src/<subsystem>/<operator>.py` + tests + vectors.
 ### 0.I Outputs and Metric Schema
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Scaffold.GenerateModule_v1`
-- `UML_OS.Scaffold.ValidateScaffold_v1`
-- `UML_OS.Scaffold.BindTests_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Scaffold.GenerateModule`
+- `Glyphser.Scaffold.ValidateScaffold`
+- `Glyphser.Scaffold.BindTests`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Scaffold.GenerateModule_v1`  
+**Operator:** `Glyphser.Scaffold.GenerateModule`  
 **Signature:** `(operator_record, template -> generated_module)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Scaffold.ValidateScaffold_v1`  
+**Operator:** `Glyphser.Scaffold.ValidateScaffold`  
 **Signature:** `(generated_module, scaffold_rules -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Scaffold.BindTests_v1`  
+**Operator:** `Glyphser.Scaffold.BindTests`  
 **Signature:** `(generated_module, vector_catalog -> test_bundle)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. GenerateModule_v1
-2. ValidateScaffold_v1
-3. BindTests_v1
+1. GenerateModule
+2. ValidateScaffold
+3. BindTests
 4. Emit scaffold_report
 ```
 

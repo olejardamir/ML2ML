@@ -1,9 +1,9 @@
-# UML_OS Checkpoint Schema Contract
+# Glyphser Checkpoint Schema Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Checkpoint.SchemaContract_v1`  
-**Purpose (1 sentence):** Define deterministic checkpoint structure, compatibility rules, and restore guarantees across UML_OS subsystems.  
-**Spec Version:** `UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Checkpoint.SchemaContract`  
+**Purpose (1 sentence):** Define deterministic checkpoint structure, compatibility rules, and restore guarantees across Glyphser subsystems.  
+**Spec Version:** `Glyphser.Checkpoint.SchemaContract` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** State persistence and restore compatibility.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Checkpoint.SchemaContract_v1`
+- **Algorithm:** `Glyphser.Checkpoint.SchemaContract`
 - **Purpose (1 sentence):** Canonical checkpoint contract.
-- **Spec Version:** `UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Checkpoint.SchemaContract` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Deterministic persistence.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,10 +32,10 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for checkpoint metadata and hashes.
 ### 0.G Operator Manifest
-- `UML_OS.Checkpoint.ValidateSchema_v1`
-- `UML_OS.Checkpoint.Serialize_v1`
-- `UML_OS.Checkpoint.Restore_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Checkpoint.ValidateSchema`
+- `Glyphser.Checkpoint.Serialize`
+- `Glyphser.Checkpoint.Restore`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Fully-qualified checkpoint fields by subsystem.
 ### 0.I Outputs and Metric Schema
@@ -111,8 +111,8 @@
 - `lineage_root_hash:bytes32` (snapshot-at-checkpoint value; MUST match certificate lineage commitment for the finalized run branch that includes this checkpoint)
   - lineage consistency rule: `lineage_root_hash` MUST equal the deterministic lineage root recomputed from checkpoint-scoped lineage objects/artifacts referenced by this checkpoint snapshot.
   - `dp_enabled:bool`
-  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `CommitHash("tensors_root_v1", [])` per hash identities below)
-  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `CommitHash("optimizer_root_v1", [])` per hash identities below)
+  - `tensors_root_hash:bytes32` (empty-set rule: if no tensor shards, root is `CommitHash("tensors_root", [])` per hash identities below)
+  - `optimizer_state_root_hash:bytes32` (empty-set rule: if no optimizer shards, root is `CommitHash("optimizer_root", [])` per hash identities below)
   - `rng_state_hash:bytes32`
   - `data_cursors_hash:bytes32`
   - `dp_accountant_state_hash?:bytes32`
@@ -146,22 +146,22 @@
   - `dp_accountant_manifest_hash = ObjectDigest(dp_accountant_manifest_cbor)`
   - `rng_state_hash = ObjectDigest(rng_state_cbor)`
   - `rng_state_cbor` canonical schema (normative):
-    - `["rng_state_v1", key_u32_0, key_u32_1, ctr_u32_0, ctr_u32_1, ctr_u32_2, ctr_u32_3]`
+    - `["rng_state", key_u32_0, key_u32_1, ctr_u32_0, ctr_u32_1, ctr_u32_2, ctr_u32_3]`
     - where key is Philox key `[u32;2]` and counter is `[u32;4]` in little-endian logical word order.
   - `data_cursors_hash = ObjectDigest(data_cursors_cbor)`
   - `tensors_root_hash` and `optimizer_state_root_hash` derivation (normative):
     - shard-leaf encoding shared with checkpoint Merkle leaves:
-      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))`,
-    - `tensors_root_hash = SHA-256(CBOR_CANONICAL(["tensors_root_v1", tensor_leaves_sorted]))` where `tensor_leaves_sorted` contains leaves for shards with normalized path prefix `tensors/`, sorted by `shard_path`,
-    - `optimizer_state_root_hash =     - empty-set rule: if the filtered shard set is empty, root is `SHA-256(CBOR_CANONICAL(["tensors_root_v1", []]))` for `tensors_root_hash` and `SHA-256(CBOR_CANONICAL(["optimizer_root_v1", []]))` for `optimizer_state_root_hash`. empty, root is `CommitHash("tensors_root_v1", [])` for tensors and `CommitHash("optimizer_root_v1", [])` for optimizer state.
+      - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard", [shard_path_i, shard_sha256_i, shard_size_i]]))`,
+    - `tensors_root_hash = SHA-256(CBOR_CANONICAL(["tensors_root", tensor_leaves_sorted]))` where `tensor_leaves_sorted` contains leaves for shards with normalized path prefix `tensors/`, sorted by `shard_path`,
+    - `optimizer_state_root_hash =     - empty-set rule: if the filtered shard set is empty, root is `SHA-256(CBOR_CANONICAL(["tensors_root", []]))` for `tensors_root_hash` and `SHA-256(CBOR_CANONICAL(["optimizer_root", []]))` for `optimizer_state_root_hash`. empty, root is `CommitHash("tensors_root", [])` for tensors and `CommitHash("optimizer_root", [])` for optimizer state.
   - `checkpoint_hash = checkpoint_manifest_hash`
-  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock_v1", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
+  - `dependencies_lock_hash = SHA-256(CBOR_CANONICAL(["deps_lock", [lockfile_hash, toolchain_hash, runtime_env_hash]]))`
   - `operator_contracts_root_hash = operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
 - `checkpoint_merkle_root` construction over shard payloads:
-    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard_v1", [shard_path_i, shard_sha256_i, shard_size_i]]))` with shards ordered by `shard_path`,
-    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node_v1", [left, right]]))`,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["ckpt_shard", [shard_path_i, shard_sha256_i, shard_size_i]]))` with shards ordered by `shard_path`,
+    - `parent = SHA-256(CBOR_CANONICAL(["ckpt_merkle_node", [left, right]]))`,
     - odd-leaf rule duplicates the last leaf.
-    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root_v1", []]))`.
+    - empty-shard rule: if there are zero shards, `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root", []]))`.
     - for streaming writes, root is computed only after all shard hashes are finalized; placeholder roots are invalid.
 - Canonical absence encoding: optional fields are omitted (key absent), never encoded as `null`.
 - Evolution rule: additive optional fields allowed in MINOR; required-field changes require MAJOR.
@@ -242,33 +242,33 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Checkpoint.ValidateSchema_v1`
-- `UML_OS.Checkpoint.Serialize_v1`
-- `UML_OS.Checkpoint.Restore_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Checkpoint.ValidateSchema`
+- `Glyphser.Checkpoint.Serialize`
+- `Glyphser.Checkpoint.Restore`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Checkpoint.ValidateSchema_v1`  
+**Operator:** `Glyphser.Checkpoint.ValidateSchema`  
 **Category:** IO  
 **Signature:** `(state, schema -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** validates checkpoint field presence/types.
 
-**Operator:** `UML_OS.Checkpoint.Serialize_v1`  
+**Operator:** `Glyphser.Checkpoint.Serialize`  
 **Category:** IO  
 **Signature:** `(validated_state -> checkpoint_blob)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** canonical deterministic serialization with hash attachment.
 
-**Operator:** `UML_OS.Checkpoint.Restore_v1`  
+**Operator:** `Glyphser.Checkpoint.Restore`  
 **Category:** IO  
 **Signature:** `(checkpoint_blob -> restored_state, report)`  
 **Purity class:** IO  
@@ -276,7 +276,7 @@ Template conformance note (III.A): each operator definition in this section is i
 **Definition:** validates hash/schema and reconstructs subsystem state.
 If `checkpoint_schema_version` is older and listed in `migration_supported_from`, restore MUST apply deterministic `migration_operator` before state reconstruction.
 
-**Operator:** `UML_OS.Checkpoint.Migrate_v1`
+**Operator:** `Glyphser.Checkpoint.Migrate`
 **Category:** IO
 **Signature:** `(old_checkpoint, from_version, to_version -> new_checkpoint)`
 **Purity class:** PURE
@@ -286,9 +286,9 @@ If `checkpoint_schema_version` is older and listed in `migration_supported_from`
 ---
 ## 6) Procedure
 ```text
-1. ValidateSchema_v1
-2. Serialize_v1
-3. Restore_v1 (verification mode)
+1. ValidateSchema
+2. Serialize
+3. Restore (verification mode)
 4. Return checkpoint_blob + restore_report
 ```
 

@@ -1,9 +1,9 @@
-# UML_OS Validation and Test Plan
+# Glyphser Validation and Test Plan
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.TestPlanOrchestrator_v1`  
+**Algorithm:** `Glyphser.Implementation.TestPlanOrchestrator`  
 **Purpose (1 sentence):** Execute deterministic validation suites that certify EQC invariants, operator behavior, and replay correctness.  
-**Spec Version:** `UML_OS.Implementation.TestPlanOrchestrator_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.TestPlanOrchestrator` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic verification and regression control.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.TestPlanOrchestrator_v1`
+- **Algorithm:** `Glyphser.Implementation.TestPlanOrchestrator`
 - **Purpose (1 sentence):** Deterministic test orchestration.
-- **Spec Version:** `UML_OS.Implementation.TestPlanOrchestrator_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Implementation.TestPlanOrchestrator` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Reproducible validation execution.
 
 ### 0.A Objective Semantics
@@ -48,12 +48,12 @@
 - Determinism level: `BITWISE` for pass/fail reports; `TOLERANCE` for perf metrics.
 
 ### 0.G Operator Manifest
-- `UML_OS.Test.RunUnitSuite_v1`
-- `UML_OS.Test.RunIntegrationSuite_v1`
-- `UML_OS.Test.RunGoldenTraceSuite_v1`
-- `UML_OS.Test.RunReplaySuite_v1`
-- `UML_OS.Test.AggregateResults_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunUnitSuite`
+- `Glyphser.Test.RunIntegrationSuite`
+- `Glyphser.Test.RunGoldenTraceSuite`
+- `Glyphser.Test.RunReplaySuite`
+- `Glyphser.Test.AggregateResults`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
 - Fully-qualified test operators required.
@@ -121,10 +121,10 @@
   - `thresholds:object`
   - `golden_ids:array<string>`
 - Golden inventory (minimum):
-  - `golden_kernel_train_v1` -> `sha256:aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01`
-  - `golden_data_nextbatch_v2` -> `sha256:bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02`
-  - `golden_modelir_exec_v1` -> `sha256:cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03`
-  - `golden_dp_apply_v3` -> `sha256:dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04`
+  - `golden_kernel_train` -> `sha256:aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01aa01`
+  - `golden_data_nextbatch` -> `sha256:bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02bb02`
+  - `golden_modelir_exec` -> `sha256:cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03cc03`
+  - `golden_dp_apply` -> `sha256:dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04dd04`
 - Deterministic pass/fail rule: pass iff all required suites pass and no E0 field mismatch against referenced golden IDs.
 - Required hardening suites:
   - property/fuzz tests for IR validation, schema parsing, checkpoint decode, and TMMU planner invariants,
@@ -179,20 +179,20 @@
 
 ## 4) Operator Manifest
 
-- `UML_OS.Test.RunUnitSuite_v1`
-- `UML_OS.Test.RunIntegrationSuite_v1`
-- `UML_OS.Test.RunGoldenTraceSuite_v1`
-- `UML_OS.Test.RunReplaySuite_v1`
-- `UML_OS.Test.AggregateResults_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunUnitSuite`
+- `Glyphser.Test.RunIntegrationSuite`
+- `Glyphser.Test.RunGoldenTraceSuite`
+- `Glyphser.Test.RunReplaySuite`
+- `Glyphser.Test.AggregateResults`
+- `Glyphser.Error.Emit`
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
-**Operator:** `UML_OS.Test.RunUnitSuite_v1`  
+**Operator:** `Glyphser.Test.RunUnitSuite`  
 **Category:** IO  
 **Signature:** `(suite_config -> suite_report)`  
 **Purity class:** STATEFUL  
@@ -207,7 +207,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** test runner backend.  
 **Test vectors:** synthetic pass/fail suites.
 
-**Operator:** `UML_OS.Test.RunGoldenTraceSuite_v1`  
+**Operator:** `Glyphser.Test.RunGoldenTraceSuite`  
 **Category:** IO  
 **Signature:** `(golden_config -> golden_report)`  
 **Purity class:** STATEFUL  
@@ -222,7 +222,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** trace comparator.  
 **Test vectors:** known golden mismatch/pass cases.
 
-**Operator:** `UML_OS.Test.AggregateResults_v1`  
+**Operator:** `Glyphser.Test.AggregateResults`  
 **Category:** IO  
 **Signature:** `(suite_reports -> test_report, verdict)`  
 **Purity class:** PURE  
@@ -239,7 +239,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 ---
 
-**Operator:** `UML_OS.Test.RunIntegrationSuite_v1`  
+**Operator:** `Glyphser.Test.RunIntegrationSuite`  
 **Category:** Test  
 **Signature:** `(integration_manifest -> integration_report)`  
 **Purity class:** IO  
@@ -255,7 +255,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Test vectors:** mixed pass/fail integration matrices.
 `integration_manifest` schema (normative): `{suite_id:string, scenarios:array<string>, fixtures_hash:bytes32, comparison_profile:object}`.
 
-**Operator:** `UML_OS.Test.RunReplaySuite_v1`  
+**Operator:** `Glyphser.Test.RunReplaySuite`  
 **Category:** Test  
 **Signature:** `(replay_manifest -> replay_report)`  
 **Purity class:** IO  
@@ -273,11 +273,11 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ## 6) Procedure
 
 ```text
-1. RunUnitSuite_v1(suite_config)
-2. RunIntegrationSuite_v1(integration_manifest)
-3. RunGoldenTraceSuite_v1(golden_config)
-4. RunReplaySuite_v1(replay_manifest)
-5. AggregateResults_v1(suite_reports)
+1. RunUnitSuite(suite_config)
+2. RunIntegrationSuite(integration_manifest)
+3. RunGoldenTraceSuite(golden_config)
+4. RunReplaySuite(replay_manifest)
+5. AggregateResults(suite_reports)
 6. Return report + verdict
 ```
 
@@ -305,7 +305,7 @@ Comparable iff same suites, fixtures, thresholds, and merge policy.
 
 #### VII.A Lint rules (mandatory)
 Covers symbol completeness, no hidden globals, deterministic order, trace compliance.
-- Namespace hygiene rule: fail if any operator token matches flat form `UML_OS\\.[A-Za-z0-9_]+_v\\d+`; only `UML_OS.<subsystem>.<name>_v<integer>` is allowed.
+- Namespace hygiene rule: fail if any operator token matches flat form `Glyphser\\.[A-Za-z0-9_]+_v\\d+`; only `Glyphser.<subsystem>.<name>_v<integer>` is allowed.
 
 #### VII.B Operator test vectors (mandatory)
 Includes suite-runner and aggregator vectors.

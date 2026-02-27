@@ -1,15 +1,15 @@
-# UML_OS Normativity Legend
+# Glyphser Normativity Legend
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Governance.NormativityLegend_v1`  
-**Purpose (1 sentence):** Define normative interpretation tags used across UML_OS contracts.  
-**Spec Version:** `UML_OS.Governance.NormativityLegend_v1` | 2026-02-21 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Governance.NormativityLegend`  
+**Purpose (1 sentence):** Define normative interpretation tags used across Glyphser contracts.  
+**Spec Version:** `Glyphser.Governance.NormativityLegend` | 2026-02-21 | Authors: Olejar Damir  
 **Domain / Problem Class:** Contract interpretation and governance clarity.
 
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Governance.NormativityLegend_v1`
+- **Algorithm:** `Glyphser.Governance.NormativityLegend`
 - **Purpose (1 sentence):** Canonical normativity legend.
 ### 0.A Objective Semantics
 - Remove interpretation ambiguity between enforceable protocol rules and explanatory text.
@@ -24,7 +24,7 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for interpretation of tags.
 ### 0.G Operator Manifest
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - This legend applies across all contracts under `docs/`.
 ### 0.I Outputs and Metric Schema

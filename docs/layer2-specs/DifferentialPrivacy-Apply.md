@@ -1,9 +1,9 @@
 # Universal Machine Learning Operating System — Differential Privacy Gradient Applicator
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
-**Algorithm:** `UML_OS.DifferentialPrivacy.Apply_v3`  
+**Algorithm:** `Glyphser.DifferentialPrivacy.Apply`  
 **Purpose (1 sentence):** Apply deterministic clipping (with FlashDP-fused and PEFT-aware paths), smart privacy budget allocation, heterogeneous per-layer/per-group noise, pre-computed sigma schedules, scaling-law projections, and PLD-default accounting with safety-reserve abort-on-budget semantics for regulated frontier LLM training.  
-**Spec Version:** `UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Spec Version:** `Glyphser.DifferentialPrivacy.Apply` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** DP-SGD and related private first-order optimization at LLM/frontier scale.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.DifferentialPrivacy.Apply_v3`
+- **Algorithm:** `Glyphser.DifferentialPrivacy.Apply`
 - **Purpose (1 sentence):** Differential privacy mechanism for gradients with deterministic clipping, heterogeneous noise scheduling, and exact accounting.
-- **Spec Version:** `UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)
+- **Spec Version:** `Glyphser.DifferentialPrivacy.Apply` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)
 - **Domain / Problem Class:** DP-SGD and related private first-order optimization at LLM/frontier scale.
 
 ### 0.A Objective Semantics
@@ -28,11 +28,11 @@
 ### 0.B Reproducibility Contract
 - Seed space: `seed in {0..2^64-1}`
 - PRNG family: `Philox4x32-10`
-- Randomness locality: all sampling occurs only inside `UML_OS.DifferentialPrivacy.GenerateNoise_v1`
+- Randomness locality: all sampling occurs only inside `Glyphser.DifferentialPrivacy.GenerateNoise`
 - Replay guarantee: replayable given `(seed, PRNG family, numeric policy, ordering policy, parallel policy, environment policy)`
-- Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply_v3", [kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]]))`
+- Replay token contribution: `dp_replay_t = SHA-256(CBOR_CANONICAL(["dp_apply", [kernel_replay_token, uint64(t), dp_accountant_state_hash, allocation_mode, fused_kernel, safety_reserve]]))`
 - `noise_seed_per_step: bool` (default `false`); when true, counter derivation is `counter = (uint128(t) << 40) + uint128(param_index_hash)` (128-bit arithmetic, no 64-bit wrap)
-  - `param_index_hash` is the lower 40 bits of `U64_BE(SHA-256(CBOR_CANONICAL(["dp_param_v1", param_fqn])))`.
+  - `param_index_hash` is the lower 40 bits of `U64_BE(SHA-256(CBOR_CANONICAL(["dp_param", param_fqn])))`.
 
 ### 0.C Numeric Policy
 - Critical arithmetic (norms, clipping scales, means, sigma schedules/maps, accountant state): IEEE-754 binary64
@@ -75,34 +75,34 @@
 - Determinism level: `BITWISE` for clipping/sigma/accountant outputs; sampled noise is bitwise-replayable given `(seed, rng offsets, numeric policy, determinism profile)`.
 
 ### 0.G Operator Manifest
-- `UML_OS.DifferentialPrivacy.PreValidation_v1`
-- `UML_OS.DifferentialPrivacy.ConfigResolver_v1`
-- `UML_OS.DifferentialPrivacy.SensitivityAnalyzer_v1`
-- `UML_OS.DifferentialPrivacy.PrivacyBudgetAllocator_v1`
-- `UML_OS.DifferentialPrivacy.Clip_v1`
-- `UML_OS.DifferentialPrivacy.ClipPerSample_v1`
-- `UML_OS.DifferentialPrivacy.GhostClipPerSample_v1`
-- `UML_OS.DifferentialPrivacy.PerLayerClip_v1`
-- `UML_OS.DifferentialPrivacy.PerGroupClip_v1`
-- `UML_OS.DifferentialPrivacy.PerTensorClip_v1`
-- `UML_OS.DifferentialPrivacy.PEFTAwareClipHandler_v1`
-- `UML_OS.DifferentialPrivacy.FlashEfficientClip_v1`
-- `UML_OS.DifferentialPrivacy.BoundedPrivacyAwareAdaptiveClipNorm_v1`
-- `UML_OS.DifferentialPrivacy.PrivacyBudgetScheduler_v1`
-- `UML_OS.DifferentialPrivacy.DPScalingLawProjector_v1`
-- `UML_OS.DifferentialPrivacy.AmplificationByShuffling_v1`
-- `UML_OS.DifferentialPrivacy.GenerateNoise_v1`
-- `UML_OS.DifferentialPrivacy.Accountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.MomentsAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.PLDAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.RDPAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.FDPAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.GDPAccountant.Update_v1`
-- `UML_OS.Error.Emit_v1`
-- `UML_OS.DifferentialPrivacy.Apply_v3`
+- `Glyphser.DifferentialPrivacy.PreValidation`
+- `Glyphser.DifferentialPrivacy.ConfigResolver`
+- `Glyphser.DifferentialPrivacy.SensitivityAnalyzer`
+- `Glyphser.DifferentialPrivacy.PrivacyBudgetAllocator`
+- `Glyphser.DifferentialPrivacy.Clip`
+- `Glyphser.DifferentialPrivacy.ClipPerSample`
+- `Glyphser.DifferentialPrivacy.GhostClipPerSample`
+- `Glyphser.DifferentialPrivacy.PerLayerClip`
+- `Glyphser.DifferentialPrivacy.PerGroupClip`
+- `Glyphser.DifferentialPrivacy.PerTensorClip`
+- `Glyphser.DifferentialPrivacy.PEFTAwareClipHandler`
+- `Glyphser.DifferentialPrivacy.FlashEfficientClip`
+- `Glyphser.DifferentialPrivacy.BoundedPrivacyAwareAdaptiveClipNorm`
+- `Glyphser.DifferentialPrivacy.PrivacyBudgetScheduler`
+- `Glyphser.DifferentialPrivacy.DPScalingLawProjector`
+- `Glyphser.DifferentialPrivacy.AmplificationByShuffling`
+- `Glyphser.DifferentialPrivacy.GenerateNoise`
+- `Glyphser.DifferentialPrivacy.Accountant.Update`
+- `Glyphser.DifferentialPrivacy.MomentsAccountant.Update`
+- `Glyphser.DifferentialPrivacy.PLDAccountant.Update`
+- `Glyphser.DifferentialPrivacy.RDPAccountant.Update`
+- `Glyphser.DifferentialPrivacy.FDPAccountant.Update`
+- `Glyphser.DifferentialPrivacy.GDPAccountant.Update`
+- `Glyphser.Error.Emit`
+- `Glyphser.DifferentialPrivacy.Apply`
 
 ### 0.H Namespacing and Packaging
-- Fully-qualified names: `UML_OS.DifferentialPrivacy.<Name>_v#`
+- Fully-qualified names: `Glyphser.DifferentialPrivacy.<Name>_v#`
 - Sidecar mapping is mandatory (`operator -> module/function`).
 
 ### 0.I Outputs and Metric Schema
@@ -262,7 +262,7 @@
 ### II.I DP Metric Definitions (Normative)
 - `gradient_snr = mean(abs(averaged_clipped)) / (std(noise_step) + EPS_DENOM)`.
 - `fairness_clip_ratio = clipped_group_count / max(1, total_group_count)`.
-- `scaling_law_confidence` is the confidence output from `DPScalingLawProjector_v1` in `[0,1]`.
+- `scaling_law_confidence` is the confidence output from `DPScalingLawProjector` in `[0,1]`.
 - `peft_noise_reduction_factor = sigma_full_model / max(EPS_DENOM, sigma_peft_target)`.
 - `effective_heterogeneous_multiplier = sigma_effective / max(EPS_DENOM, sigma_base)`.
 
@@ -273,7 +273,7 @@
 1. `t <- kernel_t`
 2. bind `rng_dp_state <- kernel_master_rng` with DP-owned offset stream
 3. load or initialize `cumulative_epsilon <- checkpoint_or_zero`
-4. `resolved_cfg <- UML_OS.DifferentialPrivacy.ConfigResolver_v1(dp_config)`
+4. `resolved_cfg <- Glyphser.DifferentialPrivacy.ConfigResolver(dp_config)`
 5. initialize accountant state for selected `accountant`
 6. precompute sigma schedule/cache for target-based modes using deterministic global inversion (binary search cap `30` iterations; cached for reuse)
 
@@ -282,40 +282,40 @@
 ## 4) Operator Manifest
 
 Active operators (exact wiring table):
-- `UML_OS.DifferentialPrivacy.PreValidation_v1`
-- `UML_OS.DifferentialPrivacy.ConfigResolver_v1`
-- `UML_OS.DifferentialPrivacy.SensitivityAnalyzer_v1`
-- `UML_OS.DifferentialPrivacy.PrivacyBudgetAllocator_v1`
-- `UML_OS.DifferentialPrivacy.Clip_v1`
-- `UML_OS.DifferentialPrivacy.ClipPerSample_v1`
-- `UML_OS.DifferentialPrivacy.GhostClipPerSample_v1`
-- `UML_OS.DifferentialPrivacy.PerLayerClip_v1`
-- `UML_OS.DifferentialPrivacy.PerGroupClip_v1`
-- `UML_OS.DifferentialPrivacy.PerTensorClip_v1`
-- `UML_OS.DifferentialPrivacy.PEFTAwareClipHandler_v1`
-- `UML_OS.DifferentialPrivacy.FlashEfficientClip_v1`
-- `UML_OS.DifferentialPrivacy.BoundedPrivacyAwareAdaptiveClipNorm_v1`
-- `UML_OS.DifferentialPrivacy.PrivacyBudgetScheduler_v1`
-- `UML_OS.DifferentialPrivacy.DPScalingLawProjector_v1`
-- `UML_OS.DifferentialPrivacy.AmplificationByShuffling_v1`
-- `UML_OS.DifferentialPrivacy.GenerateNoise_v1`
-- `UML_OS.DifferentialPrivacy.Accountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.MomentsAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.PLDAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.RDPAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.FDPAccountant.Update_v1`
-- `UML_OS.DifferentialPrivacy.GDPAccountant.Update_v1`
-- `UML_OS.Error.Emit_v1`
-- `UML_OS.DifferentialPrivacy.Apply_v3`
+- `Glyphser.DifferentialPrivacy.PreValidation`
+- `Glyphser.DifferentialPrivacy.ConfigResolver`
+- `Glyphser.DifferentialPrivacy.SensitivityAnalyzer`
+- `Glyphser.DifferentialPrivacy.PrivacyBudgetAllocator`
+- `Glyphser.DifferentialPrivacy.Clip`
+- `Glyphser.DifferentialPrivacy.ClipPerSample`
+- `Glyphser.DifferentialPrivacy.GhostClipPerSample`
+- `Glyphser.DifferentialPrivacy.PerLayerClip`
+- `Glyphser.DifferentialPrivacy.PerGroupClip`
+- `Glyphser.DifferentialPrivacy.PerTensorClip`
+- `Glyphser.DifferentialPrivacy.PEFTAwareClipHandler`
+- `Glyphser.DifferentialPrivacy.FlashEfficientClip`
+- `Glyphser.DifferentialPrivacy.BoundedPrivacyAwareAdaptiveClipNorm`
+- `Glyphser.DifferentialPrivacy.PrivacyBudgetScheduler`
+- `Glyphser.DifferentialPrivacy.DPScalingLawProjector`
+- `Glyphser.DifferentialPrivacy.AmplificationByShuffling`
+- `Glyphser.DifferentialPrivacy.GenerateNoise`
+- `Glyphser.DifferentialPrivacy.Accountant.Update`
+- `Glyphser.DifferentialPrivacy.MomentsAccountant.Update`
+- `Glyphser.DifferentialPrivacy.PLDAccountant.Update`
+- `Glyphser.DifferentialPrivacy.RDPAccountant.Update`
+- `Glyphser.DifferentialPrivacy.FDPAccountant.Update`
+- `Glyphser.DifferentialPrivacy.GDPAccountant.Update`
+- `Glyphser.Error.Emit`
+- `Glyphser.DifferentialPrivacy.Apply`
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator below explicitly declares `Operator/Category/Signature/Purity class/Determinism/Definition`; the following fields apply to all operators unless overridden inline:
-- Preconditions / Postconditions: all typed inputs validated by `PreValidation_v1`; outputs are schema-valid and deterministic under declared policies.
+- Preconditions / Postconditions: all typed inputs validated by `PreValidation`; outputs are schema-valid and deterministic under declared policies.
 - Edge cases: empty/degenerate tensors, tiny batches, extreme scheduler/accountant boundaries.
 - Numerical considerations: binary64 critical math, deterministic ordering, no fast-math.
 - Ordering/tie handling: deterministic traversal (index/layer/group order) and stable tie-breaks.
@@ -324,15 +324,15 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 - Dependencies: limited to signature inputs + declared operators in section 4.
 - Test vectors: covered by VII.B deterministic and stochastic replay tests.
 
-**Operator:** `UML_OS.DifferentialPrivacy.Apply_v3`  
+**Operator:** `Glyphser.DifferentialPrivacy.Apply`  
 **Category:** Security  
 **Signature:** `(gradients, dp_config, t -> noisy_gradients, updated_budget, dp_metrics)`  
 **Purity class:** STATEFUL  
-**Determinism:** deterministic control path; stochastic only via `GenerateNoise_v1`  
+**Determinism:** deterministic control path; stochastic only via `GenerateNoise`  
 **Definition:** orchestrates validation, config resolution, sensitivity analysis, allocation, clipping, scheduling, projection guard, noise generation, accounting, and cast. `gradients` input is the deterministic per-optimizer-step micro-batch gradient sequence (not a pre-aggregated full-batch gradient tensor).  
 **Failure behavior:** abort with 0.K codes.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PreValidation_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PreValidation`  
 **Category:** Security  
 **Signature:** `(dp_config, t -> ok)`  
 **Purity class:** PURE  
@@ -340,49 +340,49 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 **Definition:** validates DP hyperparameters, mode/accountant compatibility, finite values, and accumulation context.  
 **Failure behavior:** `INVALID_DP_CONFIG`.
 
-**Operator:** `UML_OS.DifferentialPrivacy.ConfigResolver_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.ConfigResolver`  
 **Category:** Security  
 **Signature:** `(dp_config, accumulation_context -> resolved_config)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** canonical deterministic merge of defaults, per-module/group overrides, phase overrides, and accumulation context.
 
-**Operator:** `UML_OS.DifferentialPrivacy.SensitivityAnalyzer_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.SensitivityAnalyzer`  
 **Category:** Security  
 **Signature:** `(model_layout, norm_history, routing_stats? -> sensitivity_map)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** estimates deterministic per-layer/group/tensor sensitivity for allocation and heterogenous scheduling.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PrivacyBudgetAllocator_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PrivacyBudgetAllocator`  
 **Category:** Security  
 **Signature:** `(resolved_cfg, sensitivity_map, norm_history -> allocation_map, clip_norm_map)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** allocates privacy budget by selected policy (`uniform`, `layer_wise`, `custom`) and emits deterministic maps.
 
-**Operator:** `UML_OS.DifferentialPrivacy.Clip_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.Clip`  
 **Category:** Security  
 **Signature:** `(gradients, clipping_cfg, max_microbatch -> clipped, norms, clip_stats)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** dispatches clipping strategy (`per_sample`, `ghost`, `per_layer`, `per_group`, `per_tensor`, `hybrid`, `peft_targeted`, `adaptive`) with deterministic microbatching.
 
-**Operator:** `UML_OS.DifferentialPrivacy.FlashEfficientClip_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.FlashEfficientClip`  
 **Category:** Security  
 **Signature:** `(gradients, clip_norm_map, fused_cfg -> clipped_or_averaged, norms, stats)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** fused memory-efficient clip-and-average path for structured large-model parameter layouts. `fused_cfg` is deterministically derived from `resolved_cfg` (`fused_kernel` settings and clipping mode compatibility). Noise generation is not performed here and remains exclusively in `GenerateNoise_v1`.
+**Definition:** fused memory-efficient clip-and-average path for structured large-model parameter layouts. `fused_cfg` is deterministically derived from `resolved_cfg` (`fused_kernel` settings and clipping mode compatibility). Noise generation is not performed here and remains exclusively in `GenerateNoise`.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PEFTAwareClipHandler_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PEFTAwareClipHandler`  
 **Category:** Security  
 **Signature:** `(gradients, trainable_mask, public_modules -> clipped, peft_stats)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** applies clipping/noise accounting only to trainable/private adapters and excludes public modules.
 
-**Operator:** `UML_OS.DifferentialPrivacy.BoundedPrivacyAwareAdaptiveClipNorm_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.BoundedPrivacyAwareAdaptiveClipNorm`  
 **Category:** Security  
 **Signature:** `(norm_history_state, norms_t, adaptive_accounting_mode -> clip_norm_t, norm_history_state', delta_epsilon_cost)`  
 **Purity class:** STATEFUL  
@@ -395,21 +395,21 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
   - `delta_eps = 0.01` per adaptive update (or `0` when strategy is non-adaptive),
   - return updated history state and `delta_eps` for accountant composition.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PrivacyBudgetScheduler_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PrivacyBudgetScheduler`  
 **Category:** Security  
 **Signature:** `(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size -> sigma_map_t)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** returns heterogeneous `sigma_map_t` using precomputed schedules for target-based modes and deterministic runtime refinement for `step_decay`/`dynamic_projection`.
 
-**Operator:** `UML_OS.DifferentialPrivacy.DPScalingLawProjector_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.DPScalingLawProjector`  
 **Category:** Security  
 **Signature:** `(sigma_map_t, remaining_steps, model_scale, accountant_hint -> projected_epsilon, confidence)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** projects long-horizon privacy trajectory for proactive safety control (heuristic only). It does not replace formal accounting; compliance and abort decisions are based only on `Accountant.Update_v1`.
+**Definition:** projects long-horizon privacy trajectory for proactive safety control (heuristic only). It does not replace formal accounting; compliance and abort decisions are based only on `Accountant.Update`.
 
-**Operator:** `UML_OS.DifferentialPrivacy.AmplificationByShuffling_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.AmplificationByShuffling`  
 **Category:** Security  
 **Signature:** `(sampling_metadata -> amplification_factor)`  
 **Purity class:** PURE  
@@ -425,14 +425,14 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
   - Policy override:
     - if an audited policy artifact declares a stricter fixed factor `f`, use `min(amplification_factor, f)` deterministically.
 
-**Operator:** `UML_OS.DifferentialPrivacy.GenerateNoise_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.GenerateNoise`  
 **Category:** Security  
 **Signature:** `(shape, stddev_map_t, rng_dp_state, compression_cfg? -> noise, rng_dp_state')`  
 **Purity class:** STATEFUL  
 **Determinism:** stochastic (bitwise-replayable sample stream under replay contract with fixed seed/offset/profile)  
 **Definition:** isotropic/heterogeneous Gaussian generation with exact RNG offset accounting; consumes per-group standard deviations from `stddev_map_t`; applies variance-aware compression adjustments if configured.
 
-**Operator:** `UML_OS.DifferentialPrivacy.Accountant.Update_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.Accountant.Update`  
 **Category:** Security  
 **Signature:** `(accountant_type, state, sigma_map, sampling_rate, t, delta, subsampling, amplification?, delta_eps? -> epsilon_t, state')`  
 **Purity class:** STATEFUL  
@@ -441,70 +441,70 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 
 ---
 
-**Operator:** `UML_OS.DifferentialPrivacy.ClipPerSample_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.ClipPerSample`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(per_sample_grads, clip_norm -> clipped_grads, norms)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Deterministically clips each sample gradient to the declared norm bound.
 
-**Operator:** `UML_OS.DifferentialPrivacy.GhostClipPerSample_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.GhostClipPerSample`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(model, batch, clip_norm -> clipped_grads, norms)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** Computes per-sample clipping via ghost-norm path without full per-sample materialization.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PerLayerClip_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PerLayerClip`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(gradients, per_layer_norms -> clipped_gradients, layer_stats)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Applies deterministic clipping independently per parameter layer/tensor group.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PerGroupClip_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PerGroupClip`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(gradients, per_group_norms, group_map -> clipped_gradients, group_stats)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Clips gradients by configured logical groups in stable registration order.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PerTensorClip_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PerTensorClip`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(gradients, clip_norm_map -> clipped_gradients, tensor_stats)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Clips each trainable tensor with its own deterministic bound.
 
-**Operator:** `UML_OS.DifferentialPrivacy.MomentsAccountant.Update_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.MomentsAccountant.Update`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(state, sigma_map, sampling_rate, t, delta, subsampling, amplification_factor?, delta_eps? -> epsilon_t, state_next)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Updates privacy budget using moments accountant composition with explicit subsampling mode and optional amplification/adjustment terms.
 
-**Operator:** `UML_OS.DifferentialPrivacy.PLDAccountant.Update_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.PLDAccountant.Update`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(state, sigma_map, sampling_rate, t, delta, subsampling, amplification_factor?, delta_eps? -> epsilon_t, state_next)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Updates privacy budget using privacy-loss distribution composition (recommended), applying declared subsampling and optional amplification factor deterministically.
 
-**Operator:** `UML_OS.DifferentialPrivacy.RDPAccountant.Update_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.RDPAccountant.Update`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(state, sigma_map, sampling_rate, t, delta, subsampling, amplification_factor?, delta_eps? -> epsilon_t, state_next)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Updates privacy budget via Renyi-DP composition with deterministic order set, using declared subsampling mode and optional amplification factor.
 
-**Operator:** `UML_OS.DifferentialPrivacy.FDPAccountant.Update_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.FDPAccountant.Update`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(state, sigma_map, sampling_rate, t, delta, subsampling, amplification_factor?, delta_eps? -> epsilon_t, state_next)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Updates privacy budget via f-DP conversion path for configured compatibility mode.
 
-**Operator:** `UML_OS.DifferentialPrivacy.GDPAccountant.Update_v1`  
+**Operator:** `Glyphser.DifferentialPrivacy.GDPAccountant.Update`  
 **Category:** DifferentialPrivacy  
 **Signature:** `(state, sigma_map, sampling_rate, t, delta, subsampling, amplification_factor?, delta_eps? -> epsilon_t, state_next)`  
 **Purity class:** PURE  
@@ -514,43 +514,43 @@ Template conformance note (III.A): each operator below explicitly declares `Oper
 ## 6) Procedure
 
 ```text
-1. PreValidation_v1(dp_config, t) -> abort on invalid.
+1. PreValidation(dp_config, t) -> abort on invalid.
 1b. Sampling/accountant compatibility check (single deterministic gate):
     - valid iff:
       - (`sampling_mode in {"SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"}` and `subsampling == SHUFFLE_WITHOUT_REPLACEMENT`) OR
       - (`sampling_mode == "SEQUENTIAL_V1"` and `subsampling == NONE`)
     - otherwise emit `INVALID_DP_CONFIG` and abort.
-2. resolved_cfg <- ConfigResolver_v1(dp_config, accumulation_context)
-2b. sensitivity_map <- SensitivityAnalyzer_v1(...) when allocation/adaptive mode enabled.
-3. allocation_map, clip_norm_map <- PrivacyBudgetAllocator_v1(resolved_cfg, sensitivity_map, norm_history)
+2. resolved_cfg <- ConfigResolver(dp_config, accumulation_context)
+2b. sensitivity_map <- SensitivityAnalyzer(...) when allocation/adaptive mode enabled.
+3. allocation_map, clip_norm_map <- PrivacyBudgetAllocator(resolved_cfg, sensitivity_map, norm_history)
 4. If clipping.strategy == "adaptive":
-   (clip_norm_t, clip_norm_state', delta_eps) <- BoundedPrivacyAwareAdaptiveClipNorm_v1(...)
+   (clip_norm_t, clip_norm_state', delta_eps) <- BoundedPrivacyAwareAdaptiveClipNorm(...)
    else delta_eps <- 0.
 5. Let `micro_seq` be the deterministic ordered micro-batch sequence for the current optimizer step.
 6. Initialize deterministic accumulation buffer for clipped micro-gradients.
 7. For each `micro_idx, micro_gradients` in `micro_seq`:
    7a. If fused_kernel == true and per-layer compatible:
-          (clipped_micro, norms, clip_stats) <- FlashEfficientClip_v1(micro_gradients, clip_norm_map, fused_cfg)
+          (clipped_micro, norms, clip_stats) <- FlashEfficientClip(micro_gradients, clip_norm_map, fused_cfg)
        else
-          (clipped_micro, norms, clip_stats) <- Clip_v1(micro_gradients, resolved_cfg, max_microbatch)
+          (clipped_micro, norms, clip_stats) <- Clip(micro_gradients, resolved_cfg, max_microbatch)
    7b. Accumulate clipped_micro in deterministic order.
 8. averaged_clipped <- deterministic_average(accumulated_clipped_micro, gradient_accumulation_steps)
 8b. effective_batch_size <- global_batch_size * gradient_accumulation_steps
 8c. dataset_cardinality <- sampler_metadata.dataset_cardinality
-9. sigma_map <- PrivacyBudgetScheduler_v1(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
+9. sigma_map <- PrivacyBudgetScheduler(t, cumulative_epsilon, resolved_cfg, allocation_map, training_phase, effective_batch_size)
 9b. stddev_map[g] <- sigma_map[g] * clip_norm_map[g] / effective_batch_size   # for each group g
 9c. sampling_rate <- effective_batch_size / dataset_cardinality
 10. remaining_steps <- (target_steps is defined) ? max(0, target_steps - t) : 0
 10a. model_scale_arg <- (resolved_cfg.model_scale is defined) ? resolved_cfg.model_scale : null
-10b. projected_epsilon, scaling_conf <- DPScalingLawProjector_v1(sigma_map, remaining_steps, model_scale_arg, accountant)  # pass configured accountant string as accountant_hint
-11. If projected_epsilon > target_epsilon: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
+10b. projected_epsilon, scaling_conf <- DPScalingLawProjector(sigma_map, remaining_steps, model_scale_arg, accountant)  # pass configured accountant string as accountant_hint
+11. If projected_epsilon > target_epsilon: Error.Emit(PRIVACY_BUDGET_EXCEEDED, ...); abort.
 12. If subsampling == "SHUFFLE_WITHOUT_REPLACEMENT":
       sampling_metadata <- {effective_q: sampling_rate, local_epsilon_hint: cumulative_epsilon}
-      amplification_factor <- AmplificationByShuffling_v1(sampling_metadata)
-13. (noise_step, rng_dp_state') <- GenerateNoise_v1(shape(averaged_clipped), stddev_map, rng_dp_state, noise.compression)
+      amplification_factor <- AmplificationByShuffling(sampling_metadata)
+13. (noise_step, rng_dp_state') <- GenerateNoise(shape(averaged_clipped), stddev_map, rng_dp_state, noise.compression)
 14. noisy_binary64 <- averaged_clipped + noise_step
-15. (cumulative_epsilon, accountant_state') <- Accountant.Update_v1(accountant, accountant_state, sigma_map, sampling_rate, t, target_delta, subsampling, amplification_factor, delta_eps)
-16. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit_v1(PRIVACY_BUDGET_EXCEEDED, ...); abort.
+15. (cumulative_epsilon, accountant_state') <- Accountant.Update(accountant, accountant_state, sigma_map, sampling_rate, t, target_delta, subsampling, amplification_factor, delta_eps)
+16. If cumulative_epsilon > target_epsilon + EPS_EQ: Error.Emit(PRIVACY_BUDGET_EXCEEDED, ...); abort.
 17. noisy_gradients <- cast(noisy_binary64, manifest.compute_dtype)
 18. Accountant step semantics:
     - `accountant_granularity == PER_STEP`; `t` advances by 1 per optimizer step.

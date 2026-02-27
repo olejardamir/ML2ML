@@ -1,5 +1,5 @@
 {
-  "canonical_profile_id": "CanonicalSerialization_v1",
+  "canonical_profile_id": "CanonicalSerialization",
   "comparison_rule": "exact_bytes32_equality",
   "expected_identities": {
     "certificate_hash": "a7a0df61d05228fc2f8f5c682f5c98b80139a9f64cb857b99e1815f6de7f6e74",

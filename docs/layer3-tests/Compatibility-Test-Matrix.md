@@ -1,9 +1,9 @@
-# UML_OS Compatibility Test Matrix
+# Glyphser Compatibility Test Matrix
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.CompatibilityMatrix_v1`  
+**Algorithm:** `Glyphser.Test.CompatibilityMatrix`  
 **Purpose (1 sentence):** Define deterministic compatibility testing across schema versions, migrations, and runtime profiles.  
-**Spec Version:** `UML_OS.Test.CompatibilityMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.CompatibilityMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Backward/forward compatibility validation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.CompatibilityMatrix_v1`
+- **Algorithm:** `Glyphser.Test.CompatibilityMatrix`
 - **Purpose (1 sentence):** Deterministic compatibility matrix contract.
 ### 0.A Objective Semantics
 - minimize unsupported version pairings and migration regressions.
@@ -27,12 +27,12 @@
 ### 0.F Environment and Dependency Policy
 - compatibility runner pinned to deterministic toolchain.
 ### 0.G Operator Manifest
-- `UML_OS.Test.RunCompatibilityCase_v1`
-- `UML_OS.Test.VerifyMigrationPath_v1`
-- `UML_OS.Test.AggregateCompatibilityVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunCompatibilityCase`
+- `Glyphser.Test.VerifyMigrationPath`
+- `Glyphser.Test.AggregateCompatibilityVerdict`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Test.*` and migration namespaces.
+- `Glyphser.Test.*` and migration namespaces.
 ### 0.I Outputs and Metric Schema
 - outputs: `(compatibility_report, compatibility_verdict, unsupported_pairs)`.
 ### 0.J Spec Lifecycle Governance
@@ -71,28 +71,28 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.RunCompatibilityCase_v1`
-- `UML_OS.Test.VerifyMigrationPath_v1`
-- `UML_OS.Test.AggregateCompatibilityVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunCompatibilityCase`
+- `Glyphser.Test.VerifyMigrationPath`
+- `Glyphser.Test.AggregateCompatibilityVerdict`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.RunCompatibilityCase_v1`  
+**Operator:** `Glyphser.Test.RunCompatibilityCase`  
 **Signature:** `(artifact_type, from_version, to_version, fixture -> case_result)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** Executes one compatibility test with deterministic pass/fail criteria.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `MIGRATION_PATH_MISSING`, `VECTOR_LOAD_FAILURE`.
 
-**Operator:** `UML_OS.Test.VerifyMigrationPath_v1`
+**Operator:** `Glyphser.Test.VerifyMigrationPath`
 **Signature:** `(artifact_type, from_version, to_version, migration_rules_hash -> migration_report)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Verifies that a declared deterministic migration path exists and is admissible for the version pair.
 **allowed_error_codes:** `MIGRATION_PATH_MISSING`, `CONTRACT_VIOLATION`.
 
-**Operator:** `UML_OS.Test.AggregateCompatibilityVerdict_v1`
+**Operator:** `Glyphser.Test.AggregateCompatibilityVerdict`
 **Signature:** `(case_results, migration_reports -> compatibility_report, compatibility_verdict, unsupported_pairs)`
 **Purity class:** PURE
 **Determinism:** deterministic

@@ -1,9 +1,9 @@
-# UML_OS Coding Standards Contract
+# Glyphser Coding Standards Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.CodingStandards_v1`  
+**Algorithm:** `Glyphser.Implementation.CodingStandards`  
 **Purpose (1 sentence):** Define deterministic coding standards for implementation quality, consistency, and contract-safe behavior.  
-**Spec Version:** `UML_OS.Implementation.CodingStandards_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.CodingStandards` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Engineering style and quality governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.CodingStandards_v1`
+- **Algorithm:** `Glyphser.Implementation.CodingStandards`
 - **Purpose (1 sentence):** Deterministic coding standards contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,10 +28,10 @@
 ### 0.F Environment and Dependency Policy
 - Must align with `docs/layer1-foundation/Dependency-Lock-Policy.md` and `docs/layer1-foundation/Determinism-Profiles.md`.
 ### 0.G Operator Manifest
-- `UML_OS.Code.ValidateStyle_v1`
-- `UML_OS.Code.ValidateDeterminismPatterns_v1`
-- `UML_OS.Code.ValidateErrorMapping_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Code.ValidateStyle`
+- `Glyphser.Code.ValidateDeterminismPatterns`
+- `Glyphser.Code.ValidateErrorMapping`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Fully-qualified operator naming rules apply.
 ### 0.I Outputs and Metric Schema
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Code.ValidateStyle_v1`
-- `UML_OS.Code.ValidateDeterminismPatterns_v1`
-- `UML_OS.Code.ValidateErrorMapping_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Code.ValidateStyle`
+- `Glyphser.Code.ValidateDeterminismPatterns`
+- `Glyphser.Code.ValidateErrorMapping`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Code.ValidateStyle_v1`  
+**Operator:** `Glyphser.Code.ValidateStyle`  
 **Signature:** `(source_tree, rule_set -> style_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Code.ValidateDeterminismPatterns_v1`  
+**Operator:** `Glyphser.Code.ValidateDeterminismPatterns`  
 **Signature:** `(source_tree, determinism_profile -> determinism_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Code.ValidateErrorMapping_v1`  
+**Operator:** `Glyphser.Code.ValidateErrorMapping`  
 **Signature:** `(source_tree, error_registry -> error_mapping_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateStyle_v1
-2. ValidateDeterminismPatterns_v1
-3. ValidateErrorMapping_v1
+1. ValidateStyle
+2. ValidateDeterminismPatterns
+3. ValidateErrorMapping
 4. Build merged standards report for diagnostics only
 5. return (style_report, determinism_report)
 ```

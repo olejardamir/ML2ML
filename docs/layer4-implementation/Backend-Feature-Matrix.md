@@ -1,9 +1,9 @@
-# UML_OS Backend Feature Matrix Contract
+# Glyphser Backend Feature Matrix Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Backend.FeatureMatrix_v1`  
+**Algorithm:** `Glyphser.Backend.FeatureMatrix`  
 **Purpose (1 sentence):** Define deterministic capability matrix for backend adapters across primitives, determinism tiers, and operational limits.  
-**Spec Version:** `UML_OS.Backend.FeatureMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Backend.FeatureMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Backend capability governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Backend.FeatureMatrix_v1`
+- **Algorithm:** `Glyphser.Backend.FeatureMatrix`
 - **Purpose (1 sentence):** Deterministic backend capability contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,10 +28,10 @@
 ### 0.F Environment and Dependency Policy
 - Matrix must align with `docs/layer4-implementation/Backend-Adapter-Guide.md` and operator registry.
 ### 0.G Operator Manifest
-- `UML_OS.Backend.ValidateFeatureMatrix_v1`
-- `UML_OS.Backend.ResolveCapability_v1`
-- `UML_OS.Backend.EvaluateCompatibility_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Backend.ValidateFeatureMatrix`
+- `Glyphser.Backend.ResolveCapability`
+- `Glyphser.Backend.EvaluateCompatibility`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `backend/features.cbor` canonical artifact.
 ### 0.I Outputs and Metric Schema
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Backend.ValidateFeatureMatrix_v1`
-- `UML_OS.Backend.ResolveCapability_v1`
-- `UML_OS.Backend.EvaluateCompatibility_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Backend.ValidateFeatureMatrix`
+- `Glyphser.Backend.ResolveCapability`
+- `Glyphser.Backend.EvaluateCompatibility`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Backend.ValidateFeatureMatrix_v1`  
+**Operator:** `Glyphser.Backend.ValidateFeatureMatrix`  
 **Signature:** `(feature_matrix -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Backend.ResolveCapability_v1`  
+**Operator:** `Glyphser.Backend.ResolveCapability`  
 **Signature:** `(backend_id, feature_id -> capability_state)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Backend.EvaluateCompatibility_v1`  
+**Operator:** `Glyphser.Backend.EvaluateCompatibility`  
 **Signature:** `(backend_id, workload_requirements -> compatibility_verdict)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateFeatureMatrix_v1
-2. ResolveCapability_v1 for required features
-3. EvaluateCompatibility_v1
+1. ValidateFeatureMatrix
+2. ResolveCapability for required features
+3. EvaluateCompatibility
 4. Emit capability report
 ```
 

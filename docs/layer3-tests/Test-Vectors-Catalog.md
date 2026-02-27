@@ -1,9 +1,9 @@
-# UML_OS Test Vectors Catalog Contract
+# Glyphser Test Vectors Catalog Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.VectorsCatalog_v1`  
+**Algorithm:** `Glyphser.Test.VectorsCatalog`  
 **Purpose (1 sentence):** Define authoritative operator-level input/output vectors and expected hashes/errors for deterministic conformance testing.  
-**Spec Version:** `UML_OS.Test.VectorsCatalog_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.VectorsCatalog` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Golden-vector governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.VectorsCatalog_v1`
+- **Algorithm:** `Glyphser.Test.VectorsCatalog`
 - **Purpose (1 sentence):** Canonical test vector registry.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,10 +32,10 @@
 ### 0.F Environment and Dependency Policy
 - vector files use canonical serialization and hashes.
 ### 0.G Operator Manifest
-- `UML_OS.Test.VectorLoad_v1`
-- `UML_OS.Test.VectorExecute_v1`
-- `UML_OS.Test.VectorVerify_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.VectorLoad`
+- `Glyphser.Test.VectorExecute`
+- `Glyphser.Test.VectorVerify`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `vectors/<operator>/<vector_id>.cbor`.
 ### 0.I Outputs and Metric Schema
@@ -90,7 +90,7 @@
 - `expected_error_code?:string`
 - `determinism_class: "E0" | "E1"`
 - `signature_digest:bytes32`
-- `canonical_encoding_version:string` (`CanonicalSerialization_v1`)
+- `canonical_encoding_version:string` (`CanonicalSerialization`)
 
 ### II.G Canonical Encoding Vector Set (Normative)
 - Catalog must include vectors for canonical serialization and hashing:
@@ -118,10 +118,10 @@
 ### II.I Minimum Baseline Vector Set (Normative)
 - Required baseline vectors:
   - canonical CBOR map ordering edge cases (`len-first` ordering),
-  - trace hash-chain over a 3-record sequence (`trace_chain_v1`),
+  - trace hash-chain over a 3-record sequence (`trace_chain`),
   - WAL chain plus terminal `FINALIZE` commit record hash,
   - `digest_ref` resolution (`sha256:<hex64>` inline and `sha256:<label>` lookup),
-  - `NextBatch_v2` deterministic sampling on at least two small datasets and one distributed shard case.
+  - `NextBatch` deterministic sampling on at least two small datasets and one distributed shard case.
 
 ---
 ## 3) Initialization
@@ -131,14 +131,14 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.VectorLoad_v1`
-- `UML_OS.Test.VectorExecute_v1`
-- `UML_OS.Test.VectorVerify_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.VectorLoad`
+- `Glyphser.Test.VectorExecute`
+- `Glyphser.Test.VectorVerify`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.VectorLoad_v1`
+**Operator:** `Glyphser.Test.VectorLoad`
 **Category:** Test
 **Signature:** `(operator_id, vector_id -> expected_vector)`
 **Purity class:** IO
@@ -146,7 +146,7 @@
 **Definition:** loads canonical vector payload and expected outputs/errors by id.
 **allowed_error_codes:** `VECTOR_NOT_FOUND`, `CONTRACT_VIOLATION`.
 
-**Operator:** `UML_OS.Test.VectorExecute_v1`
+**Operator:** `Glyphser.Test.VectorExecute`
 **Category:** Test
 **Signature:** `(implementation, input_payload -> actual_output)`
 **Purity class:** IO
@@ -154,7 +154,7 @@
 **Definition:** executes the implementation against vector input payload.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `PRIMITIVE_UNSUPPORTED`, `EXECUTION_FAILURE`.
 
-**Operator:** `UML_OS.Test.VectorVerify_v1`  
+**Operator:** `Glyphser.Test.VectorVerify`  
 **Category:** Test  
 **Signature:** `(actual_output, expected_vector -> verify_report)`  
 **Purity class:** PURE  
@@ -165,9 +165,9 @@
 ---
 ## 6) Procedure
 ```text
-1. VectorLoad_v1(operator_id, vector_id)
-2. VectorExecute_v1(implementation, input_payload)
-3. VectorVerify_v1(actual, expected)
+1. VectorLoad(operator_id, vector_id)
+2. VectorExecute(implementation, input_payload)
+3. VectorVerify(actual, expected)
 4. Emit verify_report
 ```
 

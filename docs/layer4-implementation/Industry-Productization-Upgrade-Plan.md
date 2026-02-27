@@ -1,9 +1,9 @@
-# UML_OS Industry Productization Upgrade Plan
+# Glyphser Industry Productization Upgrade Plan
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.IndustryProductizationPlan_v1`  
-**Purpose (1 sentence):** Define normative, externally-verifiable productization requirements that reduce adoption friction and improve ecosystem interoperability for UML_OS.  
-**Spec Version:** `UML_OS.Implementation.IndustryProductizationPlan_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Implementation.IndustryProductizationPlan`  
+**Purpose (1 sentence):** Define normative, externally-verifiable productization requirements that reduce adoption friction and improve ecosystem interoperability for Glyphser.  
+**Spec Version:** `Glyphser.Implementation.IndustryProductizationPlan` | 2026-02-20 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Product profile governance, ecosystem integration, and third-party trust.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.IndustryProductizationPlan_v1`
+- **Algorithm:** `Glyphser.Implementation.IndustryProductizationPlan`
 - **Purpose (1 sentence):** Deterministic productization and certification governance.
 ### 0.A Objective Semantics
 - Minimize adoption time while preserving deterministic guarantees and auditable evidence.
@@ -27,18 +27,18 @@
 - All generated evidence must bind `env_manifest_hash` and `determinism_profile_hash`.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Product.ResolveProfile_v1`
-- `UML_OS.Product.EmitObservabilityMapping_v1`
-- `UML_OS.Product.BuildCertificationBundle_v1`
-- `UML_OS.Product.ValidateReferenceStack_v1`
-- `UML_OS.Product.GenerateExternalInterfaces_v1`
-- `UML_OS.Product.EmitSecurityCase_v1`
-- `UML_OS.Product.ValidateEvolutionPolicy_v1`
-- `UML_OS.Product.EvaluatePerformanceTier_v1`
-- `UML_OS.Product.RunChaosProofPack_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Product.ResolveProfile`
+- `Glyphser.Product.EmitObservabilityMapping`
+- `Glyphser.Product.BuildCertificationBundle`
+- `Glyphser.Product.ValidateReferenceStack`
+- `Glyphser.Product.GenerateExternalInterfaces`
+- `Glyphser.Product.EmitSecurityCase`
+- `Glyphser.Product.ValidateEvolutionPolicy`
+- `Glyphser.Product.EvaluatePerformanceTier`
+- `Glyphser.Product.RunChaosProofPack`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- Use `UML_OS.Product.*` for all operators in this contract.
+- Use `Glyphser.Product.*` for all operators in this contract.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(productization_report, profile_bundle_hash, certification_evidence_bundle_hash, upgrade_gate_verdict)`.
 - Metrics: `adoption_days_estimate`, `interop_pass_rate`, `third_party_verifiability_score`.
@@ -64,7 +64,7 @@
   - `enterprise -> regulated`: requires full security case and regulator-grade evidence bundle.
 
 ### I.B Observability Interoperability Bridge
-- Emit normative mapping from UML_OS trace/metrics schema to OpenTelemetry + Prometheus semantics:
+- Emit normative mapping from Glyphser trace/metrics schema to OpenTelemetry + Prometheus semantics:
   - trace fields to span/resource attributes,
   - metric names/units to canonical Prometheus names,
   - deterministic exporter mapping hashes.
@@ -73,8 +73,8 @@
 
 ### I.C Adapter Certification Program
 - Require externally publishable certification classes:
-  - `UML_OS Certified Backend vX`
-  - `UML_OS Certified Artifact Store vY`
+  - `Glyphser Certified Backend vX`
+  - `Glyphser Certified Artifact Store vY`
 - Certification evidence bundle MUST contain:
   - test vectors catalog hash,
   - conformance harness suite reports,

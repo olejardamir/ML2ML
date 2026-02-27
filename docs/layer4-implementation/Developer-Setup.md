@@ -1,9 +1,9 @@
-# UML_OS Developer Setup Contract
+# Glyphser Developer Setup Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DeveloperSetup_v1`  
-**Purpose (1 sentence):** Define deterministic local developer environment setup and verification steps for implementing UML_OS components.  
-**Spec Version:** `UML_OS.Implementation.DeveloperSetup_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Implementation.DeveloperSetup`  
+**Purpose (1 sentence):** Define deterministic local developer environment setup and verification steps for implementing Glyphser components.  
+**Spec Version:** `Glyphser.Implementation.DeveloperSetup` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Local development bootstrap and environment consistency.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DeveloperSetup_v1`
+- **Algorithm:** `Glyphser.Implementation.DeveloperSetup`
 - **Purpose (1 sentence):** Deterministic developer setup contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - Canonical runtime pins must match `docs/layer1-foundation/Dependency-Lock-Policy.md` and `docs/layer1-foundation/Environment-Manifest.md`.
 ### 0.G Operator Manifest
-- `UML_OS.Dev.Setup.ValidateHost_v1`
-- `UML_OS.Dev.Setup.ValidateToolchain_v1`
-- `UML_OS.Dev.Setup.ValidateEnvManifest_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Dev.Setup.ValidateHost`
+- `Glyphser.Dev.Setup.ValidateToolchain`
+- `Glyphser.Dev.Setup.ValidateEnvManifest`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Dev.Setup.*`
+- `Glyphser.Dev.Setup.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(setup_report, env_manifest_hash)`
 - Metrics: `checks_passed`, `checks_failed`
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Dev.Setup.ValidateHost_v1`
-- `UML_OS.Dev.Setup.ValidateToolchain_v1`
-- `UML_OS.Dev.Setup.ValidateEnvManifest_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Dev.Setup.ValidateHost`
+- `Glyphser.Dev.Setup.ValidateToolchain`
+- `Glyphser.Dev.Setup.ValidateEnvManifest`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Dev.Setup.ValidateHost_v1`  
+**Operator:** `Glyphser.Dev.Setup.ValidateHost`  
 **Signature:** `(host_probe -> host_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Dev.Setup.ValidateToolchain_v1`  
+**Operator:** `Glyphser.Dev.Setup.ValidateToolchain`  
 **Signature:** `(toolchain_probe, lock_policy -> toolchain_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Dev.Setup.ValidateEnvManifest_v1`  
+**Operator:** `Glyphser.Dev.Setup.ValidateEnvManifest`  
 **Signature:** `(env_manifest, profile -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateHost_v1
-2. ValidateToolchain_v1
-3. ValidateEnvManifest_v1
+1. ValidateHost
+2. ValidateToolchain
+3. ValidateEnvManifest
 4. Emit setup_report
 ```
 

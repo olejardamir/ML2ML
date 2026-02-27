@@ -1,9 +1,9 @@
 # Universal Machine Learning Operating System — Data NextBatch
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
-**Algorithm:** `UML_OS.Data.NextBatch_v2`  
+**Algorithm:** `Glyphser.Data.NextBatch`  
 **Purpose (1 sentence):** Deliver fully deterministic, memory-efficient, world_size-independent global batch sampling with block-shuffled epoch permutations for training and strict sequential access for evaluation/inference, scalable to 100 B+ sample datasets with O(1) per-sample index resolution after O(num_blocks) preprocessing.  
-**Spec Version:** `UML_OS.Data.NextBatch_v2` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
+**Spec Version:** `Glyphser.Data.NextBatch` | 2026-02-18 | Authors: Olejar Damir (with EQC team improvements)  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic data loading and shuffling for reproducible large-scale distributed ML training and evaluation.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Data.NextBatch_v2`
+- **Algorithm:** `Glyphser.Data.NextBatch`
 - **Purpose (1 sentence):** Memory-efficient deterministic global sampling with epoch-wise seeded shuffling that is independent of world_size and rank.
-- **Spec Version:** `UML_OS.Data.NextBatch_v2` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Data.NextBatch` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Scalable deterministic data iteration for any dataset cardinality.
 
 ### 0.A Objective Semantics
@@ -30,9 +30,9 @@
 ### 0.B Reproducibility Contract
 - Seed space: `seed ∈ {0..2^64-1}` derived deterministically.
 - PRNG family: `Philox4x32-10`
-- Randomness locality: only inside `SeededBlockPermute_v1` and `SeededIntraBlockMap_v1`
+- Randomness locality: only inside `SeededBlockPermute` and `SeededIntraBlockMap`
 - Replay guarantee: fully replayable given `(kernel_replay_token, manifest_hash, dataset_key, epoch, global_position, world_size, rank, sampler_block_size)`
-- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch_v2", [kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]]))`
+- Replay token contribution: `data_replay_t = SHA-256(CBOR_CANONICAL(["nextbatch", [kernel_replay_token, dataset_key, uint64(epoch), uint64(global_position), uint32(world_size), uint32(rank)]]))`
 - Contract-critical hash primitive: `SHA-256(CBOR_CANONICAL(...))`.
 
 ### 0.C Numeric Policy
@@ -62,13 +62,13 @@
 - Determinism level: `BITWISE` for all emitted indices and cursor state.
 
 ### 0.G Operator Manifest
-- `UML_OS.Data.NextBatch_v2`
-- `UML_OS.Data.SeededBlockPermute_v1` (internal helper)
-- `UML_OS.Data.SeededIntraBlockMap_v1` (internal helper)
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Data.NextBatch`
+- `Glyphser.Data.SeededBlockPermute` (internal helper)
+- `Glyphser.Data.SeededIntraBlockMap` (internal helper)
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
-- Fully-qualified names: `UML_OS.Data.<Name>_v#`
+- Fully-qualified names: `Glyphser.Data.<Name>_v#`
 
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `(batch_sample_indices: uint64[], cursor_next, sampling_metadata)`
@@ -80,7 +80,7 @@
   - `subsampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT"` in train mode, `"NONE"` in eval/infer mode
   - `sampling_mode = "SHUFFLE_WITHOUT_REPLACEMENT_BLOCK_AFFINE_V1"` in train mode, `"SEQUENTIAL_V1"` in eval/infer mode
   - encoding rule: all mode strings used in hashes are UTF-8 CBOR text strings with no alternate normalization.
-  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]]))`
+  - `sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, drop_last, "epoch_seed_rule", "intra_block_affine_coprime", "rank_contiguous_shard"]]))`
 - Completion status: `success | failed` with deterministic reason codes from 0.K.
 
 ### 0.J Spec Lifecycle Governance
@@ -156,7 +156,7 @@
 - Same `(manifest_hash, epoch, global_position)` → identical sample index
 - Eval/infer: sample_indices == [global_pos, global_pos+1, …] % N
 - Train: permutation is a bijection over [0 … N-1]
-- `NextBatch_v2` is cursor-pure: it consumes `cursor_in` and returns `cursor_next`; persistence is owned by kernel/checkpoint state.
+- `NextBatch` is cursor-pure: it consumes `cursor_in` and returns `cursor_next`; persistence is owned by kernel/checkpoint state.
 - DP alignment invariant: emitted `subsampling_mode` must match DP accountant assumption for the same run.
 
 ---
@@ -165,25 +165,25 @@
 
 1. `cursor <- cursor_in` (caller-owned persistent cursor; default `{epoch:0, global_index:0}` at first use)
 2. `N <- manifest.datasets[dataset_key].cardinality`
-3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed_v2", [kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]]))[0:16]` (Philox seed)
+3. If new epoch (`cursor.global_index == 0`): compute `epoch_seed = SHA-256(CBOR_CANONICAL(["nextbatch_epoch_seed", [kernel_replay_token, manifest_hash, dataset_key, uint64(cursor.epoch)]]))[0:16]` (Philox seed)
 
 ---
 
 ## 4) Operator Manifest
 
 Active operators:
-- `UML_OS.Data.NextBatch_v2`
-- `UML_OS.Data.SeededBlockPermute_v1`
-- `UML_OS.Data.SeededIntraBlockMap_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Data.NextBatch`
+- `Glyphser.Data.SeededBlockPermute`
+- `Glyphser.Data.SeededIntraBlockMap`
+- `Glyphser.Error.Emit`
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
-**Operator:** `UML_OS.Data.NextBatch_v2`  
+**Operator:** `Glyphser.Data.NextBatch`  
 **Category:** Data  
 **Signature:** `(dataset_key, world_size, rank, stage_type, cursor_in -> batch_sample_indices: uint64[], cursor_next, sampling_metadata)`  
 **Purity class:** PURE  
@@ -195,10 +195,10 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Ordering/tie handling:** ascending global virtual positions; contiguous rank shard order.  
 **Complexity note:** O(micro_batch_size) per call + O(num_blocks) epoch permutation materialization.  
 **Failure behavior:** emits 0.K error codes and aborts deterministically.  
-**Dependencies:** `SeededBlockPermute_v1`, `SeededIntraBlockMap_v1`, manifest data schema.  
+**Dependencies:** `SeededBlockPermute`, `SeededIntraBlockMap`, manifest data schema.  
 **Test vectors:** see VII.B (single-rank, multi-rank, large-N, restore continuity).
 
-**Operator:** `UML_OS.Data.SeededBlockPermute_v1`  
+**Operator:** `Glyphser.Data.SeededBlockPermute`  
 **Category:** Data  
 **Signature:** `(num_blocks, epoch_seed -> block_order: uint64[])`  
 **Purity class:** PURE  
@@ -213,7 +213,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** Philox implementation, deterministic seed derivation.  
 **Test vectors:** fixed seed -> exact permutation sequence.
 
-**Operator:** `UML_OS.Data.SeededIntraBlockMap_v1`  
+**Operator:** `Glyphser.Data.SeededIntraBlockMap`  
 **Category:** Data  
 **Signature:** `(block_id, local_pos, block_size, epoch_seed, N -> original_index: uint64)`  
 **Purity class:** PURE  
@@ -242,12 +242,12 @@ This is bijective because `gcd(a,m)=1` by construction.
 2. N = manifest.datasets[dataset_key].cardinality
 3. global_pos = cursor.global_index
 4. global_batch_size = manifest.global_batch_size
-5. If global_batch_size % world_size != 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
-5a. If world_size > 1 and global_batch_size < world_size: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
+5. If global_batch_size % world_size != 0: Error.Emit(BATCH_SIZE_INCONSISTENT); abort
+5a. If world_size > 1 and global_batch_size < world_size: Error.Emit(BATCH_SIZE_INCONSISTENT); abort
 6. micro_batch_size = global_batch_size // world_size
 7. rank_start = rank * micro_batch_size
 7b. sampler_block_size = manifest.data.sampler_block_size or DEFAULT_BLOCK_SIZE
-7c. If sampler_block_size == 0: Error.Emit_v1(BATCH_SIZE_INCONSISTENT); abort
+7c. If sampler_block_size == 0: Error.Emit(BATCH_SIZE_INCONSISTENT); abort
 
 8. if stage_type in {"eval", "infer"}:
        is_shuffled = false
@@ -261,7 +261,7 @@ This is bijective because `gcd(a,m)=1` by construction.
        block_size = sampler_block_size
        num_full_blocks = N // block_size
        has_tail = (N % block_size) != 0
-       block_order = SeededBlockPermute_v1(num_full_blocks, epoch_seed) if num_full_blocks > 0 else []
+       block_order = SeededBlockPermute(num_full_blocks, epoch_seed) if num_full_blocks > 0 else []
 
        batch_indices = []
        epoch_limit = N
@@ -278,10 +278,10 @@ This is bijective because `gcd(a,m)=1` by construction.
            else:
                perm_block_id = block_order[block_id_global]
            local_pos = p % block_size
-           orig_idx = SeededIntraBlockMap_v1(perm_block_id, local_pos, block_size, epoch_seed, N)
+           orig_idx = SeededIntraBlockMap(perm_block_id, local_pos, block_size, epoch_seed, N)
            batch_indices.append(orig_idx)
 
-9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, manifest.data.drop_last, "epoch_seed_rule_v2", "intra_block_affine_coprime_v1", "rank_contiguous_shard_v1"]]))
+9. sampler_config_hash = SHA-256(CBOR_CANONICAL([sampling_mode, [sampler_block_size, manifest.data.drop_last, "epoch_seed_rule", "intra_block_affine_coprime", "rank_contiguous_shard"]]))
 10. epoch_limit_for_advance = N
     if stage_type == "train" and manifest.data.drop_last == true:
         epoch_limit_for_advance = (N // global_batch_size) * global_batch_size

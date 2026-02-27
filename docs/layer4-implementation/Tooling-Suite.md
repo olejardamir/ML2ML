@@ -1,15 +1,15 @@
-# UML_OS Tooling Suite Contract
+# Glyphser Tooling Suite Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ToolingSuiteContract_v1`  
-**Purpose (1 sentence):** Define deterministic tool interfaces, output schemas, and hash commitments for first-party UML_OS tooling.  
-**Spec Version:** `UML_OS.Implementation.ToolingSuiteContract_v1` | 2026-02-21 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Implementation.ToolingSuiteContract`  
+**Purpose (1 sentence):** Define deterministic tool interfaces, output schemas, and hash commitments for first-party Glyphser tooling.  
+**Spec Version:** `Glyphser.Implementation.ToolingSuiteContract` | 2026-02-21 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ToolingSuiteContract_v1`
+- **Algorithm:** `Glyphser.Implementation.ToolingSuiteContract`
 - **Purpose (1 sentence):** Deterministic tooling interoperability.
 ### 0.A Objective Semantics
 - Tooling outputs are machine-verifiable and replayable.
@@ -22,16 +22,16 @@
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Parallel execution allowed; output merge is deterministic fail-dominant.
 ### 0.F Environment and Dependency Policy
-- Canonical serialization profile is `CanonicalSerialization_v1`.
+- Canonical serialization profile is `CanonicalSerialization`.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Tooling.ManifestInit_v1`
-- `UML_OS.Tooling.MigrationAssist_v1`
-- `UML_OS.Tooling.ReplayShadowMonitor_v1`
-- `UML_OS.Tooling.TraceSemanticDiff_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Tooling.ManifestInit`
+- `Glyphser.Tooling.MigrationAssist`
+- `Glyphser.Tooling.ReplayShadowMonitor`
+- `Glyphser.Tooling.TraceSemanticDiff`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- Tool IDs: `umlos-init`, `umlos-migrate-assist`, `umlos-replay-monitor`, `umlos-trace-diff`.
+- Tool IDs: `glyphser-init`, `glyphser-migrate-assist`, `glyphser-replay-monitor`, `glyphser-trace-diff`.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(tooling_report, tooling_bundle_hash, tooling_verdict)`.
 ### 0.J Spec Lifecycle Governance
@@ -53,28 +53,28 @@
 
 ---
 ## 2) Tool Output Schemas (Normative)
-### I.A `umlos init`
+### I.A `glyphser init`
 - Output schema:
   - `manifest_path:string`
   - `manifest_hash:bytes32`
   - `validation_report_hash:bytes32`
   - `profile_id:enum(core|enterprise|regulated)`
 
-### I.B `umlos migrate-assist`
+### I.B `glyphser migrate-assist`
 - Output schema:
   - `input_artifact_hash:bytes32`
   - `migrated_artifact_hash:bytes32`
   - `migration_report_hash:bytes32`
   - `equivalence_verdict:enum(pass|fail)`
 
-### I.C `umlos replay-monitor`
+### I.C `glyphser replay-monitor`
 - Output schema:
   - `run_id:string`
   - `shadow_replay_trace_hash:bytes32`
   - `divergence_summary_hash:bytes32`
   - `monitor_verdict:enum(pass|fail)`
 
-### I.D `umlos trace-diff`
+### I.D `glyphser trace-diff`
 - Output schema:
   - `lhs_trace_hash:bytes32`
   - `rhs_trace_hash:bytes32`
@@ -85,9 +85,9 @@
 ---
 ## 3) Hash Commitments (Normative)
 - Tooling bundle identity:
-  - `tooling_bundle_hash = SHA-256(CBOR_CANONICAL(["tooling_suite_v1", tool_outputs_map]))`
+  - `tooling_bundle_hash = SHA-256(CBOR_CANONICAL(["tooling_suite", tool_outputs_map]))`
 - Per-tool output identity:
-  - `tool_output_hash = SHA-256(CBOR_CANONICAL(["tool_output_v1", [tool_id, output_object]]))`
+  - `tool_output_hash = SHA-256(CBOR_CANONICAL(["tool_output", [tool_id, output_object]]))`
 
 ---
 ## 4) Procedure

@@ -1,9 +1,9 @@
-# UML_OS Evaluation Harness Contract
+# Glyphser Evaluation Harness Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Eval.Harness_v1`  
+**Algorithm:** `Glyphser.Eval.Harness`  
 **Purpose (1 sentence):** Define deterministic safety/bias/robustness evaluation runs and evidence bundles linked to registry/deployment policy gates.  
-**Spec Version:** `UML_OS.Eval.Harness_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Eval.Harness` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Evaluation governance and evidence generation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Eval.Harness_v1`
+- **Algorithm:** `Glyphser.Eval.Harness`
 - **Purpose (1 sentence):** Replayable evaluation evidence contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,12 +30,12 @@
 ### 0.F Environment and Dependency Policy
 - Evaluation must declare determinism tier (`E0` or `E1`) and tolerance map.
 ### 0.G Operator Manifest
-- `UML_OS.Eval.RunSuite_v1`
-- `UML_OS.Eval.AggregateMetrics_v1`
-- `UML_OS.Eval.BuildEvidenceBundle_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Eval.RunSuite`
+- `Glyphser.Eval.AggregateMetrics`
+- `Glyphser.Eval.BuildEvidenceBundle`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Eval.*`
+- `Glyphser.Eval.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(eval_report, evidence_bundle_ref)`
 - Metrics: `safety_score`, `bias_score`, `robustness_score`
@@ -97,7 +97,7 @@
   - quantile rule (normative): when `agg="quantile"`, compute nearest-rank quantile on ascending sorted values with index `k = floor(p * (n-1))` (0-based), value=`sorted[k]`.
 - `evidence_bundle_ref` points to canonical CBOR payload:
   - `{eval_manifest_hash, dataset_snapshot_id, metrics_digest, trace_final_hash, determinism_tier, replay_token, eval_report_hash}`.
-  - `eval_report_hash = SHA-256(CBOR_CANONICAL(eval_report))`, where `eval_report` is the output of `AggregateMetrics_v1`.
+  - `eval_report_hash = SHA-256(CBOR_CANONICAL(eval_report))`, where `eval_report` is the output of `AggregateMetrics`.
 
 ---
 ## 3) Initialization
@@ -107,28 +107,28 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Eval.RunSuite_v1`
-- `UML_OS.Eval.AggregateMetrics_v1`
-- `UML_OS.Eval.BuildEvidenceBundle_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Eval.RunSuite`
+- `Glyphser.Eval.AggregateMetrics`
+- `Glyphser.Eval.BuildEvidenceBundle`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Eval.RunSuite_v1`  
+**Operator:** `Glyphser.Eval.RunSuite`  
 **Category:** Governance  
 **Signature:** `(eval_manifest, model_ref, dataset_snapshot_ref -> suite_run_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** executes the declared evaluation suite in deterministic case order and emits per-case results.
 
-**Operator:** `UML_OS.Eval.AggregateMetrics_v1`  
+**Operator:** `Glyphser.Eval.AggregateMetrics`  
 **Category:** Governance  
 **Signature:** `(suite_run_report, aggregation_policy -> eval_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** aggregates per-case metrics into canonical summary outputs and threshold verdicts.
 
-**Operator:** `UML_OS.Eval.BuildEvidenceBundle_v1`  
+**Operator:** `Glyphser.Eval.BuildEvidenceBundle`  
 **Category:** Governance  
 **Signature:** `(eval_report, trace_ref, dataset_snapshot_ref -> evidence_bundle_ref)`  
 **Purity class:** IO  
@@ -138,9 +138,9 @@
 ---
 ## 6) Procedure
 ```text
-1. RunSuite_v1
-2. AggregateMetrics_v1
-3. BuildEvidenceBundle_v1
+1. RunSuite
+2. AggregateMetrics
+3. BuildEvidenceBundle
 4. Return eval_report + evidence_bundle_ref
 ```
 

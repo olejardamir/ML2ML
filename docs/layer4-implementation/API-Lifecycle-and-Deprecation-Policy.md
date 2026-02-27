@@ -1,9 +1,9 @@
-# UML_OS API Lifecycle and Deprecation Policy
+# Glyphser API Lifecycle and Deprecation Policy
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.API.LifecyclePolicy_v1`  
+**Algorithm:** `Glyphser.API.LifecyclePolicy`  
 **Purpose (1 sentence):** Define customer-facing API compatibility, deprecation windows, and migration obligations.  
-**Spec Version:** `UML_OS.API.LifecyclePolicy_v1` | 2026-02-20 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.API.LifecyclePolicy` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 
@@ -27,14 +27,14 @@
 - generated SDKs must remain compatible within declared window.
 
 ## 5) Normative Example
-- `NextBatch_v1 -> NextBatch_v2` transitions must declare migration operator and support window in release notes and compatibility matrix.
+- `NextBatch -> NextBatch` transitions must declare migration operator and support window in release notes and compatibility matrix.
 
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS API Lifecycle and Deprecation Policy" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser API Lifecycle and Deprecation Policy" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

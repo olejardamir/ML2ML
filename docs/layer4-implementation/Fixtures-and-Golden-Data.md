@@ -1,9 +1,9 @@
-# UML_OS Fixtures and Golden Data Contract
+# Glyphser Fixtures and Golden Data Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.FixturesGoldenData_v1`  
+**Algorithm:** `Glyphser.Test.FixturesGoldenData`  
 **Purpose (1 sentence):** Define deterministic fixture and golden-data lifecycle, storage, and update rules for tests and replay validation.  
-**Spec Version:** `UML_OS.Test.FixturesGoldenData_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.FixturesGoldenData` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Test fixture governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.FixturesGoldenData_v1`
+- **Algorithm:** `Glyphser.Test.FixturesGoldenData`
 - **Purpose (1 sentence):** Deterministic fixture/golden governance.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,10 +28,10 @@
 ### 0.F Environment and Dependency Policy
 - Fixture generation must run under pinned deterministic profile.
 ### 0.G Operator Manifest
-- `UML_OS.Test.LoadFixture_v1`
-- `UML_OS.Test.ValidateGolden_v1`
-- `UML_OS.Test.UpdateGolden_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.LoadFixture`
+- `Glyphser.Test.ValidateGolden`
+- `Glyphser.Test.UpdateGolden`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - `fixtures/`, `goldens/`, `vectors/` canonical roots.
 ### 0.I Outputs and Metric Schema
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.LoadFixture_v1`
-- `UML_OS.Test.ValidateGolden_v1`
-- `UML_OS.Test.UpdateGolden_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.LoadFixture`
+- `Glyphser.Test.ValidateGolden`
+- `Glyphser.Test.UpdateGolden`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.LoadFixture_v1`  
+**Operator:** `Glyphser.Test.LoadFixture`  
 **Signature:** `(suite_id, case_id -> fixture_payload)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Test.ValidateGolden_v1`  
+**Operator:** `Glyphser.Test.ValidateGolden`  
 **Signature:** `(actual_output, golden_output, profile -> validate_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Test.UpdateGolden_v1`  
+**Operator:** `Glyphser.Test.UpdateGolden`  
 **Signature:** `(proposal, approval_token -> update_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. LoadFixture_v1
-2. ValidateGolden_v1
-3. If approved update path: UpdateGolden_v1
+1. LoadFixture
+2. ValidateGolden
+3. If approved update path: UpdateGolden
 4. Emit reports
 ```
 

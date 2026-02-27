@@ -1,9 +1,9 @@
-# UML_OS Canonical CBOR Profile Contract
+# Glyphser Canonical CBOR Profile Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Serialization.CanonicalCBORProfile_v1`  
+**Algorithm:** `Glyphser.Serialization.CanonicalCBORProfile`  
 **Purpose (1 sentence):** Define the single canonical CBOR encoding profile used for all commitment hashes and signatures.  
-**Spec Version:** `UML_OS.Serialization.CanonicalCBORProfile_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Serialization.CanonicalCBORProfile` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic serialization and cryptographic commitment consistency.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Serialization.CanonicalCBORProfile_v1`
+- **Algorithm:** `Glyphser.Serialization.CanonicalCBORProfile`
 - **Purpose (1 sentence):** Single-source canonical CBOR profile.
 ### 0.A Objective Semantics
 - Primary comparison rule: byte-identical canonical encoding.
@@ -31,19 +31,19 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE`.
 ### 0.G Operator Manifest
-- `UML_OS.Serialization.EncodeCanonicalCBOR_v1`
-- `UML_OS.Serialization.ValidateCanonicalCBOR_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Serialization.EncodeCanonicalCBOR`
+- `Glyphser.Serialization.ValidateCanonicalCBOR`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- Canonical profile identifier: `CanonicalSerialization_v1`.
+- Canonical profile identifier: `CanonicalSerialization`.
 ### 0.I Outputs and Metric Schema
-- `EncodeCanonicalCBOR_v1` output: `(canonical_bytes)`.
-- `ValidateCanonicalCBOR_v1` output: `(validation_report)`.
+- `EncodeCanonicalCBOR` output: `(canonical_bytes)`.
+- `ValidateCanonicalCBOR` output: `(validation_report)`.
 ### 0.J Spec Lifecycle Governance
 - Any rule change is MAJOR.
 ### 0.K Failure and Error Semantics
-- `EncodeCanonicalCBOR_v1` MUST fail via deterministic error signaling (language-appropriate exception/error result) on invalid input under this profile.
-- `ValidateCanonicalCBOR_v1` MUST return `validation_report.valid=false` with deterministic error entries for any violation.
+- `EncodeCanonicalCBOR` MUST fail via deterministic error signaling (language-appropriate exception/error result) on invalid input under this profile.
+- `ValidateCanonicalCBOR` MUST return `validation_report.valid=false` with deterministic error entries for any violation.
 - Callers MUST treat any failure signal or `valid=false` report as nonconformant and MUST NOT use produced bytes for commitments/signatures.
 ### 0.L Input/Data Provenance
 - Input schema and profile id must be declared with hash.
@@ -146,20 +146,20 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Serialization.EncodeCanonicalCBOR_v1`
-- `UML_OS.Serialization.ValidateCanonicalCBOR_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Serialization.EncodeCanonicalCBOR`
+- `Glyphser.Serialization.ValidateCanonicalCBOR`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Serialization.EncodeCanonicalCBOR_v1`  
+**Operator:** `Glyphser.Serialization.EncodeCanonicalCBOR`  
 **Category:** Serialization  
 **Signature:** `(typed_object -> canonical_bytes)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** produces canonical CBOR bytes under profile rules.
 
-**Operator:** `UML_OS.Serialization.ValidateCanonicalCBOR_v1`  
+**Operator:** `Glyphser.Serialization.ValidateCanonicalCBOR`  
 **Category:** Serialization  
 **Signature:** `(typed_object, canonical_bytes -> validation_report)`  
 **Purity class:** PURE  
@@ -178,8 +178,8 @@ validation_report:
 ---
 ## 6) Procedure
 ```text
-1. Call EncodeCanonicalCBOR_v1 on typed_object; return canonical_bytes on success.
-2. Optionally call ValidateCanonicalCBOR_v1(typed_object, canonical_bytes) when validation evidence is required.
+1. Call EncodeCanonicalCBOR on typed_object; return canonical_bytes on success.
+2. Optionally call ValidateCanonicalCBOR(typed_object, canonical_bytes) when validation evidence is required.
 3. If validation is executed, return validation_report separately from canonical_bytes (operator outputs remain independent per Section 0.I).
 ```
 

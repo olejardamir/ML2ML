@@ -1,9 +1,9 @@
 data_registry_version: "v1"
 datasets:
-  - dataset_id: "uml_os_default"
+  - dataset_id: "glyphser_default"
     source: "TBD"
     dataset_root_hash: "TBD"
-    preprocessing_operator: "UML_OS.Data.Lineage_v1"
+    preprocessing_operator: "Glyphser.Data.Lineage"
     referenced_by:
       - "L1-003"
       - "L2-004"

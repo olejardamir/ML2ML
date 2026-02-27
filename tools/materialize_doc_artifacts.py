@@ -90,7 +90,7 @@ def build_catalogs() -> dict[str, Any]:
                 "digest_label": label,
                 "digest_value": digest_value,
                 "algorithm": "sha256",
-                "domain_tag": "uml_os_doc_phase_v1",
+                "domain_tag": "glyphser_doc_phase",
             }
         )
     digest_entries.sort(key=lambda x: x["digest_label"])  # deterministic rule in spec
@@ -170,7 +170,7 @@ def compute_signature_digest(
     allowed_error_codes: list[str],
 ) -> bytes:
     preimage = [
-        "sig_v1",
+        "sig",
         operator_id,
         version,
         method,
@@ -189,7 +189,7 @@ def build_operator_registry(digest_map: dict[str, bytes]) -> dict[str, Any]:
     records = []
     entries = [
         {
-            "operator_id": "UML_OS.Data.NextBatch_v2",
+            "operator_id": "Glyphser.Data.NextBatch",
             "version": "v2",
             "method": "CALL",
             "surface": "SYSCALL",
@@ -206,7 +206,7 @@ def build_operator_registry(digest_map: dict[str, bytes]) -> dict[str, Any]:
             "deprecated": False,
         },
         {
-            "operator_id": "UML_OS.Registry.ValidateOperatorRegistry_v1",
+            "operator_id": "Glyphser.Registry.ValidateOperatorRegistry",
             "version": "v1",
             "method": "CALL",
             "surface": "SYSCALL",
@@ -256,7 +256,7 @@ def build_vectors_catalog(digest_map: dict[str, bytes]) -> dict[str, Any]:
     vectors = {
         "catalog_version": "v1",
         "operators": {
-            "UML_OS.Data.NextBatch_v2": [
+            "Glyphser.Data.NextBatch": [
                 {
                     "vector_id": "vector_nextbatch_001",
                     "input_digest": "sha256:schema.request.minimal",
@@ -266,7 +266,7 @@ def build_vectors_catalog(digest_map: dict[str, bytes]) -> dict[str, Any]:
                     "notes": "minimal deterministic batch sampling fixture",
                 }
             ],
-            "UML_OS.Registry.ValidateOperatorRegistry_v1": [
+            "Glyphser.Registry.ValidateOperatorRegistry": [
                 {
                     "vector_id": "vector_registry_validate_001",
                     "input_digest": "sha256:schema.request.minimal",
@@ -327,20 +327,20 @@ def materialize() -> None:
 
     # Compute root hash per Operator-Registry-Schema II.G
     op_root_preimage = cbor_encode([
-        "operator_registry_v1",
+        "operator_registry",
         operator_registry["registry_schema_version"],
         operator_registry["operator_records"],
     ])
     operator_registry_root_hash = sha256_hex(op_root_preimage)
 
     digest_entries_sorted = sorted(digest_catalog["entries"], key=lambda x: x["digest_label"])
-    digest_catalog_hash = sha256_hex(cbor_encode(["digest_catalog_v1", digest_catalog["catalog_version"], digest_entries_sorted]))
+    digest_catalog_hash = sha256_hex(cbor_encode(["digest_catalog", digest_catalog["catalog_version"], digest_entries_sorted]))
 
     vectors_catalog_hash = sha256_hex(cbor_encode(vectors_catalog))
 
     catalog_manifest = {
         "manifest_version": "doc-artifacts-v1",
-        "canonical_profile": "CanonicalSerialization_v1",
+        "canonical_profile": "CanonicalSerialization",
         "artifacts": hash_manifest,
         "derived_identities": {
             "operator_registry_root_hash": operator_registry_root_hash,
@@ -395,8 +395,8 @@ def materialize() -> None:
     trace_snippet = {
         "run_id": "hello-core-run-v1",
         "records": [
-            {"step": 1, "operator_id": "UML_OS.Data.NextBatch_v2", "event_hash": "9f4af21c3f1f6f0f6b95c6154312ecfda4f0a77e8626ced6f1938ad4b3f6f2a0"},
-            {"step": 1, "operator_id": "UML_OS.Model.ModelIR_Executor_v1", "event_hash": "b61d2e4de12799d86659895b3ee2ef9b4f14f183de6a2728e6017b1979b7e6c5"},
+            {"step": 1, "operator_id": "Glyphser.Data.NextBatch", "event_hash": "9f4af21c3f1f6f0f6b95c6154312ecfda4f0a77e8626ced6f1938ad4b3f6f2a0"},
+            {"step": 1, "operator_id": "Glyphser.Model.ModelIR_Executor", "event_hash": "b61d2e4de12799d86659895b3ee2ef9b4f14f183de6a2728e6017b1979b7e6c5"},
         ],
     }
     checkpoint_header = {
@@ -447,13 +447,13 @@ def materialize() -> None:
         "vectors": [
             {
                 "vector_id": "vector_nextbatch_001",
-                "operator_id": "UML_OS.Data.NextBatch_v2",
+                "operator_id": "Glyphser.Data.NextBatch",
                 "input_ref": "fixtures/hello-core/tiny_synth_dataset.jsonl",
                 "expected_ref": "goldens/hello-core/trace_snippet.json",
             },
             {
                 "vector_id": "vector_registry_validate_001",
-                "operator_id": "UML_OS.Registry.ValidateOperatorRegistry_v1",
+                "operator_id": "Glyphser.Registry.ValidateOperatorRegistry",
                 "input_ref": "contracts/operator_registry.cbor",
                 "expected_error_code": "CONTRACT_VIOLATION",
             },

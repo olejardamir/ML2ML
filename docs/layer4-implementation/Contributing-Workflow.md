@@ -1,9 +1,9 @@
-# UML_OS Contributing Workflow Contract
+# Glyphser Contributing Workflow Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ContributingWorkflow_v1`  
+**Algorithm:** `Glyphser.Implementation.ContributingWorkflow`  
 **Purpose (1 sentence):** Define deterministic contribution lifecycle from branch creation to merge with mandatory evidence gates.  
-**Spec Version:** `UML_OS.Implementation.ContributingWorkflow_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ContributingWorkflow` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Engineering collaboration and merge governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ContributingWorkflow_v1`
+- **Algorithm:** `Glyphser.Implementation.ContributingWorkflow`
 - **Purpose (1 sentence):** Deterministic contribution workflow contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,13 +28,13 @@
 ### 0.F Environment and Dependency Policy
 - Contributor environments must pass `Developer-Setup.md` checks.
 ### 0.G Operator Manifest
-- `UML_OS.Contrib.OpenPR_v1`
-- `UML_OS.Contrib.RunRequiredChecks_v1`
-- `UML_OS.Contrib.RecordReview_v1`
-- `UML_OS.Contrib.MergePR_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Contrib.OpenPR`
+- `Glyphser.Contrib.RunRequiredChecks`
+- `Glyphser.Contrib.RecordReview`
+- `Glyphser.Contrib.MergePR`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Contrib.*`
+- `Glyphser.Contrib.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(workflow_report, merge_verdict)`
 - Metrics: `checks_passed`, `reviews_approved`
@@ -66,31 +66,31 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Contrib.OpenPR_v1`
-- `UML_OS.Contrib.RunRequiredChecks_v1`
-- `UML_OS.Contrib.RecordReview_v1`
-- `UML_OS.Contrib.MergePR_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Contrib.OpenPR`
+- `Glyphser.Contrib.RunRequiredChecks`
+- `Glyphser.Contrib.RecordReview`
+- `Glyphser.Contrib.MergePR`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Contrib.OpenPR_v1`
+**Operator:** `Glyphser.Contrib.OpenPR`
 **Signature:** `(pr_metadata -> pr_id)`
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Creates canonical PR record and returns immutable `pr_id`.
 
-**Operator:** `UML_OS.Contrib.RunRequiredChecks_v1`  
+**Operator:** `Glyphser.Contrib.RunRequiredChecks`  
 **Signature:** `(pr_id, check_policy -> check_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Contrib.RecordReview_v1`  
+**Operator:** `Glyphser.Contrib.RecordReview`  
 **Signature:** `(pr_id, reviewer_id, verdict, notes_hash -> review_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 
-**Operator:** `UML_OS.Contrib.MergePR_v1`  
+**Operator:** `Glyphser.Contrib.MergePR`  
 **Signature:** `(pr_id, check_report, review_records -> merge_verdict)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
@@ -98,10 +98,10 @@
 ---
 ## 6) Procedure
 ```text
-1. OpenPR_v1
-2. RunRequiredChecks_v1
-3. RecordReview_v1 (one or more)
-4. MergePR_v1
+1. OpenPR
+2. RunRequiredChecks
+3. RecordReview (one or more)
+4. MergePR
 5. return (workflow_report, merge_verdict)
 ```
 

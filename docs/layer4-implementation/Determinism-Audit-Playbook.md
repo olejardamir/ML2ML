@@ -1,16 +1,16 @@
-# UML_OS Determinism Audit Playbook
+# Glyphser Determinism Audit Playbook
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Replay.DeterminismAuditPlaybook_v1`
+**Algorithm:** `Glyphser.Replay.DeterminismAuditPlaybook`
 **Purpose (1 sentence):** Consolidate determinism verification rules, evidence bindings, and failure taxonomy for external audits.
-**Spec Version:** `UML_OS.Replay.DeterminismAuditPlaybook_v1` | 2026-02-21 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Replay.DeterminismAuditPlaybook` | 2026-02-21 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Replay.DeterminismAuditPlaybook_v1`
+- **Algorithm:** `Glyphser.Replay.DeterminismAuditPlaybook`
 - **Purpose (1 sentence):** Determinism evidence audit playbook.
-- **Spec Version:** `UML_OS.Replay.DeterminismAuditPlaybook_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Replay.DeterminismAuditPlaybook` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** reproducibility auditing.
 ### 0.A Objective Semantics
 - Map determinism profile rules to observable evidence and deterministic failures.
@@ -25,9 +25,9 @@
 ### 0.F Environment and Dependency Policy
 - Requires env/toolchain hash lock and registry root lock.
 ### 0.G Operator Manifest
-- `UML_OS.Replay.CompareTrace_v1`
-- `UML_OS.Replay.VerifyReplayToken_v1`
-- `UML_OS.Certificate.VerifyBoundHashes_v1`
+- `Glyphser.Replay.CompareTrace`
+- `Glyphser.Replay.VerifyReplayToken`
+- `Glyphser.Certificate.VerifyBoundHashes`
 ### 0.H Namespacing and Packaging
 - Audit package path: `audit/determinism/<run_id>/`.
 ### 0.I Outputs and Metric Schema
@@ -42,26 +42,26 @@
 ## 2) Profile-to-Evidence Mapping (Normative)
 | profile_rule | evidence_fields | verifier |
 |---|---|---|
-| `E0 bitwise identity` | `trace_final_hash`, `checkpoint_hash`, critical field bytes | `UML_OS.Replay.CompareTrace_v1` |
-| `E1 tolerance` | field-level tolerances + compared values | `UML_OS.Replay.CompareTrace_v1` |
-| replay token binding | `replay_token`, `manifest_hash`, `env_manifest_hash` | `UML_OS.Replay.VerifyReplayToken_v1` |
-| certificate consistency | bound hashes in signed payload | `UML_OS.Security.VerifyCertificate_v1` |
+| `E0 bitwise identity` | `trace_final_hash`, `checkpoint_hash`, critical field bytes | `Glyphser.Replay.CompareTrace` |
+| `E1 tolerance` | field-level tolerances + compared values | `Glyphser.Replay.CompareTrace` |
+| replay token binding | `replay_token`, `manifest_hash`, `env_manifest_hash` | `Glyphser.Replay.VerifyReplayToken` |
+| certificate consistency | bound hashes in signed payload | `Glyphser.Security.VerifyCertificate` |
 
 ## 3) Failure Digest (Normative)
 - `failure_digest = {failure_code, first_divergence_operator, first_divergence_path, trace_hash_lhs, trace_hash_rhs, evidence_refs}`.
-- `failure_digest_hash = SHA-256(CBOR_CANONICAL(["failure_digest_v1", failure_digest]))`.
+- `failure_digest_hash = SHA-256(CBOR_CANONICAL(["failure_digest", failure_digest]))`.
 
 ## 4) Error Taxonomy Reference
 - Authoritative codes: `docs/layer1-foundation/Error-Codes.md`.
 
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Replay.VerifyReplayToken_v1`
+**Operator:** `Glyphser.Replay.VerifyReplayToken`
 **Signature:** `(replay_token, manifest_hash, env_manifest_hash, policy_bundle_hash, determinism_profile_hash, operator_contracts_root_hash, driver_runtime_fingerprint_hash, seed -> replay_token_report)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Recomputes expected replay-token commitment from bound inputs, compares bytewise with provided `replay_token`, and emits deterministic pass/fail with mismatch diagnostics.
 
-**Operator:** `UML_OS.Certificate.VerifyBoundHashes_v1`
+**Operator:** `Glyphser.Certificate.VerifyBoundHashes`
 **Signature:** `(execution_certificate, manifest_hash, trace_final_hash, checkpoint_hash, policy_bundle_hash, determinism_profile_hash, operator_contracts_root_hash -> bound_hash_report)`
 **Purity class:** PURE
 **Determinism:** deterministic

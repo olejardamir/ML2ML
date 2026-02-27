@@ -1,9 +1,9 @@
-# UML_OS Execution Certificate Contract
+# Glyphser Execution Certificate Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Certificate.ExecutionCertificate_v1`  
+**Algorithm:** `Glyphser.Certificate.ExecutionCertificate`  
 **Purpose (1 sentence):** Define a signed proof-carrying execution certificate that gates registry, deployment, and audit workflows.  
-**Spec Version:** `UML_OS.Certificate.ExecutionCertificate_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Certificate.ExecutionCertificate` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Verifiable execution provenance and policy gating.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Certificate.ExecutionCertificate_v1`
+- **Algorithm:** `Glyphser.Certificate.ExecutionCertificate`
 - **Purpose (1 sentence):** Kernel-issued execution proof contract.
-- **Spec Version:** `UML_OS.Certificate.ExecutionCertificate_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Certificate.ExecutionCertificate` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Signed execution evidence.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,13 +32,13 @@
 ### 0.F Environment and Dependency Policy
 - `trust_mode: "SOFTWARE_ONLY" | "ATTESTED"` (default `SOFTWARE_ONLY`).
 ### 0.G Operator Manifest
-- `UML_OS.Certificate.Build_v1`
-- `UML_OS.Certificate.Sign_v1`
-- `UML_OS.Certificate.Verify_v1`
-- `UML_OS.Certificate.EvidenceValidate_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Certificate.Build`
+- `Glyphser.Certificate.Sign`
+- `Glyphser.Certificate.Verify`
+- `Glyphser.Certificate.EvidenceValidate`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Certificate.*` operators are global governance operators.
+- `Glyphser.Certificate.*` operators are global governance operators.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(execution_certificate, verification_report)`
 - Metrics: `certificate_valid`, `evidence_link_coverage`
@@ -91,10 +91,10 @@
   - `unsigned_metadata` (not signed; informational only)
 - `signed_payload` field set is fixed by this section; no additional implementation-specific fields are allowed in signed bytes.
 - policy-bundle consistency rule:
-  - if individual policy hashes are present (`security/authz/monitor/dp/redaction`), they MUST match the decomposition of `policy_bundle_hash` under `policy_bundle_v1`; mismatch is deterministic verification failure.
+  - if individual policy hashes are present (`security/authz/monitor/dp/redaction`), they MUST match the decomposition of `policy_bundle_hash` under `policy_bundle`; mismatch is deterministic verification failure.
 - Dependency identity semantics:
-  - `lockfile_hash` = canonical package lock digest (`LockfileDigest_v1`).
-  - `dependencies_lock_hash` = derived environment-bound commitment (`DependenciesLockDigest_v1`).
+  - `lockfile_hash` = canonical package lock digest (`LockfileDigest`).
+  - `dependencies_lock_hash` = derived environment-bound commitment (`DependenciesLockDigest`).
   - `operator_contracts_root_hash` = `operator_registry_root_hash` from `docs/layer1-foundation/Operator-Registry-Schema.md`.
   - `certificate_hash = SHA-256(certificate_cbor)` where `certificate_cbor` is canonical serialized certificate object (signed payload + signature envelope).
 - `signed_payload` required fields:
@@ -170,38 +170,38 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Certificate.Build_v1`
-- `UML_OS.Certificate.Sign_v1`
-- `UML_OS.Certificate.Verify_v1`
-- `UML_OS.Certificate.EvidenceValidate_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Certificate.Build`
+- `Glyphser.Certificate.Sign`
+- `Glyphser.Certificate.Verify`
+- `Glyphser.Certificate.EvidenceValidate`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+External operator reference: `Glyphser.Error.Emit` is defined in `docs/layer1-foundation/Error-Codes.md`.
 
-**Operator:** `UML_OS.Certificate.Build_v1`  
+**Operator:** `Glyphser.Certificate.Build`  
 **Category:** Security  
 **Signature:** `(evidence_bundle -> certificate_payload)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** canonical payload construction from evidence tuple.
 
-**Operator:** `UML_OS.Certificate.Sign_v1`  
+**Operator:** `Glyphser.Certificate.Sign`  
 **Category:** Security  
 **Signature:** `(certificate_payload, signing_key_ref -> execution_certificate)`  
 **Purity class:** IO  
 **Determinism:** deterministic payload + deterministic signature algorithm policy  
 **Definition:** signs canonical CBOR bytes of `signed_payload` only; `unsigned_metadata` is excluded. In `ATTESTED` mode key release requires attestation policy pass. `signing_key_ref` may resolve to HSM/KMS key material via daemon key broker; signer MUST enforce deterministic algorithm behavior for the selected `signature_algorithm`.
 
-**Operator:** `UML_OS.Certificate.Verify_v1`  
+**Operator:** `Glyphser.Certificate.Verify`  
 **Category:** Security  
 **Signature:** `(execution_certificate, trust_store -> verification_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** verifies signature over `signed_payload`, required field presence, trust chain, signer key validity window, expiry (`verification_time_utc <= valid_until_utc`), and revocation status using `revocation_bundle_hash`.
 
-**Operator:** `UML_OS.Certificate.EvidenceValidate_v1`  
+**Operator:** `Glyphser.Certificate.EvidenceValidate`  
 **Category:** Security  
 **Signature:** `(manifest, trace, checkpoint, replay_context -> report)`  
 **Purity class:** PURE  
@@ -211,10 +211,10 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 ---
 ## 6) Procedure
 ```text
-1. Build_v1(evidence_bundle)
-2. Sign_v1(payload, signing_key_ref)
-3. Verify_v1(certificate, trust_store)
-4. EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)
+1. Build(evidence_bundle)
+2. Sign(payload, signing_key_ref)
+3. Verify(certificate, trust_store)
+4. EvidenceValidate(manifest, trace, checkpoint, replay_context)
 5. Return certificate + report
 ```
 
@@ -260,7 +260,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 
 ---
 ## 11) Trust Report and Human-Auditable Outputs (Normative)
-- `Verify_v1` MUST produce a stable trust report projection in addition to binary verdict:
+- `Verify` MUST produce a stable trust report projection in addition to binary verdict:
   - trust roots used,
   - revocation mode/status,
   - attestation verification status,

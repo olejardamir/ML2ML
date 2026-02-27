@@ -1,9 +1,9 @@
-# UML_OS Authorization Capability Matrix Contract
+# Glyphser Authorization Capability Matrix Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Security.AuthZCapabilityMatrix_v1`  
+**Algorithm:** `Glyphser.Security.AuthZCapabilityMatrix`  
 **Purpose (1 sentence):** Define deterministic operator-to-capability authorization requirements and policy evaluation outputs.  
-**Spec Version:** `UML_OS.Security.AuthZCapabilityMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Security.AuthZCapabilityMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** RBAC/capability enforcement and auditability.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Security.AuthZCapabilityMatrix_v1`
+- **Algorithm:** `Glyphser.Security.AuthZCapabilityMatrix`
 - **Purpose (1 sentence):** Deterministic operator capability gating.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -29,9 +29,9 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE`.
 ### 0.G Operator Manifest
-- `UML_OS.Security.ResolveRequiredCapabilities_v1`
-- `UML_OS.Security.EvaluateAuthorization_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.ResolveRequiredCapabilities`
+- `Glyphser.Security.EvaluateAuthorization`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Canonical matrix source: `contracts/operator_registry.cbor`.
 ### 0.I Outputs and Metric Schema
@@ -105,20 +105,20 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Security.ResolveRequiredCapabilities_v1`
-- `UML_OS.Security.EvaluateAuthorization_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.ResolveRequiredCapabilities`
+- `Glyphser.Security.EvaluateAuthorization`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Security.ResolveRequiredCapabilities_v1`  
+**Operator:** `Glyphser.Security.ResolveRequiredCapabilities`  
 **Category:** Security  
 **Signature:** `(operator_id, registry -> required_capabilities)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** resolves sorted unique required capabilities for operator.
 
-**Operator:** `UML_OS.Security.EvaluateAuthorization_v1`  
+**Operator:** `Glyphser.Security.EvaluateAuthorization`  
 **Category:** Security  
 **Signature:** `(tenant_id, principal_id, operator_id, policy -> authz_verdict, authz_query_hash, authz_decision_hash, report)`  
 **Purity class:** PURE  
@@ -128,8 +128,8 @@
 ---
 ## 6) Procedure
 ```text
-1. ResolveRequiredCapabilities_v1(operator_id, operator_registry)
-2. EvaluateAuthorization_v1(tenant_id, principal_id, operator_id, authz_policy)
+1. ResolveRequiredCapabilities(operator_id, operator_registry)
+2. EvaluateAuthorization(tenant_id, principal_id, operator_id, authz_policy)
 3. Return verdict + authz_query_hash + authz_decision_hash + report
 ```
 

@@ -1,9 +1,9 @@
-# UML_OS Threat Model and Control Crosswalk
+# Glyphser Threat Model and Control Crosswalk
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Security.ThreatModelCrosswalk_v1`  
+**Algorithm:** `Glyphser.Security.ThreatModelCrosswalk`  
 **Purpose (1 sentence):** Formalize attacker model, trust boundaries, and control-to-evidence mapping for auditor-ready verification.  
-**Spec Version:** `UML_OS.Security.ThreatModelCrosswalk_v1` | 2026-02-20 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Security.ThreatModelCrosswalk` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 
@@ -37,9 +37,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Threat Model and Control Crosswalk" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Threat Model and Control Crosswalk" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

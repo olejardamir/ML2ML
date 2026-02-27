@@ -1,9 +1,9 @@
-# UML_OS Storage Recovery Test Matrix
+# Glyphser Storage Recovery Test Matrix
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.StorageRecoveryMatrix_v1`  
+**Algorithm:** `Glyphser.Test.StorageRecoveryMatrix`  
 **Purpose (1 sentence):** Define deterministic storage crash-recovery tests for WAL segments, commit pointers, and artifact integrity.  
-**Spec Version:** `UML_OS.Test.StorageRecoveryMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.StorageRecoveryMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Storage reliability testing.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.StorageRecoveryMatrix_v1`
+- **Algorithm:** `Glyphser.Test.StorageRecoveryMatrix`
 - **Purpose (1 sentence):** Deterministic storage recovery test contract.
 ### 0.A Objective Semantics
 - minimize unrecoverable commit states.
@@ -27,12 +27,12 @@
 ### 0.F Environment and Dependency Policy
 - backend adapter versions pinned.
 ### 0.G Operator Manifest
-- `UML_OS.Test.InjectStorageFault_v1`
-- `UML_OS.Test.RunRecoveryProcedure_v1`
-- `UML_OS.Test.VerifyRecoveryInvariants_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.InjectStorageFault`
+- `Glyphser.Test.RunRecoveryProcedure`
+- `Glyphser.Test.VerifyRecoveryInvariants`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Test.*` and `UML_OS.Storage.*`.
+- `Glyphser.Test.*` and `Glyphser.Storage.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(scenario_reports, matrix_verdict)`.
 ### 0.J Spec Lifecycle Governance
@@ -71,28 +71,28 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.InjectStorageFault_v1`
-- `UML_OS.Test.RunRecoveryProcedure_v1`
-- `UML_OS.Test.VerifyRecoveryInvariants_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.InjectStorageFault`
+- `Glyphser.Test.RunRecoveryProcedure`
+- `Glyphser.Test.VerifyRecoveryInvariants`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.InjectStorageFault_v1`
+**Operator:** `Glyphser.Test.InjectStorageFault`
 **Signature:** `(scenario_id, backend_id, storage_state -> faulted_storage_state)`
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Injects the declared deterministic storage fault for the scenario.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `SCENARIO_INVALID`, `BACKEND_UNSUPPORTED`.
 
-**Operator:** `UML_OS.Test.RunRecoveryProcedure_v1`
+**Operator:** `Glyphser.Test.RunRecoveryProcedure`
 **Signature:** `(faulted_storage_state, recovery_policy -> recovery_result)`
 **Purity class:** IO
 **Determinism:** deterministic
 **Definition:** Runs deterministic recovery procedure (WAL scan/replay/rollback as declared).
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `RECOVERY_FAILURE`, `WAL_CORRUPTION`.
 
-**Operator:** `UML_OS.Test.VerifyRecoveryInvariants_v1`  
+**Operator:** `Glyphser.Test.VerifyRecoveryInvariants`  
 **Signature:** `(recovery_result, expected_invariants -> verdict)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
@@ -102,9 +102,9 @@
 ---
 ## 6) Procedure
 ```text
-1. InjectStorageFault_v1
-2. RunRecoveryProcedure_v1
-3. VerifyRecoveryInvariants_v1
+1. InjectStorageFault
+2. RunRecoveryProcedure
+3. VerifyRecoveryInvariants
 4. Record scenario verdict
 ```
 

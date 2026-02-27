@@ -1,9 +1,9 @@
-# UML_OS Implementation Roadmap
+# Glyphser Implementation Roadmap
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.RoadmapPlanner_v1`  
-**Purpose (1 sentence):** Define deterministic implementation phases, dependency order, and delivery gates for the final UML_OS product.  
-**Spec Version:** `UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Implementation.RoadmapPlanner`  
+**Purpose (1 sentence):** Define deterministic implementation phases, dependency order, and delivery gates for the final Glyphser product.  
+**Spec Version:** `Glyphser.Implementation.RoadmapPlanner` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Program planning and delivery governance.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.RoadmapPlanner_v1`
+- **Algorithm:** `Glyphser.Implementation.RoadmapPlanner`
 - **Purpose (1 sentence):** Deterministic implementation sequencing.
-- **Spec Version:** `UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Implementation.RoadmapPlanner` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Engineering roadmap orchestration.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -34,10 +34,10 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for phase ordering and gate results.
 ### 0.G Operator Manifest
-- `UML_OS.Implementation.ResolveDependencies_v1`
-- `UML_OS.Implementation.AssignMilestones_v1`
-- `UML_OS.Implementation.EvaluateGates_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ResolveDependencies`
+- `Glyphser.Implementation.AssignMilestones`
+- `Glyphser.Implementation.EvaluateGates`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Fully-qualified operator names required.
 ### 0.I Outputs and Metric Schema
@@ -118,9 +118,9 @@ Deterministic gate evaluation:
   - requires migration operator,
   - requires golden migration tests with E0/E1 invariants.
 - Standard migration operators:
-  - `UML_OS.Config.ManifestMigrate_v1`
-  - `UML_OS.Checkpoint.CheckpointMigrate_v1`
-  - `UML_OS.Trace.TraceMigrate_v1`
+  - `Glyphser.Config.ManifestMigrate`
+  - `Glyphser.Checkpoint.CheckpointMigrate`
+  - `Glyphser.Trace.TraceMigrate`
 - Operational merge workflow reference:
   - `docs/layer4-implementation/Change-Control-Playbook.md`
 - Productization reference:
@@ -146,19 +146,19 @@ Deterministic gate evaluation:
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Implementation.ResolveDependencies_v1`
-- `UML_OS.Implementation.AssignMilestones_v1`
-- `UML_OS.Implementation.EvaluateGates_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ResolveDependencies`
+- `Glyphser.Implementation.AssignMilestones`
+- `Glyphser.Implementation.EvaluateGates`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Implementation.ResolveDependencies_v1`  
+**Operator:** `Glyphser.Implementation.ResolveDependencies`  
 **Category:** IO  
 **Signature:** `(graph -> ordered_phases)`  
 **Purity class:** PURE  
@@ -173,14 +173,14 @@ Template conformance note (III.A): each operator definition in this section is i
 **Dependencies:** graph parser.  
 **Test vectors:** known DAG/cycle fixtures.
 
-**Operator:** `UML_OS.Implementation.AssignMilestones_v1`  
+**Operator:** `Glyphser.Implementation.AssignMilestones`  
 **Category:** IO  
 **Signature:** `(ordered_phases, capacity -> phase_plan)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** allocates tasks to milestones under capacity constraints.
 
-**Operator:** `UML_OS.Implementation.EvaluateGates_v1`  
+**Operator:** `Glyphser.Implementation.EvaluateGates`  
 **Category:** IO  
 **Signature:** `(phase_outputs -> gate_report)`  
 **Purity class:** PURE  
@@ -190,9 +190,9 @@ Template conformance note (III.A): each operator definition in this section is i
 ---
 ## 6) Procedure
 ```text
-1. ResolveDependencies_v1
-2. AssignMilestones_v1
-3. EvaluateGates_v1
+1. ResolveDependencies
+2. AssignMilestones
+3. EvaluateGates
 4. Emit phase_plan + gate_report
 ```
 

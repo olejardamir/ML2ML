@@ -127,7 +127,7 @@ nodes:
 - DocID: L2-020
   Layer: 2
   Type: algorithm-spec
-  Path: docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md
+  Path: docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md
 - DocID: L3-001
   Layer: 3
   Type: test-suite

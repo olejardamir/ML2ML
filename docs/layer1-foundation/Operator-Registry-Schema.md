@@ -1,9 +1,9 @@
-# UML_OS Operator Registry Schema Contract
+# Glyphser Operator Registry Schema Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Registry.OperatorRegistrySchema_v1`  
+**Algorithm:** `Glyphser.Registry.OperatorRegistrySchema`  
 **Purpose (1 sentence):** Define the authoritative machine-readable schema for `contracts/operator_registry.cbor` and its deterministic validation rules.  
-**Spec Version:** `UML_OS.Registry.OperatorRegistrySchema_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Registry.OperatorRegistrySchema` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Interface governance and contract integrity.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Registry.OperatorRegistrySchema_v1`
+- **Algorithm:** `Glyphser.Registry.OperatorRegistrySchema`
 - **Purpose (1 sentence):** Canonical operator registry schema and validation.
 ### 0.A Objective Semantics
 - This is a schema/registry integrity contract (not an optimization objective).
@@ -33,9 +33,9 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for validation reports and computed hashes.
 ### 0.G Operator Manifest
-- `UML_OS.Registry.ValidateOperatorRegistry_v1`
-- `UML_OS.Registry.ComputeRegistryHash_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Registry.ValidateOperatorRegistry`
+- `Glyphser.Registry.ComputeRegistryHash`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Registry file path: `contracts/operator_registry.cbor`.
 - Registry file MUST be stored in canonical CBOR form as defined by `CBOR_CANONICAL` (not only logically decodable to canonical form).
@@ -142,7 +142,7 @@
 
 ### II.G Registry Hash (Normative)
 - Canonical operator list is `operator_records` in the ordering defined by `0.D`.
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))`.
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry", [registry_schema_version, operator_records]]))`.
 - `registry_hash` is an exact alias of `operator_registry_root_hash` for backward compatibility.
 - Version/tag consistency check:
   - the numeric suffix in domain tag `operator_registry_vN` used for hash preimage MUST equal top-level `registry_schema_version`.
@@ -150,7 +150,7 @@
 ### II.H SignatureDigest Rule (Normative, Global)
 - Signature digest computation is defined only here and consumed by all interface/mapping/backend docs.
 - Preimage:
-  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig_v1", [operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]]))`.
+  - `signature_digest = SHA-256(CBOR_CANONICAL(["sig", [operator_id, version, method, request_schema_digest_resolved, response_schema_digest_resolved, sorted(side_effects), sorted(allowed_error_codes)]]))`.
 - Sorting semantics for preimage arrays:
   - `sorted(side_effects)` and `sorted(allowed_error_codes)` use the same bytewise UTF-8 lexicographic order defined in `0.D`.
 - `request_schema_digest_resolved` and `response_schema_digest_resolved` are resolved bytes32 values after `digest_ref` resolution.
@@ -165,7 +165,7 @@
 - Authoritative commitment is `operator_registry_root_hash` from `II.G`.
 - `operator_registry_root_hash` is the required value bound as `operator_contracts_root_hash` in execution certificates and checkpoint headers.
 - Version-evolution rule:
-  - MAJOR schema/version change MUST update domain tag prefix in `II.G` (for example `operator_registry_v2`).
+  - MAJOR schema/version change MUST update domain tag prefix in `II.G` (for example `operator_registry`).
 - External catalog pinning rule:
   - validation MUST compute catalog hashes from provided catalog blobs and include them in `validation_report`.
 - `digest_catalog_hash`, `error_codes_catalog_hash`, `capability_catalog_hash`, and `schema_catalog_hash` are computed as `SHA-256` of the corresponding canonical CBOR input blob bytes.
@@ -181,13 +181,13 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Registry.ValidateOperatorRegistry_v1`
-- `UML_OS.Registry.ComputeRegistryHash_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Registry.ValidateOperatorRegistry`
+- `Glyphser.Registry.ComputeRegistryHash`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Registry.ValidateOperatorRegistry_v1`  
+**Operator:** `Glyphser.Registry.ValidateOperatorRegistry`  
 **Category:** Governance  
 **Signature:** `(registry_blob, digest_catalog_blob, error_codes_blob, capability_catalog_blob, schema_catalog_blob, expected_catalog_hashes -> validation_report)`  
 **Purity class:** PURE  
@@ -210,20 +210,20 @@
   - `CATALOG_HASH_MISMATCH` path MUST be the corresponding catalog root path (`/digest_catalog`, `/error_codes_catalog`, `/capability_catalog`, or `/schema_catalog`).
   - error ordering is deterministic by bytewise UTF-8 lexicographic `(path, code_id)`.
 
-**Operator:** `UML_OS.Registry.ComputeRegistryHash_v1`  
+**Operator:** `Glyphser.Registry.ComputeRegistryHash`  
 **Category:** Governance  
 **Signature:** `(validated_registry -> operator_registry_root_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))` using canonical serialization profile `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
+**Definition:** computes `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry", [registry_schema_version, operator_records]]))` using canonical serialization profile `CanonicalSerialization` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`, where `operator_records` are ordered by `(operator_id, version_num)` and `version_num = parse_uint(version[1:])`.
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 ---
 ## 6) Procedure
 ```text
-1. ValidateOperatorRegistry_v1 (with explicit catalog blobs and expected_catalog_hashes; derive/pin catalog hashes)
-2. ComputeRegistryHash_v1
+1. ValidateOperatorRegistry (with explicit catalog blobs and expected_catalog_hashes; derive/pin catalog hashes)
+2. ComputeRegistryHash
 3. Return report + operator_registry_root_hash
 ```
 

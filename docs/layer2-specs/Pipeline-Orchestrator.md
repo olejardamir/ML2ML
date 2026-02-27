@@ -1,9 +1,9 @@
-# UML_OS Pipeline Orchestrator Contract
+# Glyphser Pipeline Orchestrator Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Pipeline.Orchestrator_v1`  
+**Algorithm:** `Glyphser.Pipeline.Orchestrator`  
 **Purpose (1 sentence):** Define deterministic job lifecycle orchestration and signed transition recording for multi-stage ML pipelines.  
-**Spec Version:** `UML_OS.Pipeline.Orchestrator_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Pipeline.Orchestrator` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Job scheduling and pipeline state governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Pipeline.Orchestrator_v1`
+- **Algorithm:** `Glyphser.Pipeline.Orchestrator`
 - **Purpose (1 sentence):** Deterministic pipeline/job state orchestration.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,14 +30,14 @@
 ### 0.F Environment and Dependency Policy
 - job manifests must be signed and schema-valid.
 ### 0.G Operator Manifest
-- `UML_OS.Pipeline.JobSubmit_v1`
-- `UML_OS.Pipeline.JobTransition_v1`
-- `UML_OS.Pipeline.JobHeartbeat_v1`
-- `UML_OS.Pipeline.JobCancel_v1`
-- `UML_OS.Pipeline.JobQuery_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Pipeline.JobSubmit`
+- `Glyphser.Pipeline.JobTransition`
+- `Glyphser.Pipeline.JobHeartbeat`
+- `Glyphser.Pipeline.JobCancel`
+- `Glyphser.Pipeline.JobQuery`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Pipeline.*` namespace.
+- `Glyphser.Pipeline.*` namespace.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(job_state, transition_record)`
 - Metrics: `queue_depth`, `job_success_rate`
@@ -133,23 +133,23 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Pipeline.JobSubmit_v1`
-- `UML_OS.Pipeline.JobTransition_v1`
-- `UML_OS.Pipeline.JobHeartbeat_v1`
-- `UML_OS.Pipeline.JobCancel_v1`
-- `UML_OS.Pipeline.JobQuery_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Pipeline.JobSubmit`
+- `Glyphser.Pipeline.JobTransition`
+- `Glyphser.Pipeline.JobHeartbeat`
+- `Glyphser.Pipeline.JobCancel`
+- `Glyphser.Pipeline.JobQuery`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Pipeline.JobSubmit_v1`  
+**Operator:** `Glyphser.Pipeline.JobSubmit`  
 **Category:** Orchestration  
 **Signature:** `(job_manifest, priority, idempotency_key -> job_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** validates submission policy and enqueues a new job deterministically.
 
-**Operator:** `UML_OS.Pipeline.JobTransition_v1`  
+**Operator:** `Glyphser.Pipeline.JobTransition`  
 **Category:** Orchestration  
 **Signature:** `(tenant_id, job_id, attempt_id, expected_transition_seq, from_state, to_state, evidence_ref -> transition_record)`  
 **Purity class:** IO  
@@ -157,7 +157,7 @@
 **Definition:** validates transition against state machine and writes signed transition record atomically; accepted iff stored `transition_seq == expected_transition_seq`, then increments sequence. If `from_state=="RETRYING"` and retry budget is exhausted, only `to_state=="FAILED"` is allowed.
 `evidence_ref` format (normative): nullable `bytes32` hash of canonical transition evidence payload (`null` allowed for transitions that require no external evidence).
 
-**Operator:** `UML_OS.Pipeline.JobHeartbeat_v1`
+**Operator:** `Glyphser.Pipeline.JobHeartbeat`
 **Category:** Orchestration
 **Signature:** `(job_id, lease_id, tick -> heartbeat_record)`
 **Purity class:** IO
@@ -165,14 +165,14 @@
 **Definition:** extends lease if `lease_id` matches active running attempt.
 `tick` semantics (normative): monotonically increasing `uint64` logical progress counter for the running attempt (for example, step counter or deterministic heartbeat sequence).
 
-**Operator:** `UML_OS.Pipeline.JobCancel_v1`  
+**Operator:** `Glyphser.Pipeline.JobCancel`  
 **Category:** Orchestration  
 **Signature:** `(job_id, principal_id, reason -> cancel_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** requests deterministic cancellation and records authorized terminal/cancel transition.
 
-**Operator:** `UML_OS.Pipeline.JobQuery_v1`  
+**Operator:** `Glyphser.Pipeline.JobQuery`  
 **Category:** Orchestration  
 **Signature:** `(job_id -> job_status_report)`  
 **Purity class:** PURE  
@@ -182,11 +182,11 @@
 ---
 ## 6) Procedure
 ```text
-1. JobSubmit_v1
-2. JobTransition_v1(QUEUED->RUNNING)
-3. JobHeartbeat_v1 repeated while RUNNING
-4. If lease expires: JobTransition_v1(RUNNING->RETRYING), then RETRYING->QUEUED (bounded retries)
-5. JobTransition_v1(RUNNING->terminal)
+1. JobSubmit
+2. JobTransition(QUEUED->RUNNING)
+3. JobHeartbeat repeated while RUNNING
+4. If lease expires: JobTransition(RUNNING->RETRYING), then RETRYING->QUEUED (bounded retries)
+5. JobTransition(RUNNING->terminal)
 6. Return final job state
 ```
 

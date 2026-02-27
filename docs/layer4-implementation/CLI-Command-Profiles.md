@@ -1,9 +1,9 @@
-# UML_OS CLI Command Profiles
+# Glyphser CLI Command Profiles
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.CLICommandProfiles_v1`  
+**Algorithm:** `Glyphser.Implementation.CLICommandProfiles`  
 **Purpose (1 sentence):** Define deterministic CLI command profiles for local development, CI, replay, and release workflows.  
-**Spec Version:** `UML_OS.Implementation.CLICommandProfiles_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.CLICommandProfiles` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Developer operations and automation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.CLICommandProfiles_v1`
+- **Algorithm:** `Glyphser.Implementation.CLICommandProfiles`
 - **Purpose (1 sentence):** Canonical command profiles for deterministic execution.
 ### 0.A Objective Semantics
 - minimize command ambiguity and environment drift.
@@ -26,12 +26,12 @@
 ### 0.F Environment and Dependency Policy
 - command profiles require lockfile-verified environment.
 ### 0.G Operator Manifest
-- `UML_OS.Implementation.ResolveCLIProfile_v1`
-- `UML_OS.Implementation.ExecuteCLIProfile_v1`
-- `UML_OS.Implementation.VerifyCLIOutcome_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ResolveCLIProfile`
+- `Glyphser.Implementation.ExecuteCLIProfile`
+- `Glyphser.Implementation.VerifyCLIOutcome`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- command profile operators under `UML_OS.Implementation.*`.
+- command profile operators under `Glyphser.Implementation.*`.
 ### 0.I Outputs and Metric Schema
 - `(execution_plan, command_results, outcome_verdict)`.
 ### 0.J Spec Lifecycle Governance
@@ -62,24 +62,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Implementation.ResolveCLIProfile_v1`
-- `UML_OS.Implementation.ExecuteCLIProfile_v1`
-- `UML_OS.Implementation.VerifyCLIOutcome_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ResolveCLIProfile`
+- `Glyphser.Implementation.ExecuteCLIProfile`
+- `Glyphser.Implementation.VerifyCLIOutcome`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.ResolveCLIProfile_v1`  
+**Operator:** `Glyphser.Implementation.ResolveCLIProfile`  
 **Signature:** `(profile_id, catalog -> plan)`  
 **Purity class:** PURE  
 **Definition:** Produces deterministic command plan.
 
-**Operator:** `UML_OS.Implementation.ExecuteCLIProfile_v1`  
+**Operator:** `Glyphser.Implementation.ExecuteCLIProfile`  
 **Signature:** `(plan, env -> results)`  
 **Purity class:** IO  
 **Definition:** Executes command steps in declared order.
 
-**Operator:** `UML_OS.Implementation.VerifyCLIOutcome_v1`
+**Operator:** `Glyphser.Implementation.VerifyCLIOutcome`
 **Signature:** `(results, profile_policy -> outcome_verdict)`
 **Purity class:** PURE
 **Definition:** Applies deterministic required-step and exit-code policy to emit `PASS/FAIL`.
@@ -87,10 +87,10 @@
 ---
 ## 6) Procedure
 ```text
-1. plan <- ResolveCLIProfile_v1(...)
-2. results <- ExecuteCLIProfile_v1(plan)
-3. verdict <- VerifyCLIOutcome_v1(results)
-4. if verdict == FAIL: Error.Emit_v1(CONTRACT_VIOLATION)
+1. plan <- ResolveCLIProfile(...)
+2. results <- ExecuteCLIProfile(plan)
+3. verdict <- VerifyCLIOutcome(results)
+4. if verdict == FAIL: Error.Emit(CONTRACT_VIOLATION)
 5. return (execution_plan, command_results, outcome_verdict)
 ```
 

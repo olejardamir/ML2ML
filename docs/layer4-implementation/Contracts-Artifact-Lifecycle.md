@@ -1,9 +1,9 @@
-# UML_OS Contracts Artifact Lifecycle
+# Glyphser Contracts Artifact Lifecycle
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ContractsArtifactLifecycle_v1`
+**Algorithm:** `Glyphser.Implementation.ContractsArtifactLifecycle`
 **Purpose (1 sentence):** Define deterministic build, sign, publish, verify, deprecate, and retire lifecycle rules for machine-readable contract artifacts.
-**Spec Version:** `UML_OS.Implementation.ContractsArtifactLifecycle_v1` | 2026-02-19 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Implementation.ContractsArtifactLifecycle` | 2026-02-19 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Artifact governance for contract integrity.
@@ -68,9 +68,9 @@ Every artifact manifest entry must include:
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Contracts Artifact Lifecycle" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Contracts Artifact Lifecycle" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

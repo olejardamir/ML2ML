@@ -1,16 +1,16 @@
-# UML_OS Failure Injection Scenario Index
+# Glyphser Failure Injection Scenario Index
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.FailureInjectionIndex_v1`
+**Algorithm:** `Glyphser.Test.FailureInjectionIndex`
 **Purpose (1 sentence):** Provide a deterministic index from mandatory chaos scenarios to invariants, recovery procedures, and proof-pack expectations.
-**Spec Version:** `UML_OS.Test.FailureInjectionIndex_v1` | 2026-02-21 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Test.FailureInjectionIndex` | 2026-02-21 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.FailureInjectionIndex_v1`
+- **Algorithm:** `Glyphser.Test.FailureInjectionIndex`
 - **Purpose (1 sentence):** Deterministic failure-injection scenario index.
-- **Spec Version:** `UML_OS.Test.FailureInjectionIndex_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Test.FailureInjectionIndex` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** resilience verification index.
 ### 0.A Objective Semantics
 - Ensure each mandatory scenario has explicit invariant + proof-pack mapping.
@@ -25,9 +25,9 @@
 ### 0.F Environment and Dependency Policy
 - Scenario execution references fixed fixture/environment hashes.
 ### 0.G Operator Manifest
-- `UML_OS.Test.InjectFault_v1`
-- `UML_OS.Test.RunRecovery_v1`
-- `UML_OS.Test.ValidateRecoveryOutcome_v1`
+- `Glyphser.Test.InjectFault`
+- `Glyphser.Test.RunRecovery`
+- `Glyphser.Test.ValidateRecoveryOutcome`
 ### 0.H Namespacing and Packaging
 - Scenario index namespace: `tests/failure_injection/index/`.
 ### 0.I Outputs and Metric Schema
@@ -48,7 +48,7 @@
 | `wal_corruption_checksum_mismatch` | chain integrity detection and deterministic abort | `docs/layer2-specs/Run-Commit-WAL.md` | same as above + wal_chain_validation_hash | regulated requires proof-pack pass |
 
 ## 3) Index Hash
-- `scenario_index_hash = SHA-256(CBOR_CANONICAL(["failure_index_v1", rows]))`.
+- `scenario_index_hash = SHA-256(CBOR_CANONICAL(["failure_index", rows]))`.
 
 ## 6) Procedure
 ```text

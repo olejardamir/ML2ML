@@ -1,9 +1,9 @@
-# UML_OS Operator Registry CBOR Contract
+# Glyphser Operator Registry CBOR Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Registry.OperatorRegistryCBOR_v1`
+**Algorithm:** `Glyphser.Registry.OperatorRegistryCBOR`
 **Purpose (1 sentence):** Define the canonical machine-readable `operator_registry.cbor` artifact used by codegen, lint, runtime validation, and release evidence.
-**Spec Version:** `UML_OS.Registry.OperatorRegistryCBOR_v1` | 2026-02-19 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Registry.OperatorRegistryCBOR` | 2026-02-19 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Operator interface artifact governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Registry.OperatorRegistryCBOR_v1`
+- **Algorithm:** `Glyphser.Registry.OperatorRegistryCBOR`
 - **Purpose (1 sentence):** Canonical registry artifact for operator contracts.
 ### 0.A Objective Semantics
 - Ensure a single deterministic source for operator signatures and constraints.
@@ -28,10 +28,10 @@
 - Canonical serialization uses `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Registry.BuildOperatorRegistryArtifact_v1`
-- `UML_OS.Registry.ValidateOperatorRegistryArtifact_v1`
-- `UML_OS.Implementation.SpecLint_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Registry.BuildOperatorRegistryArtifact`
+- `Glyphser.Registry.ValidateOperatorRegistryArtifact`
+- `Glyphser.Implementation.SpecLint`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Canonical artifact path: `contracts/operator_registry.cbor`.
 ### 0.I Outputs and Metric Schema
@@ -65,10 +65,10 @@
 - Optional non-authoritative build metadata (for example `generated_at`) may be emitted in sidecar documentation artifacts only; it is not part of the canonical registry object.
 
 ### II.G Artifact Hash (Normative)
-- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry_v1", [registry_schema_version, operator_records]]))`
+- `operator_registry_root_hash = SHA-256(CBOR_CANONICAL(["operator_registry", [registry_schema_version, operator_records]]))`
 - This hash must match `operator_contracts_root_hash` in `docs/layer2-specs/Execution-Certificate.md`.
 - Any informational metadata not present in the authoritative schema (for example `generated_at`) is excluded from this hash preimage.
-- Canonical serialization profile for this preimage is `CanonicalSerialization_v1` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
+- Canonical serialization profile for this preimage is `CanonicalSerialization` from `docs/layer1-foundation/Canonical-CBOR-Profile.md`.
 
 ---
 ## 3) Procedure

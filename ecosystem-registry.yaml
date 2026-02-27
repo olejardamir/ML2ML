@@ -46,7 +46,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/API-Interfaces.md
-  CurrentVersion: '`UML_OS.Implementation.APIInterfaceContract_v1` | 2026-02-18 |
+  CurrentVersion: '`Glyphser.Implementation.APIInterfaceContract` | 2026-02-18 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -66,7 +66,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Canonical-CBOR-Profile.md
-  CurrentVersion: '`UML_OS.Serialization.CanonicalCBORProfile_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Serialization.CanonicalCBORProfile` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -86,7 +86,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Data-Structures.md
-  CurrentVersion: '`UML_OS.Implementation.DataStructureContract_v1` | 2026-02-18 |
+  CurrentVersion: '`Glyphser.Implementation.DataStructureContract` | 2026-02-18 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -95,7 +95,7 @@ records:
   PreviousSHA256: 43681757f10a5089873ea59153fd6a410ec334e5932b51f417f4286113cf837c
   MinimumEquivalence: E0
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -106,7 +106,7 @@ records:
   Type: external-dependency
   Layer: 1
   FilePath: docs/layer1-foundation/Dependency-Lock-Policy.md
-  CurrentVersion: '`UML_OS.Implementation.DependencyLockPolicy_v1` | 2026-02-19 |
+  CurrentVersion: '`Glyphser.Implementation.DependencyLockPolicy` | 2026-02-19 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -126,7 +126,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Determinism-Profiles.md
-  CurrentVersion: '`UML_OS.Replay.DeterminismProfiles_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Replay.DeterminismProfiles` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -146,7 +146,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Digest-Catalog.md
-  CurrentVersion: '`UML_OS.Registry.DigestCatalog_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Registry.DigestCatalog` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -166,7 +166,7 @@ records:
   Type: external-dependency
   Layer: 1
   FilePath: docs/layer1-foundation/Environment-Manifest.md
-  CurrentVersion: '`UML_OS.Environment.Manifest_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Environment.Manifest` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -186,7 +186,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Error-Codes.md
-  CurrentVersion: '`UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir'
+  CurrentVersion: '`Glyphser.Error.CodeRegistry` | 2026-02-18 | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
@@ -205,7 +205,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Operator-Registry-Schema.md
-  CurrentVersion: '`UML_OS.Registry.OperatorRegistrySchema_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Registry.OperatorRegistrySchema` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -225,7 +225,7 @@ records:
   Type: operator-library
   Layer: 1
   FilePath: docs/layer1-foundation/Redaction-Policy.md
-  CurrentVersion: '`UML_OS.Security.RedactionPolicy_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Security.RedactionPolicy` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -245,7 +245,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/AuthZ-Capability-Matrix.md
-  CurrentVersion: '`UML_OS.Security.AuthZCapabilityMatrix_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Security.AuthZCapabilityMatrix` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -265,7 +265,7 @@ records:
   Type: checkpoint-schema
   Layer: 2
   FilePath: docs/layer2-specs/Checkpoint-Schema.md
-  CurrentVersion: '`UML_OS.Checkpoint.SchemaContract_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Checkpoint.SchemaContract` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -285,7 +285,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Config-Schema.md
-  CurrentVersion: '`UML_OS.Config.SchemaValidator_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Config.SchemaValidator` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -305,7 +305,7 @@ records:
   Type: data-registry
   Layer: 2
   FilePath: docs/layer2-specs/Data-Lineage.md
-  CurrentVersion: '`UML_OS.Data.Lineage_v1` | 2026-02-18 | Authors: Olejar Damir'
+  CurrentVersion: '`Glyphser.Data.Lineage` | 2026-02-18 | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
@@ -313,7 +313,7 @@ records:
   PreviousSHA256: c528e6383b12d2b8eed3a8a0715a8b77d5ec8f4934727e526944e00b389e4d39
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -324,7 +324,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Data-NextBatch.md
-  CurrentVersion: '`UML_OS.Data.NextBatch_v2` | 2026-02-18 | Authors: Olejar Damir
+  CurrentVersion: '`Glyphser.Data.NextBatch` | 2026-02-18 | Authors: Olejar Damir
     (with EQC team improvements)'
   Status: active
   LastUpdated: '2026-02-21'
@@ -333,7 +333,7 @@ records:
   PreviousSHA256: a6125b0e39b9db870ed4e311c82f1597176581ac2af6ec1b79bb183f98b00bbb
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -344,7 +344,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Deployment-Runbook.md
-  CurrentVersion: '`UML_OS.Implementation.DeploymentRunbook_v1` | 2026-02-18 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.DeploymentRunbook` | 2026-02-18 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -364,7 +364,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/DifferentialPrivacy-Apply.md
-  CurrentVersion: '`UML_OS.DifferentialPrivacy.Apply_v3` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.DifferentialPrivacy.Apply` | 2026-02-18 | Authors: Olejar
     Damir (with EQC team improvements)'
   Status: active
   LastUpdated: '2026-02-21'
@@ -384,7 +384,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Evaluation-Harness.md
-  CurrentVersion: '`UML_OS.Eval.Harness_v1` | 2026-02-18 | Authors: Olejar Damir'
+  CurrentVersion: '`Glyphser.Eval.Harness` | 2026-02-18 | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
@@ -392,7 +392,7 @@ records:
   PreviousSHA256: 881ac4a108de5bb2272fb1e9b700f7c45072ffd412b1c1665598c4d605453d76
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -403,7 +403,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Execution-Certificate.md
-  CurrentVersion: '`UML_OS.Certificate.ExecutionCertificate_v1` | 2026-02-18 | Authors:
+  CurrentVersion: '`Glyphser.Certificate.ExecutionCertificate` | 2026-02-18 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -423,7 +423,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Experiment-Tracking.md
-  CurrentVersion: '`UML_OS.Tracking.ExperimentTracking_v1` | 2026-02-18 | Authors:
+  CurrentVersion: '`Glyphser.Tracking.ExperimentTracking` | 2026-02-18 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -432,7 +432,7 @@ records:
   PreviousSHA256: aaf78fdaae9a13d5bd7b3d8257342d73980922000318145679bf4bbefb0da394
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -443,7 +443,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Model-Registry.md
-  CurrentVersion: '`UML_OS.Registry.ModelRegistry_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Registry.ModelRegistry` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -463,7 +463,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/ModelIR-Executor.md
-  CurrentVersion: '`UML_OS.Model.ModelIR_Executor_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Model.ModelIR_Executor` | 2026-02-18 | Authors: Olejar
     Damir (with EQC team improvements)'
   Status: active
   LastUpdated: '2026-02-21'
@@ -483,7 +483,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Monitoring-Policy.md
-  CurrentVersion: '`UML_OS.Monitoring.Policy_v1` | 2026-02-18 | Authors: Olejar Damir'
+  CurrentVersion: '`Glyphser.Monitoring.Policy` | 2026-02-18 | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
@@ -491,7 +491,7 @@ records:
   PreviousSHA256: a0b52d079553b2b55ace61e4cc9450734ab0d89578c38c2580610e2e4d975db7
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -502,7 +502,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Pipeline-Orchestrator.md
-  CurrentVersion: '`UML_OS.Pipeline.Orchestrator_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Pipeline.Orchestrator` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -522,7 +522,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Replay-Determinism.md
-  CurrentVersion: '`UML_OS.Implementation.ReplayDeterminismContract_v1` | 2026-02-18
+  CurrentVersion: '`Glyphser.Implementation.ReplayDeterminismContract` | 2026-02-18
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -542,7 +542,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Run-Commit-WAL.md
-  CurrentVersion: '`UML_OS.Commit.RunCommitWAL_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Commit.RunCommitWAL` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -562,7 +562,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Security-Compliance-Profile.md
-  CurrentVersion: '`UML_OS.Security.ComplianceProfile_v1` | 2026-02-18 | Authors:
+  CurrentVersion: '`Glyphser.Security.ComplianceProfile` | 2026-02-18 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -582,7 +582,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/TMMU-Allocation.md
-  CurrentVersion: '`UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir
+  CurrentVersion: '`Glyphser.TMMU.PrepareMemory` | 2026-02-17 | Authors: Olejar Damir
     (with EQC team improvements)'
   Status: active
   LastUpdated: '2026-02-21'
@@ -602,7 +602,7 @@ records:
   Type: algorithm-spec
   Layer: 2
   FilePath: docs/layer2-specs/Trace-Sidecar.md
-  CurrentVersion: '`UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Trace.SidecarSchema` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -618,11 +618,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L2-020
-  Title: UML_OS Kernel v3.22 OS
+  Title: Glyphser Kernel v3.22 OS
   Type: algorithm-spec
   Layer: 2
-  FilePath: docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md
-  CurrentVersion: 'UML_OS-v3.22-OS | 2026-02-17 | Authors: Olejar Damir'
+  FilePath: docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md
+  CurrentVersion: 'Glyphser-v3.22-OS | 2026-02-17 | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
@@ -641,7 +641,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Compatibility-Test-Matrix.md
-  CurrentVersion: '`UML_OS.Test.CompatibilityMatrix_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.CompatibilityMatrix` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -661,7 +661,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Conformance-CI-Pipeline.md
-  CurrentVersion: '`UML_OS.Implementation.ConformanceCIPipeline_v1` | 2026-02-19 |
+  CurrentVersion: '`Glyphser.Implementation.ConformanceCIPipeline` | 2026-02-19 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -681,7 +681,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Conformance-Harness-Guide.md
-  CurrentVersion: '`UML_OS.Implementation.ConformanceHarnessGuide_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.ConformanceHarnessGuide` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -701,7 +701,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Coverage-Targets.md
-  CurrentVersion: '`UML_OS.Test.CoverageTargets_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.CoverageTargets` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -721,7 +721,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Data-Contract-Fuzzing-Guide.md
-  CurrentVersion: '`UML_OS.Test.DataContractFuzzing_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.DataContractFuzzing` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -730,7 +730,7 @@ records:
   PreviousSHA256: 185a1e32745f53f9ae015eb1b2bb60f1aa8fa73cab0c95ba3c958be851899fc8
   MinimumEquivalence: E1
   ToolingManifestRef: ecosystem/tooling-manifest.yaml#eqc-es-v1
-  DataProvenanceRef: data-registry.yaml#/datasets/uml_os_default
+  DataProvenanceRef: data-registry.yaml#/datasets/glyphser_default
   DeclaredEdgeTypes:
   - IMPORTS
   - REFERENCES
@@ -741,7 +741,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Failure-Injection-Scenarios.md
-  CurrentVersion: '`UML_OS.Test.FailureInjection_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.FailureInjection` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -761,7 +761,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Integration-Test-Matrix.md
-  CurrentVersion: '`UML_OS.Test.IntegrationMatrix_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.IntegrationMatrix` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -781,7 +781,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Performance-Plan.md
-  CurrentVersion: '`UML_OS.Implementation.PerformanceGovernance_v1` | 2026-02-18 |
+  CurrentVersion: '`Glyphser.Implementation.PerformanceGovernance` | 2026-02-18 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -801,7 +801,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Release-Gates.md
-  CurrentVersion: '`UML_OS.Implementation.ReleaseGates_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.ReleaseGates` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -821,7 +821,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Storage-Recovery-Test-Matrix.md
-  CurrentVersion: '`UML_OS.Test.StorageRecoveryMatrix_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Test.StorageRecoveryMatrix` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -841,7 +841,7 @@ records:
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Test-Plan.md
-  CurrentVersion: '`UML_OS.Implementation.TestPlanOrchestrator_v1` | 2026-02-18 |
+  CurrentVersion: '`Glyphser.Implementation.TestPlanOrchestrator` | 2026-02-18 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -861,7 +861,7 @@ records:
   Type: golden-trace-set
   Layer: 3
   FilePath: docs/layer3-tests/Test-Vectors-Catalog.md
-  CurrentVersion: '`UML_OS.Test.VectorsCatalog_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.VectorsCatalog` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -881,7 +881,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Architecture-Decisions-Log.md
-  CurrentVersion: '`UML_OS.Architecture.DecisionLog_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Architecture.DecisionLog` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -901,7 +901,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Artifact-Store-Adapter-Guide.md
-  CurrentVersion: '`UML_OS.Storage.ArtifactStoreAdapterGuide_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Storage.ArtifactStoreAdapterGuide` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -921,7 +921,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Backend-Adapter-Guide.md
-  CurrentVersion: '`UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Backend.AdapterContract` | 2026-02-18 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -941,7 +941,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Backend-Feature-Matrix.md
-  CurrentVersion: '`UML_OS.Backend.FeatureMatrix_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Backend.FeatureMatrix` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -961,7 +961,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Build-and-CI-Matrix.md
-  CurrentVersion: '`UML_OS.Implementation.BuildCIMatrix_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.BuildCIMatrix` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -981,7 +981,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/CLI-Command-Profiles.md
-  CurrentVersion: '`UML_OS.Implementation.CLICommandProfiles_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.CLICommandProfiles` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1001,7 +1001,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Canonical-Hashing-Reference.md
-  CurrentVersion: '`UML_OS.Serialization.CanonicalHashingReference_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Serialization.CanonicalHashingReference` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1021,7 +1021,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Code-Generation-Mapping.md
-  CurrentVersion: '`UML_OS.Implementation.CodeGenerationMapping_v1` | 2026-02-18 |
+  CurrentVersion: '`Glyphser.Implementation.CodeGenerationMapping` | 2026-02-18 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1041,7 +1041,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Coding-Standards.md
-  CurrentVersion: '`UML_OS.Implementation.CodingStandards_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.CodingStandards` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1061,7 +1061,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Command-Reference.md
-  CurrentVersion: '`UML_OS.Implementation.CommandReference_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.CommandReference` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1081,7 +1081,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Contributing-Workflow.md
-  CurrentVersion: '`UML_OS.Implementation.ContributingWorkflow_v1` | 2026-02-19 |
+  CurrentVersion: '`Glyphser.Implementation.ContributingWorkflow` | 2026-02-19 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1101,7 +1101,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Debugging-Playbook.md
-  CurrentVersion: '`UML_OS.Implementation.DebuggingPlaybook_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.DebuggingPlaybook` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1121,7 +1121,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Determinism-Debug-Checklist.md
-  CurrentVersion: '`UML_OS.Implementation.DeterminismDebugChecklist_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.DeterminismDebugChecklist` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1141,7 +1141,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Deterministic-RNG-Implementation-Guide.md
-  CurrentVersion: '`UML_OS.Implementation.DeterministicRNGGuide_v1` | 2026-02-19 |
+  CurrentVersion: '`Glyphser.Implementation.DeterministicRNGGuide` | 2026-02-19 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1161,7 +1161,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Developer-Setup.md
-  CurrentVersion: '`UML_OS.Implementation.DeveloperSetup_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.DeveloperSetup` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1181,7 +1181,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Developer-Troubleshooting-FAQ.md
-  CurrentVersion: '`UML_OS.Implementation.TroubleshootingFAQ_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.TroubleshootingFAQ` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1201,7 +1201,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Distributed-Failure-Recovery-Guide.md
-  CurrentVersion: '`UML_OS.Runtime.DistributedFailureRecovery_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Runtime.DistributedFailureRecovery` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1221,7 +1221,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Fixtures-and-Golden-Data.md
-  CurrentVersion: '`UML_OS.Test.FixturesGoldenData_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.FixturesGoldenData` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1241,7 +1241,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Implementation-Backlog.md
-  CurrentVersion: '`UML_OS.Implementation.Backlog_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Implementation.Backlog` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1261,7 +1261,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Implementation-Roadmap.md
-  CurrentVersion: '`UML_OS.Implementation.RoadmapPlanner_v1` | 2026-02-18 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.RoadmapPlanner` | 2026-02-18 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1281,7 +1281,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Local-Replay-Runbook.md
-  CurrentVersion: '`UML_OS.Implementation.LocalReplayRunbook_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.LocalReplayRunbook` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1301,7 +1301,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Migration-Execution-Guide.md
-  CurrentVersion: '`UML_OS.Implementation.MigrationExecutionGuide_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.MigrationExecutionGuide` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1321,7 +1321,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Module-Scaffolding-Guide.md
-  CurrentVersion: '`UML_OS.Implementation.ModuleScaffold_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.ModuleScaffold` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1341,7 +1341,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Operator-Conformance-Matrix.md
-  CurrentVersion: '`UML_OS.Implementation.OperatorConformanceMatrix_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.OperatorConformanceMatrix` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1361,7 +1361,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Operator-SDK-Scaffold-Template.md
-  CurrentVersion: '`UML_OS.Implementation.OperatorSDKScaffold_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.OperatorSDKScaffold` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1381,7 +1381,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/PR-Review-Checklist.md
-  CurrentVersion: '`UML_OS.Implementation.PRReviewChecklist_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.PRReviewChecklist` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1401,7 +1401,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Profiling-and-Optimization-Guide.md
-  CurrentVersion: '`UML_OS.Implementation.ProfilingOptimizationGuide_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.ProfilingOptimizationGuide` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1421,7 +1421,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Reference-Implementations.md
-  CurrentVersion: '`UML_OS.Implementation.ReferenceImplementations_v1` | 2026-02-18
+  CurrentVersion: '`Glyphser.Implementation.ReferenceImplementations` | 2026-02-18
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1441,7 +1441,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Release-Evidence-Assembler.md
-  CurrentVersion: '`UML_OS.Release.EvidenceAssembler_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Release.EvidenceAssembler` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1461,7 +1461,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Repo-Layout-and-Interfaces.md
-  CurrentVersion: '`UML_OS.Implementation.RepoLayoutInterfaces_v1` | 2026-02-18 |
+  CurrentVersion: '`Glyphser.Implementation.RepoLayoutInterfaces` | 2026-02-18 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1481,7 +1481,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Runtime-State-Machine-Reference.md
-  CurrentVersion: '`UML_OS.Runtime.StateMachineReference_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Runtime.StateMachineReference` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1501,7 +1501,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/SDK-Usage-Guide.md
-  CurrentVersion: '`UML_OS.SDK.UsageGuide_v1` | 2026-02-19 | Authors: Olejar Damir'
+  CurrentVersion: '`Glyphser.SDK.UsageGuide` | 2026-02-19 | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
   Owner: ML2ML
@@ -1520,7 +1520,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/SRE-Incident-Triage-Playbook.md
-  CurrentVersion: '`UML_OS.Operations.SREIncidentTriage_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Operations.SREIncidentTriage` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1540,7 +1540,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Schema-Evolution-Playbook.md
-  CurrentVersion: '`UML_OS.Implementation.SchemaEvolutionPlaybook_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.SchemaEvolutionPlaybook` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1560,7 +1560,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Security-Coding-Checklist.md
-  CurrentVersion: '`UML_OS.Security.CodingChecklist_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Security.CodingChecklist` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1580,7 +1580,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Spec-Lint-Implementation.md
-  CurrentVersion: '`UML_OS.Implementation.SpecLint_v1` | 2026-02-19 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Implementation.SpecLint` | 2026-02-19 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1600,7 +1600,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Test-Harness-Implementation.md
-  CurrentVersion: '`UML_OS.Test.HarnessImplementation_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Test.HarnessImplementation` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1677,7 +1677,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Operator-Registry-CBOR-Contract.md
-  CurrentVersion: '`UML_OS.Registry.OperatorRegistryCBOR_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Registry.OperatorRegistryCBOR` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1697,7 +1697,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Spec-Lint-Rules.md
-  CurrentVersion: '`UML_OS.Implementation.SpecLintRules_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.SpecLintRules` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1717,7 +1717,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Change-Control-Playbook.md
-  CurrentVersion: '`UML_OS.Implementation.ChangeControlPlaybook_v1` | 2026-02-19 |
+  CurrentVersion: '`Glyphser.Implementation.ChangeControlPlaybook` | 2026-02-19 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1737,7 +1737,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Contracts-Artifact-Lifecycle.md
-  CurrentVersion: '`UML_OS.Implementation.ContractsArtifactLifecycle_v1` | 2026-02-19
+  CurrentVersion: '`Glyphser.Implementation.ContractsArtifactLifecycle` | 2026-02-19
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1757,7 +1757,7 @@ records:
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/EQC-CI-Policy.md
-  CurrentVersion: '`UML_OS.Implementation.EQCCIPolicy_v1` | 2026-02-19 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.EQCCIPolicy` | 2026-02-19 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1773,11 +1773,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L3-013
-  Title: UML_OS Game Day Scenarios
+  Title: Glyphser Game Day Scenarios
   Type: test-suite
   Layer: 3
   FilePath: docs/layer3-tests/Game-Day-Scenarios.md
-  CurrentVersion: '`UML_OS.Test.GameDayScenarios_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Test.GameDayScenarios` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1793,11 +1793,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-043
-  Title: UML_OS API Lifecycle and Deprecation Policy
+  Title: Glyphser API Lifecycle and Deprecation Policy
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/API-Lifecycle-and-Deprecation-Policy.md
-  CurrentVersion: '`UML_OS.API.LifecyclePolicy_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.API.LifecyclePolicy` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1813,11 +1813,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-044
-  Title: UML_OS Brownfield Deployment Guide
+  Title: Glyphser Brownfield Deployment Guide
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Brownfield-Deployment-Guide.md
-  CurrentVersion: '`UML_OS.Implementation.BrownfieldAdoption_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.BrownfieldAdoption` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1833,7 +1833,7 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-045
-  Title: UML_OS Common Pitfalls and How to Avoid Them
+  Title: Glyphser Common Pitfalls and How to Avoid Them
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Common-Pitfalls-Guide.md
@@ -1852,11 +1852,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-046
-  Title: UML_OS Community Governance Model
+  Title: Glyphser Community Governance Model
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Community-Governance-Model.md
-  CurrentVersion: '`UML_OS.Governance.CommunityModel_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Governance.CommunityModel` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1872,11 +1872,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-047
-  Title: UML_OS Disaster Recovery Operations Runbook
+  Title: Glyphser Disaster Recovery Operations Runbook
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Disaster-Recovery-Operations-Runbook.md
-  CurrentVersion: '`UML_OS.Operations.DisasterRecovery_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.Operations.DisasterRecovery` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1892,11 +1892,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-048
-  Title: UML_OS Ecosystem Expansion Roadmap (Items 12-40)
+  Title: Glyphser Ecosystem Expansion Roadmap (Items 12-40)
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Ecosystem-Expansion-Roadmap.md
-  CurrentVersion: '`UML_OS.Implementation.EcosystemExpansionRoadmap_v1` | 2026-02-20
+  CurrentVersion: '`Glyphser.Implementation.EcosystemExpansionRoadmap` | 2026-02-20
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1912,11 +1912,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-049
-  Title: UML_OS Expansion Catalog 041-250
+  Title: Glyphser Expansion Catalog 041-250
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Expansion-Catalog-041-250.md
-  CurrentVersion: '`UML_OS.Implementation.ExpansionCatalog041_250_v1` | 2026-02-20
+  CurrentVersion: '`Glyphser.Implementation.ExpansionCatalog041_250` | 2026-02-20
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1932,11 +1932,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-050
-  Title: UML_OS Formal Verification Roadmap
+  Title: Glyphser Formal Verification Roadmap
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Formal-Verification-Roadmap.md
-  CurrentVersion: '`UML_OS.Verification.FormalRoadmap_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.Verification.FormalRoadmap` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1952,7 +1952,7 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-051
-  Title: UML_OS Gentle Introduction
+  Title: Glyphser Gentle Introduction
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Gentle-Introduction.md
@@ -1971,11 +1971,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-052
-  Title: UML_OS Hello World End-to-End Example
+  Title: Glyphser Hello World End-to-End Example
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Hello-World-End-to-End-Example.md
-  CurrentVersion: '`UML_OS.ReferenceExample.HelloWorld_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.ReferenceExample.HelloWorld` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -1991,7 +1991,7 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-053
-  Title: UML_OS Incident Post-Mortem Template
+  Title: Glyphser Incident Post-Mortem Template
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Incident-Postmortem-Template.md
@@ -2010,11 +2010,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-054
-  Title: UML_OS Industry Productization Upgrade Plan
+  Title: Glyphser Industry Productization Upgrade Plan
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Industry-Productization-Upgrade-Plan.md
-  CurrentVersion: '`UML_OS.Implementation.IndustryProductizationPlan_v1` | 2026-02-20
+  CurrentVersion: '`Glyphser.Implementation.IndustryProductizationPlan` | 2026-02-20
     | Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2030,11 +2030,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-055
-  Title: UML_OS Interoperability Standards Bridge
+  Title: Glyphser Interoperability Standards Bridge
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Interoperability-Standards-Bridge.md
-  CurrentVersion: '`UML_OS.Interop.StandardsBridge_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Interop.StandardsBridge` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2050,11 +2050,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-056
-  Title: UML_OS Minimal Runnable Reference Stack
+  Title: Glyphser Minimal Runnable Reference Stack
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Reference-Stack-Minimal.md
-  CurrentVersion: '`UML_OS.ReferenceStack.Minimal_v1` | 2026-02-20 | Authors: Olejar
+  CurrentVersion: '`Glyphser.ReferenceStack.Minimal` | 2026-02-20 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2070,7 +2070,7 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-057
-  Title: UML_OS Research Extensions Roadmap
+  Title: Glyphser Research Extensions Roadmap
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Research-Extensions-Roadmap.md
@@ -2089,7 +2089,7 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-058
-  Title: UML_OS Scope and Non-Goals
+  Title: Glyphser Scope and Non-Goals
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Scope-and-Non-Goals.md
@@ -2108,11 +2108,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-059
-  Title: UML_OS Third-Party Operator Certification Program
+  Title: Glyphser Third-Party Operator Certification Program
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Third-Party-Operator-Certification-Program.md
-  CurrentVersion: '`UML_OS.Marketplace.OperatorCertification_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.Marketplace.OperatorCertification` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2128,11 +2128,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-060
-  Title: UML_OS Threat Model and Control Crosswalk
+  Title: Glyphser Threat Model and Control Crosswalk
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Threat-Model-and-Control-Crosswalk.md
-  CurrentVersion: '`UML_OS.Security.ThreatModelCrosswalk_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.Security.ThreatModelCrosswalk` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2148,11 +2148,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-061
-  Title: UML_OS Tooling and Automation Suite
+  Title: Glyphser Tooling and Automation Suite
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Tooling-and-Automation-Suite.md
-  CurrentVersion: '`UML_OS.Implementation.ToolingSuite_v1` | 2026-02-20 | Authors:
+  CurrentVersion: '`Glyphser.Implementation.ToolingSuite` | 2026-02-20 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2168,11 +2168,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L1-011
-  Title: UML_OS Normativity Legend
+  Title: Glyphser Normativity Legend
   Type: core-guidelines
   Layer: 1
   FilePath: docs/layer1-foundation/Normativity-Legend.md
-  CurrentVersion: '`UML_OS.Governance.NormativityLegend_v1` | 2026-02-21 | Authors:
+  CurrentVersion: '`Glyphser.Governance.NormativityLegend` | 2026-02-21 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2188,11 +2188,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-062
-  Title: UML_OS Tooling Suite Contract
+  Title: Glyphser Tooling Suite Contract
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Tooling-Suite.md
-  CurrentVersion: '`UML_OS.Implementation.ToolingSuiteContract_v1` | 2026-02-21 |
+  CurrentVersion: '`Glyphser.Implementation.ToolingSuiteContract` | 2026-02-21 |
     Authors: Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2208,11 +2208,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-063
-  Title: UML_OS Start Here Core Profile
+  Title: Glyphser Start Here Core Profile
   Type: derived-impl
   Layer: 4
   FilePath: docs/START-HERE.md
-  CurrentVersion: '`UML_OS.Onboarding.StartHereCore_v1` | 2026-02-21 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Onboarding.StartHereCore` | 2026-02-21 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2228,11 +2228,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-064
-  Title: UML_OS Evidence Catalog
+  Title: Glyphser Evidence Catalog
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Evidence-Catalog.md
-  CurrentVersion: '`UML_OS.Release.EvidenceCatalog_v1` | 2026-02-21 | Authors: Olejar
+  CurrentVersion: '`Glyphser.Release.EvidenceCatalog` | 2026-02-21 | Authors: Olejar
     Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2248,11 +2248,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-065
-  Title: UML_OS External Interface Standard
+  Title: Glyphser External Interface Standard
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/External-Interface-Standard.md
-  CurrentVersion: '`UML_OS.API.ExternalInterfaceStandard_v1` | 2026-02-21 | Authors:
+  CurrentVersion: '`Glyphser.API.ExternalInterfaceStandard` | 2026-02-21 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2268,11 +2268,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-066
-  Title: UML_OS Security Case Template
+  Title: Glyphser Security Case Template
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Security-Case-Template.md
-  CurrentVersion: '`UML_OS.Security.SecurityCaseTemplate_v1` | 2026-02-21 | Authors:
+  CurrentVersion: '`Glyphser.Security.SecurityCaseTemplate` | 2026-02-21 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2288,11 +2288,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L3-014
-  Title: UML_OS Failure Injection Scenario Index
+  Title: Glyphser Failure Injection Scenario Index
   Type: test-plan
   Layer: 3
   FilePath: docs/layer3-tests/Failure-Injection-Index.md
-  CurrentVersion: '`UML_OS.Test.FailureInjectionIndex_v1` | 2026-02-21 | Authors:
+  CurrentVersion: '`Glyphser.Test.FailureInjectionIndex` | 2026-02-21 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2308,11 +2308,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-067
-  Title: UML_OS Benchmark Evidence Specification
+  Title: Glyphser Benchmark Evidence Specification
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Benchmark-Evidence-Spec.md
-  CurrentVersion: '`UML_OS.Perf.BenchmarkEvidenceSpec_v1` | 2026-02-21 | Authors:
+  CurrentVersion: '`Glyphser.Perf.BenchmarkEvidenceSpec` | 2026-02-21 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'
@@ -2328,11 +2328,11 @@ records:
   - RECOGNIZES
   PurityClass: PURE
 - DocID: L4-068
-  Title: UML_OS Determinism Audit Playbook
+  Title: Glyphser Determinism Audit Playbook
   Type: derived-impl
   Layer: 4
   FilePath: docs/layer4-implementation/Determinism-Audit-Playbook.md
-  CurrentVersion: '`UML_OS.Replay.DeterminismAuditPlaybook_v1` | 2026-02-21 | Authors:
+  CurrentVersion: '`Glyphser.Replay.DeterminismAuditPlaybook` | 2026-02-21 | Authors:
     Olejar Damir'
   Status: active
   LastUpdated: '2026-02-21'

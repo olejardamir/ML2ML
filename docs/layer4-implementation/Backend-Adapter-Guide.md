@@ -1,9 +1,9 @@
-# UML_OS Backend Adapter Contract
+# Glyphser Backend Adapter Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Backend.AdapterContract_v1`  
-**Purpose (1 sentence):** Define required backend adapter primitives, determinism guarantees, and certification checks for UML_OS driver integration.  
-**Spec Version:** `UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Backend.AdapterContract`  
+**Purpose (1 sentence):** Define required backend adapter primitives, determinism guarantees, and certification checks for Glyphser driver integration.  
+**Spec Version:** `Glyphser.Backend.AdapterContract` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Driver integration and compliance.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Backend.AdapterContract_v1`
+- **Algorithm:** `Glyphser.Backend.AdapterContract`
 - **Purpose (1 sentence):** Deterministic backend adapter requirements.
-- **Spec Version:** `UML_OS.Backend.AdapterContract_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Backend.AdapterContract` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Backend certification.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -32,10 +32,10 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for critical paths; `TOLERANCE` where declared.
 ### 0.G Operator Manifest
-- `UML_OS.Backend.ValidatePrimitiveCoverage_v1`
-- `UML_OS.Backend.RunReproducibilitySuite_v1`
-- `UML_OS.Backend.VerifyDriverHash_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Backend.ValidatePrimitiveCoverage`
+- `Glyphser.Backend.RunReproducibilitySuite`
+- `Glyphser.Backend.VerifyDriverHash`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Backend operators fully-qualified and versioned.
 ### 0.I Outputs and Metric Schema
@@ -104,13 +104,13 @@
 
 ### II.H Backend Signature Lock (Normative)
 - Backend-exposed syscall/primitive bindings must publish `signature_digest`:
-- `signature_digest` rule is defined normatively in `docs/layer1-foundation/Operator-Registry-Schema.md` (`sig_v1` preimage over resolved digest values); backend adapter manifests must match exactly.
+- `signature_digest` rule is defined normatively in `docs/layer1-foundation/Operator-Registry-Schema.md` (`sig` preimage over resolved digest values); backend adapter manifests must match exactly.
 - Cross-file invariant:
   - `API-Interfaces.signature_digest(op) == Code-Generation-Mapping.signature_digest(op) == Backend-Adapter-Guide.signature_digest(op)` for every backend-exposed operator.
 - Minimum backend-exposed digest set:
-  - `UML_OS.Model.Forward_v2 -> sha256:17d85435fe2e601fe522b614938ea7853b9c36be14c8feb84f4e70e1e253bc74`
-  - `UML_OS.Model.ModelIR_Executor_v1 -> sha256:ce1ec3e5cead31a92f46e79847332d3db0fdd824f2f3b6608987c77450a6de70`
-  - `UML_OS.Backend.LoadDriver_v1 -> sha256:708fd111f6fc0a8f85853a4218ff9eba82ffc3da285266b15f6714a450728056`
+  - `Glyphser.Model.Forward -> sha256:17d85435fe2e601fe522b614938ea7853b9c36be14c8feb84f4e70e1e253bc74`
+  - `Glyphser.Model.ModelIR_Executor -> sha256:ce1ec3e5cead31a92f46e79847332d3db0fdd824f2f3b6608987c77450a6de70`
+  - `Glyphser.Backend.LoadDriver -> sha256:708fd111f6fc0a8f85853a4218ff9eba82ffc3da285266b15f6714a450728056`
 - Proof-carrying backend requirements:
   - each primitive declares `primitive_semantics_hash`,
   - backend emits `determinism_compliance_report_hash`,
@@ -127,7 +127,7 @@
 
 ### II.J External Certification Program (Normative)
 - Certification label format:
-  - `UML_OS Certified Backend v<adapter_contract_version>`.
+  - `Glyphser Certified Backend v<adapter_contract_version>`.
 - Mandatory publishable evidence bundle for certification:
   - `adapter_report`,
   - `primitive_semantics_hash`,
@@ -147,26 +147,26 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Backend.ValidatePrimitiveCoverage_v1`
-- `UML_OS.Backend.RunReproducibilitySuite_v1`
-- `UML_OS.Backend.VerifyDriverHash_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Backend.ValidatePrimitiveCoverage`
+- `Glyphser.Backend.RunReproducibilitySuite`
+- `Glyphser.Backend.VerifyDriverHash`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Backend.ValidatePrimitiveCoverage_v1`  
+**Operator:** `Glyphser.Backend.ValidatePrimitiveCoverage`  
 **Category:** IO  
 **Signature:** `(required_primitives, adapter_table -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** validates primitive coverage and signature compatibility.
 
-**Operator:** `UML_OS.Backend.RunReproducibilitySuite_v1`  
+**Operator:** `Glyphser.Backend.RunReproducibilitySuite`  
 **Category:** IO  
 **Signature:** `(driver, test_manifest -> adapter_report)`  
 **Purity class:** STATEFUL  
@@ -176,7 +176,7 @@ Template conformance note (III.A): each operator definition in this section is i
 - `adapter_report.primitive_semantics_hash`
 - `adapter_report.determinism_compliance_report_hash`.
 
-**Operator:** `UML_OS.Backend.VerifyDriverHash_v1`  
+**Operator:** `Glyphser.Backend.VerifyDriverHash`  
 **Category:** IO  
 **Signature:** `(driver_binary, registry -> ok)`  
 **Purity class:** PURE  
@@ -186,9 +186,9 @@ Template conformance note (III.A): each operator definition in this section is i
 ---
 ## 6) Procedure
 ```text
-1. VerifyDriverHash_v1
-2. ValidatePrimitiveCoverage_v1
-3. adapter_report <- RunReproducibilitySuite_v1
+1. VerifyDriverHash
+2. ValidatePrimitiveCoverage
+3. adapter_report <- RunReproducibilitySuite
 4. Emit certification_status from deterministic policy reduction over adapter_report
 5. return (adapter_report, certification_status)
 ```

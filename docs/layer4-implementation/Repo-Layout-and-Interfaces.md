@@ -1,9 +1,9 @@
-# UML_OS Repo Layout and Interfaces Contract
+# Glyphser Repo Layout and Interfaces Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.RepoLayoutInterfaces_v1`  
+**Algorithm:** `Glyphser.Implementation.RepoLayoutInterfaces`  
 **Purpose (1 sentence):** Define canonical repository structure, module boundaries, and ownership aligned to operator interface contracts.  
-**Spec Version:** `UML_OS.Implementation.RepoLayoutInterfaces_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.RepoLayoutInterfaces` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Implementation architecture and module governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.RepoLayoutInterfaces_v1`
+- **Algorithm:** `Glyphser.Implementation.RepoLayoutInterfaces`
 - **Purpose (1 sentence):** Canonical codebase layout and boundary contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -31,10 +31,10 @@
 - dependency boundaries enforced by static import rules.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.ValidateRepoLayout_v1`
-- `UML_OS.Implementation.ValidateModuleBoundaries_v1`
-- `UML_OS.Implementation.ValidateOwnershipMap_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ValidateRepoLayout`
+- `Glyphser.Implementation.ValidateModuleBoundaries`
+- `Glyphser.Implementation.ValidateOwnershipMap`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - namespace roots: `src/`, `tests/`, `vectors/`, `schemas/`, `ops/`.
 ### 0.I Outputs and Metric Schema
@@ -122,21 +122,21 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.ValidateRepoLayout_v1`
-- `UML_OS.Implementation.ValidateModuleBoundaries_v1`
-- `UML_OS.Implementation.ValidateOwnershipMap_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.ValidateRepoLayout`
+- `Glyphser.Implementation.ValidateModuleBoundaries`
+- `Glyphser.Implementation.ValidateOwnershipMap`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.ValidateRepoLayout_v1`  
+**Operator:** `Glyphser.Implementation.ValidateRepoLayout`  
 **Category:** Implementation  
 **Signature:** `(repo_tree, layout_contract -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** checks required directories/files and canonical placement rules.
 
-**Operator:** `UML_OS.Implementation.ValidateModuleBoundaries_v1`  
+**Operator:** `Glyphser.Implementation.ValidateModuleBoundaries`  
 **Category:** Implementation  
 **Signature:** `(import_graph, boundary_rules -> report)`  
 **Purity class:** PURE  
@@ -146,9 +146,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateRepoLayout_v1
-2. ValidateModuleBoundaries_v1
-3. ValidateOwnershipMap_v1
+1. ValidateRepoLayout
+2. ValidateModuleBoundaries
+3. ValidateOwnershipMap
 4. Emit reports and fail on violations
 ```
 

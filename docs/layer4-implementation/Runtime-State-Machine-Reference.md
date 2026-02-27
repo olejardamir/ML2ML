@@ -1,9 +1,9 @@
-# UML_OS Runtime State Machine Reference
+# Glyphser Runtime State Machine Reference
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Runtime.StateMachineReference_v1`  
+**Algorithm:** `Glyphser.Runtime.StateMachineReference`  
 **Purpose (1 sentence):** Define canonical runtime state machines and deterministic transition semantics for kernel, orchestrator, and execution subsystems.  
-**Spec Version:** `UML_OS.Runtime.StateMachineReference_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Runtime.StateMachineReference` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Runtime lifecycle and transition correctness.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Runtime.StateMachineReference_v1`
+- **Algorithm:** `Glyphser.Runtime.StateMachineReference`
 - **Purpose (1 sentence):** Canonical runtime lifecycle transition contract.
 ### 0.A Objective Semantics
 - minimize illegal transitions and stuck states.
@@ -27,12 +27,12 @@
 - runtime transition engine version pinned.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Runtime.ValidateTransition_v1`
-- `UML_OS.Runtime.ApplyTransitionCAS_v1`
-- `UML_OS.Runtime.EmitTransitionTrace_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Runtime.ValidateTransition`
+- `Glyphser.Runtime.ApplyTransitionCAS`
+- `Glyphser.Runtime.EmitTransitionTrace`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- runtime lifecycle operators under `UML_OS.Runtime.*`.
+- runtime lifecycle operators under `Glyphser.Runtime.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(new_state, transition_record, state_metrics)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,19 +64,19 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Runtime.ValidateTransition_v1`
-- `UML_OS.Runtime.ApplyTransitionCAS_v1`
-- `UML_OS.Runtime.EmitTransitionTrace_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Runtime.ValidateTransition`
+- `Glyphser.Runtime.ApplyTransitionCAS`
+- `Glyphser.Runtime.EmitTransitionTrace`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Runtime.ValidateTransition_v1`  
+**Operator:** `Glyphser.Runtime.ValidateTransition`  
 **Signature:** `(state, event, transition_table -> transition_ok, next_state)`  
 **Purity class:** PURE  
 **Definition:** Validates that requested transition is legal and deterministic.
 
-**Operator:** `UML_OS.Runtime.ApplyTransitionCAS_v1`  
+**Operator:** `Glyphser.Runtime.ApplyTransitionCAS`  
 **Signature:** `(state_store, expected_seq, transition_record -> committed)`  
 **Purity class:** STATEFUL  
 **Definition:** Applies transition atomically using compare-and-swap semantics.

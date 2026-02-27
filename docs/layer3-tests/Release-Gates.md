@@ -1,9 +1,9 @@
-# UML_OS Release Gates Contract
+# Glyphser Release Gates Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ReleaseGates_v1`  
+**Algorithm:** `Glyphser.Implementation.ReleaseGates`  
 **Purpose (1 sentence):** Define deterministic merge/release gating criteria across correctness, replay, security, and performance evidence.  
-**Spec Version:** `UML_OS.Implementation.ReleaseGates_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ReleaseGates` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Release readiness governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ReleaseGates_v1`
+- **Algorithm:** `Glyphser.Implementation.ReleaseGates`
 - **Purpose (1 sentence):** Deterministic release decision contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -29,12 +29,12 @@
 ### 0.F Environment and Dependency Policy
 - Release gate requires valid env/lock/profile bindings.
 ### 0.G Operator Manifest
-- `UML_OS.Release.CollectEvidence_v1`
-- `UML_OS.Release.EvaluateGates_v1`
-- `UML_OS.Release.EmitVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Release.CollectEvidence`
+- `Glyphser.Release.EvaluateGates`
+- `Glyphser.Release.EmitVerdict`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Release.*`
+- `Glyphser.Release.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(release_verdict, release_gate_report)`
 - Metrics: `gates_total`, `gates_passed`, `gates_failed`
@@ -74,27 +74,27 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Release.CollectEvidence_v1`
-- `UML_OS.Release.EvaluateGates_v1`
-- `UML_OS.Release.EmitVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Release.CollectEvidence`
+- `Glyphser.Release.EvaluateGates`
+- `Glyphser.Release.EmitVerdict`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Release.CollectEvidence_v1`  
+**Operator:** `Glyphser.Release.CollectEvidence`  
 **Signature:** `(release_candidate_id -> evidence_bundle, evidence_bundle_hash)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
 **Definition:** Collects canonical release evidence and emits deterministic `evidence_bundle_hash`.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `EVIDENCE_MISSING`, `ARTIFACT_MISSING`.
 
-**Operator:** `UML_OS.Release.EvaluateGates_v1`  
+**Operator:** `Glyphser.Release.EvaluateGates`  
 **Signature:** `(evidence_bundle, gate_policy -> gate_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `GATE_POLICY_INVALID`.
 
-**Operator:** `UML_OS.Release.EmitVerdict_v1`  
+**Operator:** `Glyphser.Release.EmitVerdict`  
 **Signature:** `(gate_report -> release_verdict)`  
 **Purity class:** IO  
 **Determinism:** deterministic.
@@ -103,9 +103,9 @@
 ---
 ## 6) Procedure
 ```text
-1. CollectEvidence_v1
-2. EvaluateGates_v1
-3. EmitVerdict_v1
+1. CollectEvidence
+2. EvaluateGates
+3. EmitVerdict
 4. Return release_verdict
 ```
 

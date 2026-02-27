@@ -1,9 +1,9 @@
-# UML_OS Conformance CI Pipeline Contract
+# Glyphser Conformance CI Pipeline Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ConformanceCIPipeline_v1`  
+**Algorithm:** `Glyphser.Implementation.ConformanceCIPipeline`  
 **Purpose (1 sentence):** Define deterministic CI pipeline stages for contract linting, conformance suites, replay checks, and release gating.  
-**Spec Version:** `UML_OS.Implementation.ConformanceCIPipeline_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ConformanceCIPipeline` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** CI/CD conformance governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ConformanceCIPipeline_v1`
+- **Algorithm:** `Glyphser.Implementation.ConformanceCIPipeline`
 - **Purpose (1 sentence):** Deterministic CI gate graph contract.
 ### 0.A Objective Semantics
 - minimize false passes and nondeterministic gate outcomes.
@@ -27,12 +27,12 @@
 ### 0.F Environment and Dependency Policy
 - CI runtime pinned with runtime_env_hash.
 ### 0.G Operator Manifest
-- `UML_OS.CI.RunStage_v1`
-- `UML_OS.CI.AggregateStageResults_v1`
-- `UML_OS.CI.EmitGateVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.CI.RunStage`
+- `Glyphser.CI.AggregateStageResults`
+- `Glyphser.CI.EmitGateVerdict`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.CI.*` namespace.
+- `Glyphser.CI.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(ci_report, gate_verdict, artifact_bundle_hash)`.
 ### 0.J Spec Lifecycle Governance
@@ -71,28 +71,28 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.CI.RunStage_v1`
-- `UML_OS.CI.AggregateStageResults_v1`
-- `UML_OS.CI.EmitGateVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.CI.RunStage`
+- `Glyphser.CI.AggregateStageResults`
+- `Glyphser.CI.EmitGateVerdict`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.CI.RunStage_v1`  
+**Operator:** `Glyphser.CI.RunStage`  
 **Signature:** `(stage_id, inputs -> stage_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic inputs/result schema  
 **Definition:** Executes CI stage and emits canonical report object.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `CI_STAGE_FAILURE`, `ARTIFACT_MISSING`.
 
-**Operator:** `UML_OS.CI.AggregateStageResults_v1`
+**Operator:** `Glyphser.CI.AggregateStageResults`
 **Signature:** `(stage_reports, ci_policy -> gate_report, artifact_bundle_hash)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** Aggregates stage reports in fixed stage order and computes `artifact_bundle_hash` over canonical artifact manifest.
 **allowed_error_codes:** `CONTRACT_VIOLATION`.
 
-**Operator:** `UML_OS.CI.EmitGateVerdict_v1`
+**Operator:** `Glyphser.CI.EmitGateVerdict`
 **Signature:** `(gate_report, artifact_bundle_hash -> gate_verdict, ci_report)`
 **Purity class:** IO
 **Determinism:** deterministic

@@ -1,9 +1,9 @@
-# UML_OS Conformance Harness Guide
+# Glyphser Conformance Harness Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ConformanceHarnessGuide_v1`  
+**Algorithm:** `Glyphser.Implementation.ConformanceHarnessGuide`  
 **Purpose (1 sentence):** Define deterministic execution of conformance harness suites that validate contract, replay, and evidence integrity.  
-**Spec Version:** `UML_OS.Implementation.ConformanceHarnessGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ConformanceHarnessGuide` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Test harness execution and conformance gating.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ConformanceHarnessGuide_v1`
+- **Algorithm:** `Glyphser.Implementation.ConformanceHarnessGuide`
 - **Purpose (1 sentence):** Canonical conformance harness execution contract.
 ### 0.A Objective Semantics
 - minimize conformance failures and unresolved contract drift.
@@ -27,16 +27,16 @@
 ### 0.F Environment and Dependency Policy
 - harness executes in locked environment.
 ### 0.G Operator Manifest
-- `UML_OS.Test.RunSchemaConformanceSuite_v1`
-- `UML_OS.Test.RunInterfaceSuite_v1`
-- `UML_OS.Test.RunReplayConformanceSuite_v1`
-- `UML_OS.Test.RunCheckpointConformanceSuite_v1`
-- `UML_OS.Test.RunSecurityConformanceSuite_v1`
-- `UML_OS.Test.RunEvidenceIntegritySuite_v1`
-- `UML_OS.Test.AggregateHarnessVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunSchemaConformanceSuite`
+- `Glyphser.Test.RunInterfaceSuite`
+- `Glyphser.Test.RunReplayConformanceSuite`
+- `Glyphser.Test.RunCheckpointConformanceSuite`
+- `Glyphser.Test.RunSecurityConformanceSuite`
+- `Glyphser.Test.RunEvidenceIntegritySuite`
+- `Glyphser.Test.AggregateHarnessVerdict`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- under `UML_OS.Test.*` and `UML_OS.Implementation.*`.
+- under `Glyphser.Test.*` and `Glyphser.Implementation.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(suite_reports, harness_verdict, harness_metrics, certification_evidence_bundle_hash)`.
 ### 0.J Spec Lifecycle Governance
@@ -100,54 +100,54 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Test.RunSchemaConformanceSuite_v1`
-- `UML_OS.Test.RunInterfaceSuite_v1`
-- `UML_OS.Test.RunReplayConformanceSuite_v1`
-- `UML_OS.Test.RunCheckpointConformanceSuite_v1`
-- `UML_OS.Test.RunSecurityConformanceSuite_v1`
-- `UML_OS.Test.RunEvidenceIntegritySuite_v1`
-- `UML_OS.Test.AggregateHarnessVerdict_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.RunSchemaConformanceSuite`
+- `Glyphser.Test.RunInterfaceSuite`
+- `Glyphser.Test.RunReplayConformanceSuite`
+- `Glyphser.Test.RunCheckpointConformanceSuite`
+- `Glyphser.Test.RunSecurityConformanceSuite`
+- `Glyphser.Test.RunEvidenceIntegritySuite`
+- `Glyphser.Test.AggregateHarnessVerdict`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.RunSchemaConformanceSuite_v1`
+**Operator:** `Glyphser.Test.RunSchemaConformanceSuite`
 **Signature:** `(schema_vectors, profile -> suite_report)`
 **Purity class:** IO
 **Definition:** Executes schema conformance vectors in deterministic order.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `VECTOR_LOAD_FAILURE`, `SCHEMA_MISMATCH`.
 
-**Operator:** `UML_OS.Test.RunInterfaceSuite_v1`
+**Operator:** `Glyphser.Test.RunInterfaceSuite`
 **Signature:** `(interface_vectors, profile -> suite_report)`
 **Purity class:** IO
 **Definition:** Verifies API/signature and interface digest conformance.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `SIGNATURE_MISMATCH`, `INTERFACE_MISMATCH`.
 
-**Operator:** `UML_OS.Test.RunReplayConformanceSuite_v1`  
+**Operator:** `Glyphser.Test.RunReplayConformanceSuite`  
 **Signature:** `(vectors, profile -> suite_report)`  
 **Purity class:** IO  
 **Definition:** Executes replay vectors and validates E0/E1 policies.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `REPLAY_DIVERGENCE`.
 
-**Operator:** `UML_OS.Test.RunCheckpointConformanceSuite_v1`
+**Operator:** `Glyphser.Test.RunCheckpointConformanceSuite`
 **Signature:** `(checkpoint_vectors, profile -> suite_report)`
 **Purity class:** IO
 **Definition:** Validates checkpoint/restore invariants and replay continuity.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `CHECKPOINT_INTEGRITY_FAILURE`, `RESTORE_IDENTITY_MISMATCH`.
 
-**Operator:** `UML_OS.Test.RunSecurityConformanceSuite_v1`
+**Operator:** `Glyphser.Test.RunSecurityConformanceSuite`
 **Signature:** `(security_vectors, profile -> suite_report)`
 **Purity class:** IO
 **Definition:** Validates certificate/authz/policy-evidence integrity paths.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `CERTIFICATE_INVALID`, `AUTHZ_CONTEXT_MISSING`.
 
-**Operator:** `UML_OS.Test.RunEvidenceIntegritySuite_v1`
+**Operator:** `Glyphser.Test.RunEvidenceIntegritySuite`
 **Signature:** `(evidence_vectors, profile -> suite_report)`
 **Purity class:** IO
 **Definition:** Validates cross-artifact hash-link and evidence-bundle integrity.
 **allowed_error_codes:** `CONTRACT_VIOLATION`, `EVIDENCE_HASH_MISMATCH`.
 
-**Operator:** `UML_OS.Test.AggregateHarnessVerdict_v1`  
+**Operator:** `Glyphser.Test.AggregateHarnessVerdict`  
 **Signature:** `(suite_reports, policy -> verdict)`  
 **Purity class:** PURE  
 **Definition:** Aggregates suite outcomes into deterministic final verdict.

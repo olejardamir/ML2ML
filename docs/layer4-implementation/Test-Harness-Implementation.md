@@ -1,9 +1,9 @@
-# UML_OS Test Harness Implementation Contract
+# Glyphser Test Harness Implementation Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Test.HarnessImplementation_v1`  
+**Algorithm:** `Glyphser.Test.HarnessImplementation`  
 **Purpose (1 sentence):** Define deterministic harness architecture for loading vectors, executing suites, and evaluating outcomes.  
-**Spec Version:** `UML_OS.Test.HarnessImplementation_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Test.HarnessImplementation` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Test harness implementation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Test.HarnessImplementation_v1`
+- **Algorithm:** `Glyphser.Test.HarnessImplementation`
 - **Purpose (1 sentence):** Deterministic harness execution model.
 ### 0.A Objective Semantics
 - minimize flaky or ambiguous test outcomes.
@@ -27,13 +27,13 @@
 - harness env pinned; deterministic profile required.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Test.LoadVectorSet_v1`
-- `UML_OS.Test.ExecuteVector_v1`
-- `UML_OS.Test.CompareExpected_v1`
-- `UML_OS.Test.AggregateHarnessReport_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.LoadVectorSet`
+- `Glyphser.Test.ExecuteVector`
+- `Glyphser.Test.CompareExpected`
+- `Glyphser.Test.AggregateHarnessReport`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Test.*` namespace.
+- `Glyphser.Test.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(suite_results, harness_report, harness_verdict)`.
 ### 0.J Spec Lifecycle Governance
@@ -65,15 +65,15 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Test.LoadVectorSet_v1`
-- `UML_OS.Test.ExecuteVector_v1`
-- `UML_OS.Test.CompareExpected_v1`
-- `UML_OS.Test.AggregateHarnessReport_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Test.LoadVectorSet`
+- `Glyphser.Test.ExecuteVector`
+- `Glyphser.Test.CompareExpected`
+- `Glyphser.Test.AggregateHarnessReport`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Test.CompareExpected_v1`  
+**Operator:** `Glyphser.Test.CompareExpected`  
 **Signature:** `(observed, expected, compare_profile -> verdict)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  

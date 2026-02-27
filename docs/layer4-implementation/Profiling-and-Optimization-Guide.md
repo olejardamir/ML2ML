@@ -1,9 +1,9 @@
-# UML_OS Profiling and Optimization Guide
+# Glyphser Profiling and Optimization Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ProfilingOptimizationGuide_v1`  
+**Algorithm:** `Glyphser.Implementation.ProfilingOptimizationGuide`  
 **Purpose (1 sentence):** Define deterministic profiling workflows and optimization acceptance criteria for runtime, memory, and throughput improvements.  
-**Spec Version:** `UML_OS.Implementation.ProfilingOptimizationGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ProfilingOptimizationGuide` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Performance engineering.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ProfilingOptimizationGuide_v1`
+- **Algorithm:** `Glyphser.Implementation.ProfilingOptimizationGuide`
 - **Purpose (1 sentence):** Deterministic performance analysis and optimization gate contract.
 ### 0.A Objective Semantics
 - maximize throughput while preserving correctness and deterministic guarantees.
@@ -27,12 +27,12 @@
 - profiling requires pinned determinism profile and toolchain.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Perf.CaptureProfileWindow_v1`
-- `UML_OS.Perf.AggregatePerfMetrics_v1`
-- `UML_OS.Perf.EvaluatePerfGate_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Perf.CaptureProfileWindow`
+- `Glyphser.Perf.AggregatePerfMetrics`
+- `Glyphser.Perf.EvaluatePerfGate`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- performance operators under `UML_OS.Perf.*`.
+- performance operators under `Glyphser.Perf.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(perf_snapshot, perf_regression_report, gate_verdict)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,19 +64,19 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Perf.CaptureProfileWindow_v1`
-- `UML_OS.Perf.AggregatePerfMetrics_v1`
-- `UML_OS.Perf.EvaluatePerfGate_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Perf.CaptureProfileWindow`
+- `Glyphser.Perf.AggregatePerfMetrics`
+- `Glyphser.Perf.EvaluatePerfGate`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Perf.AggregatePerfMetrics_v1`  
+**Operator:** `Glyphser.Perf.AggregatePerfMetrics`  
 **Signature:** `(samples, quantile_policy -> perf_snapshot)`  
 **Purity class:** PURE  
 **Definition:** Computes deterministic aggregates including p50/p95/p99 with declared quantile rule.
 
-**Operator:** `UML_OS.Perf.EvaluatePerfGate_v1`  
+**Operator:** `Glyphser.Perf.EvaluatePerfGate`  
 **Signature:** `(baseline, candidate, thresholds -> verdict)`  
 **Purity class:** PURE  
 **Definition:** Produces deterministic pass/fail with regression diagnostics.

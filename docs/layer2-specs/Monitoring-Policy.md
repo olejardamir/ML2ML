@@ -1,9 +1,9 @@
-# UML_OS Monitoring Policy Contract
+# Glyphser Monitoring Policy Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Monitoring.Policy_v1`  
+**Algorithm:** `Glyphser.Monitoring.Policy`  
 **Purpose (1 sentence):** Define deterministic monitoring, drift detection, and alert policy with privacy-safe telemetry contracts.  
-**Spec Version:** `UML_OS.Monitoring.Policy_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Monitoring.Policy` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Production monitoring and drift governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Monitoring.Policy_v1`
+- **Algorithm:** `Glyphser.Monitoring.Policy`
 - **Purpose (1 sentence):** Deterministic monitoring/alerting contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,14 +30,14 @@
 ### 0.F Environment and Dependency Policy
 - Telemetry must satisfy privacy classification/redaction policy.
 ### 0.G Operator Manifest
-- `UML_OS.Monitor.Register_v1`
-- `UML_OS.Monitor.Emit_v1`
-- `UML_OS.Monitor.DriftCompute_v1`
-- `UML_OS.Monitor.AlertCreate_v1`
-- `UML_OS.Monitor.AlertAck_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Monitor.Register`
+- `Glyphser.Monitor.Emit`
+- `Glyphser.Monitor.DriftCompute`
+- `Glyphser.Monitor.AlertCreate`
+- `Glyphser.Monitor.AlertAck`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Monitor.*` namespace.
+- `Glyphser.Monitor.*` namespace.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(monitor_report, alert_stream)`
 - Metrics: `drift_score`, `alert_count`
@@ -114,14 +114,14 @@
 - Transcript ordering rule (normative):
   - sort entries by `(window_id, rule_id, threshold_id, metric_name)`.
 - Transcript hash:
-  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_gate_v1", [monitor_policy_hash, ordered_transcript_entries]]))`.
+  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["monitor_gate", [monitor_policy_hash, ordered_transcript_entries]]))`.
 - `policy_gate_hash` must be emitted as a mandatory trace field and bound to execution certificate evidence in regulated modes.
 - Network calls are forbidden during policy verdict evaluation unless all external inputs are pre-committed by hash.
 
 ### II.H Telemetry Window Commitment (Normative)
-- `telemetry_window_hash = SHA-256(CBOR_CANONICAL(["telemetry_window_v1", [window_id, start_t, end_t, aggregation_rules_hash, filter_hash]]))`.
+- `telemetry_window_hash = SHA-256(CBOR_CANONICAL(["telemetry_window", [window_id, start_t, end_t, aggregation_rules_hash, filter_hash]]))`.
 - Monitoring transcripts and gate verdicts must reference `telemetry_window_hash` for every evaluated window.
-- Alert ID rule: `alert_id = SHA-256(CBOR_CANONICAL(["alert_v1", [drift_report, threshold_policy]]))`.
+- Alert ID rule: `alert_id = SHA-256(CBOR_CANONICAL(["alert", [drift_report, threshold_policy]]))`.
 - Alert lifecycle state machine (normative): `OPEN -> ACKNOWLEDGED -> RESOLVED` with deterministic transition validation.
   - Allowed transitions only:
     - `OPEN -> ACKNOWLEDGED` (explicit acknowledgement),
@@ -137,44 +137,44 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Monitor.Register_v1`
-- `UML_OS.Monitor.Emit_v1`
-- `UML_OS.Monitor.DriftCompute_v1`
-- `UML_OS.Monitor.AlertCreate_v1`
-- `UML_OS.Monitor.AlertAck_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Monitor.Register`
+- `Glyphser.Monitor.Emit`
+- `Glyphser.Monitor.DriftCompute`
+- `Glyphser.Monitor.AlertCreate`
+- `Glyphser.Monitor.AlertAck`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Monitor.Register_v1`  
+**Operator:** `Glyphser.Monitor.Register`  
 **Category:** Monitoring  
 **Signature:** `(monitor_policy, telemetry_schema -> registration_report)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** registers monitored metrics, windows, and thresholds under canonical policy hash.
 
-**Operator:** `UML_OS.Monitor.Emit_v1`  
+**Operator:** `Glyphser.Monitor.Emit`  
 **Category:** Monitoring  
 **Signature:** `(monitor_event -> ok)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** appends typed `MonitorEvent` to the deterministic telemetry stream.
 
-**Operator:** `UML_OS.Monitor.DriftCompute_v1`  
+**Operator:** `Glyphser.Monitor.DriftCompute`  
 **Category:** Monitoring  
 **Signature:** `(windowed_metrics, baseline -> drift_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** computes drift metrics under fixed deterministic aggregation windows; missing/corrupt baseline is a deterministic failure (`BASELINE_MISSING`).
 
-**Operator:** `UML_OS.Monitor.AlertCreate_v1`  
+**Operator:** `Glyphser.Monitor.AlertCreate`  
 **Category:** Monitoring  
 **Signature:** `(drift_report, threshold_policy -> alert_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** emits deterministic alert when threshold policy is breached.
 
-**Operator:** `UML_OS.Monitor.AlertAck_v1`  
+**Operator:** `Glyphser.Monitor.AlertAck`  
 **Category:** Monitoring  
 **Signature:** `(alert_id, principal_id, ack_reason -> ack_record)`  
 **Purity class:** IO  
@@ -184,10 +184,10 @@
 ---
 ## 6) Procedure
 ```text
-1. MonitorRegister_v1
-2. MonitorEmit_v1 (stream)
-3. DriftCompute_v1 (window)
-4. AlertCreate_v1 / AlertAck_v1
+1. MonitorRegister
+2. MonitorEmit (stream)
+3. DriftCompute (window)
+4. AlertCreate / AlertAck
 ```
 
 ---

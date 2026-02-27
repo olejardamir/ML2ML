@@ -1,9 +1,9 @@
-# UML_OS Environment Manifest Contract
+# Glyphser Environment Manifest Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Environment.Manifest_v1`  
+**Algorithm:** `Glyphser.Environment.Manifest`  
 **Purpose (1 sentence):** Define canonical environment/runtime fingerprint schema and hashing used by replay tokens, checkpoints, and certificates.  
-**Spec Version:** `UML_OS.Environment.Manifest_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Environment.Manifest` | 2026-02-20 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic environment identity and compatibility gating.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Environment.Manifest_v1`
+- **Algorithm:** `Glyphser.Environment.Manifest`
 - **Purpose (1 sentence):** Canonical environment identity contract.
 
 ### 0.A Objective Semantics
@@ -45,20 +45,20 @@
 - Determinism level for manifest commitment: `BITWISE`.
 
 ### 0.G Operator Manifest
-- `UML_OS.Environment.BuildManifest_v1`
-- `UML_OS.Environment.ComputeManifestHash_v1`
-- `UML_OS.Environment.ValidateCompatibility_v1`
-- `UML_OS.Error.Emit_v1` (defined in `docs/layer1-foundation/Error-Codes.md`)
+- `Glyphser.Environment.BuildManifest`
+- `Glyphser.Environment.ComputeManifestHash`
+- `Glyphser.Environment.ValidateCompatibility`
+- `Glyphser.Error.Emit` (defined in `docs/layer1-foundation/Error-Codes.md`)
 
 ### 0.H Namespacing and Packaging
-- Namespace: `UML_OS.Environment.*`
+- Namespace: `Glyphser.Environment.*`
 - Canonical manifest artifact path: `contracts/environment_manifest.cbor`
 
 ### 0.I Outputs and Metric Schema
 - Outputs: `(env_manifest, env_manifest_hash, compatibility_report)`.
-- `BuildManifest_v1` outputs `env_manifest`.
-- `ComputeManifestHash_v1` outputs `env_manifest_hash`.
-- `ValidateCompatibility_v1` outputs `compatibility_report`.
+- `BuildManifest` outputs `env_manifest`.
+- `ComputeManifestHash` outputs `env_manifest_hash`.
+- `ValidateCompatibility` outputs `compatibility_report`.
 
 ### 0.J Spec Lifecycle Governance
 - Required field changes are MAJOR.
@@ -83,8 +83,8 @@
 - Environment manifest registry keyed by `env_manifest_hash`.
 
 ### I.B Inputs and Hyperparameters
-- `BuildManifest_v1` takes no explicit inputs: it deterministically captures host/runtime facts from normative sources.
-- `ValidateCompatibility_v1` takes `(candidate_manifest, required_manifest?)`.
+- `BuildManifest` takes no explicit inputs: it deterministically captures host/runtime facts from normative sources.
+- `ValidateCompatibility` takes `(candidate_manifest, required_manifest?)`.
 - `required_manifest` MUST conform to the same schema as section 2.6 (complete required manifest, no extra fields).
 - Backend adapter definition: the component that interfaces with the compute/runtime backend and exposes deterministic metadata APIs used by this contract.
 
@@ -108,7 +108,7 @@
 
 ### 2.6 Canonical Environment Manifest Schema (Normative)
 - Top-level map MUST contain exactly these fields (no extras):
-  - `schema_version:string` (MUST equal `UML_OS.Environment.Manifest_v1`)
+  - `schema_version:string` (MUST equal `Glyphser.Environment.Manifest`)
   - `os_name:string`
   - `os_version:string`
   - `kernel_version:string`
@@ -272,7 +272,7 @@
   - set vars MUST be valid UTF-8 text; invalid UTF-8 values are fatal capture failures.
   - if an environment-variable value exceeds `1048576` bytes (1 MiB), abort with `CONTRACT_VIOLATION`.
   - hash input is canonical CBOR of that map.
-  - this allowlist is the canonical set for `UML_OS.Environment.Manifest_v1`; extensions require a MAJOR version change.
+  - this allowlist is the canonical set for `Glyphser.Environment.Manifest`; extensions require a MAJOR version change.
 - Constituent hash failure rule:
   - any failure during constituent hash computation (read error, parse error, algorithm failure) is fatal and aborts with `CONTRACT_VIOLATION`.
 
@@ -286,29 +286,29 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Environment.BuildManifest_v1`
-- `UML_OS.Environment.ComputeManifestHash_v1`
-- `UML_OS.Environment.ValidateCompatibility_v1`
-- `UML_OS.Error.Emit_v1`
-- External operator reference note: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+- `Glyphser.Environment.BuildManifest`
+- `Glyphser.Environment.ComputeManifestHash`
+- `Glyphser.Environment.ValidateCompatibility`
+- `Glyphser.Error.Emit`
+- External operator reference note: `Glyphser.Error.Emit` is defined in `docs/layer1-foundation/Error-Codes.md`.
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Environment.BuildManifest_v1`  
+**Operator:** `Glyphser.Environment.BuildManifest`  
 **Category:** Environment  
 **Signature:** `(() -> env_manifest)`  
 **Purity class:** IO  
 **Determinism:** deterministic given unchanged runtime facts and capture sources  
 **Definition:** Captures required runtime facts, applies normalization, computes constituent hashes, emits schema-valid manifest.
 
-**Operator:** `UML_OS.Environment.ComputeManifestHash_v1`  
+**Operator:** `Glyphser.Environment.ComputeManifestHash`  
 **Category:** Environment  
 **Signature:** `(env_manifest -> env_manifest_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** Computes `SHA-256(CBOR_CANONICAL(env_manifest))`.
 
-**Operator:** `UML_OS.Environment.ValidateCompatibility_v1`  
+**Operator:** `Glyphser.Environment.ValidateCompatibility`  
 **Category:** Environment  
 **Signature:** `(candidate_manifest, required_manifest? -> compatibility_report)`  
 **Purity class:** PURE  
@@ -340,9 +340,9 @@
 ---
 ## 6) Procedure
 ```text
-1. BuildManifest_v1
-2. ComputeManifestHash_v1
-3. ValidateCompatibility_v1 (against required baseline, if provided)
+1. BuildManifest
+2. ComputeManifestHash
+3. ValidateCompatibility (against required baseline, if provided)
 4. Return env_manifest + env_manifest_hash + compatibility_report
 ```
 
@@ -351,8 +351,8 @@
 ### 6.1 Logging Rule
 - Environment capture/validation emits deterministic records.
 - Trace emission mapping:
-  - `BuildManifest_v1`: emits capture `iter` events and run-level capture status.
-  - `ValidateCompatibility_v1`: emits compatibility `iter` events and final compatibility status.
+  - `BuildManifest`: emits capture `iter` events and run-level capture status.
+  - `ValidateCompatibility`: emits compatibility `iter` events and final compatibility status.
 - On field capture/normalization/hash failure, emit `iter` with `status=\"ERROR\"` for the affected top-level field path before abort.
 
 ### 6.2 Trace Schema
@@ -368,8 +368,8 @@
   - `iter` events MUST follow ascending bytewise order of manifest field keys (same order as canonical CBOR map keys).
 
 ### 6.3 Metric Schema
-- `missing_fields` produced by `BuildManifest_v1` and `ValidateCompatibility_v1`; MUST be emitted when detected, including error-before-abort cases.
-- `compatibility_failures` produced by `ValidateCompatibility_v1`.
+- `missing_fields` produced by `BuildManifest` and `ValidateCompatibility`; MUST be emitted when detected, including error-before-abort cases.
+- `compatibility_failures` produced by `ValidateCompatibility`.
 
 ### 6.4 Comparability Guarantee
 - Comparable iff `schema_version` matches and canonical CBOR profile is identical.
@@ -378,7 +378,7 @@
 ## 8) Validation
 ### 7.1 Lint Rules (mandatory)
 - Manifest map contains exactly required fields (no extras, no missing).
-- `schema_version` equals `UML_OS.Environment.Manifest_v1`.
+- `schema_version` equals `Glyphser.Environment.Manifest`.
 - All hash fields are `bytes32` encoded as CBOR byte strings (major type 2) of exactly 32 bytes.
 - Canonical CBOR encoding used for all commitments.
 

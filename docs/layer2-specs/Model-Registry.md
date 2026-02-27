@@ -1,9 +1,9 @@
-# UML_OS Model Registry Contract
+# Glyphser Model Registry Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Registry.ModelRegistry_v1`  
+**Algorithm:** `Glyphser.Registry.ModelRegistry`  
 **Purpose (1 sentence):** Define deterministic model/version registry and approval gates bound to execution evidence.  
-**Spec Version:** `UML_OS.Registry.ModelRegistry_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Registry.ModelRegistry` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Model governance and promotion workflows.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Registry.ModelRegistry_v1`
+- **Algorithm:** `Glyphser.Registry.ModelRegistry`
 - **Purpose (1 sentence):** Evidence-gated model lifecycle governance.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,14 +30,14 @@
 ### 0.F Environment and Dependency Policy
 - Registry write requires valid `ExecutionCertificate`.
 ### 0.G Operator Manifest
-- `UML_OS.Registry.ModelCreate_v1`
-- `UML_OS.Registry.VersionCreate_v1`
-- `UML_OS.Registry.StageTransition_v1`
-- `UML_OS.Registry.PolicyGateEvaluate_v1`
-- `UML_OS.Registry.ApprovalRecord_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Registry.ModelCreate`
+- `Glyphser.Registry.VersionCreate`
+- `Glyphser.Registry.StageTransition`
+- `Glyphser.Registry.PolicyGateEvaluate`
+- `Glyphser.Registry.ApprovalRecord`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Registry.*` namespace.
+- `Glyphser.Registry.*` namespace.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(registry_event, gate_report)`
 - Metrics: `versions_created`, `stage_transitions`, `gate_failures`
@@ -120,25 +120,25 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Registry.ModelCreate_v1`
-- `UML_OS.Registry.VersionCreate_v1`
-- `UML_OS.Registry.StageTransition_v1`
-- `UML_OS.Registry.PolicyGateEvaluate_v1`
-- `UML_OS.Registry.ApprovalRecord_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Registry.ModelCreate`
+- `Glyphser.Registry.VersionCreate`
+- `Glyphser.Registry.StageTransition`
+- `Glyphser.Registry.PolicyGateEvaluate`
+- `Glyphser.Registry.ApprovalRecord`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/Error-Codes.md`.
+External operator reference: `Glyphser.Error.Emit` in `docs/layer1-foundation/Error-Codes.md`.
 
-**Operator:** `UML_OS.Registry.ModelCreate_v1`  
+**Operator:** `Glyphser.Registry.ModelCreate`  
 **Category:** Governance  
 **Signature:** `(tenant_id, model_spec -> model_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** creates immutable model namespace anchor and canonical metadata record.
 
-**Operator:** `UML_OS.Registry.VersionCreate_v1`  
+**Operator:** `Glyphser.Registry.VersionCreate`  
 **Category:** Governance  
 **Signature:** `(model_id, artifact_ref, evidence_bundle_ref -> model_version_id)`  
 **Purity class:** IO  
@@ -146,21 +146,21 @@ External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/E
 **Definition:** creates immutable model version only if evidence bundle is valid.
 `evidence_bundle_ref` is a `bytes32` hash of the canonical evidence bundle used for version admission checks (certificate/evaluation/provenance evidence), encoded via canonical CBOR before hashing.
 
-**Operator:** `UML_OS.Registry.PolicyGateEvaluate_v1`  
+**Operator:** `Glyphser.Registry.PolicyGateEvaluate`  
 **Category:** Governance  
 **Signature:** `(model_version_id, policy_set -> gate_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** evaluates policy gates including certificate/evidence coherence.
 
-**Operator:** `UML_OS.Registry.ApprovalRecord_v1`  
+**Operator:** `Glyphser.Registry.ApprovalRecord`  
 **Category:** Governance  
 **Signature:** `(model_version_id, approver_principal, decision, decision_reason_code, policy_gate_hash -> approval_record_id)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** appends immutable approval decision record with deterministic reason code, explicit `policy_gate_hash`, and authz bindings.
 
-**Operator:** `UML_OS.Registry.StageTransition_v1`  
+**Operator:** `Glyphser.Registry.StageTransition`  
 **Category:** Governance  
 **Signature:** `(model_version_id, from_stage, to_stage, policy_gate_hash, authz_decision_hash, approval_record_id -> transition_record)`  
 **Purity class:** IO  
@@ -170,11 +170,11 @@ External operator reference: `UML_OS.Error.Emit_v1` in `docs/layer1-foundation/E
 ---
 ## 6) Procedure
 ```text
-1. ModelCreate_v1
-2. VersionCreate_v1
-3. PolicyGateEvaluate_v1
-4. ApprovalRecord_v1
-5. StageTransition_v1
+1. ModelCreate
+2. VersionCreate
+3. PolicyGateEvaluate
+4. ApprovalRecord
+5. StageTransition
 ```
 
 ---

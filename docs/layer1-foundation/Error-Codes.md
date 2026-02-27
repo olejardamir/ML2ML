@@ -1,9 +1,9 @@
-# UML_OS Error Code Contract
+# Glyphser Error Code Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Error.CodeRegistry_v1`  
-**Purpose (1 sentence):** Define a deterministic unified error taxonomy and emission contract across all UML_OS operators.  
-**Spec Version:** `UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Error.CodeRegistry`  
+**Purpose (1 sentence):** Define a deterministic unified error taxonomy and emission contract across all Glyphser operators.  
+**Spec Version:** `Glyphser.Error.CodeRegistry` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Error semantics and interoperability.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Error.CodeRegistry_v1`
+- **Algorithm:** `Glyphser.Error.CodeRegistry`
 - **Purpose (1 sentence):** Unified deterministic error registry.
-- **Spec Version:** `UML_OS.Error.CodeRegistry_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Error.CodeRegistry` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Error taxonomy governance.
 ### 0.A Objective Semantics
 - This contract is a static taxonomy/validation contract (not an optimization objective).
@@ -30,9 +30,9 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for emitted error records.
 ### 0.G Operator Manifest
-- `UML_OS.Error.Emit_v1`
-- `UML_OS.Error.ValidateRecord_v1`
-- `UML_OS.Error.SerializeRecord_v1`
+- `Glyphser.Error.Emit`
+- `Glyphser.Error.ValidateRecord`
+- `Glyphser.Error.SerializeRecord`
 ### 0.H Namespacing and Packaging
 - Error codes are global and unique.
 ### 0.I Outputs and Metric Schema
@@ -153,23 +153,23 @@ Derivation rules (normative):
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Error.Emit_v1`
-- `UML_OS.Error.ValidateRecord_v1`
-- `UML_OS.Error.SerializeRecord_v1`
+- `Glyphser.Error.Emit`
+- `Glyphser.Error.ValidateRecord`
+- `Glyphser.Error.SerializeRecord`
 
 ---
 ## 5) Operator Definitions
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Error.Emit_v1`  
+**Operator:** `Glyphser.Error.Emit`  
 **Category:** Error  
 **Signature:** `(code, context -> error_record)`  
 **Purity class:** IO  
 **Determinism:** deterministic  
 **Definition:** emits standardized failure record.
 
-**Operator:** `UML_OS.Error.ValidateRecord_v1`  
+**Operator:** `Glyphser.Error.ValidateRecord`  
 **Category:** Error  
 **Signature:** `(error_record -> ok)`  
 **Purity class:** PURE  
@@ -184,7 +184,7 @@ Template conformance note (III.A): each operator definition in this section is i
   - in `diagnostics` under exactly the same key name.
 - Deprecated alias handling: if `diagnostics.operator_id` is present and `failure_operator` missing for backward compatibility inputs, validator MAY map alias only for legacy ingest then MUST emit canonical `failure_operator` on serialization.
 
-**Operator:** `UML_OS.Error.SerializeRecord_v1`  
+**Operator:** `Glyphser.Error.SerializeRecord`  
 **Category:** Error  
 **Signature:** `(error_record -> bytes)`  
 **Purity class:** PURE  
@@ -194,9 +194,9 @@ Template conformance note (III.A): each operator definition in this section is i
 ---
 ## 6) Procedure
 ```text
-1. Emit_v1(code, context)
-2. ValidateRecord_v1 (global schema + per-code required fields)
-3. SerializeRecord_v1
+1. Emit(code, context)
+2. ValidateRecord (global schema + per-code required fields)
+3. SerializeRecord
 4. Return record + bytes
 ```
 

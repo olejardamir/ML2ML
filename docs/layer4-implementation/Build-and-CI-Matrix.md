@@ -1,9 +1,9 @@
-# UML_OS Build and CI Matrix Contract
+# Glyphser Build and CI Matrix Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.BuildCIMatrix_v1`  
-**Purpose (1 sentence):** Define deterministic build targets, CI gates, and matrix validation rules for UML_OS implementation.  
-**Spec Version:** `UML_OS.Implementation.BuildCIMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Implementation.BuildCIMatrix`  
+**Purpose (1 sentence):** Define deterministic build targets, CI gates, and matrix validation rules for Glyphser implementation.  
+**Spec Version:** `Glyphser.Implementation.BuildCIMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Build orchestration and CI gate governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.BuildCIMatrix_v1`
+- **Algorithm:** `Glyphser.Implementation.BuildCIMatrix`
 - **Purpose (1 sentence):** Deterministic CI matrix contract.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -28,12 +28,12 @@
 ### 0.F Environment and Dependency Policy
 - CI workers must satisfy `docs/layer1-foundation/Environment-Manifest.md` and lock policy.
 ### 0.G Operator Manifest
-- `UML_OS.CI.RunBuild_v1`
-- `UML_OS.CI.RunTestSuite_v1`
-- `UML_OS.CI.EvaluateGates_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.CI.RunBuild`
+- `Glyphser.CI.RunTestSuite`
+- `Glyphser.CI.EvaluateGates`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.CI.*`
+- `Glyphser.CI.*`
 ### 0.I Outputs and Metric Schema
 - Outputs: `(ci_report, gate_verdict)`
 - Metrics: `jobs_total`, `jobs_passed`, `jobs_failed`
@@ -65,24 +65,24 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.CI.RunBuild_v1`
-- `UML_OS.CI.RunTestSuite_v1`
-- `UML_OS.CI.EvaluateGates_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.CI.RunBuild`
+- `Glyphser.CI.RunTestSuite`
+- `Glyphser.CI.EvaluateGates`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.CI.RunBuild_v1`  
+**Operator:** `Glyphser.CI.RunBuild`  
 **Signature:** `(build_target, env -> build_result)`  
 **Purity class:** IO  
 **Determinism:** deterministic with pinned toolchain.
 
-**Operator:** `UML_OS.CI.RunTestSuite_v1`  
+**Operator:** `Glyphser.CI.RunTestSuite`  
 **Signature:** `(suite_id, artifact -> test_result)`  
 **Purity class:** IO  
 **Determinism:** deterministic with fixed seeds and fixtures.
 
-**Operator:** `UML_OS.CI.EvaluateGates_v1`  
+**Operator:** `Glyphser.CI.EvaluateGates`  
 **Signature:** `(job_results, gate_policy -> gate_verdict)`  
 **Purity class:** PURE  
 **Determinism:** deterministic.
@@ -90,9 +90,9 @@
 ---
 ## 6) Procedure
 ```text
-1. RunBuild_v1 for required targets
-2. RunTestSuite_v1 per matrix job
-3. EvaluateGates_v1
+1. RunBuild for required targets
+2. RunTestSuite per matrix job
+3. EvaluateGates
 4. Emit ci_report
 ```
 

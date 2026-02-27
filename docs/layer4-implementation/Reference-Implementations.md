@@ -1,9 +1,9 @@
-# UML_OS Reference Implementations Contract
+# Glyphser Reference Implementations Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ReferenceImplementations_v1`  
+**Algorithm:** `Glyphser.Implementation.ReferenceImplementations`  
 **Purpose (1 sentence):** Define canonical coding-level signatures and pseudocode for critical operators to eliminate implementation ambiguity.  
-**Spec Version:** `UML_OS.Implementation.ReferenceImplementations_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ReferenceImplementations` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Developer implementation guidance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ReferenceImplementations_v1`
+- **Algorithm:** `Glyphser.Implementation.ReferenceImplementations`
 - **Purpose (1 sentence):** Normative coding reference for critical operators.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,11 +30,11 @@
 ### 0.F Environment and Dependency Policy
 - Reference implementations are language-agnostic and side-effect explicit.
 ### 0.G Operator Manifest
-- `UML_OS.Data.NextBatch_v2`
-- `UML_OS.DifferentialPrivacy.Apply_v3`
-- `UML_OS.TMMU.PrepareMemory_v2`
-- `UML_OS.Replay.CompareTrace_v1`
-- `UML_OS.Certificate.EvidenceValidate_v1`
+- `Glyphser.Data.NextBatch`
+- `Glyphser.DifferentialPrivacy.Apply`
+- `Glyphser.TMMU.PrepareMemory`
+- `Glyphser.Replay.CompareTrace`
+- `Glyphser.Certificate.EvidenceValidate`
 ### 0.H Namespacing and Packaging
 - One reference module per operator family.
 ### 0.I Outputs and Metric Schema
@@ -82,11 +82,11 @@
 - signatures and side-effects must match `docs/layer1-foundation/API-Interfaces.md`.
 
 ### II.F Canonical Function Signatures (Normative)
-- `UML_OS.Data.NextBatch_v2(dataset_key, world_size, rank, stage_type, cursor_in) -> (indices, cursor_next, metrics)`
-- `UML_OS.DifferentialPrivacy.Apply_v3(gradients, dp_config, t, state) -> (noisy_gradients, state_next, metrics)`
-- `UML_OS.TMMU.PrepareMemory_v2(ir_dag, execution_order, mode, arena_config) -> (tensor_map, metrics)`
-- `UML_OS.Replay.CompareTrace_v1(trace_a, trace_b, replay_mode) -> divergence_report`
-- `UML_OS.Certificate.EvidenceValidate_v1(manifest, trace, checkpoint, replay_ctx) -> validation_report`
+- `Glyphser.Data.NextBatch(dataset_key, world_size, rank, stage_type, cursor_in) -> (indices, cursor_next, metrics)`
+- `Glyphser.DifferentialPrivacy.Apply(gradients, dp_config, t, state) -> (noisy_gradients, state_next, metrics)`
+- `Glyphser.TMMU.PrepareMemory(ir_dag, execution_order, mode, arena_config) -> (tensor_map, metrics)`
+- `Glyphser.Replay.CompareTrace(trace_a, trace_b, replay_mode) -> divergence_report`
+- `Glyphser.Certificate.EvidenceValidate(manifest, trace, checkpoint, replay_ctx) -> validation_report`
 - All signatures must be derived from `contracts/operator_registry.cbor`; manual signature drift is forbidden.
 - Alias note: short helper names may appear in pseudocode, but normative identity is always the fully-qualified operator id.
 
@@ -94,20 +94,20 @@
 - `CBOR_CANONICAL(value)`:
   - encode using `docs/layer1-foundation/Canonical-CBOR-Profile.md` (definite lengths, no duplicate keys, key order by `(len(encoded_key), encoded_key)`).
   - reject non-UTF8 text keys and forbidden float values in signed payloads.
-- `ResolveDigestRef_v1(digest_ref, digest_catalog)`:
+- `ResolveDigestRef(digest_ref, digest_catalog)`:
   - if tail matches `^[0-9a-f]{64}$`, return inline bytes32 digest.
   - else resolve label in `digest_catalog`; abort with `CONTRACT_VIOLATION` if missing.
-- `TraceRecordHashChain_v1(normalized_records)`:
-  - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", []]))`
+- `TraceRecordHashChain(normalized_records)`:
+  - `h = SHA-256(CBOR_CANONICAL(["trace_chain", []]))`
   - for each record in canonical order:
     - `r = SHA-256(CBOR_CANONICAL(record))`
-    - `h = SHA-256(CBOR_CANONICAL(["trace_chain_v1", [h, r]]))`
+    - `h = SHA-256(CBOR_CANONICAL(["trace_chain", [h, r]]))`
   - return `h` as `trace_final_hash` in linear-chain mode.
-- `WalChainAndFinalize_v1(records)`:
-  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record_v1", [tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]]))`.
+- `WalChainAndFinalize(records)`:
+  - compute each `record_hash_i = SHA-256(CBOR_CANONICAL(["wal_record", [tenant_id, run_id, wal_seq_i, record_type_i, prev_record_hash_i, payload_i]]))`.
   - terminal `FINALIZE` record hash is `commit_record_hash`.
   - `wal_terminal_hash = commit_record_hash`.
-- `PublishCommitPointer_v1(pointer_payload)`:
+- `PublishCommitPointer(pointer_payload)`:
   - payload must include `{trace_final_hash, checkpoint_hash, lineage_root_hash, execution_certificate_hash, wal_terminal_hash}`.
   - publish `runs/<tenant_id>/<run_id>/COMMITTED` via conditional create-if-absent.
   - if object exists, compare payload hash; mismatch is deterministic failure.
@@ -120,43 +120,43 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Implementation.Ref.NextBatch_v2`
-- `UML_OS.Implementation.Ref.ApplyDP_v3`
-- `UML_OS.Implementation.Ref.PrepareMemory_v2`
-- `UML_OS.Implementation.Ref.ReplayCompare_v1`
-- `UML_OS.Implementation.Ref.EvidenceValidate_v1`
+- `Glyphser.Implementation.Ref.NextBatch`
+- `Glyphser.Implementation.Ref.ApplyDP`
+- `Glyphser.Implementation.Ref.PrepareMemory`
+- `Glyphser.Implementation.Ref.ReplayCompare`
+- `Glyphser.Implementation.Ref.EvidenceValidate`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.Ref.NextBatch_v2`  
+**Operator:** `Glyphser.Implementation.Ref.NextBatch`  
 **Category:** Implementation  
 **Signature:** `(dataset_key, world_size, rank, stage_type, cursor_in -> indices, cursor_next, metrics)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** canonical sampling pseudocode consistent with `docs/layer2-specs/Data-NextBatch.md`.
 
-**Operator:** `UML_OS.Implementation.Ref.ApplyDP_v3`  
+**Operator:** `Glyphser.Implementation.Ref.ApplyDP`  
 **Category:** Implementation  
 **Signature:** `(gradients, dp_config, t, state -> noisy_gradients, state_next, metrics)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic control / stochastic noise per RNG contract  
 **Definition:** canonical DP pseudocode consistent with `docs/layer2-specs/DifferentialPrivacy-Apply.md`.
 
-**Operator:** `UML_OS.Implementation.Ref.PrepareMemory_v2`  
+**Operator:** `Glyphser.Implementation.Ref.PrepareMemory`  
 **Category:** Implementation  
 **Signature:** `(ir_dag, execution_order, mode, arena_config -> tensor_map, metrics)`  
 **Purity class:** STATEFUL  
 **Determinism:** deterministic  
 **Definition:** canonical injective arena-offset planner pseudocode.
 
-**Operator:** `UML_OS.Implementation.Ref.ReplayCompare_v1`
+**Operator:** `Glyphser.Implementation.Ref.ReplayCompare`
 **Category:** Implementation
 **Signature:** `(trace_a, trace_b, replay_mode -> divergence_report)`
 **Purity class:** PURE
 **Determinism:** deterministic
 **Definition:** canonical comparator pseudocode aligned with `docs/layer2-specs/Replay-Determinism.md`.
 
-**Operator:** `UML_OS.Implementation.Ref.EvidenceValidate_v1`
+**Operator:** `Glyphser.Implementation.Ref.EvidenceValidate`
 **Category:** Implementation
 **Signature:** `(manifest, trace, checkpoint, replay_ctx -> validation_report)`
 **Purity class:** PURE

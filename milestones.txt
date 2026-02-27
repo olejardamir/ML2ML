@@ -1,4 +1,4 @@
-UML_OS Push-Button Codegen Milestones
+Glyphser Push-Button Codegen Milestones
 =====================================
 
 Goal
@@ -77,7 +77,7 @@ Milestone 1: Machine-Readable Contract Layer
 		- CI gate enforces format validity and deterministic schema hashing.
 	- DONE (so far):
 		- Format decision frozen in `schemas/SCHEMA_FORMAT_DECISION.txt`.
-		- Meta-schema created in `schemas/contract_schema_meta_v1.json`.
+		- Meta-schema created in `schemas/contract_schema_meta.json`.
 		- Conventions documented in `schemas/SCHEMA_CONVENTIONS.txt`.
 		- Pilot artifacts created:
 			- `schemas/pilot/l1_error_codes.schema.json`
@@ -216,4 +216,4 @@ Exit criteria:
 4. Documentation, registry, and generated code remain drift-free under CI.
 
 Final Deliverable:
-- Trusted push-button generation workflow for UML_OS implementations.
+- Trusted push-button generation workflow for Glyphser implementations.

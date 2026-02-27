@@ -1,9 +1,9 @@
-# UML_OS Expansion Catalog 041-250
+# Glyphser Expansion Catalog 041-250
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ExpansionCatalog041_250_v1`  
+**Algorithm:** `Glyphser.Implementation.ExpansionCatalog041_250`  
 **Purpose (1 sentence):** Formalize high-scope expansion ideas (items 41-250) into a deterministic intake catalog with execution gates and profile-aware prioritization.  
-**Spec Version:** `UML_OS.Implementation.ExpansionCatalog041_250_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.ExpansionCatalog041_250` | 2026-02-20 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Strategic roadmap intake and governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.ExpansionCatalog041_250_v1`
+- **Algorithm:** `Glyphser.Implementation.ExpansionCatalog041_250`
 - **Purpose (1 sentence):** Govern large-scale expansion proposals without compromising core determinism contracts.
 ### 0.A Objective Semantics
 - Convert broad expansion demand into deterministic, staged, evidence-bound deliverables.
@@ -27,11 +27,11 @@
 - Any promoted item must declare required profile(s), dependencies, and evidence format.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.RegisterExpansionIdea_v1`
-- `UML_OS.Implementation.ScoreExpansionIdea_v1`
-- `UML_OS.Implementation.BindExpansionToBacklog_v1`
-- `UML_OS.Implementation.EmitExpansionCatalogReport_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.RegisterExpansionIdea`
+- `Glyphser.Implementation.ScoreExpansionIdea`
+- `Glyphser.Implementation.BindExpansionToBacklog`
+- `Glyphser.Implementation.EmitExpansionCatalogReport`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Catalog IDs: `EC-041` ... `EC-250`.
 ### 0.I Outputs and Metric Schema

@@ -1,9 +1,9 @@
-# UML_OS Deterministic RNG Implementation Guide
+# Glyphser Deterministic RNG Implementation Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DeterministicRNGGuide_v1`  
+**Algorithm:** `Glyphser.Implementation.DeterministicRNGGuide`  
 **Purpose (1 sentence):** Define deterministic RNG implementation rules across kernel, data, model, and DP operators.  
-**Spec Version:** `UML_OS.Implementation.DeterministicRNGGuide_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.DeterministicRNGGuide` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** RNG determinism and replay.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DeterministicRNGGuide_v1`
+- **Algorithm:** `Glyphser.Implementation.DeterministicRNGGuide`
 - **Purpose (1 sentence):** Deterministic RNG implementation contract.
 ### 0.A Objective Semantics
 - minimize RNG divergence and ownership violations.
@@ -27,12 +27,12 @@
 - pinned PRNG implementation and version.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Random.InitializePRNG_v1`
-- `UML_OS.Random.DeriveSubstream_v1`
-- `UML_OS.Random.ConsumeDeterministic_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Random.InitializePRNG`
+- `Glyphser.Random.DeriveSubstream`
+- `Glyphser.Random.ConsumeDeterministic`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Random.*` namespace.
+- `Glyphser.Random.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(rng_report, offset_audit)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,14 +64,14 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Random.InitializePRNG_v1`
-- `UML_OS.Random.DeriveSubstream_v1`
-- `UML_OS.Random.ConsumeDeterministic_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Random.InitializePRNG`
+- `Glyphser.Random.DeriveSubstream`
+- `Glyphser.Random.ConsumeDeterministic`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Random.DeriveSubstream_v1`  
+**Operator:** `Glyphser.Random.DeriveSubstream`  
 **Signature:** `(root_state, operator_id, rank, operator_seq -> substream_state)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  

@@ -1,4 +1,4 @@
-# UML_OS Gentle Introduction
+# Glyphser Gentle Introduction
 **Spec Version:** v1.0.0 | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
@@ -6,7 +6,7 @@
 
 **Purpose (1 sentence):** Provide a beginner-friendly conceptual path before deep contract details.
 
-## 1) What UML_OS Is
+## 1) What Glyphser Is
 - A deterministic execution contract for ML systems.
 - Focuses on reproducibility, auditability, and controlled evolution.
 
@@ -24,16 +24,16 @@
 4. Learn replay determinism and gate policies.
 
 ## 4) What to Read Next
-- `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md`
+- `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md`
 - `docs/layer2-specs/Execution-Certificate.md`
 - `docs/layer3-tests/Conformance-Harness-Guide.md`
 
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Gentle Introduction" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Gentle Introduction" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

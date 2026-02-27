@@ -1,7 +1,7 @@
 To continue this session, run codex resume 019c6e65-954b-7590-af41-c4b36af514d9
 
 
-Below is the **concrete technology stack** implied by your UML_OS specification set, based on the kernel spec  and the related contracts (trace, TMMU, replay, security, test, repo layout, pipeline, reference implementations).
+Below is the **concrete technology stack** implied by your Glyphser specification set, based on the kernel spec  and the related contracts (trace, TMMU, replay, security, test, repo layout, pipeline, reference implementations).
 
 This is not marketing-level — it reflects what must exist to implement the contracts as written.
 
@@ -291,14 +291,14 @@ From kernel CLI contract :
 
 ### Required CLI
 
-* `umlos run`
-* `umlos validate`
-* `umlos replay`
-* `umlos certificate verify`
-* `umlos quickstart`
-* `umlos migrate`
-* `umlos job submit`
-* `umlos dataset register`
+* `glyphser run`
+* `glyphser validate`
+* `glyphser replay`
+* `glyphser certificate verify`
+* `glyphser quickstart`
+* `glyphser migrate`
+* `glyphser job submit`
+* `glyphser dataset register`
 
 ---
 
@@ -323,7 +323,7 @@ From kernel CLI contract :
 
 ---
 
-If implemented fully as specified, this stack positions UML_OS as:
+If implemented fully as specified, this stack positions Glyphser as:
 
 * A deterministic ML execution kernel
 * A reproducibility-first training OS

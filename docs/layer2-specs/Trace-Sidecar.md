@@ -1,9 +1,9 @@
-# UML_OS Trace Sidecar Schema
+# Glyphser Trace Sidecar Schema
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Trace.SidecarSchema_v1`  
-**Purpose (1 sentence):** Define a canonical machine-readable trace schema shared by all UML_OS components.  
-**Spec Version:** `UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Trace.SidecarSchema`  
+**Purpose (1 sentence):** Define a canonical machine-readable trace schema shared by all Glyphser components.  
+**Spec Version:** `Glyphser.Trace.SidecarSchema` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Trace interoperability and comparability.
@@ -11,9 +11,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Trace.SidecarSchema_v1`
+- **Algorithm:** `Glyphser.Trace.SidecarSchema`
 - **Purpose (1 sentence):** Canonical trace schema contract.
-- **Spec Version:** `UML_OS.Trace.SidecarSchema_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Trace.SidecarSchema` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Unified trace format.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -35,9 +35,9 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE` for schema and required key set.
 ### 0.G Operator Manifest
-- `UML_OS.Trace.ValidateSchema_v1`
-- `UML_OS.Trace.NormalizeRecord_v1`
-- `UML_OS.Trace.ComputeTraceHash_v1`
+- `Glyphser.Trace.ValidateSchema`
+- `Glyphser.Trace.NormalizeRecord`
+- `Glyphser.Trace.ComputeTraceHash`
 ### 0.H Namespacing and Packaging
 - Namespaced schema keys required.
 ### 0.I Outputs and Metric Schema
@@ -91,8 +91,8 @@
 - Hash algorithms:
   - `record_hash_i = SHA-256(CBOR_CANONICAL(normalized_record_i))`
   - Whole-run hash chain:
-    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain_v1", []]))`
-    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain_v1", [h_{i-1}, record_hash_i]]))` for records in canonical order
+    - `h_0 = SHA-256(CBOR_CANONICAL(["trace_chain", []]))`
+    - `h_i = SHA-256(CBOR_CANONICAL(["trace_chain", [h_{i-1}, record_hash_i]]))` for records in canonical order
     - `trace_final_hash = h_last`
 - Trace endpoints:
   - `trace_head_hash = h_0`
@@ -142,7 +142,7 @@
   - defaults for `HASH_GATED`: `hash_gate_M=100`, `hash_gate_K=1`.
   - HASH_GATED inclusion rule: include iff `U64_BE(SHA-256(CBOR_CANONICAL([replay_token, [t, operator_seq]]))) mod hash_gate_M < hash_gate_K`.
   - Invariant: `0 <= hash_gate_K <= hash_gate_M` and `hash_gate_M > 0`.
-  - Validation requirement: `UML_OS.Trace.ValidateSchema_v1` MUST enforce `hash_gate_M > 0` and `hash_gate_K <= hash_gate_M`; violation is deterministic schema failure.
+  - Validation requirement: `Glyphser.Trace.ValidateSchema` MUST enforce `hash_gate_M > 0` and `hash_gate_K <= hash_gate_M`; violation is deterministic schema failure.
   - Cap overflow drop policy: `DROP_LOWEST_PRIORITY_CLASS_FIRST` with fixed priority ordering:
     - `RUN_HEADER` > `ERROR` > `POLICY_GATE_VERDICT` > `CHECKPOINT_COMMIT` > `CERTIFICATE_INPUTS` > `RUN_END` > `ITER`.
   - `mandatory_record_kinds = {"RUN_HEADER","POLICY_GATE_VERDICT","CHECKPOINT_COMMIT","CERTIFICATE_INPUTS","RUN_END","ERROR"}`.
@@ -154,7 +154,7 @@
   - `policy_input_hashes`, `rule_id`, `rule_version`, `verdict`, `reason_code`.
 - Network reads during policy evaluation are forbidden unless inputs are pre-committed and referenced by hash.
 - Transcript fold hash:
-  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["policy_transcript_v1", ordered_policy_records]))`.
+  - `policy_gate_hash = SHA-256(CBOR_CANONICAL(["policy_transcript", ordered_policy_records]))`.
 - `policy_gate_hash` must appear in trace mandatory records and in `Execution-Certificate` signed payload.
 - Atomic commit linkage:
   - trace must include `run_commit_prepare` and `run_commit_record` mandatory records,
@@ -170,44 +170,44 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Trace.ValidateSchema_v1`
-- `UML_OS.Trace.NormalizeRecord_v1`
-- `UML_OS.Trace.ComputeTraceHash_v1`
+- `Glyphser.Trace.ValidateSchema`
+- `Glyphser.Trace.NormalizeRecord`
+- `Glyphser.Trace.ComputeTraceHash`
 
 ---
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
 Template conformance note (III.A): each operator definition in this section is interpreted with the full EQC operator template fields. When a field is not repeated inline, the section-level defaults are: explicit typed signatures, deterministic ordering/tie handling, declared numerical policy inheritance, deterministic failure semantics (0.K), explicit dependencies, and VII.B test-vector coverage.
 
-**Operator:** `UML_OS.Trace.ValidateSchema_v1`  
+**Operator:** `Glyphser.Trace.ValidateSchema`  
 **Category:** IO  
 **Signature:** `(trace, schema -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** required key/type validation.
 
-**Operator:** `UML_OS.Trace.NormalizeRecord_v1`  
+**Operator:** `Glyphser.Trace.NormalizeRecord`  
 **Category:** IO  
 **Signature:** `(record -> normalized_record)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** canonical key order and value normalization.
 
-**Operator:** `UML_OS.Trace.ComputeTraceHash_v1`  
+**Operator:** `Glyphser.Trace.ComputeTraceHash`  
 **Category:** IO  
 **Signature:** `(normalized_trace -> trace_final_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain_v1` hash-chain rule to emit the whole-run `trace_final_hash`.
+**Definition:** computes per-record SHA-256 hashes and folds them with the `trace_chain` hash-chain rule to emit the whole-run `trace_final_hash`.
 
 ---
 ## 6) Procedure
 ```text
-1. ValidateSchema_v1
-2. NormalizeRecord_v1 for each record
-3. ComputeTraceHash_v1
+1. ValidateSchema
+2. NormalizeRecord for each record
+3. ComputeTraceHash
 4. Return normalized_trace + hash
 ```
 
@@ -253,16 +253,16 @@ Exact normalized record and hash comparison.
 
 ---
 ## 11) Observability Bridge Mapping (Normative)
-- UML_OS trace/metrics MUST support deterministic export mapping to OpenTelemetry and Prometheus conventions.
+- Glyphser trace/metrics MUST support deterministic export mapping to OpenTelemetry and Prometheus conventions.
 - Minimum mapping requirements:
-  - `run_header.run_id` -> OTel trace resource attribute `uml_os.run_id`.
-  - `iter.operator` -> OTel span attribute `uml_os.operator_id`.
-  - `iter.t` -> OTel span attribute `uml_os.step`.
-  - `trace_final_hash` -> OTel trace attribute `uml_os.trace_final_hash`.
+  - `run_header.run_id` -> OTel trace resource attribute `glyphser.run_id`.
+  - `iter.operator` -> OTel span attribute `glyphser.operator_id`.
+  - `iter.t` -> OTel span attribute `glyphser.step`.
+  - `trace_final_hash` -> OTel trace attribute `glyphser.trace_final_hash`.
   - deterministic metric names map to Prometheus-safe snake_case names with fixed units.
 - Export mapping identity:
-  - `observability_mapping_hash = SHA-256(CBOR_CANONICAL(mapping_table_v1))`.
+  - `observability_mapping_hash = SHA-256(CBOR_CANONICAL(mapping_table))`.
 - Determinism requirement:
-  - identical UML_OS trace input MUST produce identical OTel/Prometheus export payloads and identical `observability_mapping_hash`.
+  - identical Glyphser trace input MUST produce identical OTel/Prometheus export payloads and identical `observability_mapping_hash`.
 - Reference implementation location:
   - `docs/layer4-implementation/Interoperability-Standards-Bridge.md`.

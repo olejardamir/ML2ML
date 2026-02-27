@@ -1,9 +1,9 @@
-# UML_OS Operator SDK Scaffold Template Contract
+# Glyphser Operator SDK Scaffold Template Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.OperatorSDKScaffold_v1`  
+**Algorithm:** `Glyphser.Implementation.OperatorSDKScaffold`  
 **Purpose (1 sentence):** Define deterministic scaffold templates for implementing new operators with required validation, tracing, and error semantics.  
-**Spec Version:** `UML_OS.Implementation.OperatorSDKScaffold_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.OperatorSDKScaffold` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Operator implementation scaffolding.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.OperatorSDKScaffold_v1`
+- **Algorithm:** `Glyphser.Implementation.OperatorSDKScaffold`
 - **Purpose (1 sentence):** Canonical scaffold template for operator implementation.
 ### 0.A Objective Semantics
 - minimize scaffold drift and missing contract hooks.
@@ -27,11 +27,11 @@
 - SDK version pinned.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.GenerateOperatorScaffold_v1`
-- `UML_OS.Implementation.ValidateScaffoldHooks_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.GenerateOperatorScaffold`
+- `Glyphser.Implementation.ValidateScaffoldHooks`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- generated modules mirror `UML_OS.<subsystem>.<name>_vN`.
+- generated modules mirror `Glyphser.<subsystem>.<name>_vN`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(scaffold_files, scaffold_validation_report)`.
 ### 0.J Spec Lifecycle Governance
@@ -63,13 +63,13 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.GenerateOperatorScaffold_v1`
-- `UML_OS.Implementation.ValidateScaffoldHooks_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.GenerateOperatorScaffold`
+- `Glyphser.Implementation.ValidateScaffoldHooks`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.GenerateOperatorScaffold_v1`  
+**Operator:** `Glyphser.Implementation.GenerateOperatorScaffold`  
 **Signature:** `(operator_registry_record, template -> scaffold_files)`  
 **Purity class:** IO  
 **Determinism:** deterministic  

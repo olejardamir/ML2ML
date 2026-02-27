@@ -1,9 +1,9 @@
-# UML_OS Disaster Recovery Operations Runbook
+# Glyphser Disaster Recovery Operations Runbook
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Operations.DisasterRecovery_v1`  
+**Algorithm:** `Glyphser.Operations.DisasterRecovery`  
 **Purpose (1 sentence):** Define deterministic operations procedures for severe failures, including full cluster loss and data corruption events.  
-**Spec Version:** `UML_OS.Operations.DisasterRecovery_v1` | 2026-02-20 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Operations.DisasterRecovery` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 
@@ -33,9 +33,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Disaster Recovery Operations Runbook" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Disaster Recovery Operations Runbook" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

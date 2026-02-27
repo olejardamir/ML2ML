@@ -1,16 +1,16 @@
-# UML_OS Benchmark Evidence Specification
+# Glyphser Benchmark Evidence Specification
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Perf.BenchmarkEvidenceSpec_v1`
+**Algorithm:** `Glyphser.Perf.BenchmarkEvidenceSpec`
 **Purpose (1 sentence):** Define deterministic benchmark evidence artifacts and regression-verdict input identity.
-**Spec Version:** `UML_OS.Perf.BenchmarkEvidenceSpec_v1` | 2026-02-21 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Perf.BenchmarkEvidenceSpec` | 2026-02-21 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Perf.BenchmarkEvidenceSpec_v1`
+- **Algorithm:** `Glyphser.Perf.BenchmarkEvidenceSpec`
 - **Purpose (1 sentence):** Deterministic performance evidence contract.
-- **Spec Version:** `UML_OS.Perf.BenchmarkEvidenceSpec_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Perf.BenchmarkEvidenceSpec` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** performance gate evidence standardization.
 ### 0.A Objective Semantics
 - Make performance claims externally reproducible and profile-gate enforceable.
@@ -25,9 +25,9 @@
 ### 0.F Environment and Dependency Policy
 - Environment lock (`env_manifest_hash`) mandatory.
 ### 0.G Operator Manifest
-- `UML_OS.Perf.RunBenchmark_v1`
-- `UML_OS.Perf.AggregateMetrics_v1`
-- `UML_OS.Perf.EvaluateRegressionPolicy_v1`
+- `Glyphser.Perf.RunBenchmark`
+- `Glyphser.Perf.AggregateMetrics`
+- `Glyphser.Perf.EvaluateRegressionPolicy`
 ### 0.H Namespacing and Packaging
 - `perf/evidence/<tier>/<release_id>/`.
 ### 0.I Outputs and Metric Schema
@@ -49,7 +49,7 @@
 - `regression_verdict`
 
 ## 3) Evidence Identity (Normative)
-- `benchmark_evidence_hash = SHA-256(CBOR_CANONICAL(["benchmark_evidence_v1", evidence_object]))`.
+- `benchmark_evidence_hash = SHA-256(CBOR_CANONICAL(["benchmark_evidence", evidence_object]))`.
 
 ## 4) Cross-References
 - `docs/layer3-tests/Performance-Plan.md`

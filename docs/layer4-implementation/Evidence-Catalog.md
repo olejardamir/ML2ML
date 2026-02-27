@@ -1,16 +1,16 @@
-# UML_OS Evidence Catalog
+# Glyphser Evidence Catalog
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Release.EvidenceCatalog_v1`
+**Algorithm:** `Glyphser.Release.EvidenceCatalog`
 **Purpose (1 sentence):** Define the authoritative evidence artifact catalog with schema, producer, verifier, and gate bindings.
-**Spec Version:** `UML_OS.Release.EvidenceCatalog_v1` | 2026-02-21 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Release.EvidenceCatalog` | 2026-02-21 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Release.EvidenceCatalog_v1`
+- **Algorithm:** `Glyphser.Release.EvidenceCatalog`
 - **Purpose (1 sentence):** Deterministic evidence catalog contract.
-- **Spec Version:** `UML_OS.Release.EvidenceCatalog_v1` | 2026-02-21 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Release.EvidenceCatalog` | 2026-02-21 | Authors: Olejar Damir
 - **Domain / Problem Class:** evidence governance and external verifiability.
 ### 0.A Objective Semantics
 - Every trust claim must map to a deterministic evidence artifact and verifier.
@@ -23,12 +23,12 @@
 ### 0.E Parallel, Concurrency, and Reduction Policy
 - Validation may run in parallel; verdict merge is fail-dominant.
 ### 0.F Environment and Dependency Policy
-- Canonical serialization profile: `CanonicalSerialization_v1`.
+- Canonical serialization profile: `CanonicalSerialization`.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Release.CollectEvidence_v1`
-- `UML_OS.Release.ValidateEvidenceBundle_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Release.CollectEvidence`
+- `Glyphser.Release.ValidateEvidenceBundle`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
 - Evidence bundle path namespace: `release/evidence/<release_id>/`.
 ### 0.I Outputs and Metric Schema
@@ -48,16 +48,16 @@
 ## 2) Artifact Catalog (Normative)
 | artifact_id | schema_ref | producer | verifier | referenced_by | failure_codes |
 |---|---|---|---|---|---|
-| `execution_certificate` | `docs/layer2-specs/Execution-Certificate.md` | `UML_OS.Certificate.WriteExecutionCertificate_v1` | `UML_OS.Security.VerifyCertificate_v1` | release gates, audit exports | `CONTRACT_VIOLATION`, `SIGNATURE_MISMATCH` |
-| `trace_sidecar` | `docs/layer2-specs/Trace-Sidecar.md` | `UML_OS.IO.WriteTape_v1` | `UML_OS.Replay.CompareTrace_v1` | certificate payload, replay, release gates | `CONTRACT_VIOLATION`, `TRACE_SCHEMA_INVALID` |
-| `checkpoint_manifest` | `docs/layer2-specs/Checkpoint-Schema.md` | `UML_OS.IO.SaveCheckpoint_v1` | `UML_OS.Checkpoint.Restore_v1` | certificate payload, replay, recovery proofs | `CONTRACT_VIOLATION`, `CHECKPOINT_INVALID` |
-| `policy_transcript` | `docs/layer2-specs/Monitoring-Policy.md` | `UML_OS.Policy.Evaluate_v1` | `UML_OS.Monitor.DriftCompute_v1` | `policy_gate_hash`, release gates | `CONTRACT_VIOLATION`, `POLICY_VIOLATION` |
-| `adapter_cert_bundle` | `docs/layer4-implementation/Third-Party-Operator-Certification-Program.md` | conformance harness | `UML_OS.Release.ValidateEvidenceBundle_v1` | enterprise/regulated gates | `CERT_BUNDLE_INVALID` |
+| `execution_certificate` | `docs/layer2-specs/Execution-Certificate.md` | `Glyphser.Certificate.WriteExecutionCertificate` | `Glyphser.Security.VerifyCertificate` | release gates, audit exports | `CONTRACT_VIOLATION`, `SIGNATURE_MISMATCH` |
+| `trace_sidecar` | `docs/layer2-specs/Trace-Sidecar.md` | `Glyphser.IO.WriteTape` | `Glyphser.Replay.CompareTrace` | certificate payload, replay, release gates | `CONTRACT_VIOLATION`, `TRACE_SCHEMA_INVALID` |
+| `checkpoint_manifest` | `docs/layer2-specs/Checkpoint-Schema.md` | `Glyphser.IO.SaveCheckpoint` | `Glyphser.Checkpoint.Restore` | certificate payload, replay, recovery proofs | `CONTRACT_VIOLATION`, `CHECKPOINT_INVALID` |
+| `policy_transcript` | `docs/layer2-specs/Monitoring-Policy.md` | `Glyphser.Policy.Evaluate` | `Glyphser.Monitor.DriftCompute` | `policy_gate_hash`, release gates | `CONTRACT_VIOLATION`, `POLICY_VIOLATION` |
+| `adapter_cert_bundle` | `docs/layer4-implementation/Third-Party-Operator-Certification-Program.md` | conformance harness | `Glyphser.Release.ValidateEvidenceBundle` | enterprise/regulated gates | `CERT_BUNDLE_INVALID` |
 | `chaos_recovery_proof_pack` | `docs/layer3-tests/Failure-Injection-Scenarios.md` | chaos harness | release gate verifier | regulated release gate | `RECOVERY_OUTCOME_MISMATCH` |
-| `perf_baseline_bundle` | `docs/layer3-tests/Performance-Plan.md` | perf harness | `UML_OS.Perf.EvaluateRegressionPolicy_v1` | performance gate | `PERF_REGRESSION` |
+| `perf_baseline_bundle` | `docs/layer3-tests/Performance-Plan.md` | perf harness | `Glyphser.Perf.EvaluateRegressionPolicy` | performance gate | `PERF_REGRESSION` |
 
 ## 3) Catalog Hash (Normative)
-- `evidence_catalog_hash = SHA-256(CBOR_CANONICAL(["evidence_catalog_v1", entries]))`.
+- `evidence_catalog_hash = SHA-256(CBOR_CANONICAL(["evidence_catalog", entries]))`.
 
 ## 4) Cross-References
 - `docs/layer4-implementation/Release-Evidence-Assembler.md`

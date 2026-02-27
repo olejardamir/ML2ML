@@ -388,7 +388,7 @@
   - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
     - explicit Initialization step 4 bound to §II.H catalog-hash formula (not raw file bytes),
     - explicit authoritative canonical encoding reference to `Canonical-CBOR-Profile.md`,
-    - defined `ValidateDigestCatalog_v1` operator and minimal deterministic `validation_report` schema,
+    - defined `ValidateDigestCatalog` operator and minimal deterministic `validation_report` schema,
     - defined trace `status` enum values (`resolved`, `missing`).
   - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
 - Validation:
@@ -402,7 +402,7 @@
 - Scope:
   - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
     - clarified VII.A lint rules (catalog-internal constraints vs cross-document resolution checks),
-    - explicit note that `UML_OS.Error.Emit_v1` is shared and defined in core error contract,
+    - explicit note that `Glyphser.Error.Emit` is shared and defined in core error contract,
     - checkpoint section updated to remove misleading `resolution cursor` state.
   - Updated registry hash for `L1-006` in `ecosystem-registry.yaml`.
 - Validation:
@@ -421,7 +421,7 @@
     - normalized deterministic field naming (`failure_operator` canonical; deprecated `operator_id` alias path documented),
     - explicit derivation rules for `subsystem` (from registry `category`) and `privacy_class` (default + overrides),
     - explicit diagnostics key-name exact-match requirement for per-code deterministic fields,
-    - strengthened `ValidateRecord_v1` to enforce per-code required fields and registry consistency.
+    - strengthened `ValidateRecord` to enforce per-code required fields and registry consistency.
   - Updated registry hash for `L1-008` in `ecosystem-registry.yaml`.
 - Validation:
   - Updated hash (`L1-008`): `9d35c6f28f9ba21b63b725b9427c63f6918e0e62d97be415b2124c863f4a02b5`
@@ -435,7 +435,7 @@
   - Updated `docs/layer1-foundation/Data-Structures.md` with:
     - removed irrelevant optimization-tuple language in 0.A,
     - aligned outputs naming (`validation_report`, `canonical_bytes`, `struct_hash`) with procedure,
-    - corrected `ValidateStruct_v1` ordering/tie handling to `N/A`,
+    - corrected `ValidateStruct` ordering/tie handling to `N/A`,
     - added missing `replay_token:bytes32` to `TraceErrorRecord`,
     - aligned section 7 trace schema with concrete trace records (`TraceRunHeader`, `TraceIterRecord`, `TraceRunEndRecord`, `TraceErrorRecord`),
     - added normative schema meta-model (`StructDecl`, `FieldDecl`) and registry representation for machine validation,
@@ -507,8 +507,8 @@
 - Scope:
   - Updated `docs/layer1-foundation/Data-Structures.md` with:
     - explicit scope split between schema layer and instance layer,
-    - expanded operator manifest to include `ValidateSchemaDecl_v1` and `ValidateInstance_v1`,
-    - retained `ValidateStruct_v1` as compatibility alias to schema-validation path,
+    - expanded operator manifest to include `ValidateSchemaDecl` and `ValidateInstance`,
+    - retained `ValidateStruct` as compatibility alias to schema-validation path,
     - explicit dual-path outputs and procedure flows (schema path vs instance path),
     - explicit instance-validation rule bound to `(struct_name, struct_version, registry)`,
     - explicit replay-token binding clause (type/inclusion here; derivation delegated to replay contract),
@@ -651,7 +651,7 @@
     - capability-set validation rule against authoritative security policy catalog,
     - required referenced-schema existence validation for request/response schema digests,
     - explicit malformed/non-canonical CBOR initialization failure behavior,
-    - explicit external definition reference for `UML_OS.Error.Emit_v1`.
+    - explicit external definition reference for `Glyphser.Error.Emit`.
   - Updated registry hash for `L1-009` in `ecosystem-registry.yaml`.
 - Validation:
   - Updated hash (`L1-009`): `54064fd18afba5b305add7c8917209a77ccac7ad8af252645706f0ca57099d73`
@@ -854,14 +854,14 @@
     - removal of contradictory optimization semantics in `0.A` (validation-only semantics retained),
     - clarifying note in `0.Z` that stochastic template declarations are non-operative for this deterministic contract,
     - digest alignment between `II.F` and `II.K` for overlapping operators:
-      - `UML_OS.Data.NextBatch_v2`
-      - `UML_OS.Model.Forward_v2`
-      - `UML_OS.DifferentialPrivacy.Apply_v3`
-      - `UML_OS.Backend.LoadDriver_v1`
-      - `UML_OS.IO.SaveCheckpoint_v1`
+      - `Glyphser.Data.NextBatch`
+      - `Glyphser.Model.Forward`
+      - `Glyphser.DifferentialPrivacy.Apply`
+      - `Glyphser.Backend.LoadDriver`
+      - `Glyphser.IO.SaveCheckpoint`
     - clarified operator signatures/definitions:
-      - `ValidateIOShape_v1` returns `ok:bool`,
-      - `ComputeInterfaceHash_v1` explicitly hashes sorted registry map entries.
+      - `ValidateIOShape` returns `ok:bool`,
+      - `ComputeInterfaceHash` explicitly hashes sorted registry map entries.
   - Updated registry hash for `L1-001` in `ecosystem-registry.yaml`.
 - Validation:
   - Updated hash (`L1-001`): `d859b7935143fdba330d7408cbc2e75b780e875064846ea22d6a2b454863431f`
@@ -875,11 +875,11 @@
   - Updated `docs/layer1-foundation/API-Interfaces.md` with:
     - sidecar mapping schema defined in `0.H`,
     - explicit numbering-convention note for EQC header/model subsection styles,
-    - added `UML_OS.Error.Emit_v1` row to `II.F` syscall registry,
+    - added `Glyphser.Error.Emit` row to `II.F` syscall registry,
     - defined `schema_ast_normalized` in `II.H`,
     - clarified rendered-table omission of `purity_class` and `required_capabilities` in `II.I`,
     - clarified `II.K` as kernel subset view and required digest equality with overlapping `II.F` rows,
-    - defined `ValidateAPISignature_v1` `report` output schema.
+    - defined `ValidateAPISignature` `report` output schema.
   - Updated registry hash for `L1-001` in `ecosystem-registry.yaml`.
 - Validation:
   - Updated hash (`L1-001`): `cfb18520eee339edff73426c963d01dd2e170249abbf030ab3df2f875ae0db83`
@@ -920,7 +920,7 @@
     - added explicit top-level no-extra-fields invariant for catalog object,
     - added explicit `catalog_version` domain constraints (`1..2^32-1`),
     - tightened `algorithm` exact-match rule (`sha256`) and `domain_tag` constraints,
-    - clarified commitment tag role (`\"digest_catalog_v1\"`) and deterministic sorting note,
+    - clarified commitment tag role (`\"digest_catalog\"`) and deterministic sorting note,
     - added explicit inline-hex charset validation and disambiguation cross-reference in `II.G`,
     - replaced informal YAML `validation_report` with normative canonical-CBOR schema,
     - resolved trace granularity ambiguity by defining one-resolution-per-run schema,
@@ -936,7 +936,7 @@
 - Action: Digest Catalog follow-up consistency pass (abort/report semantics and domain_tag validation precision).
 - Scope:
   - Updated `docs/layer1-foundation/Digest-Catalog.md` with:
-    - separated failure policy by operator (`ResolveDigestRef_v1` fatal on unresolved labels; `ValidateDigestCatalog_v1` returns invalid report without abort),
+    - separated failure policy by operator (`ResolveDigestRef` fatal on unresolved labels; `ValidateDigestCatalog` returns invalid report without abort),
     - explicit `domain_tag` validation constraints and byte-length unit (`<=256` UTF-8 bytes),
     - explicit `algorithm == sha256` validation in constraints/lint/operator definition,
     - explicit deterministic ordering rule for `validation_report.errors` (bytewise UTF-8 lexicographic),
@@ -979,7 +979,7 @@
     - explicit special float handling (`+/-inf`, signed zero) under tolerance,
     - explicit constraints forbidding extra `profile_rules` fields,
     - defined `primitive_allowlist` structure for allowlist hash,
-    - explicit runtime-equivalence-set membership check in `ValidateDeterminismProfile_v1`,
+    - explicit runtime-equivalence-set membership check in `ValidateDeterminismProfile`,
     - harmonized per-iter status enum to `MATCH|MISMATCH`,
     - normative code enums for `violations.code` and `mismatches.reason_code`,
     - explicit `check_id` and `path` conventions,
@@ -1002,7 +1002,7 @@
     - `profile_rules.profile_id` consistency rule (`MUST equal determinism_profile_id`),
     - `ToleranceRule` strengthened to require non-negative finite float64 tolerance values,
     - explicit canonical source and normalization constraints for compiler-flag hashing,
-    - `ValidateDeterminismProfile_v1` signature updated to require `backend_binary_hash` input,
+    - `ValidateDeterminismProfile` signature updated to require `backend_binary_hash` input,
     - mandatory backend binary equality check against `profile_rules.backend_binary_hash`,
     - validation violation code cleanup: removed `NAN_FORBIDDEN`, added `BACKEND_BINARY_MISMATCH`,
     - validation lint rules updated to include backend binary hash check.
@@ -1019,7 +1019,7 @@
   - Updated `docs/layer1-foundation/Determinism-Profiles.md` with:
     - explicit unknown-profile behavior in failure semantics and operators (`PROFILE_NOT_FOUND` for validation, fatal divergence for comparison),
     - required `runtime_metadata` conformance to `DriverRuntimeFingerprint` schema with missing/extra fields as violations,
-    - explicit external trace format dependency (`UML_OS.Trace.Format_v1`) for deterministic path traversal,
+    - explicit external trace format dependency (`Glyphser.Trace.Format`) for deterministic path traversal,
     - added `rules_version:uint32` common profile-rules field (`MUST be 1`),
     - clarified `tolerance_map` keys as exact dot-path keys and exact-match path application (no wildcard/prefix),
     - strengthened primitive allowlist identifier semantics,
@@ -1109,11 +1109,11 @@
     - defined all constituent hash constructions (`backend_binary_hash`, `driver_runtime_fingerprint_hash`, `determinism_profile_hash`, `toolchain_hash`, `env_vars_fingerprint_hash`) with SHA-256 and canonical CBOR inputs,
     - fixed determinism-impacting env var scope with explicit allowlist and null encoding for unset vars,
     - referenced canonical CBOR determinism source (`RFC 8949` + local canonical profile),
-    - added full operator definition for `ValidateCompatibility_v1` and normative `compatibility_report` schema,
-    - corrected `BuildManifest_v1` signature to no-input capture model,
+    - added full operator definition for `ValidateCompatibility` and normative `compatibility_report` schema,
+    - corrected `BuildManifest` signature to no-input capture model,
     - connected trace and metric schemas to producing operators,
     - standardized section numbering and explicit `E0` definition,
-    - enforced `schema_version` consistency (`UML_OS.Environment.Manifest_v1`),
+    - enforced `schema_version` consistency (`Glyphser.Environment.Manifest`),
     - clarified restore semantics via content-addressable retrieval by manifest hash.
   - Updated registry hash for `L1-007` in `ecosystem-registry.yaml`.
 - Validation:
@@ -1153,7 +1153,7 @@
   - Updated `docs/layer1-foundation/Environment-Manifest.md` with:
     - explicit dependency-failure rule for normative referenced documents (fatal `CONTRACT_VIOLATION`),
     - removed undefined “regulated/managed modes” branch from failure policy,
-    - optional baseline support in `ValidateCompatibility_v1` (`required_manifest?`) and `NOT_CHECKED` compatibility status,
+    - optional baseline support in `ValidateCompatibility` (`required_manifest?`) and `NOT_CHECKED` compatibility status,
     - explicit precondition that provided `required_manifest` must be schema-valid,
     - explicit `is_compatible` truth condition and CBOR-value equality semantics (`null` equality behavior),
     - deterministic and explicit parser rules for toolchain IDs/versions (`cc`, `c++`, `ld` incl. GNU/LLD patterns, `cmake`),
@@ -1449,7 +1449,7 @@
 - Action: Dependency lock policy determinism finalization for remaining edge-cases (`L1-004`).
 - Scope:
   - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` with:
-    - explicit mixed-scheme check in `EvaluateUpgradeRequest_v1` (`VERSION_SCHEME_MISMATCH` disallow),
+    - explicit mixed-scheme check in `EvaluateUpgradeRequest` (`VERSION_SCHEME_MISMATCH` disallow),
     - explicit empty-proposal behavior (`is_allowed=true`, `risk_class=LOW`),
     - `requirements.txt` hard constraints for v1 (no line continuations, forbid `--extra-index-url` and `--find-links`),
     - checkpoint inclusion and restore verification of `toolchain_hash` and `runtime_env_hash`, with new mismatch codes,
@@ -1515,7 +1515,7 @@
 - Date: 2026-02-19
 - Action: Dependency lock policy expected-hash source clarification (`L1-004`).
 - Scope:
-  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` in `UML_OS.DepLock.VerifyArtifactHashes_v1` definition to remove expected-hash ambiguity:
+  - Updated `docs/layer1-foundation/Dependency-Lock-Policy.md` in `Glyphser.DepLock.VerifyArtifactHashes` definition to remove expected-hash ambiguity:
     - expected hash is now explicitly defined as lock tuple `integrity_hash`,
     - artifact index is used for tuple resolution and immutable location retrieval,
     - mismatch rule explicitly compares `observed_hash` (artifact bytes SHA-256) against lock tuple `integrity_hash`,
@@ -1541,7 +1541,7 @@
     - enforced mandatory unredacted verification fields and policy-classification constraints,
     - added explicit initialization/procedure error handling and key validity-window checks,
     - clarified parallel merge determinism and checkpoint/restore key-retention assumptions,
-    - aligned `ValidateRedactionCoverage_v1` signature to `redaction_policy_hash`.
+    - aligned `ValidateRedactionCoverage` signature to `redaction_policy_hash`.
   - Updated registry record `L1-010` hash/version in `ecosystem-registry.yaml`.
 - Validation:
   - Updated hash (`L1-010`): `b9ba45462f96d68cdb87355e92064d62362c913548d7c59afce90d4d7f911f82`
@@ -1567,8 +1567,8 @@
     - removed undefined `canonicalization_policy_id` usage in favor of `preimage_format_id`,
     - specified key validity timestamp representation (Unix epoch seconds),
     - defined `bucket_rules`, `policy_rules`, and `key_policy` roles,
-    - added missing operator definition for `ComputeRedactionPolicyHash_v1`,
-    - clarified error/abort semantics for `Emit_v1`,
+    - added missing operator definition for `ComputeRedactionPolicyHash`,
+    - clarified error/abort semantics for `Emit`,
     - added explicit canonical CBOR reference and `schema_version` encoding as text string,
     - clarified checkpoint cursor semantics for batch/single-record modes.
   - Updated registry record `L1-010` hash in `ecosystem-registry.yaml`.
@@ -1737,8 +1737,8 @@
     - Checkpoint schema: defined `checkpoint_manifest_cbor` contract and normalized optional manifest-hash fields.
     - Config/Data loader: added `data.drop_last` canonical default and aligned Data.NextBatch epoch-end behavior for `drop_last=true`.
     - Data lineage / evaluation / tracking / registry / monitoring / orchestrator: added missing operator definitions referenced by manifests.
-    - DP contract: added deterministic `sampling_rate` derivation, fixed RDP alpha-grid declaration, and corrected `FlashEfficientClip_v1` purity to `PURE`.
-    - Replay/WAL/TMMU/kernel: fixed `VerifyRestore_v1` signature usage, defined `CERT_SIGNED` payload requirements, propagated slot size/alignment outputs, corrected DP application condition/args/state update, and fixed certificate verification/write order.
+    - DP contract: added deterministic `sampling_rate` derivation, fixed RDP alpha-grid declaration, and corrected `FlashEfficientClip` purity to `PURE`.
+    - Replay/WAL/TMMU/kernel: fixed `VerifyRestore` signature usage, defined `CERT_SIGNED` payload requirements, propagated slot size/alignment outputs, corrected DP application condition/args/state update, and fixed certificate verification/write order.
     - Layer1 wiring references in touched Layer2 docs were normalized to current canonical paths where needed.
   - Refreshed registry digests for modified Layer2 records in `ecosystem-registry.yaml` and updated `LastUpdated` to `2026-02-20` for all changed records.
 - Validation:
@@ -1755,8 +1755,8 @@
     - compute `produced_global_count` from remaining epoch capacity,
     - advance `cursor.global_index` by produced count (not unconditional `global_batch_size`),
     - preserve deterministic epoch rollover with `epoch_limit_for_advance`.
-  - Updated `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` loop/procedure semantics:
-    - consume `Termination.Check_v1` result with explicit `if terminated: break`,
+  - Updated `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md` loop/procedure semantics:
+    - consume `Termination.Check` result with explicit `if terminated: break`,
     - replaced ambiguous `noisy_grads or grads` with explicit `update_grads` selection,
     - aligned DP operator signature to include `t`,
     - persisted returned DP accountant state (`dp_accountant_state <- budget.accountant_state`).
@@ -1788,7 +1788,7 @@
   - Updated Layer1 wiring references to existing canonical files:
     - `docs/layer2-specs/Monitoring-Policy.md` (`Data-Structures.md`),
     - `docs/layer2-specs/Config-Schema.md` (`Environment-Manifest.md`),
-    - `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` (Environment/Data-Structures/Dependency-Lock-Policy canonical paths),
+    - `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md` (Environment/Data-Structures/Dependency-Lock-Policy canonical paths),
     - `docs/layer2-specs/Replay-Determinism.md` (`Environment-Manifest.md`).
   - Refreshed registry hashes for modified Layer2 records (`L2-001`, `L2-002`, `L2-003`, `L2-004`, `L2-005`, `L2-007`, `L2-013`, `L2-015`, `L2-018`, `L2-020`).
 - Validation:
@@ -1801,15 +1801,15 @@
 - Action: Layer2 signature/operational consistency hardening pass.
 - Scope:
   - `docs/layer2-specs/Security-Compliance-Profile.md`:
-    - aligned `VerifyCertificate_v1` input contract to accept canonical certificate object or path (`certificate_input`) with deterministic load semantics.
-  - `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md`:
-    - made pipeline dispatch arguments explicit via `current_step` tracking and explicit `Dispatch_v1(manifest.pipeline_stages, current_step)` calls,
+    - aligned `VerifyCertificate` input contract to accept canonical certificate object or path (`certificate_input`) with deterministic load semantics.
+  - `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md`:
+    - made pipeline dispatch arguments explicit via `current_step` tracking and explicit `Dispatch(manifest.pipeline_stages, current_step)` calls,
     - made `checkpoint_due` rule deterministic from `checkpoint_frequency` and stage exit flag,
-    - passed explicit `stage_type` to `NextBatch_v2`,
+    - passed explicit `stage_type` to `NextBatch`,
     - persisted DP state (`dp_accountant_state`, `cumulative_epsilon`) in persistent state model,
     - added deterministic per-step resource ledger + quota-abort rule,
-    - integrated WAL commit protocol hooks (`WALAppend_v1(PREPARE/CERT_SIGNED/FINALIZE)`, `FinalizeRunCommit_v1`),
-    - clarified `SaveCheckpoint_v1` payload requirements to include DP/rng/cursor critical state.
+    - integrated WAL commit protocol hooks (`WALAppend(PREPARE/CERT_SIGNED/FINALIZE)`, `FinalizeRunCommit`),
+    - clarified `SaveCheckpoint` payload requirements to include DP/rng/cursor critical state.
   - `docs/layer2-specs/DifferentialPrivacy-Apply.md`:
     - replaced heuristic projected-epsilon branch with deterministic abort,
     - added explicit DP metric formulas,
@@ -1830,7 +1830,7 @@
 - Date: 2026-02-20
 - Action: Kernel quota-error code normalization (`L2-020`).
 - Scope:
-  - Updated `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md` to use existing canonical error code `CONTRACT_VIOLATION` for quota-breach abort path (replacing non-catalog `QUOTA_EXCEEDED`).
+  - Updated `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md` to use existing canonical error code `CONTRACT_VIOLATION` for quota-breach abort path (replacing non-catalog `QUOTA_EXCEEDED`).
   - Refreshed `L2-020` hash in `ecosystem-registry.yaml`.
 - Validation:
   - `L2-020` registry hash alignment: pass.
@@ -1842,7 +1842,7 @@
 - Scope:
   - `Data-Lineage.md`: concretized `world_size_policy` and `epoch_seed_rule` literals used by `data_access_plan_hash`.
   - `TMMU-Allocation.md`: normalized `execution_order_hash`/`shard_spec_hash` formulas to direct canonical-hash forms.
-  - `UML_OS-Kernel-v3.22-OS.md`: aligned `VerifyCertificate_v1` signature semantics with Security profile contract.
+  - `Glyphser-Kernel-v3.22-OS.md`: aligned `VerifyCertificate` signature semantics with Security profile contract.
   - Refreshed corresponding registry hashes.
 - Validation:
   - Hash alignment for `L2-004`, `L2-018`, `L2-020`: pass.
@@ -1862,7 +1862,7 @@
   - `Replay-Determinism.md`: defined `env_vars_fingerprint` allowlist + canonical hashing rule.
   - `Checkpoint-Schema.md`: added explicit Merkle construction for `checkpoint_merkle_root`.
   - `Data-Lineage.md`: added concrete deterministic `dataset_root_hash` construction.
-  - `UML_OS-Kernel-v3.22-OS.md`: added explicit global termination co-check, `operator_seq` trace note, and required journal event field set.
+  - `Glyphser-Kernel-v3.22-OS.md`: added explicit global termination co-check, `operator_seq` trace note, and required journal event field set.
   - Refreshed registry hashes for touched records (`L2-002`, `L2-004`, `L2-008`, `L2-009`, `L2-010`, `L2-011`, `L2-012`, `L2-013`, `L2-015`, `L2-019`, `L2-020`).
 - Validation:
   - Hash alignment for all touched records: pass.
@@ -1905,18 +1905,18 @@
 - Date: 2026-02-20
 - Scope: Selective fifth-pass gap closure (only unresolved items).
 - Changes:
-  - `Run-Commit-WAL.md`: replaced ambiguous WAL hash payload wording with canonical record-payload rule; added full deterministic `WALRecover_v1` algorithm; added startup recovery step in procedure; added explicit counter-overflow abort rule.
-  - `UML_OS-Kernel-v3.22-OS.md`: added explicit uint64 overflow fail-fast semantics (`COUNTER_OVERFLOW`); added deterministic stage-manifest load/validate/merge hooks at dispatch boundaries; added explicit overflow guard before `t` increment.
+  - `Run-Commit-WAL.md`: replaced ambiguous WAL hash payload wording with canonical record-payload rule; added full deterministic `WALRecover` algorithm; added startup recovery step in procedure; added explicit counter-overflow abort rule.
+  - `Glyphser-Kernel-v3.22-OS.md`: added explicit uint64 overflow fail-fast semantics (`COUNTER_OVERFLOW`); added deterministic stage-manifest load/validate/merge hooks at dispatch boundaries; added explicit overflow guard before `t` increment.
   - `Error-Codes.md`: added `COUNTER_OVERFLOW` and `WAL_CORRUPTION` registry entries.
 - Validation: refreshed registry hashes for `L1-008`, `L2-016`, and `L2-020`.
 
 - Date: 2026-02-20
 - Scope: Seventh-pass selective hardening (interaction/concurrency/crypto/recovery).
 - Changes:
-  - `UML_OS-Kernel-v3.22-OS.md`: replay token now binds `operator_contracts_root_hash`; added distributed E0 fingerprint homogeneity rule; added per-rank RNG seed derivation; added distributed checkpoint write/barrier semantics; added explicit empty-batch skip path with trace emission.
+  - `Glyphser-Kernel-v3.22-OS.md`: replay token now binds `operator_contracts_root_hash`; added distributed E0 fingerprint homogeneity rule; added per-rank RNG seed derivation; added distributed checkpoint write/barrier semantics; added explicit empty-batch skip path with trace emission.
   - `Replay-Determinism.md`: replay token and minimum-coverage set now include `operator_contracts_root_hash`.
   - `Checkpoint-Schema.md`: restore now requires operator-registry-root compatibility (or declared deterministic migration path) and strict `tmmu_plan_hash` match from recomputed execution order.
-  - `Execution-Certificate.md`: added signed `signature_algorithm` and `valid_until_utc`; verifier enforces expiry; Sign_v1 clarified for HSM/KMS key refs with deterministic signing behavior.
+  - `Execution-Certificate.md`: added signed `signature_algorithm` and `valid_until_utc`; verifier enforces expiry; Sign clarified for HSM/KMS key refs with deterministic signing behavior.
   - `Run-Commit-WAL.md`: added record framing integrity (`record_length_u32`, `record_crc32c`) and recovery validation for checksum/torn writes.
 - Validation: refreshed registry hashes for `L2-002`, `L2-009`, `L2-015`, `L2-016`, `L2-020`.
 
@@ -1927,8 +1927,8 @@
   - `Data-NextBatch.md`: added normative validation guard to reject `train && drop_last && global_batch_size > N`; added lint rule for the same.
   - `Experiment-Tracking.md`: removed wall-clock `recorded_at` from `metric_stream_hash` ordering key to preserve determinism.
   - `Run-Commit-WAL.md`: specified little-endian encoding for `record_length_u32` and `record_crc32c`; fixed CRC to CRC-32C Castagnoli.
-  - `UML_OS-Kernel-v3.22-OS.md`: aligned DP call path with micro-batch semantics (deterministic micro-batch split, per-micro forward/backward sequence passed to `DifferentialPrivacy.Apply_v3`), and clarified Journal vs commit WAL roles.
-  - `DifferentialPrivacy-Apply.md`: clarified `Apply_v3` input is deterministic micro-batch gradient sequence (not pre-aggregated full batch gradient).
+  - `Glyphser-Kernel-v3.22-OS.md`: aligned DP call path with micro-batch semantics (deterministic micro-batch split, per-micro forward/backward sequence passed to `DifferentialPrivacy.Apply`), and clarified Journal vs commit WAL roles.
+  - `DifferentialPrivacy-Apply.md`: clarified `Apply` input is deterministic micro-batch gradient sequence (not pre-aggregated full batch gradient).
 - Validation: refreshed registry hashes for `L2-001`, `L2-005`, `L2-007`, `L2-010`, `L2-016`, `L2-020`.
 
 - Date: 2026-02-20
@@ -1955,11 +1955,11 @@
   - `Execution-Certificate.md`: clarified inclusive semantics of `step_start`/`step_end`; linked `dp_accountant_state_hash` to DP canonical hash definition.
   - `Experiment-Tracking.md`: added missing `run_record_hash` definition.
   - `Monitoring-Policy.md` + `Error-Codes.md`: defined deterministic failure behavior/code for missing baseline (`BASELINE_MISSING`).
-  - `Pipeline-Orchestrator.md`: expanded state machine with `QUEUED->CANCELED` and `RETRYING->FAILED`; added retry-budget precondition in `JobTransition_v1`.
+  - `Pipeline-Orchestrator.md`: expanded state machine with `QUEUED->CANCELED` and `RETRYING->FAILED`; added retry-budget precondition in `JobTransition`.
   - `Replay-Determinism.md`: clarified env var fingerprint inclusion as set-only variables sorted by name.
   - `Security-Compliance-Profile.md`: added deterministic `measurements_hash` computation rule.
   - `TMMU-Allocation.md`: defined `tensor_intervals_sorted` deterministically by `tensor_id`.
-  - `UML_OS-Kernel-v3.22-OS.md`: strengthened `world_size_override` semantics and deterministic stage-manifest merge constraints; linked quota schema authority to orchestrator contract.
+  - `Glyphser-Kernel-v3.22-OS.md`: strengthened `world_size_override` semantics and deterministic stage-manifest merge constraints; linked quota schema authority to orchestrator contract.
   - `Data-Structures.md`: aligned shared trace schema field to `trace_snapshot_hash`.
 - Validation: refreshed `ecosystem-registry.yaml` hashes for all currently modified docs and rechecked parity.
 
@@ -1981,8 +1981,8 @@
   - `Pipeline-Orchestrator.md`: defined `evidence_ref` as canonical `bytes32` evidence hash.
   - `Replay-Determinism.md`: added explicit E1 absolute/relative tolerance comparator formula.
   - `Security-Compliance-Profile.md`: added explicit normative reference to AuthZ hash definitions.
-  - `UML_OS-Kernel-v3.22-OS.md`: added top-level `quota` manifest object and explicit `NamespaceEnter_v1` path-resolution dependency.
-  - `ModelIR-Executor.md`: clarified `tmmu_context` as opaque handle; corrected `CollectGradients_v1` signature/call.
+  - `Glyphser-Kernel-v3.22-OS.md`: added top-level `quota` manifest object and explicit `NamespaceEnter` path-resolution dependency.
+  - `ModelIR-Executor.md`: clarified `tmmu_context` as opaque handle; corrected `CollectGradients` signature/call.
 - Layer1 alignment updates:
   - Hash registry synced for modified Layer1 docs affected by this pass.
 - Registry maintenance:
@@ -1993,9 +1993,9 @@
   - `AuthZ-Capability-Matrix.md`: `granted_capabilities` duplicate prohibition before hashing.
   - `Config-Schema.md`: pipeline validation now requires unique `step_id`, valid `depends_on`, and forward dependency ordering.
   - `Evaluation-Harness.md`: quantile aggregation method fixed to nearest-rank (`k=floor(p*(n-1))`).
-  - `UML_OS-Kernel-v3.22-OS.md`:
-    - `Termination.Check_v1` explicitly marks wall-time limits as non-E0/E1 reproducible.
-    - `State.Journal_v1` signature/definition aligned with loop usage: raw objects are accepted and hashed internally; canonical event shape updated.
+  - `Glyphser-Kernel-v3.22-OS.md`:
+    - `Termination.Check` explicitly marks wall-time limits as non-E0/E1 reproducible.
+    - `State.Journal` signature/definition aligned with loop usage: raw objects are accepted and hashed internally; canonical event shape updated.
     - main loop journal call updated to pass explicit arguments matching revised signature.
 - Registry maintenance:
   - Re-synced hash chain entries in `ecosystem-registry.yaml` for modified docs in this pass.
@@ -2004,18 +2004,18 @@
 - Applied additional cross-file deterministic-contract fixes:
   - `AuthZ-Capability-Matrix.md`: defined canonical capability matrix structure and `capability_matrix_hash` derivation.
   - `Checkpoint-Schema.md`: defined empty-shard Merkle root (`SHA-256(CBOR_CANONICAL([]))`).
-  - `Config-Schema.md`: `ValidateRequiredFields_v1` now normatively enforces pipeline stage uniqueness/dependency validity/order.
+  - `Config-Schema.md`: `ValidateRequiredFields` now normatively enforces pipeline stage uniqueness/dependency validity/order.
   - `Data-NextBatch.md`: added distributed sizing guard `global_batch_size >= world_size` when `world_size > 1`.
   - `Deployment-Runbook.md`: threshold comparisons now explicitly use `<= threshold + EPS_EQ`.
   - `DifferentialPrivacy-Apply.md`: aligned accountant signatures with procedure call (`subsampling`, `amplification_factor?`, `delta_eps?`) and dispatcher behavior.
   - `Execution-Certificate.md`: added zero-step convention (`step_start=0`, `step_end=0`).
   - `Monitoring-Policy.md`: fixed concrete constants for `binning_rule` and `nan_rule` used in `drift_algorithm_hash`.
-  - `Pipeline-Orchestrator.md`: defined `tick` semantics for `JobHeartbeat_v1`.
-  - `ModelIR-Executor.md`: aligned `PrepareMemory_v2` usage/signature with `arena_config` requirement.
-  - `UML_OS-Kernel-v3.22-OS.md`:
-    - replaced pre-sign certificate verification call with `UML_OS.Certificate.EvidenceValidate_v1`,
-    - added deterministic stage merge operator (`UML_OS.Config.DeterministicStageMerge_v1`) with explicit override constraints,
-    - replaced undefined checkpoint barrier helper with `UML_OS.Distributed.Barrier_v1`,
+  - `Pipeline-Orchestrator.md`: defined `tick` semantics for `JobHeartbeat`.
+  - `ModelIR-Executor.md`: aligned `PrepareMemory` usage/signature with `arena_config` requirement.
+  - `Glyphser-Kernel-v3.22-OS.md`:
+    - replaced pre-sign certificate verification call with `Glyphser.Certificate.EvidenceValidate`,
+    - added deterministic stage merge operator (`Glyphser.Config.DeterministicStageMerge`) with explicit override constraints,
+    - replaced undefined checkpoint barrier helper with `Glyphser.Distributed.Barrier`,
     - added explicit resource ledger schema/update rule.
 - Registry maintenance:
   - Re-synced `ecosystem-registry.yaml` hash chain entries for all docs modified in this pass.
@@ -2025,10 +2025,10 @@
   - `Checkpoint-Schema.md`: standardized commit-pointer naming to `certificate_hash` (replacing `execution_certificate_hash`) and added explicit `source_hash`/`target_hash` semantics in migration certificate section.
   - `Run-Commit-WAL.md` and `Deployment-Runbook.md`: aligned COMMITTED pointer payload naming to `certificate_hash`.
   - `Execution-Certificate.md`: added explicit `certificate_hash = SHA-256(certificate_cbor)` definition.
-  - `Config-Schema.md`: added missing `UML_OS.Config.ManifestMigrate_v1` operator definition.
+  - `Config-Schema.md`: added missing `Glyphser.Config.ManifestMigrate` operator definition.
   - `DifferentialPrivacy-Apply.md`: updated `noise_seed_per_step` counter derivation to 128-bit arithmetic; added explicit `norm_history_state` persistent-state definition.
   - `Pipeline-Orchestrator.md`: clarified `evidence_ref` is nullable `bytes32` for transitions that require no evidence.
-  - `UML_OS-Kernel-v3.22-OS.md`: normalized `Distributed.Barrier_v1` signature to `() -> ok`, updated checkpoint barrier call accordingly, and added journal storage-location note.
+  - `Glyphser-Kernel-v3.22-OS.md`: normalized `Distributed.Barrier` signature to `() -> ok`, updated checkpoint barrier call accordingly, and added journal storage-location note.
 - Previously requested items confirmed already present and unchanged where already compliant:
   - capability matrix canonical hash structure,
   - transform `seq` ordering in data lineage,
@@ -2041,11 +2041,11 @@
 ## 2026-02-20 — Residual Clarifications Pass
 - Added remaining deterministic clarifications and cross-file consistency updates:
   - `AuthZ-Capability-Matrix.md`: explicit `authz_policy_hash` definition.
-  - `Checkpoint-Schema.md`: explicit `checkpoint_header_cbor` self-exclusion semantics and added `UML_OS.Checkpoint.Migrate_v1` operator definition.
+  - `Checkpoint-Schema.md`: explicit `checkpoint_header_cbor` self-exclusion semantics and added `Glyphser.Checkpoint.Migrate` operator definition.
   - `Data-Lineage.md`: defined deterministic split derivation algorithm and explicit `payload` semantics in lineage object hash.
   - `Deployment-Runbook.md`: defined `metrics_snapshot_hash = SHA-256(CBOR_CANONICAL(metrics_snapshot_map))`.
-  - `DifferentialPrivacy-Apply.md`: deterministic `AmplificationByShuffling_v1` behavior clarified (default conservative factor + policy-bound audited override).
-  - `UML_OS-Kernel-v3.22-OS.md`: added `grad_edges` to UML_Model_IR schema and aligned `Backward_v1` call sites to `(L_tot, theta, ir_graph)` signature.
+  - `DifferentialPrivacy-Apply.md`: deterministic `AmplificationByShuffling` behavior clarified (default conservative factor + policy-bound audited override).
+  - `Glyphser-Kernel-v3.22-OS.md`: added `grad_edges` to UML_Model_IR schema and aligned `Backward` call sites to `(L_tot, theta, ir_graph)` signature.
 - Registry maintenance:
   - Re-synced `ecosystem-registry.yaml` hash chain entries for docs updated in this pass.
 
@@ -2056,7 +2056,7 @@
   - `Execution-Certificate.md`: defined `policy_gate_hash` meaning as canonical policy-transcript commitment.
   - `ModelIR-Executor.md`: tightened `reverse_equivalent_flag` contract so reverse-forward is used only when it is a valid gradient-topology order.
   - `TMMU-Allocation.md`: clarified default `slot_alignment_map` behavior (falls back to arena alignment).
-  - `UML_OS-Kernel-v3.22-OS.md`: defined `probe_outputs_bytes` as canonical CBOR serialization in deterministic probe order.
+  - `Glyphser-Kernel-v3.22-OS.md`: defined `probe_outputs_bytes` as canonical CBOR serialization in deterministic probe order.
 - Registry maintenance:
   - Re-synced `ecosystem-registry.yaml` hash chain entries for all currently modified governed docs and `AUX-LOG-001`.
   - Also corrected one pre-existing stale registry digest for `L4-042` (`docs/layer4-implementation/EQC-CI-Policy.md`) to restore full parity.
@@ -2067,11 +2067,11 @@
 - Scope: closed remaining subtle determinism/spec-completeness gaps from latest review.
 - Changes:
   - `Data-Lineage.md`: replaced ambiguous “natural order” with canonical multi-file dataset ordering (normalized POSIX path order + in-file physical record order), deterministic seeded shuffle note, and split-fractions sum validation (`abs(sum-1.0) <= EPS_EQ`).
-  - `DifferentialPrivacy-Apply.md`: defined deterministic default formula for `AmplificationByShuffling_v1` with conservative fallback and policy-bound stricter override.
+  - `DifferentialPrivacy-Apply.md`: defined deterministic default formula for `AmplificationByShuffling` with conservative fallback and policy-bound stricter override.
   - `Monitoring-Policy.md`: formalized alert state machine transitions (`OPEN->ACKNOWLEDGED->RESOLVED`), terminal `RESOLVED`, and deterministic invalid-transition failure.
   - `Checkpoint-Schema.md`: defined normative derivation formulas for `tensors_root_hash` and `optimizer_state_root_hash` from filtered shard-leaf sets.
   - `Experiment-Tracking.md`: defined explicit `metric_stream_hash` chain formula (`h_0`, iterative `h_i`, final `h_n`).
-  - `Replay-Determinism.md`: wired comparison profile into `CompareTrace_v1` signature/definition and procedure invocation; deterministic failure on profile/precondition mismatch.
+  - `Replay-Determinism.md`: wired comparison profile into `CompareTrace` signature/definition and procedure invocation; deterministic failure on profile/precondition mismatch.
   - `Security-Compliance-Profile.md`: defined `redaction_key_id` semantics and presence rule by redaction mode.
 - Registry maintenance:
   - Re-synced `ecosystem-registry.yaml` hash chain entries for modified docs and `AUX-LOG-001`.
@@ -2090,7 +2090,7 @@
   - `DifferentialPrivacy-Apply.md`:
     - clarified heterogeneous-group composition uses one global sampling rate `q = effective_batch_size/dataset_cardinality` for all groups,
     - replaced fragile prefix test with explicit `sampling_mode` enumeration in procedure step `1b`.
-  - `UML_OS-Kernel-v3.22-OS.md`:
+  - `Glyphser-Kernel-v3.22-OS.md`:
     - clarified resource-ledger assumption ties to operator contract metadata fixed per-operator costs,
     - formalized deterministic micro-batch split behavior as contiguous chunks preserving batch order (last chunk may be smaller).
   - `Data-Lineage.md`: defined optional `split_filter_hash` semantics as hash of canonical split-filter expression (filter semantics out of scope).
@@ -2103,7 +2103,7 @@
 - Applied final targeted corrections:
   - `Checkpoint-Schema.md`: restore identity rule now matches checkpoint field set by using `trace_snapshot_hash` (replacing `trace_final_hash`).
   - `Data-Lineage.md`: removed undefined `split_filter_hash` from canonical split entry encoding.
-  - `UML_OS-Kernel-v3.22-OS.md`: added explicit parenthetical note on resource-ledger contribution source (operator metadata; fixed per-operator costs in this version).
+  - `Glyphser-Kernel-v3.22-OS.md`: added explicit parenthetical note on resource-ledger contribution source (operator metadata; fixed per-operator costs in this version).
 - Validation:
   - Re-synced registry hashes and re-ran full parity check.
 
@@ -2114,24 +2114,24 @@
   - `DifferentialPrivacy-Apply.md`:
     - added optional DP config fields `adaptive_clip_window` and `model_scale`,
     - added DP config hash-commitment rule for behavior-affecting optional fields,
-    - defined `sampling_metadata` schema for `AmplificationByShuffling_v1`,
+    - defined `sampling_metadata` schema for `AmplificationByShuffling`,
     - clarified projector call passes configured `accountant` string as `accountant_hint`.
   - `Trace-Sidecar.md`:
     - defined `transcript_hash` for `POLICY_GATE_VERDICT`,
     - defined `certificate_inputs_hash` for `CERTIFICATE_INPUTS`.
-  - `UML_OS-Kernel-v3.22-OS.md`: clarified DP-enabled micro-batch path owns accumulation/noise/accounting inside `Apply_v3` and does not directly use `gradient_accumulation_steps` in loop.
+  - `Glyphser-Kernel-v3.22-OS.md`: clarified DP-enabled micro-batch path owns accumulation/noise/accounting inside `Apply` and does not directly use `gradient_accumulation_steps` in loop.
 - Validation:
   - Re-synced registry hashes and re-ran full parity check.
 
 ## 2026-02-20 — Kernel Env Hash Alignment
-- Added explicit `environment.env_manifest_hash: bytes32` in `UML_OS-Kernel-v3.22-OS.md` section 0.Q manifest additions to align with `Config-Schema.md` required cross-doc field semantics.
+- Added explicit `environment.env_manifest_hash: bytes32` in `Glyphser-Kernel-v3.22-OS.md` section 0.Q manifest additions to align with `Config-Schema.md` required cross-doc field semantics.
 - Re-synced registry hashes and re-ran full parity verification.
 
 ## 2026-02-20 — Final Schema Consistency Tail Fixes
-- `UML_OS-Kernel-v3.22-OS.md`:
+- `Glyphser-Kernel-v3.22-OS.md`:
   - tightened `0.Q` manifest additions so `environment.env_manifest_hash` is required (non-optional) to align with Config schema/replay-token inputs.
 - `Model-Registry.md`:
-  - defined `evidence_bundle_ref` semantics in `VersionCreate_v1` as `bytes32` hash of canonical CBOR evidence bundle.
+  - defined `evidence_bundle_ref` semantics in `VersionCreate` as `bytes32` hash of canonical CBOR evidence bundle.
 - Validation:
   - Re-synced registry hashes and re-ran full parity verification.
 
@@ -2145,21 +2145,21 @@
   - `DifferentialPrivacy-Apply.md`:
     - added `clip_norm_map` completeness rule,
     - defined `remaining_steps` computation in procedure,
-    - made step 12 construct `sampling_metadata` with `{effective_q, local_epsilon_hint=cumulative_epsilon}` before `AmplificationByShuffling_v1`.
+    - made step 12 construct `sampling_metadata` with `{effective_q, local_epsilon_hint=cumulative_epsilon}` before `AmplificationByShuffling`.
   - `Experiment-Tracking.md`:
     - defined `metadata_hash_i` for artifact index leaves,
     - added `RunRecord` mutability/finality note for `run_record_hash`.
   - `Evaluation-Harness.md`: clarified source of “designated critical outputs” via active determinism profile class map.
-  - `UML_OS-Kernel-v3.22-OS.md`:
-    - `Distributed.Barrier_v1` now explicitly uses `manifest.distributed.timeout_seconds` and fails with `DISTRIBUTED_COMMUNICATION_FAILURE`,
-    - `State.Journal_v1` storage path resolution explicitly references `UML_OS.OS.ResolvePath_v1`.
+  - `Glyphser-Kernel-v3.22-OS.md`:
+    - `Distributed.Barrier` now explicitly uses `manifest.distributed.timeout_seconds` and fails with `DISTRIBUTED_COMMUNICATION_FAILURE`,
+    - `State.Journal` storage path resolution explicitly references `Glyphser.OS.ResolvePath`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
 
 ## 2026-02-20 — Operator Signature Alignment (WAL + Policy)
 - Resolved remaining operator/procedure mismatches:
-  - `Run-Commit-WAL.md`: changed `UML_OS.Commit.WALRecover_v1` signature from `(wal_stream, artifact_store -> recovery_report)` to `(() -> recovery_report)` and clarified deterministic resolution of WAL/artifact paths from run context.
-  - `UML_OS-Kernel-v3.22-OS.md`: aligned `UML_OS.Policy.Evaluate_v1` signature to `(state, metrics, policy_bundle -> action)` and updated precondition wording from `rules schema` to `policy_bundle schema`.
+  - `Run-Commit-WAL.md`: changed `Glyphser.Commit.WALRecover` signature from `(wal_stream, artifact_store -> recovery_report)` to `(() -> recovery_report)` and clarified deterministic resolution of WAL/artifact paths from run context.
+  - `Glyphser-Kernel-v3.22-OS.md`: aligned `Glyphser.Policy.Evaluate` signature to `(state, metrics, policy_bundle -> action)` and updated precondition wording from `rules schema` to `policy_bundle schema`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
 
@@ -2169,16 +2169,16 @@
     - expanded concrete top-level manifest schema in II.F with kernel-aligned fields (task/execution/runtime/backends/resources/distributed/fine-tune/evaluation/trace),
     - added explicit required `optimizer:object`,
     - preserved `policy.rules` as optional runtime policy input and documented coexistence with `policy_bundle`.
-  - `UML_OS-Kernel-v3.22-OS.md`:
+  - `Glyphser-Kernel-v3.22-OS.md`:
     - updated 0.Q to explicitly include `spec_version`, `tenant_id`, `seed`,
     - kept `policy.rules` as runtime action policy and clarified `policy_bundle` as commitment identity,
     - aligned WAL procedure calls to include `(tenant_id, run_id)` context,
-    - aligned `UML_OS.Policy.Evaluate_v1` signature/definition with runtime `policy_rules`.
+    - aligned `Glyphser.Policy.Evaluate` signature/definition with runtime `policy_rules`.
   - `Run-Commit-WAL.md`:
     - updated operator signatures to context-aware forms:
-      - `WALAppend_v1(tenant_id, run_id, wal_record)`,
-      - `WALRecover_v1(tenant_id, run_id)`,
-      - `FinalizeRunCommit_v1(tenant_id, run_id)`,
+      - `WALAppend(tenant_id, run_id, wal_record)`,
+      - `WALRecover(tenant_id, run_id)`,
+      - `FinalizeRunCommit(tenant_id, run_id)`,
     - updated procedure examples accordingly.
   - `Execution-Certificate.md`:
     - clarified `policy_gate_hash` semantics with explicit reference to `Monitoring-Policy.md` II.G.
@@ -2187,14 +2187,14 @@
 
 ## 2026-02-20 — Final Signature/Procedure Corrections (Backward + EvidenceValidate)
 - Applied remaining critical signature and call-site corrections:
-  - `UML_OS-Kernel-v3.22-OS.md`:
-    - fixed `Backward_v1` return unpacking in procedure:
+  - `Glyphser-Kernel-v3.22-OS.md`:
+    - fixed `Backward` return unpacking in procedure:
       - non-DP path now captures `(grads, grad_norm)`,
       - DP micro-batch path now captures `(micro_grads, _)` before append.
-    - aligned `UML_OS.Certificate.EvidenceValidate_v1` operator signature to `(manifest, trace, checkpoint, replay_context -> valid, report)`.
-    - aligned termination-sequence call to `UML_OS.Certificate.EvidenceValidate_v1(manifest, trace, checkpoint, replay_context)`.
+    - aligned `Glyphser.Certificate.EvidenceValidate` operator signature to `(manifest, trace, checkpoint, replay_context -> valid, report)`.
+    - aligned termination-sequence call to `Glyphser.Certificate.EvidenceValidate(manifest, trace, checkpoint, replay_context)`.
   - `Execution-Certificate.md`:
-    - corrected `UML_OS.Certificate.EvidenceValidate_v1` signature by removing circular `execution_certificate` input,
+    - corrected `Glyphser.Certificate.EvidenceValidate` signature by removing circular `execution_certificate` input,
     - updated procedure step 4 call to the same argument set `(manifest, trace, checkpoint, replay_context)`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
@@ -2205,19 +2205,19 @@
   - `Config-Schema.md`: added explicit II.F note clarifying coexistence/role split between `policy.rules` (runtime control) and `policy_bundle` (security commitments).
   - `Data-Lineage.md`: clarified split allocation math with explicit `floor(split_fraction_i * total_samples)` wording and remainder-to-final-split rule.
   - `DifferentialPrivacy-Apply.md`: consolidated procedure step `1b` compatibility checks into a single deterministic validity gate.
-  - `Experiment-Tracking.md`: made `ArtifactTombstone_v1.reason` explicitly required UTF-8.
-  - `Trace-Sidecar.md`: made HASH_GATED invariant enforcement explicit in `UML_OS.Trace.ValidateSchema_v1`.
+  - `Experiment-Tracking.md`: made `ArtifactTombstone.reason` explicitly required UTF-8.
+  - `Trace-Sidecar.md`: made HASH_GATED invariant enforcement explicit in `Glyphser.Trace.ValidateSchema`.
 - Validation:
   - Re-synced registry hash chain entries and re-ran full parity verification.
 
 ## 2026-02-20 — Final Determinism Tail Fixes (run_id/WAL/DP/E1 defaults)
 - Applied remaining procedural consistency fixes:
-  - `UML_OS-Kernel-v3.22-OS.md`:
+  - `Glyphser-Kernel-v3.22-OS.md`:
     - added deterministic `run_id` derivation after namespace construction (`deterministic_run_id(tenant_id, replay_token)`),
     - replaced bare WAL stage tokens with explicit WAL record maps (`wal_prepare_record`, `wal_cert_signed_record`, `wal_finalize_record`),
     - added explicit `operator_registry_hash <- operator_contracts_root_hash` binding for FINALIZE payload.
   - `Run-Commit-WAL.md`:
-    - clarified `WALAppend_v1` caller contract: caller supplies payload fields only; operator injects `wal_seq`, chain/hash/framing fields,
+    - clarified `WALAppend` caller contract: caller supplies payload fields only; operator injects `wal_seq`, chain/hash/framing fields,
     - updated procedure examples to pass explicit `wal_record` maps per record type.
   - `DifferentialPrivacy-Apply.md`:
     - added optional-safe `model_scale_arg` derivation before projector call (`null` when absent).
@@ -2230,7 +2230,7 @@
 
 ## 2026-02-20 — Namespace/Run-ID and Certificate Hash Finalization
 - Applied final procedural consistency adjustments in kernel:
-  - `UML_OS-Kernel-v3.22-OS.md`:
+  - `Glyphser-Kernel-v3.22-OS.md`:
     - switched namespace policy to `/<tenant_id>/<run_id>` and aligned 0.N filesystem/namespace description,
     - defined deterministic `run_id` as `hex(SHA-256(CBOR_CANONICAL([tenant_id, replay_token]))[0:8])`,
     - added bootstrap-time capture of `operator_contracts_root_hash` from manifest into procedure state for later FINALIZE use,
@@ -2240,14 +2240,14 @@
 
 ## 2026-02-20 — Executor/TMMU Wiring Completion
 - Completed remaining cross-file execution wiring updates:
-  - `UML_OS-Kernel-v3.22-OS.md`:
+  - `Glyphser-Kernel-v3.22-OS.md`:
     - extended persistent state with `replay_token`, `run_id`, `tmmu_context`, and `operator_contracts_root_hash`,
     - added optional manifest field `memory_arena_config` in 0.Q,
-    - added `UML_OS.TMMU.Init_v1` to operator manifest and full operator definition,
-    - updated kernel procedure to resolve `arena_config`, initialize `tmmu_context`, and pass `replay_token`/`tmmu_context` into `Forward_v2`, `Backward_v1`, and `Inference.RunBatch_v1`.
+    - added `Glyphser.TMMU.Init` to operator manifest and full operator definition,
+    - updated kernel procedure to resolve `arena_config`, initialize `tmmu_context`, and pass `replay_token`/`tmmu_context` into `Forward`, `Backward`, and `Inference.RunBatch`.
   - `ModelIR-Executor.md`:
-    - added `replay_token` to executor input contracts and `ModelIR_Executor_v1` signature,
-    - aligned `TMMU.PrepareMemory_v2` signature/call sites to include `replay_token`.
+    - added `replay_token` to executor input contracts and `ModelIR_Executor` signature,
+    - aligned `TMMU.PrepareMemory` signature/call sites to include `replay_token`.
   - `Config-Schema.md`:
     - added optional top-level `memory_arena_config:object` and included it in kernel-alignment optional fields.
   - `Experiment-Tracking.md`:
@@ -2301,13 +2301,13 @@
     - `Determinism-Profiles.md`
     - `Environment-Manifest.md`
     - `Redaction-Policy.md`
-  - Added explicit Section `4) Operator Manifest` in `Environment-Manifest.md` and preserved imported `UML_OS.Error.Emit_v1` wiring note.
+  - Added explicit Section `4) Operator Manifest` in `Environment-Manifest.md` and preserved imported `Glyphser.Error.Emit` wiring note.
   - Renumbered downstream Environment-Manifest sections to keep strict EQC block order (`4` through `10`) and retained all existing content.
   - Normalized manifest bullet formatting for parser-safe operator extraction in `Data-Structures.md` and `Environment-Manifest.md` (moved alias/import notes out of inline operator-id bullets).
   - Updated `Operator-Registry-Schema.md` section title from `10) Checkpoint` to `10) Checkpoint/Restore` and retained semantics.
 - Structural validation:
   - Layer1 required EQC blocks presence check: pass (all 10 files satisfy mandatory section set).
-  - Layer1 operator-manifest vs section-5 operator-definition resolution check: pass (excluding imported `UML_OS.Error.Emit_v1`).
+  - Layer1 operator-manifest vs section-5 operator-definition resolution check: pass (excluding imported `Glyphser.Error.Emit`).
 - Registry updates:
   - Refreshed hashes and `LastUpdated` for touched Layer1 records in `ecosystem-registry.yaml`:
     - `L1-003`, `L1-004`, `L1-005`, `L1-007`, `L1-009`, `L1-010`.
@@ -2380,7 +2380,7 @@
 - `docs/layer1-foundation/Normativity-Legend.md`
   - removed duplicate procedure section; retained single canonical `## 6) Procedure`.
 - `docs/layer1-foundation/Operator-Registry-Schema.md`
-  - `ComputeRegistryHash_v1` definition now explicitly states canonical preimage and ordering basis.
+  - `ComputeRegistryHash` definition now explicitly states canonical preimage and ordering basis.
 - `docs/layer4-implementation/Operator-Registry-CBOR-Contract.md`
   - clarified inherited numeric version ordering (`version_num`) and canonical profile binding for hash preimage.
 
@@ -2541,9 +2541,9 @@
 ## Changes
 - `docs/layer2-specs/Checkpoint-Schema.md`
   - replaced empty-root untagged forms with tagged commitments:
-    - `CommitHash("tensors_root_v1", [])`
-    - `CommitHash("optimizer_root_v1", [])`
-    - `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root_v1", []]))` for empty shard set.
+    - `CommitHash("tensors_root", [])`
+    - `CommitHash("optimizer_root", [])`
+    - `checkpoint_merkle_root = SHA-256(CBOR_CANONICAL(["ckpt_merkle_root", []]))` for empty shard set.
   - added explicit hash typing section:
     - `CommitHash(tag, data)`
     - `ObjectDigest(obj)`
@@ -2563,18 +2563,18 @@
 ## Normative Rule Added
 - `docs/layer4-implementation/Spec-Lint-Rules.md`
   - added blocker rule `OP_MANIFEST_UNRESOLVED_SYMBOL`:
-    - any `UML_OS.*_vN` listed under Operator Manifest / Referenced Operators must resolve to exactly one `**Operator:**` definition, unless explicitly declared as external reference.
+    - any `Glyphser.*_vN` listed under Operator Manifest / Referenced Operators must resolve to exactly one `**Operator:**` definition, unless explicitly declared as external reference.
 
 ## Core Definition Fixes
 - `docs/layer4-implementation/Determinism-Audit-Playbook.md`
-  - added `**Operator:** UML_OS.Replay.VerifyReplayToken_v1`
-  - added `**Operator:** UML_OS.Certificate.VerifyBoundHashes_v1`
+  - added `**Operator:** Glyphser.Replay.VerifyReplayToken`
+  - added `**Operator:** Glyphser.Certificate.VerifyBoundHashes`
 - `docs/layer4-implementation/Determinism-Debug-Checklist.md`
-  - added `**Operator:** UML_OS.Replay.CheckRNGProgression_v1`
-  - added `**Operator:** UML_OS.Replay.CheckBackendProfile_v1`
+  - added `**Operator:** Glyphser.Replay.CheckRNGProgression`
+  - added `**Operator:** Glyphser.Replay.CheckBackendProfile`
 - `docs/layer4-implementation/Spec-Lint-Implementation.md`
-  - added `**Operator:** UML_OS.Implementation.LoadDocSet_v1`
-  - added `**Operator:** UML_OS.Implementation.AggregateLintVerdict_v1`
+  - added `**Operator:** Glyphser.Implementation.LoadDocSet`
+  - added `**Operator:** Glyphser.Implementation.AggregateLintVerdict`
 
 ## Template-only Conversions
 - Converted selected unresolved-manifest docs from:
@@ -2590,11 +2590,11 @@
 - Normative-manifest unresolved symbol count:
   - `normative_manifest_unresolved = 0`
 - Core requested definitions present:
-  - `VerifyReplayToken_v1`: true
-  - `VerifyBoundHashes_v1`: true
-  - `CheckRNGProgression_v1`: true
-  - `CheckBackendProfile_v1`: true
-  - `LoadDocSet_v1`: true
-  - `AggregateLintVerdict_v1`: true
+  - `VerifyReplayToken`: true
+  - `VerifyBoundHashes`: true
+  - `CheckRNGProgression`: true
+  - `CheckBackendProfile`: true
+  - `LoadDocSet`: true
+  - `AggregateLintVerdict`: true
 - Artifact verification:
   - `python tools/verify_doc_artifacts.py` => `PASS`

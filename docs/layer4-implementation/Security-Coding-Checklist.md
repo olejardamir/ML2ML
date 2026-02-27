@@ -1,9 +1,9 @@
-# UML_OS Security Coding Checklist
+# Glyphser Security Coding Checklist
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Security.CodingChecklist_v1`  
+**Algorithm:** `Glyphser.Security.CodingChecklist`  
 **Purpose (1 sentence):** Define deterministic secure-coding requirements and enforcement checks for implementation and review pipelines.  
-**Spec Version:** `UML_OS.Security.CodingChecklist_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Security.CodingChecklist` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Secure implementation governance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Security.CodingChecklist_v1`
+- **Algorithm:** `Glyphser.Security.CodingChecklist`
 - **Purpose (1 sentence):** Deterministic secure-coding review contract.
 ### 0.A Objective Semantics
 - minimize exploitable defects and policy violations.
@@ -27,12 +27,12 @@
 - scanner versions and rule packs pinned.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Security.RunStaticSecurityChecks_v1`
-- `UML_OS.Security.VerifySecretHandlingRules_v1`
-- `UML_OS.Security.VerifyAuthzPathCoverage_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.RunStaticSecurityChecks`
+- `Glyphser.Security.VerifySecretHandlingRules`
+- `Glyphser.Security.VerifyAuthzPathCoverage`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- security governance operators under `UML_OS.Security.*`.
+- security governance operators under `Glyphser.Security.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(security_findings, security_gate, security_metrics)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,19 +64,19 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Security.RunStaticSecurityChecks_v1`
-- `UML_OS.Security.VerifySecretHandlingRules_v1`
-- `UML_OS.Security.VerifyAuthzPathCoverage_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.RunStaticSecurityChecks`
+- `Glyphser.Security.VerifySecretHandlingRules`
+- `Glyphser.Security.VerifyAuthzPathCoverage`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Security.VerifySecretHandlingRules_v1`  
+**Operator:** `Glyphser.Security.VerifySecretHandlingRules`  
 **Signature:** `(source_snapshot, ruleset -> findings)`  
 **Purity class:** PURE  
 **Definition:** Enforces key/secret handling constraints and redaction usage rules.
 
-**Operator:** `UML_OS.Security.VerifyAuthzPathCoverage_v1`  
+**Operator:** `Glyphser.Security.VerifyAuthzPathCoverage`  
 **Signature:** `(code_map, authz_contract -> coverage_report)`  
 **Purity class:** PURE  
 **Definition:** Confirms required capability checks exist on protected operator paths.

@@ -1,9 +1,9 @@
 # Universal Machine Learning Operating System — TMMU Allocation
 **EQC Compliance:** This specification follows EquationCode (EQC) v1.1 merged single-file format (Option A): 10 top-level sections, global semantics first, operator-owned math, control-flow-only procedure, deterministic contracts, and replayable stochasticity.
 
-**Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`  
+**Algorithm:** `Glyphser.TMMU.PrepareMemory`  
 **Purpose (1 sentence):** Perform static liveness analysis, slot-optimal interval-graph coloring, multi-arena size-aware logical slot assignment, and deterministic injective arena-offset logical-address mapping for any UML_Model_IR DAG, guaranteeing bit-identical layout plans, alignment safety, and replayability across large models.  
-**Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)  
+**Spec Version:** `Glyphser.TMMU.PrepareMemory` | 2026-02-17 | Authors: Olejar Damir (with EQC team improvements)  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic, size-aware, multi-arena tensor memory planning via interval-graph register allocation for deep learning computation graphs.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.TMMU.PrepareMemory_v2`
+- **Algorithm:** `Glyphser.TMMU.PrepareMemory`
 - **Purpose (1 sentence):** Statically compute optimal reusable logical slots and deterministic logical addresses with maximal liveness-based reuse.
-- **Spec Version:** `UML_OS.TMMU.PrepareMemory_v2` | 2026-02-17 | Authors: Olejar Damir (with EQC team)
+- **Spec Version:** `Glyphser.TMMU.PrepareMemory` | 2026-02-17 | Authors: Olejar Damir (with EQC team)
 - **Domain / Problem Class:** Scalable, reproducible, alignment-aware tensor memory planning for ML graphs.
 
 ### 0.A Objective Semantics
@@ -37,7 +37,7 @@
 - Two-level mapping:
   - Logical slot ID (0-based, assigned by optimal greedy linear scan on interval graph).
   - Logical address is deterministic arena offset mapping: for each arena, slots are ordered deterministically and assigned by aligned prefix-sum offsets.
-- Randomness locality: no sampling in core allocation path; any pseudo-random fill/zero pattern generation is operator-owned (`ZeroTensor_v1`) and deterministic.
+- Randomness locality: no sampling in core allocation path; any pseudo-random fill/zero pattern generation is operator-owned (`ZeroTensor`) and deterministic.
 - Replay guarantee: replayable given `(replay_token, ir_hash, mode, arena_config, execution_order)`.
 - Replay token size: fixed 32 bytes (SHA-256 output), inherited from kernel contract.
 - No randomness in core path. Full replayability of layout, zeroing, and physical remapping.
@@ -45,8 +45,8 @@
 ### 0.C Numeric Policy
 - All sizes, offsets, alignments, and addresses in uint64.
 - No floating-point in allocation path.
-- Zeroing policy: `ZeroTensor_v1` writes literal zeros only.
-- Optional debug fill: `DebugFillTensor_v1` may write deterministic patterns; forbidden in `confidential` and `regulated` modes.
+- Zeroing policy: `ZeroTensor` writes literal zeros only.
+- Optional debug fill: `DebugFillTensor` may write deterministic patterns; forbidden in `confidential` and `regulated` modes.
 - Overflow policy: abort on uint64 overflow in offset/size arithmetic.
 - Approx-equality: exact integer equality only.
 - Normalized exponentials / transcendental functions: N/A for allocator semantics.
@@ -69,19 +69,19 @@
 - Determinism level: `BITWISE` for slot assignments and logical-address mapping.
 
 ### 0.G Operator Manifest
-- `UML_OS.TMMU.PrepareMemory_v2`
-- `UML_OS.TMMU.PlanMemory_v2`
-- `UML_OS.TMMU.ApplyPlan_v1`
-- `UML_OS.Model.AnalyzeLiveness_v1`
-- `UML_OS.TMMU.AssignLogicalSlots_v1` (new)
-- `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)
-- `UML_OS.TMMU.ZeroTensor_v1`
-- `UML_OS.TMMU.DebugFillTensor_v1`
-- `UML_OS.TMMU.CommitExecution_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.TMMU.PrepareMemory`
+- `Glyphser.TMMU.PlanMemory`
+- `Glyphser.TMMU.ApplyPlan`
+- `Glyphser.Model.AnalyzeLiveness`
+- `Glyphser.TMMU.AssignLogicalSlots` (new)
+- `Glyphser.TMMU.MapToVirtualAddresses` (new)
+- `Glyphser.TMMU.ZeroTensor`
+- `Glyphser.TMMU.DebugFillTensor`
+- `Glyphser.TMMU.CommitExecution`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
-- Fully-qualified names: `UML_OS.TMMU.<Name>_v#`
+- Fully-qualified names: `Glyphser.TMMU.<Name>_v#`
 
 ### 0.I Outputs and Metric Schema
 - Declared outputs: `tensor_map: dict[tensor_id → {logical_address, arena, logical_slot, size, lifetime}]`, `metrics`
@@ -200,7 +200,7 @@
 ### II.K Plan Hash (Normative)
 - `execution_order_hash = SHA-256(CBOR_CANONICAL(execution_order))`.
 - `shard_spec_hash = SHA-256(CBOR_CANONICAL(shard_spec))`, where `shard_spec` is resolved from manifest parallelism/sharding configuration.
-- `tmmu_plan_hash = SHA-256(CBOR_CANONICAL(["tmmu_plan_v1", [ir_hash, mode, arena_config_hash, execution_order_hash, rank, world_size, shard_spec_hash, slot_assignment_table, logical_address_table]]))`.
+- `tmmu_plan_hash = SHA-256(CBOR_CANONICAL(["tmmu_plan", [ir_hash, mode, arena_config_hash, execution_order_hash, rank, world_size, shard_spec_hash, slot_assignment_table, logical_address_table]]))`.
 - `replay_token` is `bytes32` and is included in `slot_assignment_table` derivation inputs.
 
 ### II.J Resource Ledger Emission (Normative)
@@ -215,7 +215,7 @@
 ## 3) Initialization
 
 1. Validate IR, shapes, roles, execution_order vs mode.
-2. `live_ranges ← AnalyzeLiveness_v1(ir_dag, execution_order, mode)`
+2. `live_ranges ← AnalyzeLiveness(ir_dag, execution_order, mode)`
 3. Classify tensors into arenas based on role/mode.
 
 ---
@@ -223,43 +223,43 @@
 ## 4) Operator Manifest
 
 Active operators:
-- `UML_OS.TMMU.PrepareMemory_v2`
-- `UML_OS.Model.AnalyzeLiveness_v1`
-- `UML_OS.TMMU.AssignLogicalSlots_v1`
-- `UML_OS.TMMU.MapToVirtualAddresses_v1`
-- `UML_OS.TMMU.ZeroTensor_v1`
-- `UML_OS.TMMU.DebugFillTensor_v1`
-- `UML_OS.TMMU.CommitExecution_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.TMMU.PrepareMemory`
+- `Glyphser.Model.AnalyzeLiveness`
+- `Glyphser.TMMU.AssignLogicalSlots`
+- `Glyphser.TMMU.MapToVirtualAddresses`
+- `Glyphser.TMMU.ZeroTensor`
+- `Glyphser.TMMU.DebugFillTensor`
+- `Glyphser.TMMU.CommitExecution`
+- `Glyphser.Error.Emit`
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
-**Operator:** `UML_OS.TMMU.PrepareMemory_v2`  
+**Operator:** `Glyphser.TMMU.PrepareMemory`  
 **Category:** Memory  
 **Signature:** `(ir_dag, execution_order, mode, replay_token, arena_config → tensor_map, metrics)`  
 **Purity class:** STATEFUL  
 **Determinism:** Fully deterministic  
-**Definition:** Compatibility wrapper orchestrating `PlanMemory_v2` (PURE) and `ApplyPlan_v1` (STATEFUL) with identical observable outputs to legacy callers.
+**Definition:** Compatibility wrapper orchestrating `PlanMemory` (PURE) and `ApplyPlan` (STATEFUL) with identical observable outputs to legacy callers.
 **Preconditions / Postconditions:** valid IR and arena config; returns deterministic tensor_map/metrics with zeroed handles.  
 **Edge cases:** tiny graphs, near-capacity arenas, mixed-role tensors.  
 **Numerical considerations:** integer-only offset/address arithmetic with overflow checks.  
 **Ordering/tie handling:** birth-time ascending, size-desc tie-break, lowest-slot-first assignment.  
 **Complexity note:** O(N log N) worst-case (N=tensors).  
 **Failure behavior:** abort with 0.K allocator codes.  
-**Dependencies:** PlanMemory_v2, ApplyPlan_v1, AnalyzeLiveness_v1, AssignLogicalSlots_v1, MapToVirtualAddresses_v1, ZeroTensor_v1, CommitExecution_v1.  
+**Dependencies:** PlanMemory, ApplyPlan, AnalyzeLiveness, AssignLogicalSlots, MapToVirtualAddresses, ZeroTensor, CommitExecution.  
 
-**Operator:** `UML_OS.TMMU.PlanMemory_v2`
+**Operator:** `Glyphser.TMMU.PlanMemory`
 **Category:** Memory
 **Signature:** `(ir_dag, execution_order, mode, arena_config -> tmmu_plan, metrics)`
 **Purity class:** PURE
 **Determinism:** Fully deterministic
 **Definition:** Builds tensor interval set from IR outputs/inputs/persistent buffers, computes births/deaths from execution order, and emits deterministic slot/offset plan with plan hash.
 
-**Operator:** `UML_OS.TMMU.ApplyPlan_v1`
+**Operator:** `Glyphser.TMMU.ApplyPlan`
 **Category:** Memory
 **Signature:** `(tmmu_plan, runtime_arena_handles -> tensor_map, metrics, tmmu_state')`
 **Purity class:** STATEFUL
@@ -267,7 +267,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Definition:** Applies logical `(arena_id, offset_bytes)` plan to runtime pointers, performs zero/fill operations, and commits allocator state.
 **Test vectors:** see VII.B chain/residual/large-model slot maps.
 
-**Operator:** `UML_OS.Model.AnalyzeLiveness_v1`  
+**Operator:** `Glyphser.Model.AnalyzeLiveness`  
 **Category:** Model  
 **Signature:** `(ir_dag, execution_order, mode → live_ranges)`  
 **Purity class:** PURE  
@@ -282,7 +282,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 **Dependencies:** UML_Model_IR schema.  
 **Test vectors:** known DAGs with expected intervals.
 
-**Operator:** `UML_OS.TMMU.AssignLogicalSlots_v1` (new)  
+**Operator:** `Glyphser.TMMU.AssignLogicalSlots` (new)  
 **Category:** Memory  
 **Signature:** `(live_ranges, arena_config -> logical_slot_assignment: dict[tensor_id -> (arena, logical_slot_id)], slot_size_map: dict[(arena, logical_slot_id) -> uint64], slot_alignment_map: dict[(arena, logical_slot_id) -> uint64])`  
 **Purity class:** PURE  
@@ -297,7 +297,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 **Test vectors:** interval-coloring optimality cases.
 **Policy note:** slot-count optimality does not guarantee globally minimal physical bytes under heterogeneous tensor sizes; first-fit deterministic policy may leave additional fragmentation, which is tracked by `internal_fragmentation_ratio`.
 
-**Operator:** `UML_OS.TMMU.MapToVirtualAddresses_v1` (new)  
+**Operator:** `Glyphser.TMMU.MapToVirtualAddresses` (new)  
 **Category:** Memory  
 **Signature:** `(logical_slot_assignment, arena_config, slot_size_map, slot_alignment_map -> logical_map)`  
 **Purity class:** PURE  
@@ -311,7 +311,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 **Dependencies:** deterministic ordering and arena config.  
 **Test vectors:** fixed arena config + slot maps -> exact logical map.
 
-**Operator:** `UML_OS.TMMU.ZeroTensor_v1`  
+**Operator:** `Glyphser.TMMU.ZeroTensor`  
 **Category:** Memory  
 **Signature:** `(logical_address, size_bytes -> ok)` (driver primitive)  
 **Purity class:** STATEFUL  
@@ -325,7 +325,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 **Dependencies:** driver memory primitive.  
 **Test vectors:** zero verification across varied tensor sizes.
 
-**Operator:** `UML_OS.TMMU.DebugFillTensor_v1`  
+**Operator:** `Glyphser.TMMU.DebugFillTensor`  
 **Category:** Memory  
 **Signature:** `(logical_address, pattern_seed -> ok)`  
 **Purity class:** STATEFUL  
@@ -338,7 +338,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 **Failure behavior:** abort on invalid address/mode violation.  
 **Dependencies:** driver memory primitive and execution mode.
 
-**Operator:** `UML_OS.TMMU.CommitExecution_v1`  
+**Operator:** `Glyphser.TMMU.CommitExecution`  
 **Category:** Memory  
 **Signature:** `(() -> tmmu_state')`  
 **Purity class:** STATEFUL  
@@ -357,10 +357,10 @@ If `saved_for_backward=true`, death time is extended through the last backward c
 ## 6) Procedure
 
 ```text
-1. live_ranges ← AnalyzeLiveness_v1(ir_dag, execution_order, mode)
+1. live_ranges ← AnalyzeLiveness(ir_dag, execution_order, mode)
    # Mode-aware lifetime extension for backward activations/gradients
 
-2. logical_slots, slot_size_map, slot_alignment_map ← AssignLogicalSlots_v1(live_ranges, arena_config)
+2. logical_slots, slot_size_map, slot_alignment_map ← AssignLogicalSlots(live_ranges, arena_config)
    # Per-arena linear-scan (optimal for interval graphs):
    #   - Sort tensors by birth time, then size descending
    #   - Maintain active_slots set (bitset or min-heap of used slots)
@@ -368,7 +368,7 @@ If `saved_for_backward=true`, death time is extended through the last backward c
    #   - Emit slot_size_map[(arena, slot)] = max(required_tensor_bytes for tensors in slot)
    #   - Emit slot_alignment_map[(arena, slot)] = max(required_tensor_alignment, arena_config[arena].alignment_bytes)
 
-3. logical_map ← MapToVirtualAddresses_v1(logical_slots, arena_config, slot_size_map, slot_alignment_map)
+3. logical_map ← MapToVirtualAddresses(logical_slots, arena_config, slot_size_map, slot_alignment_map)
    # Per arena: deterministic slot order by logical_slot_id
    # offset_0 = 0
    # offset_{k+1} = align_up(offset_k + slot_size_k, align_{k+1})
@@ -383,13 +383,13 @@ If `saved_for_backward=true`, death time is extended through the last backward c
        tensor_map[tensor.id] ← {logical_address: logical_addr, arena, logical_slot: slot, size, lifetime: live_ranges[tensor.id], alignment: arena_config[arena].alignment}
 
 5. for each tensor in tensor_map:
-       ZeroTensor_v1(tensor_map[tensor_id].logical_address, tensor_map[tensor_id].size)
-       # DebugFillTensor_v1 is optional and forbidden in confidential/regulated modes.
+       ZeroTensor(tensor_map[tensor_id].logical_address, tensor_map[tensor_id].size)
+       # DebugFillTensor is optional and forbidden in confidential/regulated modes.
 
 6. metrics ← ComputeMetrics(live_ranges, logical_slots, logical_map)
    # Includes per-arena peak, reuse_ratio = 1 - (slots_used / total_tensors), fragmentation
 
-7. tmmu_state' ← CommitExecution_v1()
+7. tmmu_state' ← CommitExecution()
 8. return tensor_map, metrics
 ```
 

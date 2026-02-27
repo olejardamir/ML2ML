@@ -1,9 +1,9 @@
-# UML_OS Brownfield Deployment Guide
+# Glyphser Brownfield Deployment Guide
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.BrownfieldAdoption_v1`  
-**Purpose (1 sentence):** Define deterministic patterns for incremental UML_OS adoption in existing ML infrastructures without big-bang rewrites.  
-**Spec Version:** `UML_OS.Implementation.BrownfieldAdoption_v1` | 2026-02-20 | Authors: Olejar Damir
+**Algorithm:** `Glyphser.Implementation.BrownfieldAdoption`  
+**Purpose (1 sentence):** Define deterministic patterns for incremental Glyphser adoption in existing ML infrastructures without big-bang rewrites.  
+**Spec Version:** `Glyphser.Implementation.BrownfieldAdoption` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 
@@ -30,9 +30,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Brownfield Deployment Guide" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Brownfield Deployment Guide" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

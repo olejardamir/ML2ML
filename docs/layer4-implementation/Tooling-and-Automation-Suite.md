@@ -1,16 +1,16 @@
-# UML_OS Tooling and Automation Suite
+# Glyphser Tooling and Automation Suite
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.ToolingSuite_v1`  
-**Purpose (1 sentence):** Define a comprehensive tooling surface that makes UML_OS contracts directly executable, inspectable, and automatable.  
-**Spec Version:** `UML_OS.Implementation.ToolingSuite_v1` | 2026-02-20 | Authors: Olejar Damir
+**Algorithm:** `Glyphser.Implementation.ToolingSuite`  
+**Purpose (1 sentence):** Define a comprehensive tooling surface that makes Glyphser contracts directly executable, inspectable, and automatable.  
+**Spec Version:** `Glyphser.Implementation.ToolingSuite` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 
 ---
 ## 1) Mandatory Tools
 ### I.A Declarative Manifest Generator
-- CLI: `umlos init`
+- CLI: `glyphser init`
 - Function:
   - interactively gather model/data/privacy/deployment inputs,
   - emit valid `manifest.yaml`,
@@ -19,7 +19,7 @@
   - `generated_manifest_hash = SHA-256(CBOR_CANONICAL(manifest))`.
 
 ### I.B Visual IR Explorer
-- Tool: `umlos ir-explorer`
+- Tool: `glyphser ir-explorer`
 - Function:
   - load UML_Model_IR,
   - render graph topology,
@@ -27,21 +27,21 @@
   - display TMMU slot assignments and reuse windows.
 
 ### I.C Automated Migration Assistant
-- CLI: `umlos migrate`
+- CLI: `glyphser migrate`
 - Function:
   - detect source schema versions,
   - invoke migration operators (`ManifestMigrate`, checkpoint/trace migrators),
   - verify migrated outputs against expected hashes and compatibility constraints.
 
 ### I.D Continuous Replay Monitor
-- Service: `umlos replay-monitor`
+- Service: `glyphser replay-monitor`
 - Function:
   - monitor production run metadata,
   - trigger deterministic shadow replays,
   - emit divergence alerts and first-divergence evidence bundles.
 
 ### I.E Semantic Trace Differ
-- CLI: `umlos diff trace_a trace_b`
+- CLI: `glyphser diff trace_a trace_b`
 - Function:
   - find first divergence,
   - color/classify fields by determinism class (`E0/E1/E2`),
@@ -62,9 +62,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Tooling and Automation Suite" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Tooling and Automation Suite" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

@@ -1,9 +1,9 @@
-# UML_OS Performance Governance
+# Glyphser Performance Governance
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.PerformanceGovernance_v1`  
-**Purpose (1 sentence):** Define deterministic performance measurement, thresholds, and regression-gating for core UML_OS operators.  
-**Spec Version:** `UML_OS.Implementation.PerformanceGovernance_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Algorithm:** `Glyphser.Implementation.PerformanceGovernance`  
+**Purpose (1 sentence):** Define deterministic performance measurement, thresholds, and regression-gating for core Glyphser operators.  
+**Spec Version:** `Glyphser.Implementation.PerformanceGovernance` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Reproducible performance benchmarking and policy enforcement.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.PerformanceGovernance_v1`
+- **Algorithm:** `Glyphser.Implementation.PerformanceGovernance`
 - **Purpose (1 sentence):** Deterministic benchmark governance.
-- **Spec Version:** `UML_OS.Implementation.PerformanceGovernance_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Implementation.PerformanceGovernance` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Performance policy contract.
 
 ### 0.A Objective Semantics
@@ -48,10 +48,10 @@
 - Determinism level: deterministic analysis/verdict over frozen samples (E0 on analysis), tolerance-based policy on raw metrics.
 
 ### 0.G Operator Manifest
-- `UML_OS.Perf.RunBenchmark_v1`
-- `UML_OS.Perf.AggregateMetrics_v1`
-- `UML_OS.Perf.EvaluateRegressionPolicy_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Perf.RunBenchmark`
+- `Glyphser.Perf.AggregateMetrics`
+- `Glyphser.Perf.EvaluateRegressionPolicy`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
 - Fully-qualified performance operators required.
@@ -133,7 +133,7 @@
 - Gate verdict record must include `metric_snapshot_hash`; comparisons and audits must use this hash as the authoritative metric evidence identity.
 
 ### II.I Baseline Commitment (Normative)
-- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline_v1", [workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]]))`.
+- `baseline_hash = SHA-256(CBOR_CANONICAL(["perf_baseline", [workload_manifest_hash, runtime_env_hash, driver_runtime_fingerprint_hash, hardware_fingerprint_hash, sample_policy_hash]]))`.
 - Performance comparisons are valid only when baseline and candidate share compatible workload and environment commitment sets.
 
 ---
@@ -148,18 +148,18 @@
 
 ## 4) Operator Manifest
 
-- `UML_OS.Perf.RunBenchmark_v1`
-- `UML_OS.Perf.AggregateMetrics_v1`
-- `UML_OS.Perf.EvaluateRegressionPolicy_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Perf.RunBenchmark`
+- `Glyphser.Perf.AggregateMetrics`
+- `Glyphser.Perf.EvaluateRegressionPolicy`
+- `Glyphser.Error.Emit`
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
-**Operator:** `UML_OS.Perf.RunBenchmark_v1`  
+**Operator:** `Glyphser.Perf.RunBenchmark`  
 **Category:** IO  
 **Signature:** `(workload, env -> metric_samples)`  
 **Purity class:** STATEFUL  
@@ -174,7 +174,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** benchmark harness.  
 **Test vectors:** synthetic workload performance fixtures.
 
-**Operator:** `UML_OS.Perf.AggregateMetrics_v1`  
+**Operator:** `Glyphser.Perf.AggregateMetrics`  
 **Category:** IO  
 **Signature:** `(metric_samples -> aggregate_metrics)`  
 **Purity class:** PURE  
@@ -189,7 +189,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** percentile calculator.  
 **Test vectors:** fixed sample -> fixed aggregates.
 
-**Operator:** `UML_OS.Perf.EvaluateRegressionPolicy_v1`  
+**Operator:** `Glyphser.Perf.EvaluateRegressionPolicy`  
 **Category:** IO  
 **Signature:** `(aggregate_metrics, baselines, thresholds -> gate_verdict)`  
 **Purity class:** PURE  
@@ -209,9 +209,9 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 ## 6) Procedure
 
 ```text
-1. RunBenchmark_v1 for each workload
-2. AggregateMetrics_v1
-3. EvaluateRegressionPolicy_v1
+1. RunBenchmark for each workload
+2. AggregateMetrics
+3. EvaluateRegressionPolicy
 4. Return perf_report + gate_verdict
 ```
 

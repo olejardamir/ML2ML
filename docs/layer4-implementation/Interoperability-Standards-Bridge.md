@@ -1,9 +1,9 @@
-# UML_OS Interoperability Standards Bridge
+# Glyphser Interoperability Standards Bridge
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Interop.StandardsBridge_v1`  
-**Purpose (1 sentence):** Define normative mappings between UML_OS artifacts and major industry standards for runtime integration.  
-**Spec Version:** `UML_OS.Interop.StandardsBridge_v1` | 2026-02-20 | Authors: Olejar Damir
+**Algorithm:** `Glyphser.Interop.StandardsBridge`  
+**Purpose (1 sentence):** Define normative mappings between Glyphser artifacts and major industry standards for runtime integration.  
+**Spec Version:** `Glyphser.Interop.StandardsBridge` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 
@@ -14,16 +14,16 @@
 - Require round-trip conformance vectors for supported op subset.
 
 ## 2) OpenTelemetry Native Export
-- Provide OTLP exporter profile for UML_OS trace records.
+- Provide OTLP exporter profile for Glyphser trace records.
 - Semantic conventions MUST include stable attrs:
-  - `umlos.operator_id`, `umlos.step`, `umlos.run_id`, `umlos.trace_final_hash`.
+  - `glyphser.operator_id`, `glyphser.step`, `glyphser.run_id`, `glyphser.trace_final_hash`.
 
 ## 3) Prometheus/OpenMetrics Integration
 - Standard runtime metric set:
-  - `umlos_loss_total`
-  - `umlos_gradient_norm`
-  - `umlos_tmmu_peak_bytes`
-  - `umlos_replay_divergence_total`
+  - `glyphser_loss_total`
+  - `glyphser_gradient_norm`
+  - `glyphser_tmmu_peak_bytes`
+  - `glyphser_replay_divergence_total`
 - Deterministic `/metrics` projection required for identical run windows.
 
 ## 4) Kubernetes Operator Surface
@@ -36,9 +36,9 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Structural.Addendum_v1`
-- **Purpose (1 sentence):** Structural EQC compliance addendum for "UML_OS Interoperability Standards Bridge" without altering existing semantics.
-- **Spec Version:** `UML_OS.Structural.Addendum_v1` | 2026-02-20 | Authors: ML2ML
+- **Algorithm:** `Glyphser.Structural.Addendum`
+- **Purpose (1 sentence):** Structural EQC compliance addendum for "Glyphser Interoperability Standards Bridge" without altering existing semantics.
+- **Spec Version:** `Glyphser.Structural.Addendum` | 2026-02-20 | Authors: ML2ML
 - **Domain / Problem Class:** Documentation governance and structural conformance.
 ### 0.Z EQC Mandatory Declarations Addendum
 - This document inherits deterministic, numeric, and failure policies from its referenced normative contracts unless explicitly overridden.

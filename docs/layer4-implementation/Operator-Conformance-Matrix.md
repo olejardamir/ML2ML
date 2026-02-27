@@ -1,9 +1,9 @@
-# UML_OS Operator Conformance Matrix
+# Glyphser Operator Conformance Matrix
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.OperatorConformanceMatrix_v1`  
+**Algorithm:** `Glyphser.Implementation.OperatorConformanceMatrix`  
 **Purpose (1 sentence):** Define deterministic operator implementation and conformance tracking for coding progress and release gating.  
-**Spec Version:** `UML_OS.Implementation.OperatorConformanceMatrix_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.OperatorConformanceMatrix` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Implementation governance and conformance.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.OperatorConformanceMatrix_v1`
+- **Algorithm:** `Glyphser.Implementation.OperatorConformanceMatrix`
 - **Purpose (1 sentence):** Canonical operator conformance tracking contract.
 ### 0.A Objective Semantics
 - optimize for maximal conformance coverage with minimal unresolved blockers.
@@ -27,12 +27,12 @@
 - conformance checks run under lockfile-pinned toolchain.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.LoadOperatorRegistry_v1`
-- `UML_OS.Implementation.ResolveOperatorEvidence_v1`
-- `UML_OS.Implementation.ScoreOperatorConformance_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.LoadOperatorRegistry`
+- `Glyphser.Implementation.ResolveOperatorEvidence`
+- `Glyphser.Implementation.ScoreOperatorConformance`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- implementation governance operators under `UML_OS.Implementation.*`.
+- implementation governance operators under `Glyphser.Implementation.*`.
 ### 0.I Outputs and Metric Schema
 - outputs: `(conformance_matrix, conformance_summary, blockers)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,19 +64,19 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.LoadOperatorRegistry_v1`
-- `UML_OS.Implementation.ResolveOperatorEvidence_v1`
-- `UML_OS.Implementation.ScoreOperatorConformance_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.LoadOperatorRegistry`
+- `Glyphser.Implementation.ResolveOperatorEvidence`
+- `Glyphser.Implementation.ScoreOperatorConformance`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Implementation.ResolveOperatorEvidence_v1`  
+**Operator:** `Glyphser.Implementation.ResolveOperatorEvidence`  
 **Signature:** `(operator_id, evidence_indexes -> evidence_row)`  
 **Purity class:** PURE  
 **Definition:** Resolves implementation path, tests, vectors, and trace evidence for operator.
 
-**Operator:** `UML_OS.Implementation.ScoreOperatorConformance_v1`  
+**Operator:** `Glyphser.Implementation.ScoreOperatorConformance`  
 **Signature:** `(evidence_row -> conformance_status, score)`  
 **Purity class:** PURE  
 **Definition:** Produces deterministic status in `{STUB, PARTIAL, COMPLETE, CERTIFIED}`.
@@ -84,10 +84,10 @@
 ---
 ## 6) Procedure
 ```text
-1. registry <- LoadOperatorRegistry_v1(...)
+1. registry <- LoadOperatorRegistry(...)
 2. for operator_id in sorted(registry):
-     evidence_row <- ResolveOperatorEvidence_v1(...)
-     status <- ScoreOperatorConformance_v1(evidence_row)
+     evidence_row <- ResolveOperatorEvidence(...)
+     status <- ScoreOperatorConformance(evidence_row)
 3. aggregate summary metrics
 4. fail if required operators not COMPLETE+ for target gate
 ```
@@ -123,4 +123,4 @@
 - Output contract extension:
   - `conformance_summary` MUST include `coverage_pct_by_profile` and `blockers_by_profile`.
 - External certification label mapping:
-  - operators/modules with `CERTIFIED` status and zero blockers in target profile MAY be labeled `UML_OS Certified Module`.
+  - operators/modules with `CERTIFIED` status and zero blockers in target profile MAY be labeled `Glyphser Certified Module`.

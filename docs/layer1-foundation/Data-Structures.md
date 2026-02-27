@@ -1,9 +1,9 @@
-# UML_OS Data Structure Contract
+# Glyphser Data Structure Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.DataStructureContract_v1`  
+**Algorithm:** `Glyphser.Implementation.DataStructureContract`  
 **Purpose (1 sentence):** Define deterministic canonical runtime data structures for kernel, model IR, TMMU, data, and DP modules.  
-**Spec Version:** `UML_OS.Implementation.DataStructureContract_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.DataStructureContract` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Type/layout specification for interoperable deterministic execution.
@@ -13,9 +13,9 @@
 ## 1) Header & Global Semantics
 
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.DataStructureContract_v1`
+- **Algorithm:** `Glyphser.Implementation.DataStructureContract`
 - **Purpose (1 sentence):** Canonical data-structure definitions.
-- **Spec Version:** `UML_OS.Implementation.DataStructureContract_v1` | 2026-02-18 | Authors: Olejar Damir
+- **Spec Version:** `Glyphser.Implementation.DataStructureContract` | 2026-02-18 | Authors: Olejar Damir
 - **Domain / Problem Class:** Runtime type contracts.
 
 ### 0.A Objective Semantics
@@ -49,13 +49,13 @@
 - Determinism level: `BITWISE` for serialized schema hash.
 
 ### 0.G Operator Manifest
-- `UML_OS.Implementation.ValidateSchemaDecl_v1`
-- `UML_OS.Implementation.ValidateInstance_v1`
-- `UML_OS.Implementation.ValidateStruct_v1`
-- `UML_OS.Implementation.SerializeCanonical_v1`
-- `UML_OS.Implementation.ComputeStructHash_v1`
-- `UML_OS.Error.Emit_v1`
-- Compatibility note: `UML_OS.Implementation.ValidateStruct_v1` is a compat alias to schema validation.
+- `Glyphser.Implementation.ValidateSchemaDecl`
+- `Glyphser.Implementation.ValidateInstance`
+- `Glyphser.Implementation.ValidateStruct`
+- `Glyphser.Implementation.SerializeCanonical`
+- `Glyphser.Implementation.ComputeStructHash`
+- `Glyphser.Error.Emit`
+- Compatibility note: `Glyphser.Implementation.ValidateStruct` is a compat alias to schema validation.
 
 ### 0.H Namespacing and Packaging
 - Structure names are namespaced by subsystem.
@@ -169,10 +169,10 @@
   - **Extension structure set (optional modules):** `MonitorEvent`, `MetricSchema`, `PipelineTransitionRecord`, `ResourceLedgerRecord`.
   - If extension structures are used, they are contract-bound by this same canonical serialization profile.
 - Alignment policy for binary layouts: applies to in-memory/native struct layouts only; it does not affect canonical CBOR wire encoding. Fields should align to natural size for native runtime efficiency; packed representation is forbidden for cross-language in-memory ABI payloads.
-- Registry format (normative): `struct_registry: map<string, StructDecl>`; `ValidateSchemaDecl_v1` validates declarations against this meta-model.
+- Registry format (normative): `struct_registry: map<string, StructDecl>`; `ValidateSchemaDecl` validates declarations against this meta-model.
 - Checkpoint hash preimage rule (normative):
   - `checkpoint_header_hash = SHA-256(CBOR_CANONICAL(CheckpointHeader excluding fields {checkpoint_header_hash, checkpoint_hash}))`
-  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit_v1", [checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]]))`
+  - `checkpoint_hash = SHA-256(CBOR_CANONICAL(["checkpoint_commit", [checkpoint_header_hash, checkpoint_manifest_hash, checkpoint_merkle_root]]))`
   - Stored `checkpoint_header_hash` and `checkpoint_hash` are derived outputs, never recursive inputs.
 
 ### II.G Canonical Serialization v1 (Normative)
@@ -214,26 +214,26 @@
 
 ## 4) Operator Manifest
 
-- `UML_OS.Implementation.ValidateSchemaDecl_v1`
-- `UML_OS.Implementation.ValidateInstance_v1`
-- `UML_OS.Implementation.ValidateStruct_v1`
-- `UML_OS.Implementation.SerializeCanonical_v1`
-- `UML_OS.Implementation.ComputeStructHash_v1`
-- `UML_OS.Error.Emit_v1`
-- Compatibility note: `UML_OS.Implementation.ValidateStruct_v1` aliases `UML_OS.Implementation.ValidateSchemaDecl_v1`.
+- `Glyphser.Implementation.ValidateSchemaDecl`
+- `Glyphser.Implementation.ValidateInstance`
+- `Glyphser.Implementation.ValidateStruct`
+- `Glyphser.Implementation.SerializeCanonical`
+- `Glyphser.Implementation.ComputeStructHash`
+- `Glyphser.Error.Emit`
+- Compatibility note: `Glyphser.Implementation.ValidateStruct` aliases `Glyphser.Implementation.ValidateSchemaDecl`.
 
 ---
 
 ## 5) Operator Definitions
 
-External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
+External operator reference: `Glyphser.Error.Emit` is defined normatively in `docs/layer1-foundation/Error-Codes.md` and imported by reference.
 
-**Operator:** `UML_OS.Implementation.ValidateStruct_v1`  
+**Operator:** `Glyphser.Implementation.ValidateStruct`  
 **Category:** IO  
 **Signature:** `(registry -> report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** compatibility alias for `UML_OS.Implementation.ValidateSchemaDecl_v1`.  
+**Definition:** compatibility alias for `Glyphser.Implementation.ValidateSchemaDecl`.  
 **Preconditions / Postconditions:** registry loaded.  
 **Edge cases:** optional fields and nested maps.  
 **Numerical considerations:** N/A.  
@@ -243,7 +243,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** canonical schema parser.  
 **Test vectors:** valid/invalid schema fixtures.
 
-**Operator:** `UML_OS.Implementation.ValidateSchemaDecl_v1`  
+**Operator:** `Glyphser.Implementation.ValidateSchemaDecl`  
 **Category:** IO  
 **Signature:** `(registry -> schema_validation_report)`  
 **Purity class:** PURE  
@@ -258,7 +258,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** canonical schema parser.  
 **Test vectors:** valid/invalid schema fixtures.
 
-**Operator:** `UML_OS.Implementation.ValidateInstance_v1`  
+**Operator:** `Glyphser.Implementation.ValidateInstance`  
 **Category:** IO  
 **Signature:** `(instance, struct_name, struct_version, registry -> instance_validation_report)`  
 **Purity class:** PURE  
@@ -273,7 +273,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** canonical schema parser.
 **Test vectors:** valid/invalid instance fixtures.
 
-**Operator:** `UML_OS.Implementation.SerializeCanonical_v1`  
+**Operator:** `Glyphser.Implementation.SerializeCanonical`  
 **Category:** IO  
 **Signature:** `(object -> canonical_bytes)`  
 **Purity class:** PURE  
@@ -288,7 +288,7 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 **Dependencies:** serializer backend.  
 **Test vectors:** golden serialized bytes.
 
-**Operator:** `UML_OS.Implementation.ComputeStructHash_v1`  
+**Operator:** `Glyphser.Implementation.ComputeStructHash`  
 **Category:** IO  
 **Signature:** `(canonical_bytes -> hash)`  
 **Purity class:** PURE  
@@ -309,15 +309,15 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined normatively in `d
 
 ```text
 Schema path:
-1. ValidateSchemaDecl_v1(registry)
-2. SerializeCanonical_v1(registry)
-3. ComputeStructHash_v1(schema_canonical_bytes)
+1. ValidateSchemaDecl(registry)
+2. SerializeCanonical(registry)
+3. ComputeStructHash(schema_canonical_bytes)
 4. Return schema_validation_report + schema_canonical_bytes + schema_hash
 
 Instance path:
-1. ValidateInstance_v1(instance, struct_name, struct_version, registry)
-2. SerializeCanonical_v1(instance)
-3. ComputeStructHash_v1(instance_canonical_bytes)
+1. ValidateInstance(instance, struct_name, struct_version, registry)
+2. SerializeCanonical(instance)
+3. ComputeStructHash(instance_canonical_bytes)
 4. Return instance_validation_report + instance_canonical_bytes + instance_hash
 ```
 

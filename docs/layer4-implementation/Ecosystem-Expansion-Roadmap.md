@@ -1,9 +1,9 @@
-# UML_OS Ecosystem Expansion Roadmap (Items 12-40)
+# Glyphser Ecosystem Expansion Roadmap (Items 12-40)
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Implementation.EcosystemExpansionRoadmap_v1`  
+**Algorithm:** `Glyphser.Implementation.EcosystemExpansionRoadmap`  
 **Purpose (1 sentence):** Define the next-wave ecosystem, operations, governance, and interoperability expansions needed for category-leading platform adoption.  
-**Spec Version:** `UML_OS.Implementation.EcosystemExpansionRoadmap_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Implementation.EcosystemExpansionRoadmap` | 2026-02-20 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Strategic platform expansion and ecosystem integration.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Implementation.EcosystemExpansionRoadmap_v1`
+- **Algorithm:** `Glyphser.Implementation.EcosystemExpansionRoadmap`
 - **Purpose (1 sentence):** Deterministic execution plan for market-facing expansion tracks.
 ### 0.A Objective Semantics
 - Minimize adoption friction while preserving deterministic, auditable guarantees.
@@ -27,12 +27,12 @@
 - All outputs must bind `env_manifest_hash` and release profile id.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Implementation.PlanWorkstream_v1`
-- `UML_OS.Implementation.EvaluateWorkstreamReadiness_v1`
-- `UML_OS.Implementation.EmitExpansionReport_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Implementation.PlanWorkstream`
+- `Glyphser.Implementation.EvaluateWorkstreamReadiness`
+- `Glyphser.Implementation.EmitExpansionReport`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Implementation.*` for planning/evaluation operators.
+- `Glyphser.Implementation.*` for planning/evaluation operators.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(expansion_report, readiness_by_workstream, release_blockers, expansion_evidence_hash)`.
 - Metrics: `workstreams_total`, `workstreams_ready`, `blockers_open`.
@@ -97,7 +97,7 @@
 - Green-optimization guidance with determinism-preserving constraints.
 
 ### II.I Long-Term Archival and Notarization (20)
-- Self-contained preservation package format (`.umlospack`).
+- Self-contained preservation package format (`.glyphserpack`).
 - Public/notary timestamp anchoring for long-term tamper evidence.
 - Bit-rot detection and deterministic archival integrity rechecks.
 
@@ -133,7 +133,7 @@
 
 ### II.P MLOps Toolchain Integration (27)
 - Kubeflow component wrappers.
-- Airflow operators (`UMLOSRunOperator`, certificate wait operators).
+- Airflow operators (`GLYPHSERRunOperator`, certificate wait operators).
 - MLflow project flavor integration.
 
 ### II.Q Emerging Hardware Adaptation (28)

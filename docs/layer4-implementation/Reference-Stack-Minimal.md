@@ -1,9 +1,9 @@
-# UML_OS Minimal Runnable Reference Stack
+# Glyphser Minimal Runnable Reference Stack
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.ReferenceStack.Minimal_v1`  
+**Algorithm:** `Glyphser.ReferenceStack.Minimal`  
 **Purpose (1 sentence):** Define a minimal runnable reference implementation that proves the full deterministic lifecycle from manifest to certificate and replay.  
-**Spec Version:** `UML_OS.ReferenceStack.Minimal_v1` | 2026-02-20 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.ReferenceStack.Minimal` | 2026-02-20 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Executable reference implementation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.ReferenceStack.Minimal_v1`
+- **Algorithm:** `Glyphser.ReferenceStack.Minimal`
 - **Purpose (1 sentence):** End-to-end runnable proof of contract interoperability.
 ### 0.A Objective Semantics
 - Execute the smallest useful pipeline that demonstrates deterministic lifecycle closure.
@@ -27,13 +27,13 @@
 - Locked dependency manifest required.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Config.NormalizeDefaults_v1`
-- `UML_OS.Data.NextBatch_v2`
-- `UML_OS.Model.ModelIR_Executor_v1`
-- `UML_OS.Trace.ComputeTraceHash_v1`
-- `UML_OS.Checkpoint.Write_v1`
-- `UML_OS.Certificate.Build_v1`
-- `UML_OS.Replay.CompareTrace_v1`
+- `Glyphser.Config.NormalizeDefaults`
+- `Glyphser.Data.NextBatch`
+- `Glyphser.Model.ModelIR_Executor`
+- `Glyphser.Trace.ComputeTraceHash`
+- `Glyphser.Checkpoint.Write`
+- `Glyphser.Certificate.Build`
+- `Glyphser.Replay.CompareTrace`
 ### 0.H Namespacing and Packaging
 - Reference stack package path: `reference/minimal_stack/`.
 ### 0.I Outputs and Metric Schema
@@ -63,11 +63,11 @@
 ```text
 1. Load canonical manifest + fixtures.
 2. Normalize config defaults and derive replay_token.
-3. For each train step: NextBatch_v2 -> ModelIR_Executor_v1.
+3. For each train step: NextBatch -> ModelIR_Executor.
 4. Emit trace records and compute trace_final_hash.
 5. Write checkpoint and compute checkpoint_hash.
 6. Build execution certificate and compute certificate_hash.
-7. Replay same run and compare trace with Replay.CompareTrace_v1.
+7. Replay same run and compare trace with Replay.CompareTrace.
 8. Emit run_report and replay_verdict.
 ```
 
@@ -96,7 +96,7 @@
 
 ---
 ## 5) Related Contracts
-- `docs/layer2-specs/UML_OS-Kernel-v3.22-OS.md`
+- `docs/layer2-specs/Glyphser-Kernel-v3.22-OS.md`
 - `docs/layer2-specs/ModelIR-Executor.md`
 - `docs/layer2-specs/Execution-Certificate.md`
 - `docs/layer2-specs/Replay-Determinism.md`

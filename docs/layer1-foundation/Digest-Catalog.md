@@ -1,9 +1,9 @@
-# UML_OS Digest Catalog Contract
+# Glyphser Digest Catalog Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Registry.DigestCatalog_v1`  
+**Algorithm:** `Glyphser.Registry.DigestCatalog`  
 **Purpose (1 sentence):** Define an authoritative catalog mapping digest labels to full bytes32 values and deterministic resolution rules.  
-**Spec Version:** `UML_OS.Registry.DigestCatalog_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Registry.DigestCatalog` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Digest governance and consistency control.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Registry.DigestCatalog_v1`
+- **Algorithm:** `Glyphser.Registry.DigestCatalog`
 - **Purpose (1 sentence):** Canonical digest label-to-bytes32 mapping.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,15 +30,15 @@
 ### 0.F Environment and Dependency Policy
 - Determinism level: `BITWISE`.
 ### 0.G Operator Manifest
-- `UML_OS.Registry.ResolveDigestRef_v1`
-- `UML_OS.Registry.ValidateDigestCatalog_v1`
-- `UML_OS.Error.Emit_v1`
-  - Note: `UML_OS.Error.Emit_v1` is a shared runtime error operator defined in the core error contract (`docs/layer1-foundation/Error-Codes.md`), not redefined in this document.
+- `Glyphser.Registry.ResolveDigestRef`
+- `Glyphser.Registry.ValidateDigestCatalog`
+- `Glyphser.Error.Emit`
+  - Note: `Glyphser.Error.Emit` is a shared runtime error operator defined in the core error contract (`docs/layer1-foundation/Error-Codes.md`), not redefined in this document.
 ### 0.H Namespacing and Packaging
 - Canonical location: `contracts/digest_catalog.cbor`.
 ### 0.I Outputs and Metric Schema
-- `ResolveDigestRef_v1` output: `(resolved_digest)`.
-- `ValidateDigestCatalog_v1` output: `(validation_report)`.
+- `ResolveDigestRef` output: `(resolved_digest)`.
+- `ValidateDigestCatalog` output: `(validation_report)`.
 ### 0.J Spec Lifecycle Governance
 - Label removal is MAJOR.
 ### 0.K Failure and Error Semantics
@@ -71,14 +71,14 @@
   - `digest_label:string`
   - `digest_value:bytes32`
   - `algorithm:string` (must be `sha256`)
-  - `domain_tag:string` (domain metadata for governance/audit; does not alter `ResolveDigestRef_v1` lookup semantics).
+  - `domain_tag:string` (domain metadata for governance/audit; does not alter `ResolveDigestRef` lookup semantics).
 - Additional fields are forbidden in both catalog object and entry records.
 - Canonical CBOR in this document means `CBOR_CANONICAL` as defined by `docs/layer1-foundation/Canonical-CBOR-Profile.md` (single authoritative encoding profile for commitment paths).
 
 ### II.H Catalog Commitment (Normative)
 - `entries_sorted` are sorted by `digest_label` ascending (bytewise UTF-8, case-sensitive).
 - `catalog_version` is encoded as CBOR unsigned integer (`uint32` domain constraint).
-- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", [catalog_version, entries_sorted]]))`.
+- `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog", [catalog_version, entries_sorted]]))`.
 - Any document using `sha256:<label>` references is valid only against the committed `catalog_hash`.
 
 ### II.G Resolution Rule (Normative)
@@ -97,25 +97,25 @@
 2. Validate schema and uniqueness.
 3. Build lookup index.
 4. Compute and store `catalog_hash` using §II.H exactly:
-   - `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog_v1", [catalog_version, entries_sorted]]))`,
+   - `catalog_hash = SHA-256(CBOR_CANONICAL(["digest_catalog", [catalog_version, entries_sorted]]))`,
    - where `entries_sorted` is the catalog `entries` array sorted by `digest_label` ascending (bytewise UTF-8, case-sensitive).
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Registry.ResolveDigestRef_v1`
-- `UML_OS.Registry.ValidateDigestCatalog_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Registry.ResolveDigestRef`
+- `Glyphser.Registry.ValidateDigestCatalog`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Registry.ResolveDigestRef_v1`  
+**Operator:** `Glyphser.Registry.ResolveDigestRef`  
 **Category:** Governance  
 **Signature:** `(digest_ref, digest_catalog -> digest_value)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** resolves digest labels to bytes32 values.
 
-**Operator:** `UML_OS.Registry.ValidateDigestCatalog_v1`  
+**Operator:** `Glyphser.Registry.ValidateDigestCatalog`  
 **Category:** Governance  
 **Signature:** `(digest_catalog -> validation_report)`  
 **Purity class:** PURE  
@@ -132,7 +132,7 @@ validation_report:
 ---
 ## 6) Procedure
 ```text
-1. ResolveDigestRef_v1 using initialized validated catalog index.
+1. ResolveDigestRef using initialized validated catalog index.
 2. Return digest_value
 ```
 

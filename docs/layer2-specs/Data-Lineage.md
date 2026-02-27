@@ -1,9 +1,9 @@
-# UML_OS Data Lineage Contract
+# Glyphser Data Lineage Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Data.Lineage_v1`  
+**Algorithm:** `Glyphser.Data.Lineage`  
 **Purpose (1 sentence):** Define deterministic dataset snapshot lineage and transform-chain provenance for replayable training/evaluation runs.  
-**Spec Version:** `UML_OS.Data.Lineage_v1` | 2026-02-18 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Data.Lineage` | 2026-02-18 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Data provenance and versioning.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Data.Lineage_v1`
+- **Algorithm:** `Glyphser.Data.Lineage`
 - **Purpose (1 sentence):** Deterministic dataset snapshot provenance.
 ### 0.A Objective Semantics
 - Optimization sense: `MINIMIZE`
@@ -30,12 +30,12 @@
 ### 0.F Environment and Dependency Policy
 - Data import and transforms must be content-addressed and immutable.
 ### 0.G Operator Manifest
-- `UML_OS.Data.BuildSnapshot_v1`
-- `UML_OS.Data.ComputeLineageHash_v1`
-- `UML_OS.Data.ValidateSnapshot_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Data.BuildSnapshot`
+- `Glyphser.Data.ComputeLineageHash`
+- `Glyphser.Data.ValidateSnapshot`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Data.*` namespace.
+- `Glyphser.Data.*` namespace.
 ### 0.I Outputs and Metric Schema
 - Outputs: `(dataset_snapshot_id, data_access_plan_hash, lineage_report)`
 - Metrics: `source_count`, `transform_count`, `snapshot_size_bytes`
@@ -86,10 +86,10 @@
   - `dataset_root_hash` is computed over dataset files as:
     - enumerate files under dataset root with normalized POSIX-style relative paths (forward slashes, no `.`/`..`, no repeated separators, no leading slash) sorted lexicographically,
     - `file_hash_i = SHA-256(file_bytes_i)`,
-    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf_v1", [relative_path_i, file_hash_i]]))`,
-    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node_v1", [left, right]]))` with odd-leaf duplication,
+    - `leaf_i = SHA-256(CBOR_CANONICAL(["dataset_leaf", [relative_path_i, file_hash_i]]))`,
+    - Merkle parent `node = SHA-256(CBOR_CANONICAL(["dataset_node", [left, right]]))` with odd-leaf duplication,
     - root is `dataset_root_hash`.
-  - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs_v1", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
+  - `split_hashes = SHA-256(CBOR_CANONICAL(["split_defs", split_defs_sorted]))` where `split_defs_sorted` is split config sorted by split name.
   - split-name uniqueness rule: `split_name` values MUST be unique within `split_defs`; duplicates are deterministic validation failure.
   - split derivation algorithm (normative):
     - start from dataset canonical deterministic order:
@@ -107,8 +107,8 @@
   - canonical split entry encoding: `{"split_name":string,"split_fraction":float64,"split_seed?:uint64}` encoded as canonical CBOR map.
   - `dataset_snapshot_id = SHA-256(CBOR_CANONICAL([tenant_id, [dataset_root_hash, split_hashes, transform_chain_hash, dataset_version_or_tag]]))`
 - Run/access-plan identity:
-  - `world_size_policy = "rank_contiguous_shard_v1"` (must match `docs/layer2-specs/Data-NextBatch.md`).
-  - `epoch_seed_rule = "epoch_seed_rule_v2"` (must match `docs/layer2-specs/Data-NextBatch.md`).
+  - `world_size_policy = "rank_contiguous_shard"` (must match `docs/layer2-specs/Data-NextBatch.md`).
+  - `epoch_seed_rule = "epoch_seed_rule"` (must match `docs/layer2-specs/Data-NextBatch.md`).
   - `data_access_plan_hash = SHA-256(CBOR_CANONICAL([kernel_replay_token, [manifest_hash, dataset_key, sampler_config_hash, world_size_policy, epoch_seed_rule]]))`
 - `dataset_snapshot_id` and `data_access_plan_hash` are distinct and MUST NOT be conflated.
 - Both `dataset_snapshot_id` and `data_access_plan_hash` MUST be emitted in trace and bound in execution certificate payload.
@@ -122,16 +122,16 @@
 - Commit binding: finalized lineage objects must participate in the atomic run commit protocol and be referenced by `lineage_root_hash` in the execution certificate.
 
 ### II.G Lineage Commitments (Normative)
-- `transform_chain_hash = SHA-256(CBOR_CANONICAL(["transform_chain_v1", transforms_sorted_by_seq]))`.
+- `transform_chain_hash = SHA-256(CBOR_CANONICAL(["transform_chain", transforms_sorted_by_seq]))`.
 - Transform ordering rule: each transform entry MUST include `seq:uint64`; `transforms_sorted_by_seq` sorts ascending by `seq` (ties are deterministic failure).
 - `object_type` domain (normative): one of `{ "dataset", "transform", "split", "artifact", "policy", "checkpoint" }`.
 - `object_id` domain (normative): content-addressed identifier of the lineage object payload in its namespace.
-- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object_v1", [object_type, object_id, payload]]))`.
+- `lineage_object_hash = SHA-256(CBOR_CANONICAL(["lineage_object", [object_type, object_id, payload]]))`.
   - `payload` is the canonical CBOR serialization of the lineage object's committed content.
 - `lineage_root_hash` uses deterministic Merkle construction:
   - leaf list: sorted by `(object_type, object_id)` ascending,
-  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf_v1", [object_type_i, object_id_i, lineage_object_hash_i]]))`,
-  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node_v1", [left, right]]))`,
+  - leaf hash: `leaf_i = SHA-256(CBOR_CANONICAL(["lineage_leaf", [object_type_i, object_id_i, lineage_object_hash_i]]))`,
+  - parent hash: `node = SHA-256(CBOR_CANONICAL(["lineage_node", [left, right]]))`,
   - odd-leaf rule: duplicate last leaf.
 
 ---
@@ -142,28 +142,28 @@
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Data.BuildSnapshot_v1`
-- `UML_OS.Data.ComputeLineageHash_v1`
-- `UML_OS.Data.ValidateSnapshot_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Data.BuildSnapshot`
+- `Glyphser.Data.ComputeLineageHash`
+- `Glyphser.Data.ValidateSnapshot`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Data.ValidateSnapshot_v1`  
+**Operator:** `Glyphser.Data.ValidateSnapshot`  
 **Category:** Data  
 **Signature:** `(source_refs, transform_chain, split_defs, access_plan_inputs -> validation_report)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** validates source immutability, split-def consistency, transform-chain integrity, and namespace constraints before snapshot build.
 
-**Operator:** `UML_OS.Data.ComputeLineageHash_v1`  
+**Operator:** `Glyphser.Data.ComputeLineageHash`  
 **Category:** Data  
 **Signature:** `(tenant_id, source_refs, transform_chain, split_defs -> transform_chain_hash, split_hashes, lineage_root_hash)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
 **Definition:** computes canonical lineage commitments (`transform_chain_hash`, `split_hashes`, and `lineage_root_hash`) from sorted canonical inputs.
 
-**Operator:** `UML_OS.Data.BuildSnapshot_v1`  
+**Operator:** `Glyphser.Data.BuildSnapshot`  
 **Category:** Data  
 **Signature:** `(source_refs, transform_chain, split_defs, access_plan_inputs -> dataset_snapshot_id, data_access_plan_hash)`  
 **Purity class:** IO  
@@ -173,9 +173,9 @@
 ---
 ## 6) Procedure
 ```text
-1. ValidateSnapshot_v1(inputs)
-2. ComputeLineageHash_v1
-3. BuildSnapshot_v1
+1. ValidateSnapshot(inputs)
+2. ComputeLineageHash
+3. BuildSnapshot
 4. Return dataset_snapshot_id + data_access_plan_hash + lineage_report
 ```
 

@@ -1,9 +1,9 @@
-# UML_OS SRE Incident Triage Playbook
+# Glyphser SRE Incident Triage Playbook
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Operations.SREIncidentTriage_v1`  
+**Algorithm:** `Glyphser.Operations.SREIncidentTriage`  
 **Purpose (1 sentence):** Define deterministic incident triage and remediation workflow for runtime, replay, storage, and governance failures.  
-**Spec Version:** `UML_OS.Operations.SREIncidentTriage_v1` | 2026-02-19 | Authors: Olejar Damir  
+**Spec Version:** `Glyphser.Operations.SREIncidentTriage` | 2026-02-19 | Authors: Olejar Damir  
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Production reliability operations.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Operations.SREIncidentTriage_v1`
+- **Algorithm:** `Glyphser.Operations.SREIncidentTriage`
 - **Purpose (1 sentence):** Deterministic incident triage and escalation contract.
 ### 0.A Objective Semantics
 - minimize MTTR while preserving evidence integrity.
@@ -27,12 +27,12 @@
 - incident analysis uses frozen evidence artifacts only.
 ### 0.G Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Operations.ClassifyIncident_v1`
-- `UML_OS.Operations.RunTriageChecklist_v1`
-- `UML_OS.Operations.EmitRemediationPlan_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Operations.ClassifyIncident`
+- `Glyphser.Operations.RunTriageChecklist`
+- `Glyphser.Operations.EmitRemediationPlan`
+- `Glyphser.Error.Emit`
 ### 0.H Namespacing and Packaging
-- `UML_OS.Operations.*` namespace.
+- `Glyphser.Operations.*` namespace.
 ### 0.I Outputs and Metric Schema
 - outputs: `(incident_report, triage_verdict, remediation_plan)`.
 ### 0.J Spec Lifecycle Governance
@@ -64,14 +64,14 @@
 ---
 ## 4) Referenced Operators (Template-only)
 - Template-only: listed operators are roadmap entry-points and are non-normative until each has a contract definition and a registry row.
-- `UML_OS.Operations.ClassifyIncident_v1`
-- `UML_OS.Operations.RunTriageChecklist_v1`
-- `UML_OS.Operations.EmitRemediationPlan_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Operations.ClassifyIncident`
+- `Glyphser.Operations.RunTriageChecklist`
+- `Glyphser.Operations.EmitRemediationPlan`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-**Operator:** `UML_OS.Operations.RunTriageChecklist_v1`  
+**Operator:** `Glyphser.Operations.RunTriageChecklist`  
 **Signature:** `(incident_class, evidence -> triage_findings)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  

@@ -1,6 +1,6 @@
 # Astrocytech Conformance Kit
 
-Internal Codename: **UML_OS**
+Internal Codename: **Glyphser**
 
 This repository contains the deterministic runtime specifications, capability contracts, and conformance tooling for the Astrocytech ecosystem.
 

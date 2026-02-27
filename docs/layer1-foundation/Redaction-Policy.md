@@ -1,9 +1,9 @@
-# UML_OS Redaction Policy Contract
+# Glyphser Redaction Policy Contract
 **EQC Compliance:** Merged single-file EQC v1.1 Option A.
 
-**Algorithm:** `UML_OS.Security.RedactionPolicy_v1`
+**Algorithm:** `Glyphser.Security.RedactionPolicy`
 **Purpose (1 sentence):** Define deterministic field-level redaction rules that preserve verifiability while preventing sensitive leakage.
-**Spec Version:** `UML_OS.Security.RedactionPolicy_v1` | 2026-02-20 | Authors: Olejar Damir
+**Spec Version:** `Glyphser.Security.RedactionPolicy` | 2026-02-20 | Authors: Olejar Damir
 **Normativity Legend:** `docs/layer1-foundation/Normativity-Legend.md`
 
 **Domain / Problem Class:** Deterministic privacy-preserving telemetry transformation.
@@ -11,7 +11,7 @@
 ---
 ## 1) Header & Global Semantics
 ### 0.0 Identity
-- **Algorithm:** `UML_OS.Security.RedactionPolicy_v1`
+- **Algorithm:** `Glyphser.Security.RedactionPolicy`
 - **Purpose:** Deterministic redaction contract for trace and governance records.
 
 ### 0.A Objective Semantics
@@ -49,13 +49,13 @@
 - `redaction_key_id` must map to stable key bits for replay windows.
 
 ### 0.G Operator Manifest
-- `UML_OS.Security.RedactRecord_v1`
-- `UML_OS.Security.ComputeRedactionPolicyHash_v1`
-- `UML_OS.Security.ValidateRedactionCoverage_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.RedactRecord`
+- `Glyphser.Security.ComputeRedactionPolicyHash`
+- `Glyphser.Security.ValidateRedactionCoverage`
+- `Glyphser.Error.Emit`
 
 ### 0.H Namespacing and Packaging
-- `UML_OS.Security.*` namespace.
+- `Glyphser.Security.*` namespace.
 
 ### 0.I Outputs and Metric Schema
 - Outputs: `(redacted_record, redaction_audit)`.
@@ -80,8 +80,8 @@
 - Any change in field-path representation, transform semantics, preimage format, or bucketization is MAJOR.
 
 ### 0.K Failure and Error Semantics
-- On fatal error, `RedactRecord_v1` MUST NOT return outputs.
-- It MUST emit deterministic `CONTRACT_VIOLATION` via `UML_OS.Error.Emit_v1` with reason code.
+- On fatal error, `RedactRecord` MUST NOT return outputs.
+- It MUST emit deterministic `CONTRACT_VIOLATION` via `Glyphser.Error.Emit` with reason code.
 - Fatal reasons include:
   - `POLICY_NOT_FOUND`
   - `KEY_NOT_FOUND`
@@ -152,7 +152,7 @@ Policy object (loaded by `redaction_policy_hash`) must contain:
 - `policy_rules:map` (reserved in v1; implementations MUST ignore entries for forward compatibility)
 - `field_classification_map:map<FieldPath, classification>`
 - `field_transform_map:map<FieldPath, transform>` (optional overrides)
-- `preimage_format_id:tstr` (v1 requires `redaction_v1`)
+- `preimage_format_id:tstr` (v1 requires `redaction`)
 - `key_policy:map` with:
   - `allowed_key_ids:array<tstr>`
   - v1 implementations MUST ignore unknown `key_policy` fields for forward compatibility.
@@ -181,7 +181,7 @@ Canonical field value:
 - Canonical CBOR reference: RFC 8949 deterministic encoding + project Canonical-CBOR profile.
 
 HMAC preimage:
-- `CBOR_CANONICAL(["redaction_v1", [schema_version, field_path, field_value_canonical]])`.
+- `CBOR_CANONICAL(["redaction", [schema_version, field_path, field_value_canonical]])`.
 - HMAC output MUST be encoded in output record as CBOR byte string length 32.
 
 Bucketization (`BUCKET_V1`):
@@ -215,29 +215,29 @@ These fields are mandatory at top-level paths and must remain unredacted:
 - `["execution_certificate_hash"]`
 
 ### II.I Policy Hash Definition
-- `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy_v1", [policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules]]))`.
+- `redaction_policy_hash = SHA-256(CBOR_CANONICAL(["redaction_policy", [policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules]]))`.
 
 ---
 ## 3) Initialization
 1. Load schema from schema registry by `schema_version`.
 2. Load policy by `redaction_policy_hash`.
 3. Load key metadata by `redaction_key_id`; verify time window using Unix epoch seconds (UTC) integer comparison.
-4. Verify `preimage_format_id == "redaction_v1"`; else abort with `INVALID_PREIMAGE_FORMAT`.
+4. Verify `preimage_format_id == "redaction"`; else abort with `INVALID_PREIMAGE_FORMAT`.
 5. Verify `redaction_key_id` is in `key_policy.allowed_key_ids`; else abort with `KEY_NOT_AUTHORIZED`.
-6. Run `ValidateRedactionCoverage_v1`; abort on failure.
+6. Run `ValidateRedactionCoverage`; abort on failure.
 
 ---
 ## 4) Operator Manifest
-- `UML_OS.Security.RedactRecord_v1`
-- `UML_OS.Security.ComputeRedactionPolicyHash_v1`
-- `UML_OS.Security.ValidateRedactionCoverage_v1`
-- `UML_OS.Error.Emit_v1`
+- `Glyphser.Security.RedactRecord`
+- `Glyphser.Security.ComputeRedactionPolicyHash`
+- `Glyphser.Security.ValidateRedactionCoverage`
+- `Glyphser.Error.Emit`
 
 ---
 ## 5) Operator Definitions
-External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-foundation/Error-Codes.md`.
+External operator reference: `Glyphser.Error.Emit` is defined in `docs/layer1-foundation/Error-Codes.md`.
 
-**Operator:** `UML_OS.Security.RedactRecord_v1`
+**Operator:** `Glyphser.Security.RedactRecord`
 - **Category:** Security
 - **Signature:** `(record_blob, schema_version, redaction_mode, redaction_key_id, redaction_policy_hash -> redacted_record, redaction_audit)`
 - **Purity class:** IO
@@ -252,14 +252,14 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
   - Missing mandatory fields cause abort.
   - Output record preserves exact input path presence/absence; only transformed field values differ.
 
-**Operator:** `UML_OS.Security.ComputeRedactionPolicyHash_v1`
+**Operator:** `Glyphser.Security.ComputeRedactionPolicyHash`
 - **Category:** Security
 - **Signature:** `(policy_rules, field_classification_map, field_transform_map, preimage_format_id, key_policy, bucket_rules -> redaction_policy_hash)`
 - **Purity class:** PURE
 - **Determinism:** deterministic
 - **Definition:** Computes hash exactly per Section II.I.
 
-**Operator:** `UML_OS.Security.ValidateRedactionCoverage_v1`
+**Operator:** `Glyphser.Security.ValidateRedactionCoverage`
 - **Category:** Security
 - **Signature:** `(record_schema, redaction_policy_hash -> coverage_report)`
 - **Purity class:** PURE
@@ -285,8 +285,8 @@ External operator reference: `UML_OS.Error.Emit_v1` is defined in `docs/layer1-f
 ## 6) Procedure
 1. Resolve schema by `schema_version` and policy by `redaction_policy_hash`; if schema missing, abort with `SCHEMA_NOT_FOUND`.
 2. Validate key presence, validity window, and key authorization (`redaction_key_id in key_policy.allowed_key_ids`).
-3. Validate `preimage_format_id == "redaction_v1"`.
-4. Run `ValidateRedactionCoverage_v1`.
+3. Validate `preimage_format_id == "redaction"`.
+4. Run `ValidateRedactionCoverage`.
 5. If `coverage_report.valid == false`, abort with first error in lexicographically sorted `coverage_report.errors`.
 6. Transform record deterministically in canonical path order (or parallel with deterministic merge).
 7. Assert mandatory fields present and unredacted.
