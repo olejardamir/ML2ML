@@ -4,6 +4,8 @@ Company: **Astrocytech**
 
 This repository contains the deterministic runtime specifications, capability contracts, and conformance tooling for the Glyphser ecosystem, maintained by Astrocytech.
 
+Independent implementation; no official affiliation or certification claims are made unless explicitly stated.
+
 ## Quick Start
 1. Ensure you have Python 3.12+
 2. Install dependencies: `pip install -e .`

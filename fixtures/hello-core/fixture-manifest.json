@@ -2,8 +2,8 @@
   "files": [
     {
       "path": "fixtures/hello-core/manifest.core.yaml",
-      "sha256": "66538784dcdf67e7c9867c9d9a5cbcb584280a87d8f4d24e483d196717a21901",
-      "size_bytes": 960
+      "sha256": "bae33a12cbc773cd62e5246b434efc38b0967fdf3f02a20d3eb6c19eda890db8",
+      "size_bytes": 959
     },
     {
       "path": "fixtures/hello-core/tiny_synth_dataset.jsonl",

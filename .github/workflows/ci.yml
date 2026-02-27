@@ -1,4 +1,4 @@
-name: Astrocytech CI
+name: Glyphser CI
 on: [push, pull_request]
 jobs:
   build:
@@ -11,3 +11,7 @@ jobs:
           python-version: '3.12'
       - name: Run Smoke Tests
         run: pip install pytest && pytest tests/test_smoke.py
+      - name: Verify Doc Artifacts (Repeat)
+        run: |
+          python tools/verify_doc_artifacts.py
+          python tools/verify_doc_artifacts.py
