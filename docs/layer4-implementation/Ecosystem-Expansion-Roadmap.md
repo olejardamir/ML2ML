@@ -133,7 +133,7 @@
 
 ### II.P MLOps Toolchain Integration (27)
 - Kubeflow component wrappers.
-- Airflow operators (`GLYPHSERRunOperator`, certificate wait operators).
+- Airflow operators (`GlyphserRunOperator`, certificate wait operators).
 - MLflow project flavor integration.
 
 ### II.Q Emerging Hardware Adaptation (28)

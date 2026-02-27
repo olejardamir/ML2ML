@@ -1,5 +1,5 @@
 [project]
-name = "astrocytech-conformance-kit"
+name = "glyphser"
 version = "0.1.0"
 description = "Deterministic runtime and conformance verification suite for ML2ML."
 requires-python = ">=3.12"

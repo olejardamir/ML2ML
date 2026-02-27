@@ -1,8 +1,8 @@
-# Astrocytech Conformance Kit
+# Glyphser
 
-Internal Codename: **Glyphser**
+Company: **Astrocytech**
 
-This repository contains the deterministic runtime specifications, capability contracts, and conformance tooling for the Astrocytech ecosystem.
+This repository contains the deterministic runtime specifications, capability contracts, and conformance tooling for the Glyphser ecosystem, maintained by Astrocytech.
 
 ## Quick Start
 1. Ensure you have Python 3.12+

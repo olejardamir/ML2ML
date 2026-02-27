@@ -2,7 +2,7 @@
 import sys
 
 def main():
-    print("ASTROCYTECH TOOL: build_operator_registry.py")
+    print("Glyphser tool: build_operator_registry.py")
     print("STATUS: NOT IMPLEMENTED YET")
     print("PURPOSE: Compiles the CBOR operator registry from source contracts.")
     sys.exit(0)
