@@ -118,7 +118,7 @@ Migration: update manifest operator versions and replay_token.
   - Driver (deterministic device primitives)
   - Runtime (pinned dependencies)
   - Module (verified operator packages)
-  - Daemon (mandatory in managed, confidential, regulated modes or when Glyphser_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at Glyphser_ROOT, deterministic scheduling (job_priority + FIFO + SHA-256(CBOR_CANONICAL(["daemon_sched", [manifest_hash, hardware_attest_id, job_id]])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/checkpoints/tapes/lineage plus persisted kernel namespace state) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `docs/layer2-specs/TMMU-Allocation.md` (`MapToVirtualAddresses`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation for traced tensors and contract-critical buffers. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
+  - Daemon (mandatory in managed, confidential, regulated modes or when GLYPHSER_ROOT shared or world_size > 1; optional/in-process in local): Central OS service layer. Owns immutable CAS at GLYPHSER_ROOT, deterministic scheduling (job_priority + FIFO + SHA-256(CBOR_CANONICAL(["daemon_sched", [manifest_hash, hardware_attest_id, job_id]])) for reproducible allocation), launches isolated per-job process/Pod with namespace isolation (RNG/checkpoints/tapes/lineage plus persisted kernel namespace state) and explicit tensor.zero_() + sync barriers on every boundary, enforces quotas/RBAC/audits, coordinates TEE quotes and heterogeneous drivers. In local mode Bootstrap embeds equivalent in-process functionality (identical contracts, replay_token, fingerprints, certificate). Deployable as single binary or K8s operator. The daemon also registers the Tensor Memory Management Unit (TMMU) that exclusively owns and controls every tensor pointer across the job lifetime. Allocations, frees, device-to-device transfers and zeroing occur only via TMMU. Addressing is arena/offset based (injective deterministic layout) as delegated to `docs/layer2-specs/TMMU-Allocation.md` (`MapToVirtualAddresses`) and versioned there. TMMU performs static liveness analysis on UML_Model_IR (shapes known) to enable deterministic slot reuse within safety margins; enforces tensor.zero_() + synchronization barriers on every stage, job, and namespace boundary for isolation; blocks any backend direct allocation for traced tensors and contract-critical buffers. This guarantees identical virtual address plans and deterministic layout decisions within a declared hardware/driver equivalence class.
   - Management (CLI entrypoints)
   - User (manifests only)
 - Filesystem roots:
@@ -126,7 +126,7 @@ Migration: update manifest operator versions and replay_token.
   - `/namespaces/<tenant_id>/<run_id>/`
   - `/jobs/queue/`
 - Namespace path: `/<tenant_id>/<run_id>` where `run_id = hex(SHA-256(CBOR_CANONICAL([tenant_id, replay_token]))[0:8])` (16 hex chars).
-- `Glyphser_ROOT` is a required immutable run-scoped root URI/path (`file://`, `s3://`, `gcs://`, or absolute local path), fixed at daemon startup.
+- `GLYPHSER_ROOT` is a required immutable run-scoped root URI/path (`file://`, `s3://`, `gcs://`, or absolute local path), fixed at daemon startup.
 
 ### 0.P Bootstrap
 - Single entrypoint: `Glyphser.OS.Bootstrap`
@@ -840,7 +840,7 @@ State transition table (normative):
 **Signature:** `(logical_path, namespace -> absolute_path)`  
 **Purity class:** PURE  
 **Determinism:** deterministic  
-**Definition:** resolves canonical namespace-bound path under `Glyphser_ROOT`.  
+**Definition:** resolves canonical namespace-bound path under `GLYPHSER_ROOT`.  
 **Preconditions / Postconditions:** namespace exists and caller authorized.  
 **Edge cases:** invalid traversal (`..`) or missing namespace path.  
 **Numerical considerations:** N/A.  
