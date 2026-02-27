@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+.venv/
+build/
+dist/
+
+# Project Specific
+temp/
+semantic_lint_report.txt
+semantic_lint_high_confidence.txt
+merged_docs.txt
+
+# OS
+.DS_Store
