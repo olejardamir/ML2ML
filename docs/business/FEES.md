@@ -3,9 +3,7 @@
 Status: DRAFT
 
 ## Unavoidable Near-Term Fees
-- Domain renewals and DNS (if/when due).
-- Email/hosting (if/when public site and contact are enabled).
-- Basic tooling or compliance fees (if required by a customer engagement).
+- None identified yet.
 
 ## Optional / Deferrable
 - Incorporation fees (only if Track B is activated).

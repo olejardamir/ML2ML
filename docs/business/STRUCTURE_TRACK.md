@@ -4,6 +4,7 @@ Status: DRAFT
 
 ## Track Selection
 - Selected: Track A (sole proprietorship). Track B is a fallback if program requirements or customers require incorporation.
+- Last reviewed: 2026-02-27
 
 ## Track A: Sole Proprietorship (Selected)
 - Use for speed and minimal admin.
