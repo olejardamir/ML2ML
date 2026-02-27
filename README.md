@@ -2,6 +2,8 @@
 
 Company: **Astrocytech**
 
+![Glyphser logo](assets/glyphser3.svg)
+
 Conformance: PASS (local)
 Hello-core: PASS (local)
 Release bundle: PASS (local)
