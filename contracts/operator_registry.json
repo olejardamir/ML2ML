@@ -1,0 +1,53 @@
+{
+  "operator_records": [
+    {
+      "allowed_error_codes": [
+        "CONTRACT_VIOLATION"
+      ],
+      "deprecated": false,
+      "determinism_class": "DETERMINISTIC",
+      "idempotent": false,
+      "method": "CALL",
+      "operator_id": "Glyphser.Data.NextBatch",
+      "owner_team": "ml-core",
+      "purity_class": "STATEFUL",
+      "request_schema_digest": "sha256:schema.request.minimal",
+      "required_capabilities": [
+        "CAP_TRACE_WRITE"
+      ],
+      "response_schema_digest": "sha256:schema.response.minimal",
+      "rng_usage": "PHILOX4x32_10",
+      "side_effects": [
+        "ADVANCES_CURSOR",
+        "ADVANCES_RNG"
+      ],
+      "signature_digest": "hex:dab300a68e535a462440b0a8073a3b9f4e4c039ad3fd99ff30ae97d1228bb3be",
+      "surface": "SYSCALL",
+      "version": "v2"
+    },
+    {
+      "allowed_error_codes": [
+        "CATALOG_HASH_MISMATCH",
+        "CONTRACT_VIOLATION"
+      ],
+      "deprecated": false,
+      "determinism_class": "DETERMINISTIC",
+      "idempotent": true,
+      "method": "CALL",
+      "operator_id": "Glyphser.Registry.ValidateOperatorRegistry",
+      "owner_team": "governance",
+      "purity_class": "PURE",
+      "request_schema_digest": "sha256:schema.request.minimal",
+      "required_capabilities": [
+        "CAP_REGISTRY_VALIDATE"
+      ],
+      "response_schema_digest": "sha256:schema.response.minimal",
+      "rng_usage": "NONE",
+      "side_effects": [],
+      "signature_digest": "hex:04ce2cda4ccb6b8ba6484ebb2c889a01ff9cfe96b34331b7bf52f925d623984a",
+      "surface": "SYSCALL",
+      "version": "v1"
+    }
+  ],
+  "registry_schema_version": 1
+}

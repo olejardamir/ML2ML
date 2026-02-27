@@ -5,38 +5,96 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+from src.glyphser.certificate.build import write_execution_certificate
+from src.glyphser.checkpoint.write import save_checkpoint
+from src.glyphser.data.next_batch import next_batch
+from src.glyphser.model.model_ir_executor import execute
+from src.glyphser.trace.trace_sidecar import compute_trace_hash, write_trace
 
-FIXTURE_MANIFEST = ROOT / "docs" / "examples" / "hello-core" / "manifest.core.yaml"
+ROOT = Path(__file__).resolve().parents[1]
+FIXTURES = ROOT / "fixtures" / "hello-core"
 GOLDEN = ROOT / "docs" / "examples" / "hello-core" / "hello-core-golden.json"
 
 
+def _load_dataset(path: Path) -> list[dict]:
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        rows.append(json.loads(line))
+    return rows
+
+
 def main() -> int:
-    # NOTE: This is a stub aligned with docs/START-HERE.md.
-    if not FIXTURE_MANIFEST.exists():
-        print(f"missing fixture manifest: {FIXTURE_MANIFEST}")
-        return 1
     if not GOLDEN.exists():
         print(f"missing golden file: {GOLDEN}")
         return 1
 
+    dataset_path = FIXTURES / "tiny_synth_dataset.jsonl"
+    model_ir_path = FIXTURES / "model_ir.json"
+    if not dataset_path.exists() or not model_ir_path.exists():
+        print("missing fixture inputs in fixtures/hello-core")
+        return 1
+
+    dataset = _load_dataset(dataset_path)
+    model_ir = json.loads(model_ir_path.read_text(encoding="utf-8"))
+
+    cursor = 0
+    batch, cursor = next_batch(dataset, cursor, batch_size=1)
+    if not batch:
+        print("empty batch")
+        return 1
+
+    inputs = batch[0]["x"]
+    outputs = execute(model_ir, inputs)
+
+    trace_records = [
+        {
+            "t": 0,
+            "operator_id": "Glyphser.Model.Forward",
+            "inputs": inputs,
+            "outputs": outputs,
+        }
+    ]
+
+    trace_path = FIXTURES / "trace.json"
+    trace_hash = write_trace(trace_records, trace_path)
+
+    checkpoint_state = {"theta": outputs, "step": 0}
+    checkpoint_path = FIXTURES / "checkpoint.json"
+    checkpoint_hash = save_checkpoint(checkpoint_state, checkpoint_path)
+
+    evidence = {
+        "trace_final_hash": trace_hash,
+        "checkpoint_hash": checkpoint_hash,
+    }
+    certificate_path = FIXTURES / "execution_certificate.json"
+    certificate_hash = write_execution_certificate(evidence, certificate_path)
+
+    interface_hash = json.loads(
+        (ROOT / "contracts" / "interface_hash.json").read_text(encoding="utf-8")
+    )["interface_hash"]
+
     golden = json.loads(GOLDEN.read_text(encoding="utf-8"))
-    expected = {
-        "trace_final_hash": golden.get("trace_final_hash"),
-        "certificate_hash": golden.get("certificate_hash"),
-        "interface_hash": golden.get("interface_hash"),
+    expected = golden["expected_identities"]
+
+    results = {
+        "trace_final_hash": trace_hash,
+        "certificate_hash": certificate_hash,
+        "interface_hash": interface_hash,
     }
 
-    print("Glyphser hello-core: STUB")
-    print(f"fixture_manifest: {FIXTURE_MANIFEST}")
-    print("expected_identities:")
-    for k, v in expected.items():
-        print(f"  {k}: {v}")
+    print("Glyphser hello-core: RUN")
+    print(json.dumps(results, indent=2, sort_keys=True))
 
-    print("\nTODO:")
-    print("- Execute minimal reference stack (WAL -> trace -> checkpoint -> certificate -> replay check)")
-    print("- Compute deterministic identities and compare against expected")
-    return 0
+    ok = True
+    for key, expected_value in expected.items():
+        actual_value = results.get(key)
+        if actual_value != expected_value:
+            print(f"MISMATCH {key}: expected={expected_value} got={actual_value}")
+            ok = False
+
+    return 0 if ok else 2
 
 
 if __name__ == "__main__":
