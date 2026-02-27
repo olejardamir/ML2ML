@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "vectors": [
+    {
+      "id": "empty-map",
+      "input_json": {},
+      "expected_cbor_hex": "a0",
+      "notes": "Empty map canonical CBOR."
+    },
+    {
+      "id": "empty-array",
+      "input_json": [],
+      "expected_cbor_hex": "80",
+      "notes": "Empty array canonical CBOR."
+    },
+    {
+      "id": "integer-zero",
+      "input_json": 0,
+      "expected_cbor_hex": "00",
+      "notes": "Unsigned zero."
+    },
+    {
+      "id": "text-hello",
+      "input_json": "hello",
+      "expected_cbor_hex": "6568656c6c6f",
+      "notes": "Text string."
+    }
+  ]
+}
