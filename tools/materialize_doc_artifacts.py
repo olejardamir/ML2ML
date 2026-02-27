@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import struct
 import sys
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,8 @@ def cbor_encode(obj: Any) -> bytes:
     if isinstance(obj, str):
         b = obj.encode("utf-8")
         return _enc_uint(3, len(b)) + b
+    if isinstance(obj, float):
+        return b"\xfb" + struct.pack(">d", obj)
     if isinstance(obj, (list, tuple)):
         out = [_enc_uint(4, len(obj))]
         for x in obj:
@@ -333,11 +336,23 @@ def materialize() -> None:
     }
     write_text(fixtures_dir / "fixture-manifest.json", json.dumps(fixture_manifest, indent=2, sort_keys=True) + "\n")
 
+    def record_hash(record: dict[str, Any]) -> str:
+        return sha256_hex(cbor_encode(record))
+
+    dataset = [json.loads(line) for line in (fixtures_dir / "tiny_synth_dataset.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+    batch = dataset[0]
+    model_ir = json.loads((fixtures_dir / "model_ir.json").read_text(encoding="utf-8"))
+    inputs = batch["x"]
+    outputs = [x * float(model_ir.get("scale", 1.0)) + float(model_ir.get("bias", 0.0)) for x in inputs]
+
+    base_records = [
+        {"step": 1, "operator_id": "Glyphser.Data.NextBatch", "batch": batch},
+        {"step": 1, "operator_id": "Glyphser.Model.ModelIR_Executor", "inputs": inputs, "outputs": outputs},
+    ]
     trace_snippet = {
         "run_id": "hello-core-run-v1",
         "records": [
-            {"step": 1, "operator_id": "Glyphser.Data.NextBatch", "event_hash": "9f4af21c3f1f6f0f6b95c6154312ecfda4f0a77e8626ced6f1938ad4b3f6f2a0"},
-            {"step": 1, "operator_id": "Glyphser.Model.ModelIR_Executor", "event_hash": "b61d2e4de12799d86659895b3ee2ef9b4f14f183de6a2728e6017b1979b7e6c5"},
+            {**record, "event_hash": record_hash(record)} for record in base_records
         ],
     }
     checkpoint_header = {
@@ -346,7 +361,8 @@ def materialize() -> None:
         "manifest_hash": sha256_hex((fixtures_dir / "manifest.core.yaml").read_bytes()),
         "operator_registry_root_hash": operator_registry_root_hash,
     }
-    trace_final_hash = sha256_hex(canonical_json_bytes(trace_snippet))
+    from src.glyphser.trace.compute_trace_hash import compute_trace_hash  # noqa: E402
+    trace_final_hash = compute_trace_hash(trace_snippet["records"])
     execution_certificate = {
         "certificate_id": "hello-core-cert-v1",
         "run_id": "hello-core-run-v1",

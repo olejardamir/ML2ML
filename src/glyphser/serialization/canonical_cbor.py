@@ -1,6 +1,7 @@
 """Canonical CBOR encoding (minimal, deterministic subset)."""
 from __future__ import annotations
 
+import struct
 from typing import Any
 
 
@@ -34,6 +35,8 @@ def encode_canonical(obj: Any) -> bytes:
     if isinstance(obj, str):
         b = obj.encode("utf-8")
         return _enc_uint(3, len(b)) + b
+    if isinstance(obj, float):
+        return b"\xfb" + struct.pack(">d", obj)
     if isinstance(obj, (list, tuple)):
         out = [_enc_uint(4, len(obj))]
         for item in obj:

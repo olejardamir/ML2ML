@@ -13,6 +13,8 @@ from src.glyphser.certificate.build import write_execution_certificate  # noqa: 
 from src.glyphser.checkpoint.write import save_checkpoint  # noqa: E402
 from src.glyphser.data.next_batch import next_batch  # noqa: E402
 from src.glyphser.model.model_ir_executor import execute  # noqa: E402
+from src.glyphser.trace.compute_trace_hash import compute_trace_hash  # noqa: E402
+from src.glyphser.serialization.canonical_cbor import encode_canonical  # noqa: E402
 from src.glyphser.trace.trace_sidecar import write_trace  # noqa: E402
 
 FIXTURES = ROOT / "fixtures" / "hello-core"
@@ -36,6 +38,10 @@ def _load_dataset(path: Path) -> list[dict]:
     return rows
 
 
+def _record_hash(record: dict) -> str:
+    return _sha256_hex(encode_canonical(record))
+
+
 def main() -> int:
     if not GOLDEN.exists():
         print(f"missing golden file: {GOLDEN}")
@@ -57,27 +63,17 @@ def main() -> int:
         return 1
 
     inputs = batch[0]["x"]
-    _ = execute(model_ir, inputs)
+    outputs = execute(model_ir, inputs)
 
-    trace_snippet = {
-        "run_id": "hello-core-run-v1",
-        "records": [
-            {
-                "step": 1,
-                "operator_id": "Glyphser.Data.NextBatch",
-                "event_hash": "9f4af21c3f1f6f0f6b95c6154312ecfda4f0a77e8626ced6f1938ad4b3f6f2a0",
-            },
-            {
-                "step": 1,
-                "operator_id": "Glyphser.Model.ModelIR_Executor",
-                "event_hash": "b61d2e4de12799d86659895b3ee2ef9b4f14f183de6a2728e6017b1979b7e6c5",
-            },
-        ],
-    }
+    base_records = [
+        {"step": 1, "operator_id": "Glyphser.Data.NextBatch", "batch": batch[0]},
+        {"step": 1, "operator_id": "Glyphser.Model.ModelIR_Executor", "inputs": inputs, "outputs": outputs},
+    ]
+    trace_records = [{**rec, "event_hash": _record_hash(rec)} for rec in base_records]
 
     trace_path = FIXTURES / "trace.json"
-    _ = write_trace(trace_snippet["records"], trace_path)
-    trace_final_hash = _sha256_hex(_canonical_json_bytes(trace_snippet))
+    _ = write_trace(trace_records, trace_path)
+    trace_final_hash = compute_trace_hash(trace_records)
 
     manifest_hash = _sha256_hex((FIXTURES / "manifest.core.yaml").read_bytes())
     operator_registry_root_hash = json.loads(

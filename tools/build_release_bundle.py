@@ -25,6 +25,8 @@ def main() -> int:
         ROOT / "fixtures" / "hello-core",
         ROOT / "goldens" / "hello-core",
         ROOT / "conformance" / "results" / "latest.json",
+        ROOT / "conformance" / "reports" / "latest.json",
+        ROOT / "docs" / "VERIFY.md",
     ]
 
     with tarfile.open(bundle, "w:gz") as tf:
